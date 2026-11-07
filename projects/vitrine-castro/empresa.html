@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E1428">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<title>Área da Empresa – Vitrine Castro</title>
+<link rel="icon" type="image/png" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>(function(){try{var t=JSON.parse(localStorage.getItem("gira_tema"));if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<style>
+:root{--azul:#0E1428;--azul2:#1F2B57;--ouro:#D4A537;--txt:#0b1a45;--cinza:#4a5578;--verde:#0F7A3A;--verm:#B3121A;--creme:#FAF6EC;--fundo:#e9e3d3;--card:#fff;--suave:#efe8d4;--borda:#d9cfb3;--ink-ouro:#7A6531}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--txt:#ECE6D6;--cinza:#AEB5CB;--verde:#4ADE80;--verm:#FF8A8A;--creme:#0B1020;--fundo:#05080F;--card:#141A2E;--suave:#222A47;--borda:#39416A;--ink-ouro:#E9C766}}
+:root[data-theme="dark"]{--txt:#ECE6D6;--cinza:#AEB5CB;--verde:#4ADE80;--verm:#FF8A8A;--creme:#0B1020;--fundo:#05080F;--card:#141A2E;--suave:#222A47;--borda:#39416A;--ink-ouro:#E9C766}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
+body{font-family:Poppins,system-ui,sans-serif;background:var(--fundo);color:var(--txt);line-height:1.4}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:3px solid var(--ouro);outline-offset:2px}
+.app{max-width:560px;margin:0 auto;min-height:100vh;background:var(--creme);padding-bottom:40px}
+header{background:var(--azul);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 16px 16px;border-radius:0 0 24px 24px;display:flex;align-items:center;gap:10px}
+header .v{font-family:Montserrat,Poppins,sans-serif;font-size:1.4rem;font-weight:800}
+header .c{font-family:Montserrat,Poppins,sans-serif;font-size:1.4rem;font-weight:800;color:var(--ouro)}
+header small{display:block;color:#E8D9A8;font-size:.78rem;letter-spacing:1px}
+header .sair{margin-left:auto;background:rgba(255,255,255,.1);color:#fff;border:0;border-radius:12px;min-height:44px;padding:0 14px;font-weight:600;cursor:pointer}
+main{padding:16px}
+.card{background:var(--card);border-radius:18px;padding:16px;box-shadow:0 3px 12px rgba(0,0,0,.07);margin-bottom:14px}
+h2{font-size:1.25rem;margin-bottom:6px}
+h3{font-size:1.05rem}
+p.sub{color:var(--cinza);font-size:.92rem}
+label{display:block;font-size:.9rem;font-weight:600;margin:12px 0 5px}
+.inp{width:100%;border:2px solid var(--borda);border-radius:12px;padding:10px 14px;min-height:50px;font-size:1rem;background:var(--card);color:var(--txt);outline:0}
+.inp:focus{border-color:var(--ouro)}
+textarea.inp{min-height:90px;resize:vertical}
+.ajuda{font-size:.8rem;color:var(--cinza);margin-top:4px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:14px;background:var(--azul);color:#fff;border:0;border-radius:14px;min-height:52px;font-weight:700;font-size:1rem;cursor:pointer;text-decoration:none}
+.btn.ouro{background:linear-gradient(#E9C766,#C9952A);color:var(--azul)}
+.btn.claro{background:var(--suave);color:var(--txt)}
+.btn.verm{background:#fde4e4;color:#a30d12}
+.btn:disabled{opacity:.6;cursor:wait}
+.linha{display:flex;gap:8px}.linha>*{flex:1}
+.abas{display:flex;background:var(--suave);border-radius:14px;padding:4px;margin-bottom:6px}
+.abas button{flex:1;border:0;background:none;min-height:46px;border-radius:10px;font-weight:700;font-size:.95rem;color:var(--txt);cursor:pointer}
+.abas button.on{background:var(--card);box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.status{display:inline-block;border-radius:20px;padding:4px 12px;font-size:.8rem;font-weight:700}
+.status.ok{background:#dff5e7;color:#0d6b31}.status.pend{background:#fff3cd;color:#7a5a00}.status.pausa{background:#eee;color:#555}
+.empresa-top{display:flex;gap:12px;align-items:center}
+.logo{width:64px;height:64px;border-radius:14px;background:var(--azul2);overflow:hidden;flex-shrink:0;display:grid;place-items:center;color:var(--ouro);font-size:1.6rem}
+.logo img{width:100%;height:100%;object-fit:cover}
+.oferta{display:flex;gap:12px;background:var(--card);border-radius:16px;padding:10px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:10px}
+.oferta .ft{width:96px;height:96px;border-radius:12px;background:var(--azul2);overflow:hidden;flex-shrink:0;display:grid;place-items:center;font-size:2rem}
+.oferta .ft img{width:100%;height:100%;object-fit:cover}
+.oferta .tx{flex:1;min-width:0}
+.oferta b{display:block;font-size:1rem}
+.oferta .tag{display:inline-block;background:linear-gradient(#E9C766,#C9952A);color:var(--azul);font-weight:800;border-radius:8px;padding:2px 10px;font-size:.9rem;margin:4px 0}
+.oferta .acoes{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.mini{border:0;border-radius:10px;min-height:44px;padding:0 12px;font-weight:600;font-size:.85rem;cursor:pointer;background:var(--suave);color:var(--txt)}
+.mini.az{background:var(--azul);color:#fff}.mini.vm{background:#fde4e4;color:#a30d12}.mini.ou{background:var(--ouro);color:var(--azul)}
+.previa{margin-top:8px;border-radius:14px;overflow:hidden;background:var(--suave);aspect-ratio:16/10;display:grid;place-items:center;color:var(--cinza);font-size:.9rem;text-align:center}
+.previa img{width:100%;height:100%;object-fit:cover}
+.foto-btn{display:flex;align-items:center;justify-content:center;gap:8px;border:2px dashed #c9b98a;border-radius:14px;min-height:56px;font-weight:700;color:var(--txt);cursor:pointer;background:var(--card);margin-top:8px}
+.foto-btn:focus-within{outline:3px solid var(--ouro);outline-offset:2px}
+.foto-btn input{position:absolute;opacity:0;width:1px;height:1px}
+.vazio{text-align:center;color:var(--cinza);padding:24px 8px}
+.vazio .e{font-size:2.6rem;display:block}
+.aviso{background:var(--suave);border:1.5px solid #e6cf8d;border-radius:14px;padding:12px;font-size:.92rem;margin-bottom:14px}
+.erro{background:#fde4e4;border:1.5px solid #f2b3b5;color:#7a0b0f;border-radius:12px;padding:10px 12px;font-size:.9rem;margin-top:10px;display:none}
+.modal{position:fixed;inset:0;background:rgba(5,15,50,.6);display:none;align-items:flex-end;justify-content:center;z-index:50}
+.modal.on{display:flex}
+.sheet{background:var(--card);width:100%;max-width:560px;border-radius:24px 24px 0 0;padding:16px 18px calc(22px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto}
+.fechar{display:flex;align-items:center;gap:6px;margin-left:auto;background:var(--suave);color:var(--txt);border:0;border-radius:30px;padding:0 16px;min-height:44px;font-weight:700;cursor:pointer}
+.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translateX(-50%);background:var(--azul);color:#fff;padding:12px 18px;border-radius:30px;font-size:.95rem;opacity:0;transition:.3s;z-index:60;pointer-events:none;max-width:92vw;text-align:center}
+.toast.on{opacity:1}
+.adm h3{margin:14px 0 8px}
+.adm .item{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--borda);flex-wrap:wrap}
+.adm .item .n{flex:1;min-width:140px}
+.adm select{min-height:44px;border-radius:10px;border:1.5px solid var(--borda);background:var(--card);color:var(--txt);padding:0 8px}
+.escondido{display:none}
+.resumo{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.resumo div{background:var(--creme);border:1.5px solid var(--borda);border-radius:14px;padding:10px 4px;text-align:center}
+.resumo b{display:block;font-size:1.3rem}.resumo small{font-size:.75rem;color:var(--cinza)}
+.prev-app{margin-top:14px;border:2px dashed var(--borda);border-radius:16px;padding:12px;background:var(--creme)}
+.prev-app .rot{font-size:.8rem;font-weight:700;color:var(--cinza);margin-bottom:8px;letter-spacing:.5px}
+.pcard{max-width:220px;margin:0 auto;background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 3px 12px rgba(0,0,0,.12)}
+.pcard .im{aspect-ratio:16/10;background:linear-gradient(135deg,#1F2B57,#0E1428);display:grid;place-items:center;color:var(--ouro);font-size:2rem}
+.pcard .im img{width:100%;height:100%;object-fit:cover}
+.pcard .i{padding:8px 10px 0}.pcard .i b{display:block;line-height:1.2}.pcard .i small{color:var(--cinza);font-size:.8rem}
+.pcard .t{margin:8px 10px 10px;background:linear-gradient(#E9C766,#C9952A);color:#0E1428;font-weight:800;border-radius:10px;padding:8px 4px;text-align:center;font-size:1.05rem;word-break:break-word}
+.cont{font-size:.78rem;color:var(--cinza);text-align:right;margin-top:2px}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="42" height="42" aria-hidden="true">
+<path d="M100.0 46.0 Q118.4 19.7 125.3 51.0 Q152.3 33.8 146.7 65.3 Q178.2 59.7 161.0 86.7 Q192.3 93.6 166.0 112.0 Q192.3 130.4 161.0 137.3 Q178.2 164.3 146.7 158.7 Q152.3 190.2 125.3 173.0 Q118.4 204.3 100.0 178.0 Q81.6 204.3 74.7 173.0 Q47.7 190.2 53.3 158.7 Q21.8 164.3 39.0 137.3 Q7.7 130.4 34.0 112.0 Q7.7 93.6 39.0 86.7 Q21.8 59.7 53.3 65.3 Q47.7 33.8 74.7 51.0 Q81.6 19.7 100.0 46.0 Z" fill="#D4A537"/>
+<circle cx="100" cy="112" r="68" fill="#D4A537"/>
+<circle cx="68" cy="66" r="13" fill="#0E1428"/><circle cx="68" cy="66" r="6" fill="#D4A537"/>
+<circle cx="132" cy="66" r="13" fill="#0E1428"/><circle cx="132" cy="66" r="6" fill="#D4A537"/>
+<path d="M100 62 C128 62 146 80 146 104 C146 132 128 156 100 168 C72 156 54 132 54 104 C54 80 72 62 100 62 Z" fill="#0E1428"/>
+<path d="M66 100 Q74 94 84 98 Q76 104 66 100 Z" fill="#F3D27A"/>
+<path d="M134 100 Q126 94 116 98 Q124 104 134 100 Z" fill="#F3D27A"/>
+<path d="M84 104 L100 136 L116 104" fill="none" stroke="#D4A537" stroke-width="11" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M89 134 Q100 130 111 134 L100 146 Z" fill="#F3D27A" stroke="#F3D27A" stroke-width="3" stroke-linejoin="round"/>
+<path d="M100 146 Q99 156 86 157 M100 146 Q101 156 114 157" fill="none" stroke="#D4A537" stroke-width="4" stroke-linecap="round"/>
+<circle cx="80" cy="146" r="2.2" fill="#D4A537"/><circle cx="74" cy="140" r="2.2" fill="#D4A537"/><circle cx="120" cy="146" r="2.2" fill="#D4A537"/><circle cx="126" cy="140" r="2.2" fill="#D4A537"/>
+<g transform="translate(0 -2)"><path d="M72 46 L75 18 L88 32 L100 8 L112 32 L125 18 L128 46 Z" fill="#D4A537" stroke="#0E1428" stroke-width="3" stroke-linejoin="round"/><rect x="71" y="44" width="58" height="9" rx="3" fill="#D4A537" stroke="#0E1428" stroke-width="3"/><circle cx="100" cy="8" r="4.5" fill="#F3D27A"/><circle cx="75" cy="18" r="3.8" fill="#F3D27A"/><circle cx="125" cy="18" r="3.8" fill="#F3D27A"/></g>
+</svg>
+  <div><span class="v">Vitrine</span> <span class="c">Castro</span><small>ÁREA DA EMPRESA</small></div>
+  <button class="sair escondido" id="btnSair" onclick="sair()">Sair</button>
+</header>
+<main id="main"><div class="vazio"><span class="e">⏳</span>Carregando…</div></main>
+<p style="text-align:center"><a href="./" style="color:var(--azul2);font-weight:600">← Voltar para o app</a></p>
+</div>
+
+<div class="modal" id="modal" onclick="if(event.target===this)fechar()"><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Janela" tabindex="-1"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const CATS=[["vest","👕 Vestuário"],["alim","🍔 Alimentação"],["est","💆‍♀️ Estética"],["sau","🩺 Saúde"],["barb","💈 Barbearia"],["pet","🐶 Pet"],["acad","🏋️ Academia"],["auto","🚗 Automotivo"]];
+const RAMOS=["Vestuário","Alimentação","Estética","Saúde","Barbearia","Pet","Academia","Automotivo","Outro"];
+const PLANOS={basico:{nome:"Básico",lim:1},destaque:{nome:"Destaque",lim:3},premium:{nome:"Premium",lim:"ilimitadas"}};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),3000)}
+let focoAntes=null;
+function fechar(){const m=$("#modal");if(!m.classList.contains("on"))return;m.classList.remove("on");document.body.style.overflow="";if(focoAntes&&document.contains(focoAntes))focoAntes.focus()}
+function abrirSheet(h){const m=$("#modal");if(!m.classList.contains("on"))focoAntes=document.activeElement;$("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ✕</button>`+h;m.classList.add("on");document.body.style.overflow="hidden";$("#sheet").scrollTop=0;$("#sheet").focus()}
+document.addEventListener("keydown",e=>{if(e.key!=="Tab"||!$("#modal").classList.contains("on"))return;const f=[...$("#sheet").querySelectorAll("button,a[href],input,select,textarea")].filter(x=>!x.disabled);if(!f.length)return;const a=f[0],z=f[f.length-1];if(e.shiftKey&&(document.activeElement===a||document.activeElement===$("#sheet"))){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}});
+function traduzErro(e){const m=(e&&e.message)||String(e);
+  if(/Invalid login/i.test(m))return"E-mail ou senha incorretos.";
+  if(/already registered/i.test(m))return"Este e-mail já tem conta. Use a aba Entrar.";
+  if(/Email not confirmed/i.test(m))return"Confirme seu e-mail: abra a mensagem que enviamos e clique no link.";
+  if(/at least 6/i.test(m))return"A senha precisa ter pelo menos 6 caracteres.";
+  return m}
+
+if(!window.CONFIG||!CONFIG.SUPABASE_URL||!CONFIG.SUPABASE_ANON_KEY){
+  $("#main").innerHTML=`<div class="card"><h2>⚙️ Falta configurar</h2><p class="sub">Preencha o arquivo <b>config.js</b> com a URL e a chave do Supabase e publique de novo.</p></div>`;
+  throw new Error("config.js vazio");
+}
+const db=supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_ANON_KEY);
+let user=null,empresa=null,ofertas=[],admin=false;
+
+// ===== LOGIN =====
+function telaLogin(modo="entrar"){
+  $("#btnSair").classList.add("escondido");
+  $("#main").innerHTML=`<div class="card">
+   <h2>Bem-vindo, lojista! 👋</h2><p class="sub">Entre para cadastrar sua loja, fotos e promoções no Vitrine Castro.</p>
+   <div class="abas" style="margin-top:14px"><button class="${modo==="entrar"?"on":""}" onclick="telaLogin('entrar')">Entrar</button><button class="${modo==="criar"?"on":""}" onclick="telaLogin('criar')">Criar conta</button></div>
+   <form onsubmit="entrar(event,'${modo}')">
+    <label for="lEmail">E-mail</label><input class="inp" id="lEmail" type="email" autocomplete="email" required>
+    <label for="lSenha">Senha</label><input class="inp" id="lSenha" type="password" autocomplete="${modo==="criar"?"new-password":"current-password"}" minlength="6" required>
+    ${modo==="criar"?'<p class="ajuda">Mínimo de 6 caracteres.</p>':""}
+    <button class="btn" id="btnEntrar">${modo==="criar"?"Criar minha conta":"Entrar"}</button>
+    <div class="erro" id="lErro"></div>
+   </form>
+   ${modo==="entrar"?`<button class="btn claro" onclick="esqueci()">Esqueci minha senha</button>`:""}
+  </div>`;
+}
+async function entrar(ev,modo){ev.preventDefault();const email=$("#lEmail").value.trim(),senha=$("#lSenha").value,b=$("#btnEntrar");b.disabled=true;$("#lErro").style.display="none";
+  try{
+    if(modo==="criar"){
+      const {data,error}=await db.auth.signUp({email,password:senha,options:{emailRedirectTo:location.href.split("#")[0]}});if(error)throw error;
+      if(!data.session){$("#main").innerHTML=`<div class="card"><h2>📧 Confirme seu e-mail</h2><p class="sub">Enviamos um link para <b>${esc(email)}</b>. Abra o e-mail, clique no link e depois volte aqui para entrar.</p><button class="btn" onclick="telaLogin('entrar')">Já confirmei, entrar</button></div>`;return}
+    }else{const {error}=await db.auth.signInWithPassword({email,password:senha});if(error)throw error}
+    await iniciar();
+  }catch(e){$("#lErro").textContent=traduzErro(e);$("#lErro").style.display="block"}finally{b.disabled=false}
+}
+async function esqueci(){const email=($("#lEmail").value||"").trim();if(!email){$("#lErro").textContent="Digite seu e-mail acima primeiro.";$("#lErro").style.display="block";return}
+  const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.href.split("#")[0]});toast(error?traduzErro(error):"Enviamos um link para criar uma nova senha.")}
+async function sair(){await db.auth.signOut();user=null;empresa=null;telaLogin()}
+
+// ===== INÍCIO =====
+async function iniciar(){
+  const {data:{session}}=await db.auth.getSession();
+  if(!session){telaLogin();return}
+  user=session.user;$("#btnSair").classList.remove("escondido");
+  const [{data:emp},{data:adm}]=await Promise.all([db.from("empresas").select("*").eq("dono",user.id).maybeSingle(),db.from("admins").select("user_id").eq("user_id",user.id).maybeSingle()]);
+  empresa=emp;admin=!!adm;
+  if(!empresa){telaCadastroEmpresa();if(admin)painelAdmin(true);return}
+  await carregarOfertas();telaPainel();
+}
+async function carregarOfertas(){const {data,error}=await db.from("ofertas").select("*").eq("empresa_id",empresa.id).order("criado_em",{ascending:false});if(error)toast(traduzErro(error));ofertas=data||[]}
+
+// ===== FOTOS =====
+function comprimir(file,max=1200){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;const r=Math.min(1,max/Math.max(w,h));w=Math.round(w*r);h=Math.round(h*r);
+  const c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(img,0,0,w,h);c.toBlob(b=>b?res(b):rej(new Error("Não foi possível ler a foto")),"image/jpeg",.82);URL.revokeObjectURL(img.src)};
+  img.onerror=()=>rej(new Error("Arquivo de imagem inválido"));img.src=URL.createObjectURL(file)})}
+async function enviarFoto(file,max){const blob=await comprimir(file,max);const nome=`${user.id}/${Date.now()}-${Math.random().toString(36).slice(2,7)}.jpg`;
+  const {error}=await db.storage.from("fotos").upload(nome,blob,{contentType:"image/jpeg",upsert:false});if(error)throw error;
+  return db.storage.from("fotos").getPublicUrl(nome).data.publicUrl}
+function mostrarPrevia(input,alvo){const f=input.files[0];if(!f)return;const u=URL.createObjectURL(f);$(alvo).innerHTML=`<img src="${u}" alt="Prévia da foto">`}
+
+// ===== CADASTRO DA EMPRESA =====
+function formEmpresa(e={}){return `
+  <label for="eNome">Nome da loja</label><input class="inp" id="eNome" required maxlength="80" value="${esc(e.nome)}" placeholder="Ex: VS Store">
+  <label for="eRamo">Ramo</label><select class="inp" id="eRamo">${RAMOS.map(r=>`<option ${r===e.ramo?"selected":""}>${r}</option>`).join("")}</select>
+  <label for="eWhats">WhatsApp da loja</label><input class="inp" id="eWhats" inputmode="tel" maxlength="20" value="${esc(e.whatsapp)}" placeholder="(42) 9 9999-9999">
+  <p class="ajuda">Os clientes vão falar com você por este número.</p>
+  <label for="eEnd">Endereço</label><input class="inp" id="eEnd" maxlength="150" value="${esc(e.endereco)}" placeholder="Rua, número – bairro">
+  <label>Logo da loja</label><div class="previa" id="eLogoPrev" style="aspect-ratio:1/1;width:120px">${e.logo_url?`<img src="${esc(e.logo_url)}" alt="Logo">`:"Sem logo"}</div>
+  <label class="foto-btn">📷 Escolher logo<input type="file" accept="image/*" id="eLogo" onchange="mostrarPrevia(this,'#eLogoPrev')"></label>
+  <div class="erro" id="eErro"></div>`}
+function telaCadastroEmpresa(){$("#main").innerHTML=`<div class="card"><h2>🏪 Cadastre sua loja</h2><p class="sub">Leva 1 minuto. Depois você já pode postar suas promoções.</p>
+  <form onsubmit="salvarEmpresa(event)">${formEmpresa()}<button class="btn ouro" id="eBtn">Cadastrar minha loja</button></form></div><div id="admBox"></div>`}
+async function salvarEmpresa(ev){ev.preventDefault();const b=$("#eBtn");b.disabled=true;$("#eErro").style.display="none";
+  try{
+    const dados={nome:$("#eNome").value.trim(),ramo:$("#eRamo").value,whatsapp:$("#eWhats").value.trim(),endereco:$("#eEnd").value.trim()};
+    const f=$("#eLogo").files[0];if(f)dados.logo_url=await enviarFoto(f,400);
+    const q=empresa?db.from("empresas").update(dados).eq("id",empresa.id):db.from("empresas").insert(dados);
+    const {data,error}=await q.select().single();if(error)throw error;
+    empresa=data;fechar();toast(empresa.aprovada?"✅ Dados salvos!":"✅ Loja cadastrada! Agora poste sua primeira oferta.");await carregarOfertas();telaPainel();
+  }catch(e){$("#eErro").textContent=traduzErro(e);$("#eErro").style.display="block"}finally{b.disabled=false}
+}
+function editarEmpresa(){abrirSheet(`<h2 style="margin-top:8px">Dados da loja</h2><form onsubmit="salvarEmpresa(event)">${formEmpresa(empresa)}<button class="btn" id="eBtn">Salvar</button></form>`)}
+
+// ===== PAINEL =====
+function telaPainel(){
+  const pl=PLANOS[empresa.plano]||PLANOS.basico,ativas=ofertas.filter(o=>o.ativa).length;
+  const whatsAdm=(CONFIG.WHATSAPP||"").replace(/\D/g,"");
+  $("#main").innerHTML=`
+  ${empresa.aprovada?"":`<div class="aviso">⏳ <b>Sua loja está em análise.</b> Você já pode cadastrar as ofertas. Elas aparecem no app assim que a loja for aprovada.${whatsAdm?` <a href="https://wa.me/${whatsAdm}?text=${encodeURIComponent("Olá! Cadastrei a loja "+empresa.nome+" na Área da Empresa do Vitrine Castro.")}" target="_blank" rel="noopener">Avisar pelo WhatsApp</a>`:""}</div>`}
+  <div class="card"><div class="empresa-top"><div class="logo">${empresa.logo_url?`<img src="${esc(empresa.logo_url)}" alt="">`:"🏪"}</div>
+   <div style="flex:1;min-width:0"><h2 style="margin:0">${esc(empresa.nome)}</h2><span class="status ${empresa.aprovada?"ok":"pend"}">${empresa.aprovada?"✓ Aprovada":"Em análise"}</span> <span class="status pausa">Plano ${pl.nome}</span></div></div>
+   <div class="resumo"><div><b style="color:var(--verde)">${ofertas.filter(o=>o.ativa&&!venceu(o)).length}</b><small>no ar</small></div><div><b>${ofertas.filter(o=>!o.ativa).length}</b><small>pausadas</small></div><div><b style="color:var(--verm)">${ofertas.filter(venceu).length}</b><small>vencidas</small></div></div>
+   <p class="sub" style="margin-top:10px">Ofertas ativas: <b>${ativas}</b> de <b>${pl.lim}</b> do seu plano.${ofertas.some(o=>o.validade&&!venceu(o)&&(new Date(o.validade+"T23:59:59")-new Date())<3*864e5)?" <br>⚠️ Você tem oferta vencendo nos próximos 3 dias.":""}</p>
+   <button class="btn claro" onclick="editarEmpresa()">✏️ Editar dados da loja</button></div>
+  <button class="btn ouro" style="min-height:58px;font-size:1.1rem" onclick="formOferta()">➕ Nova oferta</button>
+  <h2 style="margin:20px 0 10px">Minhas ofertas</h2>
+  <div id="listaOfertas">${ofertas.length?ofertas.map(cardOferta).join(""):`<div class="vazio"><span class="e">📸</span>Você ainda não postou nenhuma oferta.<br>Toque em <b>Nova oferta</b> para começar.</div>`}</div>
+  <div id="admBox"></div>`;
+  if(admin)painelAdmin();
+}
+function venceu(o){return o.validade&&new Date(o.validade+"T23:59:59")<new Date()}
+function cardOferta(o){const st=venceu(o)?'<span class="status pausa">Vencida</span>':o.ativa?'<span class="status ok">No ar</span>':'<span class="status pausa">Pausada</span>';
+  return `<div class="oferta"><div class="ft">${o.foto_url?`<img src="${esc(o.foto_url)}" alt="">`:"🏷️"}</div><div class="tx">${st}${o.banner?' <span class="status pend">⭐ Banner</span>':""}
+   <span class="tag">${esc(o.titulo)}</span><b>${esc(o.descricao).slice(0,80)}</b>
+   <p class="ajuda">${o.validade?"Válida até "+new Date(o.validade+"T00:00:00").toLocaleDateString("pt-BR"):"Sem data de validade"}</p>
+   <div class="acoes"><button class="mini az" onclick="formOferta('${o.id}')">✏️ Editar</button><button class="mini" onclick="pausar('${o.id}',${!o.ativa})">${o.ativa?"⏸ Pausar":"▶️ Ativar"}</button><button class="mini vm" onclick="apagar('${o.id}')">🗑 Apagar</button></div></div></div>`}
+
+// ===== OFERTA =====
+function formOferta(id){const o=ofertas.find(x=>x.id===id)||{};
+  abrirSheet(`<h2 style="margin-top:8px">${id?"Editar oferta":"Nova oferta"}</h2>
+  <form onsubmit="salvarOferta(event,'${id||""}')">
+   <label>Foto da promoção</label><div class="previa" id="oPrev">${o.foto_url?`<img src="${esc(o.foto_url)}" alt="">`:"Use uma foto bonita do produto ou da loja.<br>De preferência deitada (horizontal)."}</div>
+   <label class="foto-btn">📷 ${o.foto_url?"Trocar foto":"Escolher foto"}<input type="file" accept="image/*" id="oFoto" onchange="mostrarPrevia(this,'#oPrev');previaApp()"></label>
+   <label for="oTit">Desconto (aparece em destaque)</label><input class="inp" id="oTit" required maxlength="40" value="${esc(o.titulo)}" placeholder="Ex: 20% OFF  ou  Barba grátis" oninput="previaApp()" aria-describedby="oTitCont"><p class="cont" id="oTitCont"></p>
+   <label for="oDesc">Descrição da oferta</label><textarea class="inp" id="oDesc" required maxlength="300" placeholder="Ex: 20% de desconto em pizzas grandes, de segunda a quinta." oninput="previaApp()" aria-describedby="oDescCont">${esc(o.descricao)}</textarea><p class="cont" id="oDescCont"></p>
+   <label for="oReg">Regras (opcional)</label><input class="inp" id="oReg" maxlength="200" value="${esc(o.regras)}" placeholder="Ex: Válido para pagamento à vista.">
+   <div class="linha"><div><label for="oCat">Categoria</label><select class="inp" id="oCat">${CATS.map(([v,n])=>`<option value="${v}" ${v===o.categoria?"selected":""}>${n}</option>`).join("")}</select></div>
+   <div><label for="oVal">Válida até</label><input class="inp" id="oVal" type="date" value="${o.validade||""}"></div></div>
+   <label for="oEco">Quanto o cliente economiza, em média (R$)</label><input class="inp" id="oEco" inputmode="decimal" value="${o.economia||""}" placeholder="Ex: 15">
+   <p class="ajuda">Usado no contador "Você já economizou" do cliente.</p>
+   <div class="prev-app" aria-live="polite"><div class="rot">👀 ASSIM APARECE NO APP</div><div class="pcard"><div class="im" id="pcIm"></div><div class="i"><b>${esc(empresa.nome)}</b><small>${esc(empresa.ramo)}</small></div><div class="t" id="pcT"></div></div></div>
+   <button class="btn ouro" id="oBtn">${id?"Salvar alterações":"Publicar oferta"}</button><div class="erro" id="oErro"></div>
+  </form>`);previaApp(o.foto_url)}
+function previaApp(fotoAtual){const t=$("#oTit"),d=$("#oDesc");if(!t)return;
+  $("#pcT").textContent=t.value.trim()||"Seu desconto aqui";
+  $("#oTitCont").textContent=t.value.length+"/40";$("#oDescCont").textContent=d.value.length+"/300";
+  const f=$("#oFoto").files[0];if(f){$("#pcIm").innerHTML=`<img src="${URL.createObjectURL(f)}" alt="">`}else if(typeof fotoAtual==="string"&&fotoAtual){$("#pcIm").innerHTML=`<img src="${esc(fotoAtual)}" alt="">`}else if(!$("#pcIm").innerHTML)$("#pcIm").textContent="🏷️"}
+async function salvarOferta(ev,id){ev.preventDefault();const b=$("#oBtn");b.disabled=true;b.textContent="Salvando…";$("#oErro").style.display="none";
+  try{
+    const dados={titulo:$("#oTit").value.trim(),descricao:$("#oDesc").value.trim(),regras:$("#oReg").value.trim(),categoria:$("#oCat").value,validade:$("#oVal").value||null,economia:parseFloat(($("#oEco").value||"0").replace(",","."))||0};
+    const f=$("#oFoto").files[0];if(f)dados.foto_url=await enviarFoto(f,1200);
+    let r;if(id)r=await db.from("ofertas").update(dados).eq("id",id);else r=await db.from("ofertas").insert({...dados,empresa_id:empresa.id});
+    if(r.error)throw r.error;
+    fechar();toast(id?"✅ Oferta atualizada!":"✅ Oferta publicada!");await carregarOfertas();telaPainel();
+  }catch(e){$("#oErro").textContent=traduzErro(e);$("#oErro").style.display="block";b.disabled=false;b.textContent=id?"Salvar alterações":"Publicar oferta"}
+}
+async function pausar(id,ativar){const {error}=await db.from("ofertas").update({ativa:ativar}).eq("id",id);if(error){toast(traduzErro(error));return}toast(ativar?"▶️ Oferta no ar":"⏸ Oferta pausada");await carregarOfertas();telaPainel()}
+function apagar(id){abrirSheet(`<div style="text-align:center;margin-top:10px"><div style="font-size:3rem">🗑</div><h2>Apagar esta oferta?</h2><p class="sub">Ela sai do app na hora. Isso não pode ser desfeito.</p></div><button class="btn verm" onclick="confirmarApagar('${id}')">Sim, apagar</button><button class="btn claro" onclick="fechar()">Cancelar</button>`)}
+async function confirmarApagar(id){const {error}=await db.from("ofertas").delete().eq("id",id);fechar();if(error){toast(traduzErro(error));return}toast("Oferta apagada");await carregarOfertas();telaPainel()}
+
+// ===== ADMINISTRADOR (só você) =====
+async function painelAdmin(){
+  const [{data:emps},{data:ofs}]=await Promise.all([db.from("empresas").select("*").order("criado_em",{ascending:false}),db.from("ofertas").select("id,titulo,ativa,destaque,banner,banner_topo,empresa_id").order("criado_em",{ascending:false})]);
+  const nomeEmp=id=>((emps||[]).find(e=>e.id===id)||{}).nome||"?";
+  $("#admBox").innerHTML=`<div class="card adm" style="margin-top:24px;border:2px solid var(--ouro)"><h2>👑 Painel do administrador</h2><p class="sub">Só você vê esta parte.</p>
+   <h3>Lojas (${(emps||[]).length})</h3>${(emps||[]).map(e=>`<div class="item"><span class="n"><b>${esc(e.nome)}</b><br><span class="ajuda">${esc(e.ramo)} · ${esc(e.whatsapp||"sem WhatsApp")}</span></span>
+     <select aria-label="Plano de ${esc(e.nome)}" onchange="admEmpresa('${e.id}',{plano:this.value})">${Object.entries(PLANOS).map(([k,v])=>`<option value="${k}" ${k===e.plano?"selected":""}>${v.nome}</option>`).join("")}</select>
+     ${e.aprovada?`<button class="mini" onclick="admEmpresa('${e.id}',{aprovada:false})">Suspender</button>`:`<button class="mini ou" onclick="admEmpresa('${e.id}',{aprovada:true})">✓ Aprovar</button>`}</div>`).join("")||'<p class="sub">Nenhuma loja ainda.</p>'}
+   <h3>Ofertas (${(ofs||[]).length})</h3>${(ofs||[]).map(o=>`<div class="item"><span class="n"><b>${esc(o.titulo)}</b> · ${esc(nomeEmp(o.empresa_id))}${o.ativa?"":' <span class="ajuda">(pausada)</span>'}</span>
+     <button class="mini ${o.destaque?"ou":""}" onclick="admOferta('${o.id}',{destaque:${!o.destaque}})">${o.destaque?"★ Destaque":"☆ Destaque"}</button>
+     <button class="mini ${o.banner?"ou":""}" onclick="admBanner('${o.id}',${!o.banner},'${esc(o.banner_topo||"")}')">${o.banner?"🖼 No banner":"🖼 Banner"}</button></div>`).join("")||'<p class="sub">Nenhuma oferta ainda.</p>'}
+  </div>`}
+async function admEmpresa(id,campos){const {error}=await db.from("empresas").update(campos).eq("id",id);toast(error?traduzErro(error):"✅ Atualizado");painelAdmin()}
+async function admOferta(id,campos){const {error}=await db.from("ofertas").update(campos).eq("id",id);toast(error?traduzErro(error):"✅ Atualizado");painelAdmin()}
+function admBanner(id,ligar,topo){if(!ligar){admOferta(id,{banner:false});return}
+  abrirSheet(`<h2 style="margin-top:8px">Colocar no banner do topo</h2><p class="sub">A oferta precisa ter foto. Escreva uma chamada curta que aparece acima do desconto.</p>
+  <label for="bTopo">Chamada (opcional)</label><input class="inp" id="bTopo" maxlength="20" value="${topo}" placeholder="Ex: LIQUIDAÇÃO"><button class="btn ouro" onclick="fechar();admOferta('${id}',{banner:true,banner_topo:$('#bTopo').value.trim().toUpperCase()||null})">Colocar no banner</button>`)}
+
+document.addEventListener("keydown",e=>{if(e.key==="Escape")fechar()});
+db.auth.onAuthStateChange((ev)=>{if(ev==="PASSWORD_RECOVERY")abrirSheet(`<h2 style="margin-top:8px">Criar nova senha</h2><form onsubmit="novaSenha(event)"><label for="nSenha">Nova senha</label><input class="inp" id="nSenha" type="password" minlength="6" required autocomplete="new-password"><button class="btn">Salvar senha</button></form>`)});
+async function novaSenha(ev){ev.preventDefault();const {error}=await db.auth.updateUser({password:$("#nSenha").value});fechar();toast(error?traduzErro(error):"✅ Senha alterada!");iniciar()}
+iniciar();
+</script>
+</body>
+</html>
