@@ -1,26 +1,34 @@
-# Vitrine Castro – Clube de Desconto
+# Vitrine Castro – ofertas locais de Castro-PR
 
-App web (PWA) de ofertas, cupons, pontos e brindes do comércio de Castro-PR.
+App web (PWA) de ofertas **só das lojas de Castro**: as empresas publicam produtos com **10, 20, 30 ou 50% de desconto**, os clientes pegam o cupom, mostram o **QR Code** no caixa, a loja tira uma foto do QR e informa o valor, e o cliente ganha **pontos** que viram **brindes e vale-bônus**.
 
-## Publicar na Netlify
-1. Preencha `config.js` (Supabase, WhatsApp e, se quiser, Instagram).
-2. No Supabase, rode `supabase.sql` no SQL Editor (uma vez).
-3. Arraste a pasta inteira no painel da Netlify (o `netlify.toml` já configura cache e segurança).
+| Quem | O que tem |
+|---|---|
+| **Cliente (grátis)** | Descontos normais, cupons com QR Code, pontos (1 por real), níveis Bronze/Prata/Ouro, brindes, indicação de amigos (+100 pontos quando o amigo faz a 1ª compra) |
+| **Cliente VIP – R$ 9,90/mês** | Desconto VIP maior (quando a loja oferece), vê as ofertas novas **24h antes**, pontos **em dobro** |
+| **Empresa – Grátis** | 1 oferta por semana, confirmação de compras pelo QR Code, relatório de vendas |
+| **Empresa – Vitrine R$ 49,90** | 3 ofertas/semana + aparece na **vitrine principal** (carrossel) |
+| **Empresa – Destaque R$ 99,90** | 7 ofertas/semana + vitrine + “Ofertas em destaque” |
+| **Empresa – Premium R$ 199,90** | 15 ofertas/semana + primeiro lugar na vitrine + aviso aos clientes |
 
-## O que foi melhorado (com base no repositório ui-ux-pro-max)
-- **Design system** gerado pelo motor do repositório (`design-system/vitrine-castro/MASTER.md`), ajustado à marca.
-- **Tokens de cor semânticos** e **modo escuro** (automático, claro ou escuro em Perfil → Aparência).
-- **Ícones SVG** no lugar de emojis na interface (navegação, menus, botões, categorias, brindes).
-- **Acessibilidade:** foco preso no modal, Esc fecha, foco volta ao botão de origem, "pular para o conteúdo",
-  `aria-pressed`/`aria-current`, avisos lidos por leitor de tela, contraste de texto ≥ 4.5:1,
-  carrossel com botão de pausa e que para ao tocar/focar, respeito a "reduzir movimento".
-- **Botão Voltar do celular** funciona entre as telas e fecha janelas abertas.
-- **Novidades para o cliente:** seção "Terminando logo", ordenar ofertas (destaques, prazo, economia, A–Z),
-  página da loja (todas as ofertas, WhatsApp, "Como chegar"), marcar cupom como usado (economia real),
-  avisos com "lido/não lido", "Como funciona" em 3 passos para quem é novo, tabela Grátis × VIP,
-  perguntas frequentes, editar dados, privacidade (LGPD) com "apagar meus dados", rodapé, compartilhamento nativo do celular.
-- **Carregamento:** esqueleto (skeleton) enquanto busca as ofertas no banco, aviso de "sem internet".
-- **Tablet/computador:** layout se adapta (3–4 colunas de ofertas, janelas centralizadas).
-- **Área da Empresa:** modo escuro, resumo (no ar / pausadas / vencidas), alerta de oferta vencendo,
-  contador de caracteres e **prévia ao vivo** de como a oferta aparece no app.
-- **SEO/compartilhamento:** Open Graph para WhatsApp/Facebook, dados estruturados, atalhos do app instalado.
+## Arquivos
+| Arquivo | Para quê |
+|---|---|
+| `index.html` | App do cliente. Sem `config.js` preenchido roda em **modo demonstração** (dados no celular). |
+| `empresa.html` | Área da Empresa: ofertas, **Confirmar compra** (foto do QR), vendas, plano e painel do administrador. |
+| `supabase.sql` | Banco completo com todas as regras de segurança. Rode no SQL Editor do Supabase. |
+| `config.js` | URL e chave **anon** do Supabase, WhatsApp, Pix, Instagram. |
+| `netlify.toml` | Cabeçalhos de segurança (CSP, HSTS…), cache e bloqueio de arquivos internos. |
+| `sw.js`, `manifest.webmanifest` | Funciona offline e pode ser instalado no celular. |
+| `SEGURANCA.md` | **Passo a passo para publicar com segurança** (Supabase + Netlify) e operar VIP/planos. |
+
+## Publicar
+Siga o **SEGURANCA.md**. Resumo: criar projeto no Supabase → rodar `supabase.sql` → ajustar Authentication → preencher `config.js` → arrastar a pasta na Netlify → virar administrador.
+
+## Como o sistema se protege (resumo)
+- Pontos, VIP, plano, aprovação e limite semanal **só mudam no banco**, por funções que conferem quem chama. O cliente não consegue se dar pontos nem virar VIP pelo navegador.
+- A loja só confirma cupons **das próprias ofertas**, uma vez só, e não pode confirmar o próprio cupom.
+- Bônus de boas-vindas e de indicação só saem na **1ª compra confirmada** (evita contas falsas).
+- Limites de tentativas: 20 cupons/dia por cliente, 60 consultas de código a cada 10 min por loja, 10 trocas/dia.
+- Tudo que vem do usuário é exibido como texto (proteção contra XSS); scripts de CDN com versão fixa e SRI; CSP na Netlify.
+- Verificado com o scanner da skill `web-security-shield` (`.claude/skills/web-security-shield/scripts/security_scan.py`).
