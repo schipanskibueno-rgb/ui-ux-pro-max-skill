@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0E1428">
+<meta name="theme-color" content="#000000">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Vitrine Castro">
@@ -27,9 +27,9 @@ button{font-family:inherit;cursor:pointer}
 .app{max-width:480px;margin:0 auto;min-height:100vh;background:#FAF6EC;position:relative;padding-bottom:calc(6rem + env(safe-area-inset-bottom));box-shadow:0 0 40px rgba(0,0,0,.15)}
 
 /* HEADER */
-header{background:#0E1428;padding:calc(12px + env(safe-area-inset-top)) 16px 18px;border-radius:0 0 24px 24px;position:relative;overflow:hidden}
-.top{display:flex;align-items:flex-start;gap:8px}
-.marca-logo{flex:1;display:flex;flex-direction:column;align-items:center;min-width:0}.marca-logo img{height:136px;width:auto;display:block;filter:drop-shadow(0 4px 16px rgba(212,165,55,.28))}.marca-logo .cidade{font-family:Montserrat,sans-serif;font-weight:700;font-size:.72rem;letter-spacing:7px;padding-left:7px;color:#D4A537;margin-top:2px}
+header{background:#000;padding:calc(12px + env(safe-area-inset-top)) 16px 18px;border-radius:0 0 24px 24px;position:relative;overflow:hidden}
+.top{display:flex;align-items:center;gap:8px}
+.marca .simbolo{height:64px;width:auto;flex-shrink:0;display:block}.marca .palavra{width:142px;max-width:100%;height:auto;display:block}
 .icobtn.on{background:#D4A537;color:#0E1428}.icobtn{background:rgba(255,255,255,.08);border:0;color:#fff;min-width:48px;height:48px;border-radius:14px;display:grid;place-items:center;position:relative}
 .badge{position:absolute;top:2px;right:2px;background:var(--verm);color:#fff;font-size:12px;font-weight:700;border-radius:50%;width:20px;height:20px;display:grid;place-items:center;border:2px solid #fff}
 .marca{flex:1;display:flex;align-items:center;gap:10px;min-width:0}.marca svg{flex-shrink:0}.marca .wm{display:flex;flex-direction:column;line-height:1}.marca .v{font-family:Montserrat,sans-serif;font-weight:800;font-size:1.6rem;letter-spacing:-.5px;color:#fff}.marca .c{font-family:Montserrat,sans-serif;font-weight:700;font-size:.66rem;letter-spacing:4.5px;color:#D4A537;margin-top:3px}.marca .cd{font-family:Montserrat,sans-serif;font-size:.58rem;letter-spacing:2.5px;color:#E8D9A8;margin-top:3px}.logo{flex:1;min-width:0;max-width:260px;display:block;margin:0 auto;-webkit-mask-image:radial-gradient(ellipse 60% 62% at 50% 50%,#000 70%,transparent 100%);mask-image:radial-gradient(ellipse 60% 62% at 50% 50%,#000 70%,transparent 100%)}
@@ -229,8 +229,8 @@ label{display:block;font-size:.9rem;font-weight:600;margin:12px 0 5px}
 <div class="app">
 <header>
   <div class="top">
+    <div class="marca" role="img" aria-label="Vitrine Castro"><img class="simbolo" src="img/logo-simbolo.png" alt="" width="189" height="200"><span class="wm"><img class="palavra" src="img/logo-palavra.png" alt="" width="393" height="72"><span class="c">CASTRO</span></span></div>
     <button class="icobtn" id="btnAa" onclick="letraGrande()" aria-label="Aumentar o tamanho da letra"><span style="font-weight:800;font-size:.95rem">A<span style="font-size:1.35em">A</span></span></button>
-    <div class="marca-logo"><picture><source srcset="img/logo-vitrine.webp" type="image/webp"><img src="img/logo-vitrine.png" alt="Vitrine Castro" width="320" height="421" fetchpriority="high"></picture><span class="cidade" aria-hidden="true">CASTRO</span></div>
     <button class="icobtn" onclick="abrir('notifs')" aria-label="Avisos"><svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22zm7-6V11a7 7 0 0 0-5.5-6.84V3.5a1.5 1.5 0 0 0-3 0v.66A7 7 0 0 0 5 11v5l-2 2v1h18v-1z"/></svg><span class="badge" id="nbadge">3</span></button>
   </div>
   <div class="campo">
