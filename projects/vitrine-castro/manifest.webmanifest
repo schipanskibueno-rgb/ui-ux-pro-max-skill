@@ -2,12 +2,6 @@
   "name": "Vitrine Castro – Clube de Desconto",
   "short_name": "Vitrine Castro",
   "description": "Ofertas, cupons e pontos nas lojas de Castro-PR.",
-  "categories": ["shopping", "lifestyle"],
-  "shortcuts": [
-    {"name": "Ofertas", "url": "./#ofertas", "icons": [{"src": "icons/icon-192.png", "sizes": "192x192"}]},
-    {"name": "Meus cupons", "url": "./#cupons", "icons": [{"src": "icons/icon-192.png", "sizes": "192x192"}]},
-    {"name": "Meus pontos", "url": "./#pontos", "icons": [{"src": "icons/icon-192.png", "sizes": "192x192"}]}
-  ],
   "lang": "pt-BR",
   "start_url": "./",
   "scope": "./",

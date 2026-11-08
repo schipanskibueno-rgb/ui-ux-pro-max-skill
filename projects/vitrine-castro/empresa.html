@@ -4,123 +4,83 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0E1428">
-<meta name="color-scheme" content="light dark">
-<meta name="robots" content="noindex">
 <title>Área da Empresa – Vitrine Castro</title>
 <link rel="icon" type="image/png" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous"></script>
-<script>(function(){try{var t=JSON.parse(localStorage.getItem("gira_tema"));if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--azul:#0E1428;--azul2:#1F2B57;--ouro:#D4A537;--txt:#0b1a45;--cinza:#4a5578;--verde:#0F7A3A;--verm:#B3121A;--creme:#FAF6EC;--fundo:#e9e3d3;--card:#fff;--suave:#efe8d4;--borda:#d9cfb3;--ink-ouro:#7A6531;--ok-bg:#dff5e7;--ok:#0d6b31;--pend-bg:#fff3cd;--pend:#7a5a00;--err-bg:#fde4e4}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--txt:#ECE6D6;--cinza:#AEB5CB;--verde:#4ADE80;--verm:#FF8A8A;--creme:#0B1020;--fundo:#05080F;--card:#141A2E;--suave:#222A47;--borda:#39416A;--ink-ouro:#E9C766;--ok-bg:#12331F;--ok:#4ADE80;--pend-bg:#2E2610;--pend:#E9C766;--err-bg:#3A1416}}
-:root[data-theme="dark"]{--txt:#ECE6D6;--cinza:#AEB5CB;--verde:#4ADE80;--verm:#FF8A8A;--creme:#0B1020;--fundo:#05080F;--card:#141A2E;--suave:#222A47;--borda:#39416A;--ink-ouro:#E9C766;--ok-bg:#12331F;--ok:#4ADE80;--pend-bg:#2E2610;--pend:#E9C766;--err-bg:#3A1416}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+:root{--azul:#0E1428;--azul2:#1F2B57;--ouro:#D4A537;--txt:#0b1a45;--cinza:#4a5578;--verde:#13a049;--verm:#d9141a;--creme:#FAF6EC}
 *{box-sizing:border-box;margin:0;padding:0}
-[hidden]{display:none!important}
 html{font-size:16px}
-body{font-family:Poppins,system-ui,sans-serif;background:var(--fundo);color:var(--txt);line-height:1.45}
-button,input,select,textarea{font-family:inherit;color:inherit}
-button{cursor:pointer}
+body{font-family:Poppins,system-ui,sans-serif;background:#e9e3d3;color:var(--txt);line-height:1.4}
+button,input,select,textarea{font-family:inherit}
 :focus-visible{outline:3px solid var(--ouro);outline-offset:2px}
-.app{max-width:600px;margin:0 auto;min-height:100vh;background:var(--creme);padding-bottom:40px}
+.app{max-width:560px;margin:0 auto;min-height:100vh;background:var(--creme);padding-bottom:40px}
 header{background:var(--azul);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 16px 16px;border-radius:0 0 24px 24px;display:flex;align-items:center;gap:10px}
 header .v{font-family:Montserrat,Poppins,sans-serif;font-size:1.4rem;font-weight:800}
 header .c{font-family:Montserrat,Poppins,sans-serif;font-size:1.4rem;font-weight:800;color:var(--ouro)}
 header small{display:block;color:#E8D9A8;font-size:.78rem;letter-spacing:1px}
-header .sair{margin-left:auto;background:rgba(255,255,255,.1);color:#fff;border:0;border-radius:12px;min-height:44px;padding:0 14px;font-weight:600}
+header .sair{margin-left:auto;background:rgba(255,255,255,.1);color:#fff;border:0;border-radius:12px;min-height:44px;padding:0 14px;font-weight:600;cursor:pointer}
 main{padding:16px}
-.card{background:var(--card);border-radius:18px;padding:16px;box-shadow:0 3px 12px rgba(0,0,0,.07);margin-bottom:14px}
-h2{font-size:1.25rem;margin-bottom:6px}h3{font-size:1.05rem}
+.card{background:#fff;border-radius:18px;padding:16px;box-shadow:0 3px 12px rgba(0,0,0,.07);margin-bottom:14px}
+h2{font-size:1.25rem;margin-bottom:6px}
+h3{font-size:1.05rem}
 p.sub{color:var(--cinza);font-size:.92rem}
 label{display:block;font-size:.9rem;font-weight:600;margin:12px 0 5px}
-.inp{width:100%;border:2px solid var(--borda);border-radius:12px;padding:10px 14px;min-height:50px;font-size:1rem;background:var(--card);outline:0}
-.inp:focus{border-color:var(--ouro)}
+.inp{width:100%;border:2px solid #d9cfb3;border-radius:12px;padding:10px 14px;min-height:50px;font-size:1rem;background:#fff;color:var(--txt);outline:0}
+.inp:focus{border-color:var(--azul2)}
 textarea.inp{min-height:90px;resize:vertical}
 .ajuda{font-size:.8rem;color:var(--cinza);margin-top:4px}
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:14px;background:var(--azul);color:#fff;border:0;border-radius:14px;min-height:52px;font-weight:700;font-size:1rem;text-decoration:none}
-:root[data-theme="dark"] .btn:not(.ouro):not(.claro):not(.verm){background:#34468C}
-.btn.ouro{background:linear-gradient(#E9C766,#C9952A);color:#0E1428}
-.btn.claro{background:var(--suave);color:var(--txt)}
-.btn.verm{background:var(--err-bg);color:var(--verm)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:14px;background:var(--azul);color:#fff;border:0;border-radius:14px;min-height:52px;font-weight:700;font-size:1rem;cursor:pointer;text-decoration:none}
+.btn.ouro{background:linear-gradient(#E9C766,#C9952A);color:var(--azul)}
+.btn.claro{background:#efe8d4;color:var(--txt)}
+.btn.verm{background:#fde4e4;color:#a30d12}
 .btn:disabled{opacity:.6;cursor:wait}
-.linha{display:flex;gap:8px}.linha>*{flex:1;min-width:0}
-.abas{display:flex;background:var(--suave);border-radius:14px;padding:4px;margin-bottom:12px;gap:2px;overflow-x:auto}
-.abas button{flex:1;border:0;background:none;min-height:46px;border-radius:10px;font-weight:700;font-size:.9rem;white-space:nowrap;padding:0 8px}
-.abas button[aria-selected="true"]{background:var(--card);box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.linha{display:flex;gap:8px}.linha>*{flex:1}
+.abas{display:flex;background:#efe8d4;border-radius:14px;padding:4px;margin-bottom:6px}
+.abas button{flex:1;border:0;background:none;min-height:46px;border-radius:10px;font-weight:700;font-size:.95rem;color:var(--txt);cursor:pointer}
+.abas button.on{background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.08)}
 .status{display:inline-block;border-radius:20px;padding:4px 12px;font-size:.8rem;font-weight:700}
-.status.ok{background:var(--ok-bg);color:var(--ok)}.status.pend{background:var(--pend-bg);color:var(--pend)}.status.pausa{background:var(--suave);color:var(--cinza)}
+.status.ok{background:#dff5e7;color:#0d6b31}.status.pend{background:#fff3cd;color:#7a5a00}.status.pausa{background:#eee;color:#555}
 .empresa-top{display:flex;gap:12px;align-items:center}
 .logo{width:64px;height:64px;border-radius:14px;background:var(--azul2);overflow:hidden;flex-shrink:0;display:grid;place-items:center;color:var(--ouro);font-size:1.6rem}
 .logo img{width:100%;height:100%;object-fit:cover}
-.oferta{display:flex;gap:12px;background:var(--card);border-radius:16px;padding:10px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:10px}
+.oferta{display:flex;gap:12px;background:#fff;border-radius:16px;padding:10px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:10px}
 .oferta .ft{width:96px;height:96px;border-radius:12px;background:var(--azul2);overflow:hidden;flex-shrink:0;display:grid;place-items:center;font-size:2rem}
 .oferta .ft img{width:100%;height:100%;object-fit:cover}
 .oferta .tx{flex:1;min-width:0}
 .oferta b{display:block;font-size:1rem}
-.tag{display:inline-block;background:linear-gradient(#E9C766,#C9952A);color:#0E1428;font-weight:800;border-radius:8px;padding:2px 10px;font-size:.9rem;margin:4px 4px 4px 0}
+.oferta .tag{display:inline-block;background:linear-gradient(#E9C766,#C9952A);color:var(--azul);font-weight:800;border-radius:8px;padding:2px 10px;font-size:.9rem;margin:4px 0}
 .oferta .acoes{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
-.mini{border:0;border-radius:10px;min-height:44px;padding:0 12px;font-weight:600;font-size:.85rem;background:var(--suave)}
-.mini.az{background:var(--azul);color:#fff}.mini.vm{background:var(--err-bg);color:var(--verm)}.mini.ou{background:var(--ouro);color:#0E1428}
-.previa{margin-top:8px;border-radius:14px;overflow:hidden;background:var(--suave);aspect-ratio:16/10;display:grid;place-items:center;color:var(--cinza);font-size:.9rem;text-align:center;padding:8px}
+.mini{border:0;border-radius:10px;min-height:40px;padding:0 12px;font-weight:600;font-size:.85rem;cursor:pointer;background:#efe8d4;color:var(--txt)}
+.mini.az{background:var(--azul);color:#fff}.mini.vm{background:#fde4e4;color:#a30d12}.mini.ou{background:var(--ouro);color:var(--azul)}
+.previa{margin-top:8px;border-radius:14px;overflow:hidden;background:#efe8d4;aspect-ratio:16/10;display:grid;place-items:center;color:var(--cinza);font-size:.9rem;text-align:center}
 .previa img{width:100%;height:100%;object-fit:cover}
-.foto-btn{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;border:2px dashed #c9b98a;border-radius:14px;min-height:56px;font-weight:700;cursor:pointer;background:var(--card);margin-top:8px}
-.foto-btn:focus-within{outline:3px solid var(--ouro);outline-offset:2px}
-.foto-btn input{position:absolute;opacity:0;width:1px;height:1px}
+.foto-btn{display:flex;align-items:center;justify-content:center;gap:8px;border:2px dashed #c9b98a;border-radius:14px;min-height:56px;font-weight:700;color:var(--txt);cursor:pointer;background:#fffaf0;margin-top:8px}
+.foto-btn input{display:none}
 .vazio{text-align:center;color:var(--cinza);padding:24px 8px}
 .vazio .e{font-size:2.6rem;display:block}
-.aviso{background:var(--pend-bg);border:1.5px solid #e6cf8d;border-radius:14px;padding:12px;font-size:.92rem;margin-bottom:14px}
-.erro{background:var(--err-bg);color:var(--verm);border-radius:12px;padding:10px 12px;font-size:.9rem;font-weight:600;margin-top:10px}
-.okbox{background:var(--ok-bg);color:var(--ok);border-radius:14px;padding:14px;text-align:center;font-weight:700;margin-top:12px}
-.modal{position:fixed;inset:0;background:rgba(5,15,50,.62);display:none;align-items:flex-end;justify-content:center;z-index:50}
+.aviso{background:#fff6dc;border:1.5px solid #e6cf8d;border-radius:14px;padding:12px;font-size:.92rem;margin-bottom:14px}
+.erro{background:#fde4e4;border:1.5px solid #f2b3b5;color:#7a0b0f;border-radius:12px;padding:10px 12px;font-size:.9rem;margin-top:10px;display:none}
+.modal{position:fixed;inset:0;background:rgba(5,15,50,.6);display:none;align-items:flex-end;justify-content:center;z-index:50}
 .modal.on{display:flex}
-.sheet{background:var(--card);width:100%;max-width:600px;border-radius:24px 24px 0 0;padding:16px 18px calc(22px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto}
-.fechar{display:flex;align-items:center;gap:6px;margin-left:auto;background:var(--suave);border:0;border-radius:30px;padding:0 16px;min-height:44px;font-weight:700}
+.sheet{background:#fff;width:100%;max-width:560px;border-radius:24px 24px 0 0;padding:16px 18px calc(22px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto}
+.fechar{display:flex;align-items:center;gap:6px;margin-left:auto;background:#efe8d4;border:0;border-radius:30px;padding:0 16px;min-height:44px;font-weight:700;cursor:pointer}
 .toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translateX(-50%);background:var(--azul);color:#fff;padding:12px 18px;border-radius:30px;font-size:.95rem;opacity:0;transition:.3s;z-index:60;pointer-events:none;max-width:92vw;text-align:center}
 .toast.on{opacity:1}
-.item{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--borda);flex-wrap:wrap}
-.item .n{flex:1;min-width:150px}
-.item select{min-height:44px;border-radius:10px;border:1.5px solid var(--borda);padding:0 8px;background:var(--card)}
-.resumo{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
-.resumo div{background:var(--creme);border:1.5px solid var(--borda);border-radius:14px;padding:10px 4px;text-align:center}
-.resumo b{display:block;font-size:1.25rem}.resumo small{font-size:.75rem;color:var(--cinza)}
-.cota{margin-top:12px}.cota .barra{height:10px;border-radius:6px;background:var(--suave);overflow:hidden;margin-top:6px}.cota .barra i{display:block;height:100%;background:linear-gradient(90deg,#E9C766,#D4A537)}
-.descs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.descs label{margin:0;position:relative}
-.descs input{position:absolute;opacity:0}
-.descs span{display:grid;place-items:center;min-height:56px;border:2px solid var(--borda);border-radius:12px;font-weight:800;font-size:1.1rem;cursor:pointer;background:var(--card)}
-.descs input:checked+span{background:linear-gradient(#E9C766,#C9952A);color:#0E1428;border-color:#C9952A}
-.descs input:focus-visible+span{outline:3px solid var(--ouro);outline-offset:2px}
-.check{display:flex;align-items:flex-start;gap:10px;margin-top:14px;font-weight:600}
-.check input{width:24px;height:24px;flex-shrink:0;margin-top:2px;accent-color:#C9952A}
-.prev-app{margin-top:14px;border:2px dashed var(--borda);border-radius:16px;padding:12px;background:var(--creme)}
-.prev-app .rot{font-size:.8rem;font-weight:700;color:var(--cinza);margin-bottom:8px;letter-spacing:.5px}
-.pcard{max-width:220px;margin:0 auto;background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 3px 12px rgba(0,0,0,.12)}
-.pcard .im{aspect-ratio:16/10;background:linear-gradient(135deg,#1F2B57,#0E1428);display:grid;place-items:center;color:var(--ouro);font-size:2rem}
-.pcard .im img{width:100%;height:100%;object-fit:cover}
-.pcard .i{padding:8px 10px 0}.pcard .i b{display:block;line-height:1.2;word-break:break-word}.pcard .i small{color:var(--cinza);font-size:.8rem}
-.pcard .t{margin:8px 10px 10px;background:linear-gradient(#E9C766,#C9952A);color:#0E1428;font-weight:800;border-radius:10px;padding:8px 4px;text-align:center;font-size:1.05rem}
-.cont{font-size:.78rem;color:var(--cinza);text-align:right;margin-top:2px}
-.scan{border:3px dashed var(--ouro);border-radius:18px;padding:18px;text-align:center;background:var(--creme)}
-.scan .grande{font-size:3rem}
-.cupom-box{border-radius:16px;border:2px solid var(--ouro);padding:14px;margin-top:12px;background:var(--card)}
-.cupom-box .d{font-family:Montserrat,sans-serif;font-weight:800;font-size:2rem;color:var(--ink-ouro)}
-.venda{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--borda);font-size:.92rem}
-.venda small{display:block;color:var(--cinza);font-size:.78rem}
-.plano{border:2px solid var(--borda);border-radius:16px;padding:14px;margin-top:10px}
-.plano.atual{border-color:var(--ouro);background:var(--creme)}
-.plano .p{font-weight:800;font-size:1.3rem;color:var(--ink-ouro)}
-.plano ul{list-style:none;margin-top:6px}.plano li{font-size:.9rem;padding:2px 0}.plano li:before{content:"✓ ";color:var(--verde);font-weight:800}
+.adm h3{margin:14px 0 8px}
+.adm .item{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #f0e8d2;flex-wrap:wrap}
+.adm .item .n{flex:1;min-width:140px}
+.adm select{min-height:40px;border-radius:10px;border:1.5px solid #d9cfb3;padding:0 8px}
+.escondido{display:none}
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="42" height="42" aria-hidden="true">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="42" height="42" aria-hidden="true">
 <path d="M100.0 46.0 Q118.4 19.7 125.3 51.0 Q152.3 33.8 146.7 65.3 Q178.2 59.7 161.0 86.7 Q192.3 93.6 166.0 112.0 Q192.3 130.4 161.0 137.3 Q178.2 164.3 146.7 158.7 Q152.3 190.2 125.3 173.0 Q118.4 204.3 100.0 178.0 Q81.6 204.3 74.7 173.0 Q47.7 190.2 53.3 158.7 Q21.8 164.3 39.0 137.3 Q7.7 130.4 34.0 112.0 Q7.7 93.6 39.0 86.7 Q21.8 59.7 53.3 65.3 Q47.7 33.8 74.7 51.0 Q81.6 19.7 100.0 46.0 Z" fill="#D4A537"/>
 <circle cx="100" cy="112" r="68" fill="#D4A537"/>
 <circle cx="68" cy="66" r="13" fill="#0E1428"/><circle cx="68" cy="66" r="6" fill="#D4A537"/>
@@ -135,335 +95,184 @@ textarea.inp{min-height:90px;resize:vertical}
 <g transform="translate(0 -2)"><path d="M72 46 L75 18 L88 32 L100 8 L112 32 L125 18 L128 46 Z" fill="#D4A537" stroke="#0E1428" stroke-width="3" stroke-linejoin="round"/><rect x="71" y="44" width="58" height="9" rx="3" fill="#D4A537" stroke="#0E1428" stroke-width="3"/><circle cx="100" cy="8" r="4.5" fill="#F3D27A"/><circle cx="75" cy="18" r="3.8" fill="#F3D27A"/><circle cx="125" cy="18" r="3.8" fill="#F3D27A"/></g>
 </svg>
   <div><span class="v">Vitrine</span> <span class="c">Castro</span><small>ÁREA DA EMPRESA</small></div>
-  <button class="sair" id="btnSair" onclick="sair()" hidden>Sair</button>
+  <button class="sair escondido" id="btnSair" onclick="sair()">Sair</button>
 </header>
-<main id="main"><div class="vazio"><span class="e" aria-hidden="true">⏳</span>Carregando…</div></main>
-<p style="text-align:center"><a href="./" style="color:var(--ink-ouro);font-weight:600;display:inline-block;min-height:44px;padding-top:10px">← Voltar para o app</a></p>
+<main id="main"><div class="vazio"><span class="e">⏳</span>Carregando…</div></main>
+<p style="text-align:center"><a href="./" style="color:var(--azul2);font-weight:600">← Voltar para o app</a></p>
 </div>
 
-<div class="modal" id="modal" onclick="if(event.target===this)fechar()"><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Janela" tabindex="-1"></div></div>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="modal" id="modal" onclick="if(event.target===this)fechar()" role="dialog" aria-modal="true"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast" role="status"></div>
 
 <script>
-/* =====================================================================
-   ÁREA DA EMPRESA – Vitrine Castro
-   Segurança: tudo que importa (aprovação, plano, limite semanal, pontos,
-   confirmação de compra) é conferido no banco (supabase.sql). Esta tela
-   só mostra e envia pedidos; nada aqui consegue "furar" as regras.
-   ===================================================================== */
-const CFG=window.CONFIG||{};
 const CATS=[["vest","👕 Vestuário"],["alim","🍔 Alimentação"],["est","💆‍♀️ Estética"],["sau","🩺 Saúde"],["barb","💈 Barbearia"],["pet","🐶 Pet"],["acad","🏋️ Academia"],["auto","🚗 Automotivo"]];
 const RAMOS=["Vestuário","Alimentação","Estética","Saúde","Barbearia","Pet","Academia","Automotivo","Outro"];
-const DESCONTOS=[10,20,30,50];
-const PLANOS={gratis:{nome:"Grátis",preco:"R$ 0",sem:1,vit:false,itens:["1 oferta por semana","Confirmação de compras por QR Code"]},
-  basico:{nome:"Vitrine",preco:"R$ 49,90",sem:3,vit:true,itens:["3 ofertas por semana","Na vitrine principal do app","Relatório de vendas"]},
-  destaque:{nome:"Destaque",preco:"R$ 99,90",sem:7,vit:true,itens:["7 ofertas por semana","Vitrine principal + Ofertas em destaque","Relatório de vendas"]},
-  premium:{nome:"Premium",preco:"R$ 199,90",sem:15,vit:true,itens:["15 ofertas por semana","Primeiro lugar na vitrine","Aviso no celular dos clientes","Relatório completo"]}};
-const ICONES=["gift","coffee","pizza","ticket","shirt","scissors","drop","sparkles","star"];
+const PLANOS={basico:{nome:"Básico",lim:1},destaque:{nome:"Destaque",lim:3},premium:{nome:"Premium",lim:"ilimitadas"}};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const moeda=v=>Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
-const dataBR=d=>d?new Date(d).toLocaleDateString("pt-BR"):"";
-const seguro=u=>/^https:\/\//.test(String(u||""))?u:"";
-const store={get(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),3500)}
-let focoAntes=null;
-function fechar(){const m=$("#modal");if(!m.classList.contains("on"))return;m.classList.remove("on");document.body.style.overflow="";if(focoAntes&&document.contains(focoAntes))focoAntes.focus()}
-function abrirSheet(h){const m=$("#modal");if(!m.classList.contains("on"))focoAntes=document.activeElement;$("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ✕</button>`+h;m.classList.add("on");document.body.style.overflow="hidden";$("#sheet").scrollTop=0;$("#sheet").focus()}
-document.addEventListener("keydown",e=>{if(!$("#modal").classList.contains("on"))return;if(e.key==="Escape"){fechar();return}if(e.key!=="Tab")return;
-  const f=[...$("#sheet").querySelectorAll("button,a[href],input,select,textarea")].filter(x=>!x.disabled);if(!f.length)return;const a=f[0],z=f[f.length-1];
-  if(e.shiftKey&&(document.activeElement===a||document.activeElement===$("#sheet"))){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}});
-function erroMsg(e){const m=(e&&e.message)||String(e);
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),3000)}
+function fechar(){$("#modal").classList.remove("on")}
+function abrirSheet(h){$("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ✕</button>`+h;$("#modal").classList.add("on")}
+function traduzErro(e){const m=(e&&e.message)||String(e);
   if(/Invalid login/i.test(m))return"E-mail ou senha incorretos.";
   if(/already registered/i.test(m))return"Este e-mail já tem conta. Use a aba Entrar.";
   if(/Email not confirmed/i.test(m))return"Confirme seu e-mail: abra a mensagem que enviamos e clique no link.";
-  if(/Password should be|at least/i.test(m))return"A senha precisa ter pelo menos 8 caracteres.";
-  if(/rate limit|too many/i.test(m))return"Muitas tentativas. Aguarde alguns minutos.";
-  if(/ofertas_desconto/i.test(m))return"Escolha um desconto de 10%, 20%, 30% ou 50%.";
-  if(/desconto_vip/i.test(m))return"O desconto VIP precisa ser maior que o desconto normal (até 70%).";
-  if(/row-level security|permission denied/i.test(m))return"Você não tem permissão para isso.";
-  if(/Failed to fetch|NetworkError/i.test(m))return"Sem conexão com a internet.";
-  return m.length<180?m:"Algo deu errado. Tente de novo."}
+  if(/at least 6/i.test(m))return"A senha precisa ter pelo menos 6 caracteres.";
+  return m}
 
-if(!CFG.SUPABASE_URL||!CFG.SUPABASE_ANON_KEY||!window.supabase){
-  $("#main").innerHTML=`<div class="card"><h2>⚙️ Falta configurar</h2><p class="sub">Preencha o arquivo <b>config.js</b> com a URL e a chave <b>anon</b> do Supabase, rode o <b>supabase.sql</b> e publique de novo. Veja o passo a passo em <b>SEGURANCA.md</b>.</p></div>`;
+if(!window.CONFIG||!CONFIG.SUPABASE_URL||!CONFIG.SUPABASE_ANON_KEY){
+  $("#main").innerHTML=`<div class="card"><h2>⚙️ Falta configurar</h2><p class="sub">Preencha o arquivo <b>config.js</b> com a URL e a chave do Supabase e publique de novo.</p></div>`;
   throw new Error("config.js vazio");
 }
-const db=supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY);
-let user=null,empresa=null,ofertas=[],admin=false,cota=null,aba="ofertas";
+const db=supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_ANON_KEY);
+let user=null,empresa=null,ofertas=[],admin=false;
 
-/* ===== LOGIN (com espera após tentativas erradas) ===== */
-function bloqueio(){const b=store.get("vc_login_emp",{n:0,ate:0});return b.ate>Date.now()?Math.ceil((b.ate-Date.now())/1000):0}
-function falhou(){const b=store.get("vc_login_emp",{n:0,ate:0});b.n++;if(b.n>=5)b.ate=Date.now()+60000*Math.min(10,b.n-4);store.set("vc_login_emp",b)}
+// ===== LOGIN =====
 function telaLogin(modo="entrar"){
-  $("#btnSair").hidden=true;
+  $("#btnSair").classList.add("escondido");
   $("#main").innerHTML=`<div class="card">
-   <h2>Bem-vindo, lojista! 👋</h2><p class="sub">Entre para cadastrar sua loja, publicar ofertas e confirmar as compras dos clientes.</p>
-   <div class="abas" role="tablist" style="margin-top:14px"><button role="tab" aria-selected="${modo==="entrar"}" onclick="telaLogin('entrar')">Entrar</button><button role="tab" aria-selected="${modo==="criar"}" onclick="telaLogin('criar')">Criar conta</button></div>
+   <h2>Bem-vindo, lojista! 👋</h2><p class="sub">Entre para cadastrar sua loja, fotos e promoções no Vitrine Castro.</p>
+   <div class="abas" style="margin-top:14px"><button class="${modo==="entrar"?"on":""}" onclick="telaLogin('entrar')">Entrar</button><button class="${modo==="criar"?"on":""}" onclick="telaLogin('criar')">Criar conta</button></div>
    <form onsubmit="entrar(event,'${modo}')">
-    <label for="lEmail">E-mail</label><input class="inp" id="lEmail" type="email" autocomplete="email" maxlength="120" required>
-    <label for="lSenha">Senha</label><input class="inp" id="lSenha" type="password" autocomplete="${modo==="criar"?"new-password":"current-password"}" minlength="8" maxlength="72" required>
-    ${modo==="criar"?'<p class="ajuda">Mínimo de 8 caracteres. Use uma senha que você não usa em outro site.</p>':""}
+    <label for="lEmail">E-mail</label><input class="inp" id="lEmail" type="email" autocomplete="email" required>
+    <label for="lSenha">Senha</label><input class="inp" id="lSenha" type="password" autocomplete="${modo==="criar"?"new-password":"current-password"}" minlength="6" required>
+    ${modo==="criar"?'<p class="ajuda">Mínimo de 6 caracteres.</p>':""}
     <button class="btn" id="btnEntrar">${modo==="criar"?"Criar minha conta":"Entrar"}</button>
-    <div class="erro" id="lErro" role="alert" hidden></div>
+    <div class="erro" id="lErro"></div>
    </form>
    ${modo==="entrar"?`<button class="btn claro" onclick="esqueci()">Esqueci minha senha</button>`:""}
   </div>`;
 }
-async function entrar(ev,modo){ev.preventDefault();const email=$("#lEmail").value.trim(),senha=$("#lSenha").value,b=$("#btnEntrar"),er=$("#lErro");er.hidden=true;
-  const w=bloqueio();if(modo==="entrar"&&w){er.textContent=`Muitas tentativas. Aguarde ${w} segundos.`;er.hidden=false;return}
-  b.disabled=true;
+async function entrar(ev,modo){ev.preventDefault();const email=$("#lEmail").value.trim(),senha=$("#lSenha").value,b=$("#btnEntrar");b.disabled=true;$("#lErro").style.display="none";
   try{
     if(modo==="criar"){
-      const {data,error}=await db.auth.signUp({email,password:senha,options:{emailRedirectTo:location.origin+location.pathname,data:{nome:"",empresa:true}}});if(error)throw error;
+      const {data,error}=await db.auth.signUp({email,password:senha,options:{emailRedirectTo:location.href.split("#")[0]}});if(error)throw error;
       if(!data.session){$("#main").innerHTML=`<div class="card"><h2>📧 Confirme seu e-mail</h2><p class="sub">Enviamos um link para <b>${esc(email)}</b>. Abra o e-mail, clique no link e depois volte aqui para entrar.</p><button class="btn" onclick="telaLogin('entrar')">Já confirmei, entrar</button></div>`;return}
-    }else{const {error}=await db.auth.signInWithPassword({email,password:senha});if(error)throw error;store.set("vc_login_emp",{n:0,ate:0})}
+    }else{const {error}=await db.auth.signInWithPassword({email,password:senha});if(error)throw error}
     await iniciar();
-  }catch(e){if(modo==="entrar")falhou();er.textContent=erroMsg(e);er.hidden=false}finally{b.disabled=false}
+  }catch(e){$("#lErro").textContent=traduzErro(e);$("#lErro").style.display="block"}finally{b.disabled=false}
 }
-async function esqueci(){const email=($("#lEmail").value||"").trim();const er=$("#lErro");if(!email){er.textContent="Digite seu e-mail acima primeiro.";er.hidden=false;return}
-  const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});toast(error?erroMsg(error):"Se o e-mail tiver conta, enviamos um link para criar nova senha.")}
+async function esqueci(){const email=($("#lEmail").value||"").trim();if(!email){$("#lErro").textContent="Digite seu e-mail acima primeiro.";$("#lErro").style.display="block";return}
+  const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.href.split("#")[0]});toast(error?traduzErro(error):"Enviamos um link para criar uma nova senha.")}
 async function sair(){await db.auth.signOut();user=null;empresa=null;telaLogin()}
 
-/* ===== INÍCIO ===== */
+// ===== INÍCIO =====
 async function iniciar(){
   const {data:{session}}=await db.auth.getSession();
   if(!session){telaLogin();return}
-  user=session.user;$("#btnSair").hidden=false;
+  user=session.user;$("#btnSair").classList.remove("escondido");
   const [{data:emp},{data:adm}]=await Promise.all([db.from("empresas").select("*").eq("dono",user.id).maybeSingle(),db.from("admins").select("user_id").eq("user_id",user.id).maybeSingle()]);
   empresa=emp;admin=!!adm;
-  if(!empresa){telaCadastroEmpresa();return}
-  await carregar();telaPainel();
+  if(!empresa){telaCadastroEmpresa();if(admin)painelAdmin(true);return}
+  await carregarOfertas();telaPainel();
 }
-async function carregar(){
-  const [o,c]=await Promise.all([db.from("ofertas").select("*").eq("empresa_id",empresa.id).order("criado_em",{ascending:false}),db.rpc("minha_cota")]);
-  if(o.error)toast(erroMsg(o.error));ofertas=o.data||[];cota=c.data||{plano:"gratis",limite:1,usadas:0,vitrine:false};
-}
+async function carregarOfertas(){const {data,error}=await db.from("ofertas").select("*").eq("empresa_id",empresa.id).order("criado_em",{ascending:false});if(error)toast(traduzErro(error));ofertas=data||[]}
 
-/* ===== FOTOS (reduz no celular antes de enviar; só imagens) ===== */
-function comprimir(file,max=1200){return new Promise((res,rej)=>{if(!/^image\//.test(file.type))return rej(new Error("Escolha um arquivo de imagem."));if(file.size>15e6)return rej(new Error("Foto muito grande."));
-  const img=new Image();img.onload=()=>{let w=img.width,h=img.height;const r=Math.min(1,max/Math.max(w,h));w=Math.round(w*r);h=Math.round(h*r);
+// ===== FOTOS =====
+function comprimir(file,max=1200){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;const r=Math.min(1,max/Math.max(w,h));w=Math.round(w*r);h=Math.round(h*r);
   const c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(img,0,0,w,h);c.toBlob(b=>b?res(b):rej(new Error("Não foi possível ler a foto")),"image/jpeg",.82);URL.revokeObjectURL(img.src)};
   img.onerror=()=>rej(new Error("Arquivo de imagem inválido"));img.src=URL.createObjectURL(file)})}
-async function enviarFoto(file,max){const blob=await comprimir(file,max);const nome=`${user.id}/${Date.now()}-${crypto.getRandomValues(new Uint32Array(1))[0].toString(36)}.jpg`;
+async function enviarFoto(file,max){const blob=await comprimir(file,max);const nome=`${user.id}/${Date.now()}-${Math.random().toString(36).slice(2,7)}.jpg`;
   const {error}=await db.storage.from("fotos").upload(nome,blob,{contentType:"image/jpeg",upsert:false});if(error)throw error;
   return db.storage.from("fotos").getPublicUrl(nome).data.publicUrl}
-function mostrarPrevia(input,alvo){const f=input.files[0];if(!f||!/^image\//.test(f.type))return;$(alvo).innerHTML=`<img src="${URL.createObjectURL(f)}" alt="Prévia da foto">`}
+function mostrarPrevia(input,alvo){const f=input.files[0];if(!f)return;const u=URL.createObjectURL(f);$(alvo).innerHTML=`<img src="${u}" alt="Prévia da foto">`}
 
-/* ===== CADASTRO DA EMPRESA ===== */
+// ===== CADASTRO DA EMPRESA =====
 function formEmpresa(e={}){return `
-  <label for="eNome">Nome da loja</label><input class="inp" id="eNome" required minlength="2" maxlength="80" value="${esc(e.nome)}" placeholder="Ex: VS Store">
+  <label for="eNome">Nome da loja</label><input class="inp" id="eNome" required maxlength="80" value="${esc(e.nome)}" placeholder="Ex: VS Store">
   <label for="eRamo">Ramo</label><select class="inp" id="eRamo">${RAMOS.map(r=>`<option ${r===e.ramo?"selected":""}>${r}</option>`).join("")}</select>
   <label for="eWhats">WhatsApp da loja</label><input class="inp" id="eWhats" inputmode="tel" maxlength="20" value="${esc(e.whatsapp)}" placeholder="(42) 9 9999-9999">
   <p class="ajuda">Os clientes vão falar com você por este número.</p>
-  <label for="eEnd">Endereço em Castro</label><input class="inp" id="eEnd" maxlength="150" value="${esc(e.endereco)}" placeholder="Rua, número – bairro">
-  <label>Logo da loja</label><div class="previa" id="eLogoPrev" style="aspect-ratio:1/1;width:120px">${seguro(e.logo_url)?`<img src="${esc(e.logo_url)}" alt="Logo">`:"Sem logo"}</div>
-  <label class="foto-btn">📷 Escolher logo<input type="file" accept="image/jpeg,image/png,image/webp" id="eLogo" onchange="mostrarPrevia(this,'#eLogoPrev')"></label>
-  <div class="erro" id="eErro" role="alert" hidden></div>`}
-function telaCadastroEmpresa(){$("#main").innerHTML=`<div class="card"><h2>🏪 Cadastre sua loja</h2><p class="sub">Leva 1 minuto. A 1ª oferta da semana é grátis.</p>
-  <form onsubmit="salvarEmpresa(event)">${formEmpresa()}<button class="btn ouro" id="eBtn">Cadastrar minha loja</button></form></div>${admin?`<div id="admBox"></div>`:""}`;if(admin)painelAdmin()}
-async function salvarEmpresa(ev){ev.preventDefault();const b=$("#eBtn");b.disabled=true;$("#eErro").hidden=true;
+  <label for="eEnd">Endereço</label><input class="inp" id="eEnd" maxlength="150" value="${esc(e.endereco)}" placeholder="Rua, número – bairro">
+  <label>Logo da loja</label><div class="previa" id="eLogoPrev" style="aspect-ratio:1/1;width:120px">${e.logo_url?`<img src="${esc(e.logo_url)}" alt="Logo">`:"Sem logo"}</div>
+  <label class="foto-btn">📷 Escolher logo<input type="file" accept="image/*" id="eLogo" onchange="mostrarPrevia(this,'#eLogoPrev')"></label>
+  <div class="erro" id="eErro"></div>`}
+function telaCadastroEmpresa(){$("#main").innerHTML=`<div class="card"><h2>🏪 Cadastre sua loja</h2><p class="sub">Leva 1 minuto. Depois você já pode postar suas promoções.</p>
+  <form onsubmit="salvarEmpresa(event)">${formEmpresa()}<button class="btn ouro" id="eBtn">Cadastrar minha loja</button></form></div><div id="admBox"></div>`}
+async function salvarEmpresa(ev){ev.preventDefault();const b=$("#eBtn");b.disabled=true;$("#eErro").style.display="none";
   try{
     const dados={nome:$("#eNome").value.trim(),ramo:$("#eRamo").value,whatsapp:$("#eWhats").value.trim(),endereco:$("#eEnd").value.trim()};
     const f=$("#eLogo").files[0];if(f)dados.logo_url=await enviarFoto(f,400);
     const q=empresa?db.from("empresas").update(dados).eq("id",empresa.id):db.from("empresas").insert(dados);
     const {data,error}=await q.select().single();if(error)throw error;
-    empresa=data;fechar();toast(empresa.aprovada?"✅ Dados salvos!":"✅ Loja cadastrada! Já pode preparar sua primeira oferta.");await carregar();telaPainel();
-  }catch(e){$("#eErro").textContent=erroMsg(e);$("#eErro").hidden=false}finally{b.disabled=false}
+    empresa=data;fechar();toast(empresa.aprovada?"✅ Dados salvos!":"✅ Loja cadastrada! Agora poste sua primeira oferta.");await carregarOfertas();telaPainel();
+  }catch(e){$("#eErro").textContent=traduzErro(e);$("#eErro").style.display="block"}finally{b.disabled=false}
 }
 function editarEmpresa(){abrirSheet(`<h2 style="margin-top:8px">Dados da loja</h2><form onsubmit="salvarEmpresa(event)">${formEmpresa(empresa)}<button class="btn" id="eBtn">Salvar</button></form>`)}
 
-/* ===== PAINEL ===== */
-function venceu(o){return o.validade&&new Date(o.validade+"T23:59:59")<new Date()}
-function abas(){const l=[["ofertas","🏷️ Ofertas"],["confirmar","📷 Confirmar compra"],["vendas","🧾 Vendas"],["plano","💼 Plano"]];if(admin)l.push(["admin","👑 Admin"]);
-  return `<div class="abas" role="tablist">${l.map(([k,n])=>`<button role="tab" aria-selected="${aba===k}" onclick="aba='${k}';telaPainel()">${n}</button>`).join("")}</div>`}
+// ===== PAINEL =====
 function telaPainel(){
-  const pl=PLANOS[cota.plano]||PLANOS.gratis,restam=Math.max(0,cota.limite-cota.usadas),whatsAdm=String(CFG.WHATSAPP||"").replace(/\D/g,"");
-  let h=`${empresa.aprovada?"":`<div class="aviso">⏳ <b>Sua loja está em análise.</b> Você já pode preparar as ofertas; elas aparecem no app quando a loja for aprovada.${whatsAdm?` <a href="https://wa.me/${whatsAdm}?text=${encodeURIComponent("Olá! Cadastrei a loja "+empresa.nome+" na Área da Empresa do Vitrine Castro.")}" target="_blank" rel="noopener noreferrer">Avisar pelo WhatsApp</a>`:""}</div>`}
-  <div class="card"><div class="empresa-top"><div class="logo">${seguro(empresa.logo_url)?`<img src="${esc(empresa.logo_url)}" alt="">`:"🏪"}</div>
+  const pl=PLANOS[empresa.plano]||PLANOS.basico,ativas=ofertas.filter(o=>o.ativa).length;
+  const whatsAdm=(CONFIG.WHATSAPP||"").replace(/\D/g,"");
+  $("#main").innerHTML=`
+  ${empresa.aprovada?"":`<div class="aviso">⏳ <b>Sua loja está em análise.</b> Você já pode cadastrar as ofertas. Elas aparecem no app assim que a loja for aprovada.${whatsAdm?` <a href="https://wa.me/${whatsAdm}?text=${encodeURIComponent("Olá! Cadastrei a loja "+empresa.nome+" na Área da Empresa do Vitrine Castro.")}" target="_blank" rel="noopener">Avisar pelo WhatsApp</a>`:""}</div>`}
+  <div class="card"><div class="empresa-top"><div class="logo">${empresa.logo_url?`<img src="${esc(empresa.logo_url)}" alt="">`:"🏪"}</div>
    <div style="flex:1;min-width:0"><h2 style="margin:0">${esc(empresa.nome)}</h2><span class="status ${empresa.aprovada?"ok":"pend"}">${empresa.aprovada?"✓ Aprovada":"Em análise"}</span> <span class="status pausa">Plano ${pl.nome}</span></div></div>
-   <div class="cota"><b>${restam}</b> de ${cota.limite} ${cota.limite>1?"publicações":"publicação"} ${restam===1?"livre":"livres"} nesta semana<div class="barra"><i style="width:${Math.min(100,cota.usadas/cota.limite*100)}%"></i></div></div>
+   <p class="sub" style="margin-top:10px">Ofertas ativas: <b>${ativas}</b> de <b>${pl.lim}</b> do seu plano.</p>
    <button class="btn claro" onclick="editarEmpresa()">✏️ Editar dados da loja</button></div>
-  ${abas()}<div id="conteudoAba"></div>`;
-  $("#main").innerHTML=h;
-  ({ofertas:abaOfertas,confirmar:abaConfirmar,vendas:abaVendas,plano:abaPlano,admin:painelAdmin})[aba]();
+  <button class="btn ouro" style="min-height:58px;font-size:1.1rem" onclick="formOferta()">➕ Nova oferta</button>
+  <h2 style="margin:20px 0 10px">Minhas ofertas</h2>
+  <div id="listaOfertas">${ofertas.length?ofertas.map(cardOferta).join(""):`<div class="vazio"><span class="e">📸</span>Você ainda não postou nenhuma oferta.<br>Toque em <b>Nova oferta</b> para começar.</div>`}</div>
+  <div id="admBox"></div>`;
+  if(admin)painelAdmin();
 }
-function abaOfertas(){
-  const noAr=ofertas.filter(o=>o.ativa&&!venceu(o)).length,vencendo=ofertas.some(o=>o.validade&&!venceu(o)&&(new Date(o.validade+"T23:59:59")-new Date())<3*864e5);
-  $("#conteudoAba").innerHTML=`<div class="resumo"><div><b style="color:var(--verde)">${noAr}</b><small>no ar</small></div><div><b>${ofertas.filter(o=>!o.ativa).length}</b><small>pausadas</small></div><div><b style="color:var(--verm)">${ofertas.filter(venceu).length}</b><small>vencidas</small></div></div>
-   ${vencendo?`<p class="sub" style="margin-top:8px">⚠️ Você tem oferta vencendo nos próximos 3 dias.</p>`:""}
-   <button class="btn ouro" style="min-height:58px;font-size:1.1rem" onclick="formOferta()" ${cota.usadas>=cota.limite?"disabled":""}>➕ Nova oferta</button>
-   ${cota.usadas>=cota.limite?`<p class="ajuda" style="text-align:center">Você já usou as publicações desta semana. <button class="mini" onclick="aba='plano';telaPainel()">Ver planos</button></p>`:""}
-   <h2 style="margin:20px 0 10px">Minhas ofertas</h2>
-   ${ofertas.length?ofertas.map(cardOferta).join(""):`<div class="vazio"><span class="e">📸</span>Você ainda não publicou nenhuma oferta.<br>Toque em <b>Nova oferta</b> para começar.</div>`}`;
-}
+function venceu(o){return o.validade&&new Date(o.validade+"T23:59:59")<new Date()}
 function cardOferta(o){const st=venceu(o)?'<span class="status pausa">Vencida</span>':o.ativa?'<span class="status ok">No ar</span>':'<span class="status pausa">Pausada</span>';
-  return `<div class="oferta"><div class="ft">${seguro(o.foto_url)?`<img src="${esc(o.foto_url)}" alt="">`:"🏷️"}</div><div class="tx">${st}${o.banner?' <span class="status pend">⭐ Vitrine</span>':""}${o.destaque?' <span class="status pend">🔥 Destaque</span>':""}
-   <b>${esc(o.titulo)}</b><span class="tag">${o.desconto}% OFF</span>${o.desconto_vip?`<span class="tag" style="background:var(--azul);color:var(--ouro)">VIP ${o.desconto_vip}%</span>`:""}
+  return `<div class="oferta"><div class="ft">${o.foto_url?`<img src="${esc(o.foto_url)}" alt="">`:"🏷️"}</div><div class="tx">${st}${o.banner?' <span class="status pend">⭐ Banner</span>':""}
+   <span class="tag">${esc(o.titulo)}</span><b>${esc(o.descricao).slice(0,80)}</b>
    <p class="ajuda">${o.validade?"Válida até "+new Date(o.validade+"T00:00:00").toLocaleDateString("pt-BR"):"Sem data de validade"}</p>
-   <div class="acoes"><button class="mini az" onclick="formOferta('${esc(o.id)}')">✏️ Editar</button><button class="mini" onclick="pausar('${esc(o.id)}',${!o.ativa})">${o.ativa?"⏸ Pausar":"▶️ Ativar"}</button><button class="mini vm" onclick="apagar('${esc(o.id)}')">🗑 Apagar</button></div></div></div>`}
+   <div class="acoes"><button class="mini az" onclick="formOferta('${o.id}')">✏️ Editar</button><button class="mini" onclick="pausar('${o.id}',${!o.ativa})">${o.ativa?"⏸ Pausar":"▶️ Ativar"}</button><button class="mini vm" onclick="apagar('${o.id}')">🗑 Apagar</button></div></div></div>`}
 
-/* ===== OFERTA (descontos de 10, 20, 30 ou 50%) ===== */
-function formOferta(id){const o=ofertas.find(x=>x.id===id)||{desconto:20};
+// ===== OFERTA =====
+function formOferta(id){const o=ofertas.find(x=>x.id===id)||{};
   abrirSheet(`<h2 style="margin-top:8px">${id?"Editar oferta":"Nova oferta"}</h2>
-  <form onsubmit="salvarOferta(event,'${id?esc(id):""}')">
-   <label>Foto do produto</label><div class="previa" id="oPrev">${seguro(o.foto_url)?`<img src="${esc(o.foto_url)}" alt="">`:"Use uma foto bonita do produto.<br>De preferência deitada (horizontal)."}</div>
-   <label class="foto-btn">📷 ${o.foto_url?"Trocar foto":"Escolher foto"}<input type="file" accept="image/jpeg,image/png,image/webp" id="oFoto" onchange="mostrarPrevia(this,'#oPrev');previaApp()"></label>
-   <label for="oTit">Produto ou serviço</label><input class="inp" id="oTit" required minlength="2" maxlength="60" value="${esc(o.titulo)}" placeholder="Ex: Pizza grande, Corte + barba" oninput="previaApp()"><p class="cont" id="oTitCont"></p>
-   <fieldset style="border:0"><legend style="font-size:.9rem;font-weight:600;margin:12px 0 5px">Desconto para todos</legend>
-   <div class="descs">${DESCONTOS.map(d=>`<label><input type="radio" name="oDesc" value="${d}" ${o.desconto===d?"checked":""} onchange="previaApp()"><span>${d}%</span></label>`).join("")}</div></fieldset>
-   <label for="oVip">Desconto para membros VIP (opcional)</label><select class="inp" id="oVip" onchange="previaApp()"><option value="">Sem desconto VIP diferente</option>${[20,30,40,50,60,70].map(d=>`<option value="${d}" ${o.desconto_vip===d?"selected":""}>${d}% para VIP</option>`).join("")}</select>
-   <p class="ajuda">O VIP precisa ganhar mais que o desconto normal. Clientes VIP pagam R$ 9,90/mês e compram mais.</p>
-   <label for="oPreco">Preço normal (R$, opcional)</label><input class="inp" id="oPreco" inputmode="decimal" value="${o.preco?String(o.preco).replace(".",","):""}" placeholder="Ex: 60,00" oninput="previaApp()">
-   <p class="ajuda">Com o preço, o app mostra “de R$ 60 por R$ 48”.</p>
-   <label for="oDescr">Descrição</label><textarea class="inp" id="oDescr" required maxlength="300" placeholder="Ex: Pizza grande de qualquer sabor, de segunda a quinta." oninput="previaApp()">${esc(o.descricao)}</textarea><p class="cont" id="oDescrCont"></p>
+  <form onsubmit="salvarOferta(event,'${id||""}')">
+   <label>Foto da promoção</label><div class="previa" id="oPrev">${o.foto_url?`<img src="${esc(o.foto_url)}" alt="">`:"Use uma foto bonita do produto ou da loja.<br>De preferência deitada (horizontal)."}</div>
+   <label class="foto-btn">📷 ${o.foto_url?"Trocar foto":"Escolher foto"}<input type="file" accept="image/*" id="oFoto" onchange="mostrarPrevia(this,'#oPrev')"></label>
+   <label for="oTit">Desconto (aparece em destaque)</label><input class="inp" id="oTit" required maxlength="40" value="${esc(o.titulo)}" placeholder="Ex: 20% OFF  ou  Barba grátis">
+   <label for="oDesc">Descrição da oferta</label><textarea class="inp" id="oDesc" required maxlength="300" placeholder="Ex: 20% de desconto em pizzas grandes, de segunda a quinta.">${esc(o.descricao)}</textarea>
    <label for="oReg">Regras (opcional)</label><input class="inp" id="oReg" maxlength="200" value="${esc(o.regras)}" placeholder="Ex: Válido para pagamento à vista.">
    <div class="linha"><div><label for="oCat">Categoria</label><select class="inp" id="oCat">${CATS.map(([v,n])=>`<option value="${v}" ${v===o.categoria?"selected":""}>${n}</option>`).join("")}</select></div>
-   <div><label for="oVal">Válida até</label><input class="inp" id="oVal" type="date" value="${esc(o.validade||"")}"></div></div>
-   <label class="check"><input type="checkbox" id="oBanner" ${o.banner?"checked":""} ${cota.vitrine?"":"disabled"}><span>Mostrar na vitrine principal (carrossel do topo)${cota.vitrine?"":`<br><span class="ajuda">Disponível nos planos pagos, a partir de R$ 49,90/mês.</span>`}</span></label>
-   <div class="prev-app" aria-live="polite"><div class="rot">👀 ASSIM APARECE NO APP</div><div class="pcard"><div class="im" id="pcIm"></div><div class="i"><b id="pcTit"></b><small>${esc(empresa.nome)}</small><div id="pcPreco" class="ajuda"></div></div><div class="t" id="pcT"></div></div></div>
-   ${id?"":`<p class="ajuda" style="margin-top:10px">Esta publicação usa 1 das ${cota.limite} da semana do seu plano.</p>`}
-   <button class="btn ouro" id="oBtn">${id?"Salvar alterações":"Publicar oferta"}</button><div class="erro" id="oErro" role="alert" hidden></div>
-  </form>`);previaApp(o.foto_url)}
-function valorNum(s){const v=parseFloat(String(s||"").replace(/\./g,"").replace(",","."));return isFinite(v)?v:0}
-function previaApp(fotoAtual){const t=$("#oTit"),d=$("#oDescr");if(!t)return;
-  const desc=+((document.querySelector('input[name="oDesc"]:checked')||{}).value||20),vip=+$("#oVip").value||0,preco=valorNum($("#oPreco").value);
-  $("#pcTit").textContent=t.value.trim()||"Seu produto";$("#pcT").textContent=desc+"% OFF"+(vip?`  ·  VIP ${vip}%`:"");
-  $("#pcPreco").textContent=preco>0?`De ${moeda(preco)} por ${moeda(preco*(1-desc/100))}`:"";
-  $("#oTitCont").textContent=t.value.length+"/60";$("#oDescrCont").textContent=d.value.length+"/300";
-  const f=$("#oFoto").files[0];if(f&&/^image\//.test(f.type)){$("#pcIm").innerHTML=`<img src="${URL.createObjectURL(f)}" alt="">`}else if(typeof fotoAtual==="string"&&seguro(fotoAtual)){$("#pcIm").innerHTML=`<img src="${esc(fotoAtual)}" alt="">`}else if(!$("#pcIm").innerHTML)$("#pcIm").textContent="🏷️"}
-async function salvarOferta(ev,id){ev.preventDefault();const b=$("#oBtn"),er=$("#oErro");b.disabled=true;b.textContent="Salvando…";er.hidden=true;
+   <div><label for="oVal">Válida até</label><input class="inp" id="oVal" type="date" value="${o.validade||""}"></div></div>
+   <label for="oEco">Quanto o cliente economiza, em média (R$)</label><input class="inp" id="oEco" inputmode="decimal" value="${o.economia||""}" placeholder="Ex: 15">
+   <p class="ajuda">Usado no contador "Você já economizou" do cliente.</p>
+   <button class="btn ouro" id="oBtn">${id?"Salvar alterações":"Publicar oferta"}</button><div class="erro" id="oErro"></div>
+  </form>`)}
+async function salvarOferta(ev,id){ev.preventDefault();const b=$("#oBtn");b.disabled=true;b.textContent="Salvando…";$("#oErro").style.display="none";
   try{
-    const desc=+((document.querySelector('input[name="oDesc"]:checked')||{}).value||0),vip=+$("#oVip").value||null,preco=valorNum($("#oPreco").value);
-    if(!DESCONTOS.includes(desc))throw new Error("Escolha um desconto de 10%, 20%, 30% ou 50%.");
-    if(vip&&vip<=desc)throw new Error("O desconto VIP precisa ser maior que o desconto normal.");
-    if(preco<0||preco>=1000000)throw new Error("Preço inválido.");
-    const dados={titulo:$("#oTit").value.trim(),descricao:$("#oDescr").value.trim(),regras:$("#oReg").value.trim(),categoria:$("#oCat").value,validade:$("#oVal").value||null,
-      desconto:desc,desconto_vip:vip,preco:preco>0?Math.round(preco*100)/100:null,banner:$("#oBanner").checked};
+    const dados={titulo:$("#oTit").value.trim(),descricao:$("#oDesc").value.trim(),regras:$("#oReg").value.trim(),categoria:$("#oCat").value,validade:$("#oVal").value||null,economia:parseFloat(($("#oEco").value||"0").replace(",","."))||0};
     const f=$("#oFoto").files[0];if(f)dados.foto_url=await enviarFoto(f,1200);
-    const r=id?await db.from("ofertas").update(dados).eq("id",id):await db.from("ofertas").insert({...dados,empresa_id:empresa.id});
+    let r;if(id)r=await db.from("ofertas").update(dados).eq("id",id);else r=await db.from("ofertas").insert({...dados,empresa_id:empresa.id});
     if(r.error)throw r.error;
-    fechar();toast(id?"✅ Oferta atualizada!":empresa.aprovada?"✅ Oferta publicada! Os VIPs veem primeiro.":"✅ Oferta salva! Vai ao ar quando a loja for aprovada.");await carregar();telaPainel();
-  }catch(e){er.textContent=erroMsg(e);er.hidden=false;b.disabled=false;b.textContent=id?"Salvar alterações":"Publicar oferta"}
+    fechar();toast(id?"✅ Oferta atualizada!":"✅ Oferta publicada!");await carregarOfertas();telaPainel();
+  }catch(e){$("#oErro").textContent=traduzErro(e);$("#oErro").style.display="block";b.disabled=false;b.textContent=id?"Salvar alterações":"Publicar oferta"}
 }
-async function pausar(id,ativar){const {error}=await db.from("ofertas").update({ativa:ativar}).eq("id",id);if(error){toast(erroMsg(error));return}toast(ativar?"▶️ Oferta no ar":"⏸ Oferta pausada");await carregar();telaPainel()}
-function apagar(id){abrirSheet(`<div style="text-align:center;margin-top:10px"><div style="font-size:3rem" aria-hidden="true">🗑</div><h2>Apagar esta oferta?</h2><p class="sub">Ela sai do app na hora. Apagar não devolve a publicação da semana.</p></div><button class="btn verm" onclick="confirmarApagar('${esc(id)}')">Sim, apagar</button><button class="btn claro" onclick="fechar()">Cancelar</button>`)}
-async function confirmarApagar(id){const {error}=await db.from("ofertas").delete().eq("id",id);fechar();if(error){toast(erroMsg(error));return}toast("Oferta apagada");await carregar();telaPainel()}
+async function pausar(id,ativar){const {error}=await db.from("ofertas").update({ativa:ativar}).eq("id",id);if(error){toast(traduzErro(error));return}toast(ativar?"▶️ Oferta no ar":"⏸ Oferta pausada");await carregarOfertas();telaPainel()}
+function apagar(id){abrirSheet(`<div style="text-align:center;margin-top:10px"><div style="font-size:3rem">🗑</div><h2>Apagar esta oferta?</h2><p class="sub">Ela sai do app na hora. Isso não pode ser desfeito.</p></div><button class="btn verm" onclick="confirmarApagar('${id}')">Sim, apagar</button><button class="btn claro" onclick="fechar()">Cancelar</button>`)}
+async function confirmarApagar(id){const {error}=await db.from("ofertas").delete().eq("id",id);fechar();if(error){toast(traduzErro(error));return}toast("Oferta apagada");await carregarOfertas();telaPainel()}
 
-/* ===== CONFIRMAR COMPRA: foto do QR Code do cliente ===== */
-let jsqrPromise=null;
-function carregarJsQR(){ // só baixa o leitor quando o celular não tem leitor próprio
-  if(window.jsQR)return Promise.resolve();
-  return jsqrPromise=jsqrPromise||new Promise((res,rej)=>{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js";
-    s.integrity="sha384-b5Ya4Bq3qCyz39m2ISh+4DxjAIljdeFwK/BsXLuj9gugaNwAcj/ia15fxNZL9Nlx";s.crossOrigin="anonymous";s.onload=res;s.onerror=()=>rej(new Error("Não foi possível carregar o leitor de QR Code"));document.head.appendChild(s)})}
-async function lerQR(file){
-  const bmp=await createImageBitmap(file);
-  if("BarcodeDetector" in window){try{const r=await new BarcodeDetector({formats:["qr_code"]}).detect(bmp);if(r[0])return r[0].rawValue}catch(e){}}
-  await carregarJsQR();
-  const max=1200,k=Math.min(1,max/Math.max(bmp.width,bmp.height)),w=Math.round(bmp.width*k),h=Math.round(bmp.height*k);
-  const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");x.drawImage(bmp,0,0,w,h);
-  const d=x.getImageData(0,0,w,h),r=jsQR(d.data,w,h,{inversionAttempts:"attemptBoth"});return r?r.data:"";
-}
-function extrairCodigo(t){const m=String(t||"").toUpperCase().match(/\b(VC|BR)[0-9A-F]{8}\b/);return m?m[0]:""}
-function abaConfirmar(){
-  $("#conteudoAba").innerHTML=empresa.aprovada?`<div class="card"><h2>📷 Confirmar compra</h2><p class="sub">Peça para o cliente abrir o cupom no app. Tire uma foto do QR Code ou digite o código.</p>
-   <div class="scan" style="margin-top:12px"><div class="grande" aria-hidden="true">📱</div>
-    <label class="foto-btn" style="background:linear-gradient(#E9C766,#C9952A);color:#0E1428;border:0;min-height:60px;font-size:1.1rem">📷 Tirar foto do QR Code<input type="file" accept="image/*" capture="environment" onchange="fotoQR(this)"></label>
-    <form onsubmit="event.preventDefault();consultar($('#cCod').value)" style="margin-top:14px"><label for="cCod" style="text-align:left">Ou digite o código</label><div class="linha"><input class="inp" id="cCod" maxlength="12" autocapitalize="characters" autocomplete="off" placeholder="VC1A2B3C4D" style="flex:2"><button class="btn" style="margin:0;flex:1">Buscar</button></div></form>
-   </div><div id="resultadoScan" aria-live="polite"></div></div>`:`<div class="aviso">⏳ Você poderá confirmar compras assim que a loja for aprovada.</div>`;
-}
-async function fotoQR(input){const f=input.files[0];input.value="";if(!f)return;$("#resultadoScan").innerHTML=`<p class="sub" style="margin-top:12px">Lendo o QR Code…</p>`;
-  try{const t=await lerQR(f),cod=extrairCodigo(t);if(!cod)throw new Error("Não consegui ler o QR Code. Tente de novo mais perto, com luz, ou digite o código.");$("#cCod").value=cod;consultar(cod)}
-  catch(e){$("#resultadoScan").innerHTML=`<div class="erro">${esc(erroMsg(e))}</div>`}}
-async function consultar(txt){const cod=extrairCodigo(txt),box=$("#resultadoScan");
-  if(!cod){box.innerHTML=`<div class="erro">Código inválido. Ele começa com VC (cupom) ou BR (brinde) e tem 10 caracteres.</div>`;return}
-  box.innerHTML=`<p class="sub" style="margin-top:12px">Conferindo…</p>`;
-  try{
-    if(cod.startsWith("BR")){const {data,error}=await db.rpc("entregar_brinde",{p_codigo:cod,p_confirmar:false});if(error)throw error;
-      if(!data.ok){box.innerHTML=`<div class="erro">${esc(data.motivo)}</div>`;return}
-      box.innerHTML=`<div class="cupom-box"><b>🎁 Brinde: ${esc(data.brinde)}</b><p class="sub">Cliente: ${esc(data.cliente||"—")}</p>${data.status==="retirado"?`<div class="erro">Este brinde já foi entregue.</div>`:`<button class="btn ouro" onclick="entregarBrinde('${cod}')">✅ Entregar brinde</button>`}</div>`;return}
-    const {data,error}=await db.rpc("consultar_cupom",{p_codigo:cod});if(error)throw error;
-    if(!data.ok){box.innerHTML=`<div class="erro">${esc(data.motivo)}</div>`;return}
-    if(data.status!=="ativo"){box.innerHTML=`<div class="erro">Este cupom já foi usado em ${esc(dataBR(data.usado_em))}.</div>`;return}
-    if(data.vencida){box.innerHTML=`<div class="erro">A oferta deste cupom já venceu.</div>`;return}
-    box.innerHTML=`<div class="cupom-box"><p class="sub">Cliente: <b>${esc(data.cliente||"—")}</b> ${data.vip?'<span class="status pend">👑 VIP</span>':""}</p><b>${esc(data.oferta)}</b><div class="d">${Number(data.desconto)}% OFF</div>
-     ${data.preco?`<p class="sub">Preço normal ${moeda(data.preco)} → com desconto <b>${moeda(data.preco*(1-data.desconto/100))}</b></p>`:""}
-     <form onsubmit="event.preventDefault();confirmar('${cod}')"><label for="cValor">Valor que o cliente pagou (R$)</label><input class="inp" id="cValor" inputmode="decimal" required placeholder="Ex: 48,00" value="${data.preco?String((data.preco*(1-data.desconto/100)).toFixed(2)).replace(".",","):""}">
-     <p class="ajuda">O cliente ganha pontos por este valor. Confira antes de confirmar: não dá para desfazer.</p><button class="btn ouro" id="cBtn">✅ Confirmar compra</button></form></div>`;
-    $("#cValor").focus();
-  }catch(e){box.innerHTML=`<div class="erro">${esc(erroMsg(e))}</div>`}}
-async function confirmar(cod){const v=valorNum($("#cValor").value),b=$("#cBtn");if(!(v>0&&v<=50000)){toast("Digite um valor entre R$ 0,01 e R$ 50.000");return}
-  b.disabled=true;
-  try{const {data,error}=await db.rpc("confirmar_compra",{p_codigo:cod,p_valor:Math.round(v*100)/100});if(error)throw error;
-    $("#resultadoScan").innerHTML=`<div class="okbox">✅ Compra confirmada!<br>${esc(data.cliente||"O cliente")} ganhou <b>${Number(data.pontos)} pontos</b>.<br><span style="font-weight:500">Venda registrada como vinda do Vitrine Castro.</span></div>`;$("#cCod").value="";
-    try{navigator.vibrate&&navigator.vibrate(40)}catch(e){}
-  }catch(e){toast(erroMsg(e));b.disabled=false}}
-async function entregarBrinde(cod){try{const {data,error}=await db.rpc("entregar_brinde",{p_codigo:cod,p_confirmar:true});if(error)throw error;$("#resultadoScan").innerHTML=`<div class="okbox">🎁 Brinde entregue para ${esc(data.cliente||"o cliente")}!</div>`}catch(e){toast(erroMsg(e))}}
-
-/* ===== VENDAS PELO APP ===== */
-async function abaVendas(){
-  $("#conteudoAba").innerHTML=`<div class="card"><p class="sub">Carregando vendas…</p></div>`;
-  const {data,error}=await db.from("compras").select("criado_em,cliente_nome,oferta_titulo,valor,desconto,pontos").eq("empresa_id",empresa.id).order("criado_em",{ascending:false}).limit(500);
-  if(error){$("#conteudoAba").innerHTML=`<div class="erro">${esc(erroMsg(error))}</div>`;return}
-  const l=data||[],mes=new Date();mes.setDate(1);mes.setHours(0,0,0,0);const doMes=l.filter(c=>new Date(c.criado_em)>=mes);
-  const soma=a=>a.reduce((s,c)=>s+Number(c.valor),0);
-  $("#conteudoAba").innerHTML=`<div class="card"><h2>🧾 Vendas pelo Vitrine Castro</h2><p class="sub">Cada compra confirmada pelo QR Code fica registrada aqui.</p>
-   <div class="resumo"><div><b>${doMes.length}</b><small>vendas no mês</small></div><div><b style="font-size:1rem">${moeda(soma(doMes))}</b><small>no mês</small></div><div><b style="font-size:1rem">${moeda(soma(l))}</b><small>total</small></div></div>
-   <div style="margin-top:12px">${l.length?l.map(c=>`<div class="venda"><span><b>${esc(c.oferta_titulo||"Oferta")}</b><small>${new Date(c.criado_em).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})} · ${esc(c.cliente_nome||"Cliente")} · ${Number(c.desconto)}% OFF</small></span><span style="text-align:right;white-space:nowrap"><b>${moeda(c.valor)}</b><small>+${Number(c.pontos)} pts</small></span></div>`).join(""):`<div class="vazio"><span class="e">🧾</span>Nenhuma venda confirmada ainda.</div>`}</div>
-   ${l.length?`<button class="btn claro" onclick="baixarCSV()">⬇️ Baixar planilha (CSV)</button>`:""}</div>`;
-  window._vendas=l;
-}
-function baixarCSV(){const linhas=[["data","cliente","oferta","desconto","valor","pontos"],...(window._vendas||[]).map(c=>[new Date(c.criado_em).toLocaleString("pt-BR"),c.cliente_nome||"",c.oferta_titulo||"",c.desconto+"%",String(c.valor).replace(".",","),c.pontos])];
-  // evita "injeção de fórmula" no Excel: campos começando com = + - @ ganham um apóstrofo
-  const cel=v=>{let s=String(v??"");if(/^[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'};
-  const blob=new Blob(["﻿"+linhas.map(l=>l.map(cel).join(";")).join("\n")],{type:"text/csv;charset=utf-8"});
-  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="vendas-vitrine-castro.csv";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
-
-/* ===== PLANO ===== */
-function abaPlano(){const whatsAdm=String(CFG.WHATSAPP||"").replace(/\D/g,"");
-  $("#conteudoAba").innerHTML=`<div class="card"><h2>💼 Seu plano</h2><p class="sub">${cota.plano!=="gratis"&&cota.plano_ate?`Plano ${PLANOS[cota.plano].nome} válido até <b>${dataBR(cota.plano_ate)}</b>.`:"Você está no plano Grátis: 1 oferta por semana."}</p>
-   ${Object.entries(PLANOS).map(([k,p])=>`<div class="plano ${k===cota.plano?"atual":""}"><div class="linha" style="align-items:center"><b>${p.nome}${k===cota.plano?" (atual)":""}</b><span class="p" style="text-align:right">${p.preco}<small style="font-size:.8rem;color:var(--cinza)">/mês</small></span></div><ul>${p.itens.map(i=>`<li>${i}</li>`).join("")}</ul>
-    ${k!=="gratis"&&k!==cota.plano&&whatsAdm?`<a class="btn ${k==="destaque"?"ouro":"claro"}" href="https://wa.me/${whatsAdm}?text=${encodeURIComponent(`Olá! Quero o plano ${p.nome} (${p.preco}/mês) para a loja ${empresa.nome}.`)}" target="_blank" rel="noopener noreferrer">Quero o plano ${p.nome}</a>`:""}</div>`).join("")}
-   <p class="ajuda" style="margin-top:10px">O plano é liberado assim que o pagamento é confirmado. As publicações contam por 7 dias corridos.</p></div>`}
-
-/* ===== ADMINISTRADOR (só quem está na tabela admins) ===== */
+// ===== ADMINISTRADOR (só você) =====
 async function painelAdmin(){
-  const alvo=$("#conteudoAba")||$("#admBox");if(!alvo)return;
-  const [{data:emps},{data:ofs},{data:brs}]=await Promise.all([db.from("empresas").select("*").order("criado_em",{ascending:false}),db.from("ofertas").select("id,titulo,ativa,destaque,banner,empresa_id").order("criado_em",{ascending:false}).limit(200),db.from("brindes").select("*").order("pontos")]);
+  const [{data:emps},{data:ofs}]=await Promise.all([db.from("empresas").select("*").order("criado_em",{ascending:false}),db.from("ofertas").select("id,titulo,ativa,destaque,banner,banner_topo,empresa_id").order("criado_em",{ascending:false})]);
   const nomeEmp=id=>((emps||[]).find(e=>e.id===id)||{}).nome||"?";
-  window._emps=emps||[];
-  alvo.innerHTML=`<div class="card" style="border:2px solid var(--ouro)"><h2>👑 Administrador</h2><p class="sub">Só você vê esta parte. Use depois de receber o pagamento.</p>
-   <h3 style="margin-top:14px">Cliente VIP (${"R$ 9,90"}/mês)</h3>
-   <form onsubmit="event.preventDefault();buscarCliente()" class="linha" style="margin-top:6px"><input class="inp" id="aEmail" type="email" placeholder="E-mail do cliente" style="flex:2"><button class="btn" style="margin:0">Buscar</button></form><div id="aCliente"></div>
-   <h3 style="margin-top:18px">Lojas (${(emps||[]).length})</h3>${(emps||[]).map(e=>`<div class="item"><span class="n"><b>${esc(e.nome)}</b><br><span class="ajuda">${esc(e.ramo)} · ${esc(e.whatsapp||"sem WhatsApp")} · ${PLANOS[e.plano]?PLANOS[e.plano].nome:e.plano}${e.plano_ate?" até "+dataBR(e.plano_ate):""}</span></span>
-     <select aria-label="Plano de ${esc(e.nome)}" id="pl-${esc(e.id)}">${Object.entries(PLANOS).map(([k,v])=>`<option value="${k}" ${k===e.plano?"selected":""}>${v.nome}</option>`).join("")}</select>
-     <button class="mini ou" onclick="admPlano('${esc(e.id)}')">+30 dias</button>
-     ${e.aprovada?`<button class="mini" onclick="admEmpresa('${esc(e.id)}',{aprovada:false})">Suspender</button>`:`<button class="mini ou" onclick="admEmpresa('${esc(e.id)}',{aprovada:true})">✓ Aprovar</button>`}</div>`).join("")||'<p class="sub">Nenhuma loja ainda.</p>'}
-   <h3 style="margin-top:18px">Brindes</h3>${(brs||[]).map(b=>`<div class="item"><span class="n"><b>${esc(b.nome)}</b> · ${Number(b.pontos)} pts${b.estoque!==null?` · estoque ${Number(b.estoque)}`:""}${b.empresa_id?` · ${esc(nomeEmp(b.empresa_id))}`:""}</span><button class="mini ${b.ativo?"":"ou"}" onclick="admBrinde('${esc(b.id)}',${!b.ativo})">${b.ativo?"Desativar":"Ativar"}</button></div>`).join("")}
-   <form onsubmit="novoBrinde(event)" style="margin-top:8px"><div class="linha"><input class="inp" id="bNome" required maxlength="60" placeholder="Nome do brinde"><input class="inp" id="bPts" required inputmode="numeric" placeholder="Pontos"></div>
-    <div class="linha" style="margin-top:8px"><input class="inp" id="bEst" inputmode="numeric" placeholder="Estoque (vazio = sem limite)"><select class="inp" id="bIc">${ICONES.map(i=>`<option>${i}</option>`).join("")}</select></div>
-    <select class="inp" id="bEmp" style="margin-top:8px"><option value="">Entregue pelo Vitrine Castro</option>${(emps||[]).filter(e=>e.aprovada).map(e=>`<option value="${esc(e.id)}">Entregue por ${esc(e.nome)}</option>`).join("")}</select><button class="btn claro">➕ Adicionar brinde</button></form>
-   <h3 style="margin-top:18px">Ofertas (${(ofs||[]).length})</h3>${(ofs||[]).map(o=>`<div class="item"><span class="n"><b>${esc(o.titulo)}</b> · ${esc(nomeEmp(o.empresa_id))}${o.ativa?"":' <span class="ajuda">(pausada)</span>'}</span>
-     <button class="mini ${o.destaque?"ou":""}" onclick="admOferta('${esc(o.id)}',{destaque:${!o.destaque}})">${o.destaque?"★ Destaque":"☆ Destaque"}</button>
-     <button class="mini ${o.banner?"ou":""}" onclick="admOferta('${esc(o.id)}',{banner:${!o.banner}})">${o.banner?"🖼 Na vitrine":"🖼 Vitrine"}</button></div>`).join("")||'<p class="sub">Nenhuma oferta ainda.</p>'}
+  $("#admBox").innerHTML=`<div class="card adm" style="margin-top:24px;border:2px solid var(--ouro)"><h2>👑 Painel do administrador</h2><p class="sub">Só você vê esta parte.</p>
+   <h3>Lojas (${(emps||[]).length})</h3>${(emps||[]).map(e=>`<div class="item"><span class="n"><b>${esc(e.nome)}</b><br><span class="ajuda">${esc(e.ramo)} · ${esc(e.whatsapp||"sem WhatsApp")}</span></span>
+     <select aria-label="Plano de ${esc(e.nome)}" onchange="admEmpresa('${e.id}',{plano:this.value})">${Object.entries(PLANOS).map(([k,v])=>`<option value="${k}" ${k===e.plano?"selected":""}>${v.nome}</option>`).join("")}</select>
+     ${e.aprovada?`<button class="mini" onclick="admEmpresa('${e.id}',{aprovada:false})">Suspender</button>`:`<button class="mini ou" onclick="admEmpresa('${e.id}',{aprovada:true})">✓ Aprovar</button>`}</div>`).join("")||'<p class="sub">Nenhuma loja ainda.</p>'}
+   <h3>Ofertas (${(ofs||[]).length})</h3>${(ofs||[]).map(o=>`<div class="item"><span class="n"><b>${esc(o.titulo)}</b> · ${esc(nomeEmp(o.empresa_id))}${o.ativa?"":' <span class="ajuda">(pausada)</span>'}</span>
+     <button class="mini ${o.destaque?"ou":""}" onclick="admOferta('${o.id}',{destaque:${!o.destaque}})">${o.destaque?"★ Destaque":"☆ Destaque"}</button>
+     <button class="mini ${o.banner?"ou":""}" onclick="admBanner('${o.id}',${!o.banner},'${esc(o.banner_topo||"")}')">${o.banner?"🖼 No banner":"🖼 Banner"}</button></div>`).join("")||'<p class="sub">Nenhuma oferta ainda.</p>'}
   </div>`}
-async function buscarCliente(){const em=$("#aEmail").value.trim();if(!em)return;const {data,error}=await db.rpc("admin_buscar_cliente",{p_email:em});
-  if(error){toast(erroMsg(error));return}if(!data){$("#aCliente").innerHTML=`<p class="sub">Nenhum cliente com esse e-mail.</p>`;return}
-  window._cli=data;const vip=data.vip_ate&&new Date(data.vip_ate)>new Date();
-  $("#aCliente").innerHTML=`<div class="item"><span class="n"><b>${esc(data.nome||"(sem nome)")}</b><br><span class="ajuda">${esc(data.whatsapp||"")} · código ${esc(data.codigo)} · ${vip?"VIP até "+dataBR(data.vip_ate):"não é VIP"}</span></span><button class="mini ou" onclick="admVip(30)">👑 +30 dias</button>${vip?`<button class="mini vm" onclick="admVip(0)">Tirar VIP</button>`:""}</div>`}
-async function admVip(d){const {data,error}=await db.rpc("admin_dar_vip",{p_cliente:window._cli.id,p_dias:d});toast(error?erroMsg(error):d?"👑 VIP até "+dataBR(data):"VIP removido");buscarCliente()}
-async function admPlano(id){const p=$("#pl-"+CSS.escape(id)).value;const {data,error}=await db.rpc("admin_plano",{p_empresa:id,p_plano:p,p_dias:30});toast(error?erroMsg(error):p==="gratis"?"Plano Grátis":"✅ Plano até "+dataBR(data));painelAdmin()}
-async function admEmpresa(id,campos){const {error}=await db.from("empresas").update(campos).eq("id",id);toast(error?erroMsg(error):"✅ Atualizado");painelAdmin()}
-async function admOferta(id,campos){const {error}=await db.from("ofertas").update(campos).eq("id",id);toast(error?erroMsg(error):"✅ Atualizado");painelAdmin()}
-async function admBrinde(id,ativo){const {error}=await db.from("brindes").update({ativo}).eq("id",id);toast(error?erroMsg(error):"✅ Atualizado");painelAdmin()}
-async function novoBrinde(e){e.preventDefault();const pts=parseInt($("#bPts").value,10),est=$("#bEst").value.trim();
-  if(!(pts>0)){toast("Pontos inválidos");return}
-  const {error}=await db.from("brindes").insert({nome:$("#bNome").value.trim(),pontos:pts,estoque:est?parseInt(est,10):null,icone:$("#bIc").value,empresa_id:$("#bEmp").value||null});
-  toast(error?erroMsg(error):"✅ Brinde criado");painelAdmin()}
+async function admEmpresa(id,campos){const {error}=await db.from("empresas").update(campos).eq("id",id);toast(error?traduzErro(error):"✅ Atualizado");painelAdmin()}
+async function admOferta(id,campos){const {error}=await db.from("ofertas").update(campos).eq("id",id);toast(error?traduzErro(error):"✅ Atualizado");painelAdmin()}
+function admBanner(id,ligar,topo){if(!ligar){admOferta(id,{banner:false});return}
+  abrirSheet(`<h2 style="margin-top:8px">Colocar no banner do topo</h2><p class="sub">A oferta precisa ter foto. Escreva uma chamada curta que aparece acima do desconto.</p>
+  <label for="bTopo">Chamada (opcional)</label><input class="inp" id="bTopo" maxlength="20" value="${topo}" placeholder="Ex: LIQUIDAÇÃO"><button class="btn ouro" onclick="fechar();admOferta('${id}',{banner:true,banner_topo:$('#bTopo').value.trim().toUpperCase()||null})">Colocar no banner</button>`)}
 
-db.auth.onAuthStateChange((ev)=>{if(ev==="PASSWORD_RECOVERY")abrirSheet(`<h2 style="margin-top:8px">Criar nova senha</h2><form onsubmit="novaSenha(event)"><label for="nSenha">Nova senha</label><input class="inp" id="nSenha" type="password" minlength="8" maxlength="72" required autocomplete="new-password"><button class="btn">Salvar senha</button></form>`)});
-async function novaSenha(ev){ev.preventDefault();const {error}=await db.auth.updateUser({password:$("#nSenha").value});fechar();toast(error?erroMsg(error):"✅ Senha alterada!");iniciar()}
-iniciar().catch(e=>{$("#main").innerHTML=`<div class="card"><h2>Sem conexão</h2><p class="sub">${esc(erroMsg(e))}</p><button class="btn" onclick="location.reload()">Tentar de novo</button></div>`});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")fechar()});
+db.auth.onAuthStateChange((ev)=>{if(ev==="PASSWORD_RECOVERY")abrirSheet(`<h2 style="margin-top:8px">Criar nova senha</h2><form onsubmit="novaSenha(event)"><label for="nSenha">Nova senha</label><input class="inp" id="nSenha" type="password" minlength="6" required autocomplete="new-password"><button class="btn">Salvar senha</button></form>`)});
+async function novaSenha(ev){ev.preventDefault();const {error}=await db.auth.updateUser({password:$("#nSenha").value});fechar();toast(error?traduzErro(error):"✅ Senha alterada!");iniciar()}
+iniciar();
 </script>
 </body>
 </html>
