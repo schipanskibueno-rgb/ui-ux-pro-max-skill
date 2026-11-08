@@ -617,6 +617,11 @@ if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.
 
 // ===== OFERTAS DO BANCO DE DADOS (Supabase) =====
 async function carregarDoBanco(){
+  if(!window.CONFIG||!CONFIG.SUPABASE_URL){ // modo demonstração: posts feitos na Área da Empresa deste aparelho
+    try{const e=JSON.parse(localStorage.getItem("vc_demo_emp")||"null"),os=JSON.parse(localStorage.getItem("vc_demo_ofertas")||"[]").filter(o=>o.ativa&&/^(data:image\/|https:\/\/|$)/.test(o.foto_url||""));
+      if(e&&os.length){OFERTAS.unshift(...os.map(o=>({id:"d"+String(o.id).replace(/\W/g,""),emp:e.nome,sub:e.ramo,cat:o.categoria,img:o.foto_url||"",emoji:(CATS.find(c=>c.id===o.categoria)||{}).ic||"🏷️",
+        tag:esc(o.titulo),s:o.titulo.length>10,desc:o.descricao,regras:o.regras||"Apresente o cupom no caixa.",validade:o.validade||"",economia:Number(o.economia)||0,destaque:true,whats:e.whatsapp||""})));render()}}catch(err){}
+    return}
   if(!window.CONFIG||!CONFIG.SUPABASE_URL||!window.supabase)return;
   try{
     const db=supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_ANON_KEY);

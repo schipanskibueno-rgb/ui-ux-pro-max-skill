@@ -75,6 +75,48 @@ textarea.inp{min-height:90px;resize:vertical}
 .adm .item .n{flex:1;min-width:140px}
 .adm select{min-height:40px;border-radius:10px;border:1.5px solid #d9cfb3;padding:0 8px}
 .escondido{display:none}
+/* ===== POSTAR (estilo Instagram) ===== */
+.postar{display:flex;align-items:center;gap:14px;width:100%;background:#fff;border:0;border-radius:18px;padding:14px;box-shadow:0 3px 12px rgba(0,0,0,.07);margin-bottom:14px;text-align:left;cursor:pointer;color:var(--txt)}
+.postar .mais{width:62px;height:62px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;font-size:2.2rem;font-weight:400;color:#fff;background:linear-gradient(135deg,#E9C766,#C9952A 55%,#0E1428);box-shadow:0 0 0 3px #fff,0 0 0 5px #D4A537}
+.postar b{display:block;font-size:1.15rem}.postar small{color:var(--cinza);font-size:.88rem}
+.demo-aviso{background:#000;color:#F3E3B5;border-radius:14px;padding:10px 14px;font-size:.85rem;margin-bottom:14px}
+.demo-aviso b{color:#D4A537}
+.perfil-loja{display:flex;align-items:center;gap:14px}
+.perfil-loja .logo{width:76px;height:76px;border-radius:50%;box-shadow:0 0 0 3px #fff,0 0 0 5px #D4A537}
+.nums{display:flex;gap:18px;margin-top:6px;font-size:.85rem;color:var(--cinza)}.nums b{display:block;color:var(--txt);font-size:1.1rem}
+.grade{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;border-radius:14px;overflow:hidden}
+.grade button{position:relative;aspect-ratio:1/1;border:0;padding:0;background:var(--azul2);overflow:hidden;cursor:pointer;display:grid;place-items:center;font-size:2rem}
+.grade img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.grade .t{position:absolute;left:4px;right:4px;bottom:4px;background:linear-gradient(#E9C766,#C9952A);color:#0E1428;font-weight:800;font-size:.72rem;border-radius:6px;padding:2px 4px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grade .st{position:absolute;top:4px;left:4px;background:rgba(0,0,0,.75);color:#fff;font-size:.66rem;font-weight:700;border-radius:10px;padding:2px 7px}
+.grade .st.ok{background:#13a049}
+/* compositor */
+.comp-foto{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:16/10;background:#000;display:grid;place-items:center;margin-top:10px}
+.comp-foto img{width:100%;height:100%;object-fit:cover}
+.comp-foto .vazio-foto{color:#F3E3B5;text-align:center;font-weight:600;padding:12px}
+.comp-foto .vazio-foto span{display:block;font-size:2.6rem}
+.comp-foto .trocar{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.7);color:#fff;border:0;border-radius:20px;padding:0 14px;min-height:40px;font-weight:700;cursor:pointer}
+.passo-t{font-weight:800;font-size:1.02rem;margin:18px 0 8px;display:flex;align-items:center;gap:8px}
+.passo-t i{font-style:normal;background:var(--azul);color:#fff;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.8rem}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{border:2px solid #d9cfb3;background:#fff;color:var(--txt);border-radius:30px;min-height:44px;padding:0 14px;font-weight:700;font-size:.95rem;cursor:pointer}
+.chips button[aria-pressed="true"]{background:linear-gradient(#E9C766,#C9952A);border-color:#C9952A;color:#0E1428}
+.cont{font-size:.78rem;color:var(--cinza);text-align:right;margin-top:3px}
+details.mais-op{margin-top:16px;border-top:1px solid #efe6cc;padding-top:6px}
+details.mais-op summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center;color:var(--azul2)}
+.prev-app{margin-top:18px;border:2px dashed #d9cfb3;border-radius:16px;padding:12px;background:var(--creme)}
+.prev-app .rot{font-size:.78rem;font-weight:700;color:var(--cinza);margin-bottom:8px;letter-spacing:.5px}
+.pcard{max-width:210px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 3px 12px rgba(0,0,0,.12)}
+.pcard .im{aspect-ratio:16/10;background:linear-gradient(135deg,#1F2B57,#0E1428);display:grid;place-items:center;font-size:2.2rem;overflow:hidden}
+.pcard .im img{width:100%;height:100%;object-fit:cover}
+.pcard .i{padding:8px 10px 0}.pcard .i b{display:block;line-height:1.2}.pcard .i small{color:var(--cinza);font-size:.8rem}
+.pcard .t{margin:8px 10px 10px;background:linear-gradient(#E9C766,#C9952A);color:#0E1428;font-weight:800;border-radius:10px;padding:8px 4px;text-align:center;font-size:1.05rem;word-break:break-word}
+.publicar-barra{position:sticky;bottom:calc(-22px - env(safe-area-inset-bottom));background:#fff;padding:10px 0 calc(6px + env(safe-area-inset-bottom));margin-top:8px;box-shadow:0 -8px 12px -8px rgba(0,0,0,.15)}
+.publicar-barra .btn{margin-top:0;min-height:58px;font-size:1.15rem}
+.sucesso{text-align:center;padding-top:10px}
+.sucesso .ok{width:84px;height:84px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;font-size:2.6rem;background:linear-gradient(#E9C766,#C9952A);animation:pop .5s cubic-bezier(.16,1,.3,1)}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sucesso .ok{animation:none}}
 </style>
 </head>
 <body>
@@ -94,31 +136,41 @@ textarea.inp{min-height:90px;resize:vertical}
 <script>
 const CATS=[["vest","👕 Vestuário"],["alim","🍔 Alimentação"],["est","💆‍♀️ Estética"],["sau","🩺 Saúde"],["barb","💈 Barbearia"],["pet","🐶 Pet"],["acad","🏋️ Academia"],["auto","🚗 Automotivo"]];
 const RAMOS=["Vestuário","Alimentação","Estética","Saúde","Barbearia","Pet","Academia","Automotivo","Outro"];
+const RAMO_CAT={"Vestuário":"vest","Alimentação":"alim","Estética":"est","Saúde":"sau","Barbearia":"barb","Pet":"pet","Academia":"acad","Automotivo":"auto"};
 const PLANOS={basico:{nome:"Básico",lim:1},destaque:{nome:"Destaque",lim:3},premium:{nome:"Premium",lim:"ilimitadas"}};
+// Botões prontos para o "Qual é a oferta?" e o "Até quando?"
+const OFERTAS_PRONTAS=["10% OFF","20% OFF","30% OFF","50% OFF","Leve 2, pague 1","Brinde na compra","Frete grátis"];
+const PRAZOS=[["Hoje",0],["3 dias",3],["1 semana",7],["15 dias",15],["1 mês",30],["Sem prazo",null]];
+const EXEMPLOS={"Vestuário":"Ex: Peças da nova coleção com desconto. Corra que é por pouco tempo!","Alimentação":"Ex: Pizza grande de qualquer sabor, de segunda a quinta.","Estética":"Ex: Escova + hidratação com horário marcado.","Saúde":"Ex: Desconto em perfumaria e dermocosméticos.","Barbearia":"Ex: Corte + barba pelo preço do corte.","Pet":"Ex: Banho e tosa para cães de pequeno porte.","Academia":"Ex: Primeira mensalidade com desconto.","Automotivo":"Ex: Troca de óleo + filtro com desconto."};
+
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),3000)}
-function fechar(){$("#modal").classList.remove("on")}
-function abrirSheet(h){$("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ✕</button>`+h;$("#modal").classList.add("on")}
+const seguro=u=>/^(https:\/\/|data:image\/)/.test(String(u||""))?u:"";
+const hojeISO=(d=0)=>{const t=new Date();t.setDate(t.getDate()+d);return t.toLocaleDateString("sv-SE")};
+const dataBR=d=>d?new Date(d+"T00:00:00").toLocaleDateString("pt-BR"):"";
+const store={get(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v??d}catch(e){return d}},set(k,v){localStorage.setItem(k,JSON.stringify(v))}};
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),3200)}
+function fechar(){$("#modal").classList.remove("on");document.body.style.overflow=""}
+function abrirSheet(h){$("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ✕</button>`+h;$("#modal").classList.add("on");document.body.style.overflow="hidden";$("#sheet").scrollTop=0}
 function traduzErro(e){const m=(e&&e.message)||String(e);
   if(/Invalid login/i.test(m))return"E-mail ou senha incorretos.";
   if(/already registered/i.test(m))return"Este e-mail já tem conta. Use a aba Entrar.";
   if(/Email not confirmed/i.test(m))return"Confirme seu e-mail: abra a mensagem que enviamos e clique no link.";
   if(/at least 6/i.test(m))return"A senha precisa ter pelo menos 6 caracteres.";
+  if(/quota|exceeded/i.test(m))return"O espaço do modo demonstração acabou. Apague uma oferta para postar outra.";
+  if(/Failed to fetch|NetworkError/i.test(m))return"Sem internet. Tente de novo.";
   return m}
 
-if(!window.CONFIG||!CONFIG.SUPABASE_URL||!CONFIG.SUPABASE_ANON_KEY){
-  $("#main").innerHTML=`<div class="card"><h2>⚙️ Falta configurar</h2><p class="sub">Preencha o arquivo <b>config.js</b> com a URL e a chave do Supabase e publique de novo.</p></div>`;
-  throw new Error("config.js vazio");
-}
-const db=supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_ANON_KEY);
+/* ===== MODO: banco real (Supabase) ou DEMONSTRAÇÃO (fica só neste celular) ===== */
+const DEMO=!(window.CONFIG&&CONFIG.SUPABASE_URL&&CONFIG.SUPABASE_ANON_KEY);
+const db=DEMO?null:supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_ANON_KEY);
 let user=null,empresa=null,ofertas=[],admin=false;
 
 // ===== LOGIN =====
 function telaLogin(modo="entrar"){
   $("#btnSair").classList.add("escondido");
   $("#main").innerHTML=`<div class="card">
-   <h2>Bem-vindo, lojista! 👋</h2><p class="sub">Entre para cadastrar sua loja, fotos e promoções no Vitrine Castro.</p>
+   <h2>Bem-vindo, lojista! 👋</h2><p class="sub">Entre para postar suas promoções no Vitrine Castro. É tão fácil quanto postar no Instagram.</p>
    <div class="abas" style="margin-top:14px"><button class="${modo==="entrar"?"on":""}" onclick="telaLogin('entrar')">Entrar</button><button class="${modo==="criar"?"on":""}" onclick="telaLogin('criar')">Criar conta</button></div>
    <form onsubmit="entrar(event,'${modo}')">
     <label for="lEmail">E-mail</label><input class="inp" id="lEmail" type="email" autocomplete="email" required>
@@ -141,10 +193,13 @@ async function entrar(ev,modo){ev.preventDefault();const email=$("#lEmail").valu
 }
 async function esqueci(){const email=($("#lEmail").value||"").trim();if(!email){$("#lErro").textContent="Digite seu e-mail acima primeiro.";$("#lErro").style.display="block";return}
   const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.href.split("#")[0]});toast(error?traduzErro(error):"Enviamos um link para criar uma nova senha.")}
-async function sair(){await db.auth.signOut();user=null;empresa=null;telaLogin()}
+async function sair(){if(DEMO){if(!confirm("Apagar a loja e as ofertas de demonstração deste celular?"))return;localStorage.removeItem("vc_demo_emp");localStorage.removeItem("vc_demo_ofertas");empresa=null;ofertas=[];telaCadastroEmpresa();return}
+  await db.auth.signOut();user=null;empresa=null;telaLogin()}
 
 // ===== INÍCIO =====
 async function iniciar(){
+  if(DEMO){empresa=store.get("vc_demo_emp",null);$("#btnSair").classList.toggle("escondido",!empresa);$("#btnSair").textContent="Recomeçar";
+    if(!empresa){telaCadastroEmpresa();return}await carregarOfertas();telaPainel();return}
   const {data:{session}}=await db.auth.getSession();
   if(!session){telaLogin();return}
   user=session.user;$("#btnSair").classList.remove("escondido");
@@ -153,13 +208,22 @@ async function iniciar(){
   if(!empresa){telaCadastroEmpresa();if(admin)painelAdmin(true);return}
   await carregarOfertas();telaPainel();
 }
-async function carregarOfertas(){const {data,error}=await db.from("ofertas").select("*").eq("empresa_id",empresa.id).order("criado_em",{ascending:false});if(error)toast(traduzErro(error));ofertas=data||[]}
+async function carregarOfertas(){
+  if(DEMO){ofertas=store.get("vc_demo_ofertas",[]);return}
+  const {data,error}=await db.from("ofertas").select("*").eq("empresa_id",empresa.id).order("criado_em",{ascending:false});if(error)toast(traduzErro(error));ofertas=data||[]}
 
-// ===== FOTOS =====
-function comprimir(file,max=1200){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;const r=Math.min(1,max/Math.max(w,h));w=Math.round(w*r);h=Math.round(h*r);
-  const c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(img,0,0,w,h);c.toBlob(b=>b?res(b):rej(new Error("Não foi possível ler a foto")),"image/jpeg",.82);URL.revokeObjectURL(img.src)};
-  img.onerror=()=>rej(new Error("Arquivo de imagem inválido"));img.src=URL.createObjectURL(file)})}
-async function enviarFoto(file,max){const blob=await comprimir(file,max);const nome=`${user.id}/${Date.now()}-${Math.random().toString(36).slice(2,7)}.jpg`;
+// ===== FOTOS: reduz e recorta no formato do app (16:10) antes de enviar =====
+function carregarImagem(file){return new Promise((res,rej)=>{if(!/^image\//.test(file.type))return rej(new Error("Escolha uma foto."));const img=new Image();img.onload=()=>res(img);img.onerror=()=>rej(new Error("Não foi possível abrir essa foto."));img.src=URL.createObjectURL(file)})}
+async function prepararFoto(file,{larg=1200,prop=16/10}={}){
+  const img=await carregarImagem(file);let sw=img.width,sh=img.height,sx=0,sy=0;
+  if(sw/sh>prop){sw=Math.round(sh*prop);sx=Math.round((img.width-sw)/2)}else{sh=Math.round(sw/prop);sy=Math.round((img.height-sh)/2)}
+  const w=Math.min(larg,sw),h=Math.round(w/prop),c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(img,sx,sy,sw,sh,0,0,w,h);URL.revokeObjectURL(img.src);
+  return new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error("Não foi possível ler a foto")),"image/jpeg",DEMO?.72:.82));
+}
+const blobParaDataURL=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
+async function enviarFoto(blob){
+  if(DEMO)return blobParaDataURL(blob);
+  const nome=`${user.id}/${Date.now()}-${Math.random().toString(36).slice(2,7)}.jpg`;
   const {error}=await db.storage.from("fotos").upload(nome,blob,{contentType:"image/jpeg",upsert:false});if(error)throw error;
   return db.storage.from("fotos").getPublicUrl(nome).data.publicUrl}
 function mostrarPrevia(input,alvo){const f=input.files[0];if(!f)return;const u=URL.createObjectURL(f);$(alvo).innerHTML=`<img src="${u}" alt="Prévia da foto">`}
@@ -171,72 +235,154 @@ function formEmpresa(e={}){return `
   <label for="eWhats">WhatsApp da loja</label><input class="inp" id="eWhats" inputmode="tel" maxlength="20" value="${esc(e.whatsapp)}" placeholder="(42) 9 9999-9999">
   <p class="ajuda">Os clientes vão falar com você por este número.</p>
   <label for="eEnd">Endereço</label><input class="inp" id="eEnd" maxlength="150" value="${esc(e.endereco)}" placeholder="Rua, número – bairro">
-  <label>Logo da loja</label><div class="previa" id="eLogoPrev" style="aspect-ratio:1/1;width:120px">${e.logo_url?`<img src="${esc(e.logo_url)}" alt="Logo">`:"Sem logo"}</div>
+  <label>Logo da loja</label><div class="previa" id="eLogoPrev" style="aspect-ratio:1/1;width:120px">${seguro(e.logo_url)?`<img src="${esc(e.logo_url)}" alt="Logo">`:"Sem logo"}</div>
   <label class="foto-btn">📷 Escolher logo<input type="file" accept="image/*" id="eLogo" onchange="mostrarPrevia(this,'#eLogoPrev')"></label>
   <div class="erro" id="eErro"></div>`}
-function telaCadastroEmpresa(){$("#main").innerHTML=`<div class="card"><h2>🏪 Cadastre sua loja</h2><p class="sub">Leva 1 minuto. Depois você já pode postar suas promoções.</p>
+function telaCadastroEmpresa(){$("#main").innerHTML=`${DEMO?avisoDemo():""}<div class="card"><h2>🏪 Cadastre sua loja</h2><p class="sub">Leva 1 minuto. Depois é só postar suas promoções, como no Instagram.</p>
   <form onsubmit="salvarEmpresa(event)">${formEmpresa()}<button class="btn ouro" id="eBtn">Cadastrar minha loja</button></form></div><div id="admBox"></div>`}
 async function salvarEmpresa(ev){ev.preventDefault();const b=$("#eBtn");b.disabled=true;$("#eErro").style.display="none";
   try{
     const dados={nome:$("#eNome").value.trim(),ramo:$("#eRamo").value,whatsapp:$("#eWhats").value.trim(),endereco:$("#eEnd").value.trim()};
-    const f=$("#eLogo").files[0];if(f)dados.logo_url=await enviarFoto(f,400);
-    const q=empresa?db.from("empresas").update(dados).eq("id",empresa.id):db.from("empresas").insert(dados);
-    const {data,error}=await q.select().single();if(error)throw error;
-    empresa=data;fechar();toast(empresa.aprovada?"✅ Dados salvos!":"✅ Loja cadastrada! Agora poste sua primeira oferta.");await carregarOfertas();telaPainel();
+    const f=$("#eLogo").files[0];if(f)dados.logo_url=await enviarFoto(await prepararFoto(f,{larg:400,prop:1}));
+    if(DEMO){empresa={...(empresa||{id:"demo",aprovada:true,plano:"premium"}),...dados};store.set("vc_demo_emp",empresa)}
+    else{const q=empresa?db.from("empresas").update(dados).eq("id",empresa.id):db.from("empresas").insert(dados);
+      const {data,error}=await q.select().single();if(error)throw error;empresa=data}
+    fechar();toast(empresa.aprovada?"✅ Dados salvos!":"✅ Loja cadastrada! Agora poste sua primeira oferta.");await iniciar();
   }catch(e){$("#eErro").textContent=traduzErro(e);$("#eErro").style.display="block"}finally{b.disabled=false}
 }
 function editarEmpresa(){abrirSheet(`<h2 style="margin-top:8px">Dados da loja</h2><form onsubmit="salvarEmpresa(event)">${formEmpresa(empresa)}<button class="btn" id="eBtn">Salvar</button></form>`)}
 
-// ===== PAINEL =====
+// ===== PAINEL (perfil da loja + grade de posts) =====
+function avisoDemo(){return `<div class="demo-aviso"><b>Modo demonstração.</b> O que você postar fica só neste celular e aparece no app deste aparelho. Para valer para todos, preencha o config.js com o Supabase.</div>`}
+function venceu(o){return o.validade&&new Date(o.validade+"T23:59:59")<new Date()}
 function telaPainel(){
-  const pl=PLANOS[empresa.plano]||PLANOS.basico,ativas=ofertas.filter(o=>o.ativa).length;
-  const whatsAdm=(CONFIG.WHATSAPP||"").replace(/\D/g,"");
-  $("#main").innerHTML=`
-  ${empresa.aprovada?"":`<div class="aviso">⏳ <b>Sua loja está em análise.</b> Você já pode cadastrar as ofertas. Elas aparecem no app assim que a loja for aprovada.${whatsAdm?` <a href="https://wa.me/${whatsAdm}?text=${encodeURIComponent("Olá! Cadastrei a loja "+empresa.nome+" na Área da Empresa do Vitrine Castro.")}" target="_blank" rel="noopener">Avisar pelo WhatsApp</a>`:""}</div>`}
-  <div class="card"><div class="empresa-top"><div class="logo">${empresa.logo_url?`<img src="${esc(empresa.logo_url)}" alt="">`:"🏪"}</div>
-   <div style="flex:1;min-width:0"><h2 style="margin:0">${esc(empresa.nome)}</h2><span class="status ${empresa.aprovada?"ok":"pend"}">${empresa.aprovada?"✓ Aprovada":"Em análise"}</span> <span class="status pausa">Plano ${pl.nome}</span></div></div>
-   <p class="sub" style="margin-top:10px">Ofertas ativas: <b>${ativas}</b> de <b>${pl.lim}</b> do seu plano.</p>
-   <button class="btn claro" onclick="editarEmpresa()">✏️ Editar dados da loja</button></div>
-  <button class="btn ouro" style="min-height:58px;font-size:1.1rem" onclick="formOferta()">➕ Nova oferta</button>
-  <h2 style="margin:20px 0 10px">Minhas ofertas</h2>
-  <div id="listaOfertas">${ofertas.length?ofertas.map(cardOferta).join(""):`<div class="vazio"><span class="e">📸</span>Você ainda não postou nenhuma oferta.<br>Toque em <b>Nova oferta</b> para começar.</div>`}</div>
+  const pl=PLANOS[empresa.plano]||PLANOS.basico,ativas=ofertas.filter(o=>o.ativa&&!venceu(o)).length;
+  const whatsAdm=((window.CONFIG&&CONFIG.WHATSAPP)||"").replace(/\D/g,"");
+  $("#main").innerHTML=`${DEMO?avisoDemo():""}
+  ${empresa.aprovada?"":`<div class="aviso">⏳ <b>Sua loja está em análise.</b> Você já pode postar; as ofertas aparecem no app assim que a loja for aprovada.${whatsAdm?` <a href="https://wa.me/${whatsAdm}?text=${encodeURIComponent("Olá! Cadastrei a loja "+empresa.nome+" na Área da Empresa do Vitrine Castro.")}" target="_blank" rel="noopener">Avisar pelo WhatsApp</a>`:""}</div>`}
+  <div class="card"><div class="perfil-loja"><div class="logo">${seguro(empresa.logo_url)?`<img src="${esc(empresa.logo_url)}" alt="">`:"🏪"}</div>
+   <div style="flex:1;min-width:0"><h2 style="margin:0">${esc(empresa.nome)}</h2><span class="status ${empresa.aprovada?"ok":"pend"}">${empresa.aprovada?"✓ Aprovada":"Em análise"}</span>${DEMO?"":` <span class="status pausa">Plano ${pl.nome}</span>`}
+    <div class="nums"><span><b>${ofertas.length}</b>posts</span><span><b>${ativas}</b>no ar</span>${DEMO?"":`<span><b>${pl.lim}</b>limite</span>`}</div></div></div>
+   <button class="btn claro" onclick="editarEmpresa()">✏️ Editar perfil da loja</button></div>
+  <button class="postar" onclick="novoPost()"><span class="mais" aria-hidden="true">+</span><span><b>Postar oferta</b><small>Escolha a foto, escreva e publique. Leva 30 segundos.</small></span></button>
+  <h2 style="margin:6px 0 10px">Meus posts</h2>
+  ${ofertas.length?`<div class="grade">${ofertas.map(o=>{const st=venceu(o)?"Vencida":!o.ativa?"Pausada":"";return `<button onclick="verPost('${esc(o.id)}')" aria-label="${esc(o.titulo)}${st?", "+st:""}">${seguro(o.foto_url)?`<img src="${esc(o.foto_url)}" alt="" loading="lazy">`:"🏷️"}${st?`<span class="st">${st}</span>`:""}<span class="t">${esc(o.titulo)}</span></button>`}).join("")}</div>`
+   :`<div class="vazio"><span class="e">📸</span>Você ainda não postou nenhuma oferta.<br>Toque em <b>Postar oferta</b> para começar.</div>`}
   <div id="admBox"></div>`;
   if(admin)painelAdmin();
 }
-function venceu(o){return o.validade&&new Date(o.validade+"T23:59:59")<new Date()}
-function cardOferta(o){const st=venceu(o)?'<span class="status pausa">Vencida</span>':o.ativa?'<span class="status ok">No ar</span>':'<span class="status pausa">Pausada</span>';
-  return `<div class="oferta"><div class="ft">${o.foto_url?`<img src="${esc(o.foto_url)}" alt="">`:"🏷️"}</div><div class="tx">${st}${o.banner?' <span class="status pend">⭐ Banner</span>':""}
-   <span class="tag">${esc(o.titulo)}</span><b>${esc(o.descricao).slice(0,80)}</b>
-   <p class="ajuda">${o.validade?"Válida até "+new Date(o.validade+"T00:00:00").toLocaleDateString("pt-BR"):"Sem data de validade"}</p>
-   <div class="acoes"><button class="mini az" onclick="formOferta('${o.id}')">✏️ Editar</button><button class="mini" onclick="pausar('${o.id}',${!o.ativa})">${o.ativa?"⏸ Pausar":"▶️ Ativar"}</button><button class="mini vm" onclick="apagar('${o.id}')">🗑 Apagar</button></div></div></div>`}
+function verPost(id){const o=ofertas.find(x=>x.id===id);if(!o)return;
+  const st=venceu(o)?'<span class="status pausa">Vencida</span>':o.ativa?'<span class="status ok">No ar</span>':'<span class="status pausa">Pausada</span>';
+  abrirSheet(`<div class="comp-foto">${seguro(o.foto_url)?`<img src="${esc(o.foto_url)}" alt="">`:`<div class="vazio-foto"><span>🏷️</span></div>`}</div>
+   <div style="margin-top:12px">${st}${o.banner?' <span class="status pend">⭐ Banner</span>':""}</div>
+   <div class="pcard" style="max-width:none;box-shadow:none;margin-top:6px"><div class="t" style="margin:6px 0;font-size:1.4rem">${esc(o.titulo)}</div></div>
+   <p style="font-size:1.02rem">${esc(o.descricao)}</p>${o.regras?`<p class="ajuda">📋 ${esc(o.regras)}</p>`:""}
+   <p class="ajuda" style="margin-top:6px">⏰ ${o.validade?"Válida até "+dataBR(o.validade):"Sem prazo"}</p>
+   <div class="linha" style="margin-top:6px"><button class="btn" onclick="novoPost('${esc(o.id)}')">✏️ Editar</button><button class="btn claro" onclick="pausar('${esc(o.id)}',${!o.ativa})">${o.ativa?"⏸ Pausar":"▶️ Pôr no ar"}</button></div>
+   <button class="btn ouro" onclick="compartilharPost('${esc(o.id)}')">📤 Compartilhar no WhatsApp / Instagram</button>
+   <button class="btn verm" onclick="apagar('${esc(o.id)}')">🗑 Apagar post</button>`)}
 
-// ===== OFERTA =====
-function formOferta(id){const o=ofertas.find(x=>x.id===id)||{};
-  abrirSheet(`<h2 style="margin-top:8px">${id?"Editar oferta":"Nova oferta"}</h2>
-  <form onsubmit="salvarOferta(event,'${id||""}')">
-   <label>Foto da promoção</label><div class="previa" id="oPrev">${o.foto_url?`<img src="${esc(o.foto_url)}" alt="">`:"Use uma foto bonita do produto ou da loja.<br>De preferência deitada (horizontal)."}</div>
-   <label class="foto-btn">📷 ${o.foto_url?"Trocar foto":"Escolher foto"}<input type="file" accept="image/*" id="oFoto" onchange="mostrarPrevia(this,'#oPrev')"></label>
-   <label for="oTit">Desconto (aparece em destaque)</label><input class="inp" id="oTit" required maxlength="40" value="${esc(o.titulo)}" placeholder="Ex: 20% OFF  ou  Barba grátis">
-   <label for="oDesc">Descrição da oferta</label><textarea class="inp" id="oDesc" required maxlength="300" placeholder="Ex: 20% de desconto em pizzas grandes, de segunda a quinta.">${esc(o.descricao)}</textarea>
-   <label for="oReg">Regras (opcional)</label><input class="inp" id="oReg" maxlength="200" value="${esc(o.regras)}" placeholder="Ex: Válido para pagamento à vista.">
-   <div class="linha"><div><label for="oCat">Categoria</label><select class="inp" id="oCat">${CATS.map(([v,n])=>`<option value="${v}" ${v===o.categoria?"selected":""}>${n}</option>`).join("")}</select></div>
-   <div><label for="oVal">Válida até</label><input class="inp" id="oVal" type="date" value="${o.validade||""}"></div></div>
-   <label for="oEco">Quanto o cliente economiza, em média (R$)</label><input class="inp" id="oEco" inputmode="decimal" value="${o.economia||""}" placeholder="Ex: 15">
-   <p class="ajuda">Usado no contador "Você já economizou" do cliente.</p>
-   <button class="btn ouro" id="oBtn">${id?"Salvar alterações":"Publicar oferta"}</button><div class="erro" id="oErro"></div>
-  </form>`)}
-async function salvarOferta(ev,id){ev.preventDefault();const b=$("#oBtn");b.disabled=true;b.textContent="Salvando…";$("#oErro").style.display="none";
-  try{
-    const dados={titulo:$("#oTit").value.trim(),descricao:$("#oDesc").value.trim(),regras:$("#oReg").value.trim(),categoria:$("#oCat").value,validade:$("#oVal").value||null,economia:parseFloat(($("#oEco").value||"0").replace(",","."))||0};
-    const f=$("#oFoto").files[0];if(f)dados.foto_url=await enviarFoto(f,1200);
-    let r;if(id)r=await db.from("ofertas").update(dados).eq("id",id);else r=await db.from("ofertas").insert({...dados,empresa_id:empresa.id});
-    if(r.error)throw r.error;
-    fechar();toast(id?"✅ Oferta atualizada!":"✅ Oferta publicada!");await carregarOfertas();telaPainel();
-  }catch(e){$("#oErro").textContent=traduzErro(e);$("#oErro").style.display="block";b.disabled=false;b.textContent=id?"Salvar alterações":"Publicar oferta"}
+// ===== POSTAR / EDITAR (fluxo estilo Instagram: foto → legenda → desconto → publicar) =====
+let RASC=null;
+function novoPost(id){
+  const o=ofertas.find(x=>x.id===id);
+  const rascunho=!o&&store.get("vc_rascunho",null);
+  RASC=o?{id:o.id,titulo:o.titulo,descricao:o.descricao,validade:o.validade||null,categoria:o.categoria,regras:o.regras||"",economia:o.economia||"",fotoUrl:o.foto_url||"",foto:null,prazo:o.validade?"data":"sem"}
+         :{id:null,titulo:"",descricao:"",validade:hojeISO(7),categoria:RAMO_CAT[empresa.ramo]||"vest",regras:"",economia:"",fotoUrl:"",foto:null,prazo:7,...(rascunho||{})};
+  abrirSheet(`<h2 style="margin-top:8px">${o?"Editar post":"Novo post"}</h2>
+   <input type="file" accept="image/*" id="pFoto" hidden onchange="escolheuFoto(this)">
+   <div class="comp-foto" id="pFotoBox"></div>
+
+   <div class="passo-t"><i>1</i>Qual é a oferta?</div>
+   <div class="chips" id="pChipsOferta">${OFERTAS_PRONTAS.map(t=>`<button type="button" aria-pressed="false" onclick="escolheOferta(this.textContent)">${t}</button>`).join("")}<button type="button" aria-pressed="false" id="pOutro" onclick="outraOferta()">✏️ Outra</button></div>
+   <input class="inp" id="pTit" maxlength="40" placeholder="Escreva a oferta (ex: Barba grátis)" style="margin-top:8px;display:none" oninput="RASC.titulo=this.value.trim();atualizar()">
+
+   <div class="passo-t"><i>2</i>Escreva a legenda</div>
+   <textarea class="inp" id="pDesc" maxlength="300" rows="3" placeholder="${esc(EXEMPLOS[empresa.ramo]||"Ex: Conte o que está em promoção e para quem é.")}" oninput="RASC.descricao=this.value;atualizar()">${esc(RASC.descricao)}</textarea>
+   <div class="cont" id="pCont"></div>
+
+   <div class="passo-t"><i>3</i>Até quando vale?</div>
+   <div class="chips" id="pChipsPrazo">${PRAZOS.map(([n,d])=>`<button type="button" aria-pressed="false" data-d="${d===null?"sem":d}" onclick="escolhePrazo(${d===null?"null":d},this)">${n}</button>`).join("")}<button type="button" aria-pressed="false" data-d="data" onclick="escolhePrazo('data',this)">📅 Escolher data</button></div>
+   <input class="inp" id="pData" type="date" min="${hojeISO()}" style="margin-top:8px;display:none" onchange="RASC.validade=this.value||null;atualizar()">
+
+   <details class="mais-op"><summary>⚙️ Mais opções (não precisa mexer)</summary>
+    <label for="pCat">Categoria</label><select class="inp" id="pCat" onchange="RASC.categoria=this.value;salvarRascunho()">${CATS.map(([v,n])=>`<option value="${v}" ${v===RASC.categoria?"selected":""}>${n}</option>`).join("")}</select>
+    <label for="pReg">Regras</label><input class="inp" id="pReg" maxlength="200" value="${esc(RASC.regras)}" placeholder="Ex: Válido para pagamento à vista." oninput="RASC.regras=this.value;salvarRascunho()">
+    <label for="pEco">Quanto o cliente economiza, em média (R$)</label><input class="inp" id="pEco" inputmode="decimal" value="${esc(RASC.economia)}" placeholder="Ex: 15" oninput="RASC.economia=this.value;salvarRascunho()">
+   </details>
+
+   <div class="prev-app"><div class="rot">👀 ASSIM APARECE NO APP</div><div class="pcard"><div class="im" id="pcIm"></div><div class="i"><b>${esc(empresa.nome)}</b><small>${esc(empresa.ramo)}</small></div><div class="t" id="pcT"></div></div></div>
+   <div class="erro" id="pErro"></div>
+   <div class="publicar-barra"><button class="btn ouro" id="pBtn" onclick="publicar()">${o?"Salvar alterações":"🚀 Publicar"}</button></div>`);
+  // marca as escolhas atuais
+  const pronta=OFERTAS_PRONTAS.includes(RASC.titulo);
+  if(RASC.titulo&&!pronta){$("#pTit").style.display="block";$("#pTit").value=RASC.titulo;$("#pOutro").setAttribute("aria-pressed","true")}
+  const chip=[...$("#pChipsPrazo").children].find(b=>b.dataset.d===String(RASC.prazo));if(chip)chip.setAttribute("aria-pressed","true");
+  if(RASC.prazo==="data"){$("#pData").style.display="block";$("#pData").value=RASC.validade||""}
+  desenharFoto();atualizar();
+  if(!o&&!RASC.fotoUrl&&!RASC.foto)$("#pFoto").click(); // já abre a galeria/câmera, como no Instagram
 }
-async function pausar(id,ativar){const {error}=await db.from("ofertas").update({ativa:ativar}).eq("id",id);if(error){toast(traduzErro(error));return}toast(ativar?"▶️ Oferta no ar":"⏸ Oferta pausada");await carregarOfertas();telaPainel()}
-function apagar(id){abrirSheet(`<div style="text-align:center;margin-top:10px"><div style="font-size:3rem">🗑</div><h2>Apagar esta oferta?</h2><p class="sub">Ela sai do app na hora. Isso não pode ser desfeito.</p></div><button class="btn verm" onclick="confirmarApagar('${id}')">Sim, apagar</button><button class="btn claro" onclick="fechar()">Cancelar</button>`)}
-async function confirmarApagar(id){const {error}=await db.from("ofertas").delete().eq("id",id);fechar();if(error){toast(traduzErro(error));return}toast("Oferta apagada");await carregarOfertas();telaPainel()}
+function desenharFoto(){const u=RASC.foto?URL.createObjectURL(RASC.foto):seguro(RASC.fotoUrl);
+  $("#pFotoBox").innerHTML=u?`<img src="${esc(u)}" alt="Foto do post"><button type="button" class="trocar" onclick="$('#pFoto').click()">🔄 Trocar foto</button>`
+   :`<button type="button" class="vazio-foto" style="background:none;border:0;cursor:pointer;width:100%;height:100%" onclick="$('#pFoto').click()"><span>📷</span>Toque para escolher a foto<br><small style="font-weight:500">da galeria ou tirar agora</small></button>`;
+  $("#pcIm").innerHTML=u?`<img src="${esc(u)}" alt="">`:"🏷️"}
+async function escolheuFoto(input){const f=input.files[0];input.value="";if(!f)return;
+  try{RASC.foto=await prepararFoto(f);desenharFoto()}catch(e){toast(traduzErro(e))}}
+function marcar(grupo,btn){[...$(grupo).children].forEach(b=>b.setAttribute("aria-pressed",b===btn?"true":"false"))}
+function escolheOferta(t){RASC.titulo=t;$("#pTit").style.display="none";marcar("#pChipsOferta",[...$("#pChipsOferta").children].find(b=>b.textContent===t));atualizar()}
+function outraOferta(){marcar("#pChipsOferta",$("#pOutro"));const i=$("#pTit");i.style.display="block";i.value=OFERTAS_PRONTAS.includes(RASC.titulo)?"":RASC.titulo;RASC.titulo=i.value.trim();i.focus();atualizar()}
+function escolhePrazo(d,btn){marcar("#pChipsPrazo",btn);RASC.prazo=d===null?"sem":d;$("#pData").style.display=d==="data"?"block":"none";
+  RASC.validade=d===null?null:d==="data"?($("#pData").value||null):hojeISO(d);if(d==="data")$("#pData").focus();atualizar()}
+function salvarRascunho(){if(RASC&&!RASC.id){const {titulo,descricao,categoria,regras,economia,prazo,validade}=RASC;try{store.set("vc_rascunho",{titulo,descricao,categoria,regras,economia,prazo,validade})}catch(e){}}}
+function atualizar(){
+  $("#pcT").textContent=RASC.titulo||"Escolha a oferta";
+  $("#pCont").textContent=`${RASC.descricao.length}/300`;
+  salvarRascunho();
+}
+async function publicar(){
+  const er=$("#pErro"),b=$("#pBtn");er.style.display="none";
+  const falta=!RASC.titulo||RASC.titulo.length<2?"Escolha qual é a oferta (passo 1).":RASC.descricao.trim().length<3?"Escreva a legenda (passo 2).":RASC.prazo==="data"&&!RASC.validade?"Escolha a data (passo 3).":"";
+  if(falta){er.textContent=falta;er.style.display="block";er.scrollIntoView({block:"center",behavior:"smooth"});return}
+  if(!RASC.foto&&!RASC.fotoUrl&&!confirm("Post sem foto chama menos atenção. Publicar mesmo assim?"))return;
+  b.disabled=true;b.textContent="Publicando…";
+  try{
+    const dados={titulo:RASC.titulo.slice(0,40),descricao:RASC.descricao.trim().slice(0,300),regras:RASC.regras.trim().slice(0,200),categoria:RASC.categoria,validade:RASC.validade||null,economia:parseFloat(String(RASC.economia||"0").replace(",","."))||0};
+    if(RASC.foto)dados.foto_url=await enviarFoto(RASC.foto);
+    let salvo;
+    if(DEMO){const l=store.get("vc_demo_ofertas",[]);
+      if(RASC.id){const i=l.findIndex(x=>x.id===RASC.id);l[i]={...l[i],...dados};salvo=l[i]}else{salvo={id:String(Date.now()),ativa:true,criado_em:new Date().toISOString(),...dados};l.unshift(salvo)}
+      store.set("vc_demo_ofertas",l)}
+    else{const r=RASC.id?await db.from("ofertas").update(dados).eq("id",RASC.id).select().single():await db.from("ofertas").insert({...dados,empresa_id:empresa.id}).select().single();
+      if(r.error)throw r.error;salvo=r.data}
+    if(!RASC.id)localStorage.removeItem("vc_rascunho");
+    const editou=!!RASC.id;RASC=null;await carregarOfertas();telaPainel();
+    if(editou){fechar();toast("✅ Post atualizado!");return}
+    abrirSheet(`<div class="sucesso"><div class="ok" aria-hidden="true">✅</div><h2>${empresa.aprovada?"Sua oferta está no ar!":"Oferta salva!"}</h2>
+      <p class="sub">${empresa.aprovada?"Os clientes de Castro já podem ver e pegar o cupom.":"Ela aparece no app assim que a loja for aprovada."}</p></div>
+      <div class="pcard" style="margin-top:14px"><div class="im">${seguro(salvo.foto_url)?`<img src="${esc(salvo.foto_url)}" alt="">`:"🏷️"}</div><div class="i"><b>${esc(empresa.nome)}</b><small>${esc(empresa.ramo)}</small></div><div class="t">${esc(salvo.titulo)}</div></div>
+      <button class="btn ouro" onclick="compartilharPost('${esc(salvo.id)}')">📤 Divulgar no WhatsApp / Instagram</button>
+      <button class="btn" onclick="novoPost()">➕ Postar outra oferta</button>
+      <button class="btn claro" onclick="fechar()">Pronto</button>`);
+  }catch(e){er.textContent=traduzErro(e);er.style.display="block";b.disabled=false;b.textContent=RASC&&RASC.id?"Salvar alterações":"🚀 Publicar"}
+}
+// Divulgar: usa o compartilhar do celular (com a foto) ou cai no WhatsApp
+async function compartilharPost(id){const o=ofertas.find(x=>x.id===id);if(!o)return;
+  const link=new URL("./",location.href).href,texto=`🔥 ${o.titulo} na ${empresa.nome}!\n${o.descricao}\n\nPegue seu cupom grátis no Vitrine Castro 👉 ${link}`;
+  try{
+    if(navigator.share){let files=[];
+      if(seguro(o.foto_url)){const blob=await (await fetch(o.foto_url)).blob();const f=new File([blob],"oferta.jpg",{type:"image/jpeg"});if(navigator.canShare&&navigator.canShare({files:[f]}))files=[f]}
+      await navigator.share(files.length?{files,text:texto}:{text:texto});return}
+  }catch(e){if(e.name==="AbortError")return}
+  const a=document.createElement("a");a.href="https://wa.me/?text="+encodeURIComponent(texto);a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove()}
+async function pausar(id,ativar){
+  if(DEMO){const l=store.get("vc_demo_ofertas",[]);const o=l.find(x=>x.id===id);o.ativa=ativar;store.set("vc_demo_ofertas",l)}
+  else{const {error}=await db.from("ofertas").update({ativa:ativar}).eq("id",id);if(error){toast(traduzErro(error));return}}
+  fechar();toast(ativar?"▶️ Oferta no ar":"⏸ Oferta pausada");await carregarOfertas();telaPainel()}
+function apagar(id){abrirSheet(`<div style="text-align:center;margin-top:10px"><div style="font-size:3rem">🗑</div><h2>Apagar este post?</h2><p class="sub">Ele sai do app na hora. Isso não pode ser desfeito.</p></div><button class="btn verm" onclick="confirmarApagar('${esc(id)}')">Sim, apagar</button><button class="btn claro" onclick="fechar()">Cancelar</button>`)}
+async function confirmarApagar(id){
+  if(DEMO)store.set("vc_demo_ofertas",store.get("vc_demo_ofertas",[]).filter(x=>x.id!==id));
+  else{const {error}=await db.from("ofertas").delete().eq("id",id);if(error){fechar();toast(traduzErro(error));return}}
+  fechar();toast("Post apagado");await carregarOfertas();telaPainel()}
 
 // ===== ADMINISTRADOR (só você) =====
 async function painelAdmin(){
@@ -257,9 +403,9 @@ function admBanner(id,ligar,topo){if(!ligar){admOferta(id,{banner:false});return
   <label for="bTopo">Chamada (opcional)</label><input class="inp" id="bTopo" maxlength="20" value="${topo}" placeholder="Ex: LIQUIDAÇÃO"><button class="btn ouro" onclick="fechar();admOferta('${id}',{banner:true,banner_topo:$('#bTopo').value.trim().toUpperCase()||null})">Colocar no banner</button>`)}
 
 document.addEventListener("keydown",e=>{if(e.key==="Escape")fechar()});
-db.auth.onAuthStateChange((ev)=>{if(ev==="PASSWORD_RECOVERY")abrirSheet(`<h2 style="margin-top:8px">Criar nova senha</h2><form onsubmit="novaSenha(event)"><label for="nSenha">Nova senha</label><input class="inp" id="nSenha" type="password" minlength="6" required autocomplete="new-password"><button class="btn">Salvar senha</button></form>`)});
+if(!DEMO)db.auth.onAuthStateChange((ev)=>{if(ev==="PASSWORD_RECOVERY")abrirSheet(`<h2 style="margin-top:8px">Criar nova senha</h2><form onsubmit="novaSenha(event)"><label for="nSenha">Nova senha</label><input class="inp" id="nSenha" type="password" minlength="6" required autocomplete="new-password"><button class="btn">Salvar senha</button></form>`)});
 async function novaSenha(ev){ev.preventDefault();const {error}=await db.auth.updateUser({password:$("#nSenha").value});fechar();toast(error?traduzErro(error):"✅ Senha alterada!");iniciar()}
-iniciar();
+iniciar().catch(e=>{$("#main").innerHTML=`<div class="card"><h2>Sem conexão</h2><p class="sub">${esc(traduzErro(e))}</p><button class="btn" onclick="location.reload()">Tentar de novo</button></div>`});
 </script>
 </body>
 </html>
