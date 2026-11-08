@@ -1,7 +1,7 @@
 // Vitrine Castro – service worker: funciona offline e permite instalar o app
-const CACHE = "vitrine-v3";
+const CACHE = "vitrine-v4";
 const ARQUIVOS = ["./", "./index.html", "./manifest.webmanifest", "./config.js", "./empresa.html", "./icons/icon-192.png", "./icons/icon-512.png",
-  "./img/b_vs.jpg", "./img/vs_logo.jpg", "./img/cat1.jpg", "./img/cat2.jpg", "./img/cat3.jpg", "./img/cat4.jpg",
+  "./img/logo-vitrine.png", "./img/logo-vitrine.webp", "./img/logo-v.png", "./img/b_vs.jpg", "./img/vs_logo.jpg", "./img/cat1.jpg", "./img/cat2.jpg", "./img/cat3.jpg", "./img/cat4.jpg",
   "./img/of1.jpg", "./img/of2.jpg", "./img/of3.jpg", "./img/of4.jpg"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(ARQUIVOS))); self.skipWaiting(); });
 self.addEventListener("activate", e => {
