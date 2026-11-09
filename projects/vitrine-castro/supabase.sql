@@ -120,12 +120,6 @@ create policy "ofertas editar" on public.ofertas for update to authenticated usi
 create policy "ofertas apagar" on public.ofertas for delete to authenticated using (
   exists (select 1 from public.empresas e where e.id = empresa_id and e.dono = auth.uid()) or public.is_admin());
 
--- ---------- ENTREGA (nova opção do post) ----------
--- 'sim' = a loja entrega (aparece o botão "Pedir com entrega") | 'retirada' = só na loja
-alter table public.ofertas add column if not exists entrega text not null default 'sim';
-alter table public.ofertas drop constraint if exists ofertas_entrega_check;
-alter table public.ofertas add constraint ofertas_entrega_check check (entrega in ('sim','retirada'));
-
 -- ---------- FOTOS (Storage) ----------
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('fotos', 'fotos', true, 2097152, array['image/jpeg','image/png','image/webp'])
