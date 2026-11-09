@@ -140,6 +140,7 @@ const RAMO_CAT={"Vestuário":"vest","Alimentação":"alim","Estética":"est","Sa
 const PLANOS={basico:{nome:"Básico",lim:1},destaque:{nome:"Destaque",lim:3},premium:{nome:"Premium",lim:"ilimitadas"}};
 // Botões prontos para o "Qual é a oferta?" e o "Até quando?"
 const OFERTAS_PRONTAS=["10% OFF","20% OFF","30% OFF","50% OFF","Leve 2, pague 1","Brinde na compra","Frete grátis"];
+const SO_NA_LOJA=["Estética","Saúde","Barbearia","Academia"]; // serviços: começa marcado "Só na loja"
 const PRAZOS=[["Hoje",0],["3 dias",3],["1 semana",7],["15 dias",15],["1 mês",30],["Sem prazo",null]];
 const EXEMPLOS={"Vestuário":"Ex: Peças da nova coleção com desconto. Corra que é por pouco tempo!","Alimentação":"Ex: Pizza grande de qualquer sabor, de segunda a quinta.","Estética":"Ex: Escova + hidratação com horário marcado.","Saúde":"Ex: Desconto em perfumaria e dermocosméticos.","Barbearia":"Ex: Corte + barba pelo preço do corte.","Pet":"Ex: Banho e tosa para cães de pequeno porte.","Academia":"Ex: Primeira mensalidade com desconto.","Automotivo":"Ex: Troca de óleo + filtro com desconto."};
 
@@ -277,7 +278,7 @@ function verPost(id){const o=ofertas.find(x=>x.id===id);if(!o)return;
    <div style="margin-top:12px">${st}${o.banner?' <span class="status pend">⭐ Banner</span>':""}</div>
    <div class="pcard" style="max-width:none;box-shadow:none;margin-top:6px"><div class="t" style="margin:6px 0;font-size:1.4rem">${esc(o.titulo)}</div></div>
    <p style="font-size:1.02rem">${esc(o.descricao)}</p>${o.regras?`<p class="ajuda">📋 ${esc(o.regras)}</p>`:""}
-   <p class="ajuda" style="margin-top:6px">⏰ ${o.validade?"Válida até "+dataBR(o.validade):"Sem prazo"}</p>
+   <p class="ajuda" style="margin-top:6px">⏰ ${o.validade?"Válida até "+dataBR(o.validade):"Sem prazo"} · ${o.entrega==="retirada"?"🏪 Só na loja":"🛵 Faz entrega"}</p>
    <div class="linha" style="margin-top:6px"><button class="btn" onclick="novoPost('${esc(o.id)}')">✏️ Editar</button><button class="btn claro" onclick="pausar('${esc(o.id)}',${!o.ativa})">${o.ativa?"⏸ Pausar":"▶️ Pôr no ar"}</button></div>
    <button class="btn ouro" onclick="compartilharPost('${esc(o.id)}')">📤 Compartilhar no WhatsApp / Instagram</button>
    <button class="btn verm" onclick="apagar('${esc(o.id)}')">🗑 Apagar post</button>`)}
@@ -287,8 +288,8 @@ let RASC=null;
 function novoPost(id){
   const o=ofertas.find(x=>x.id===id);
   const rascunho=!o&&store.get("vc_rascunho",null);
-  RASC=o?{id:o.id,titulo:o.titulo,descricao:o.descricao,validade:o.validade||null,categoria:o.categoria,regras:o.regras||"",economia:o.economia||"",fotoUrl:o.foto_url||"",foto:null,prazo:o.validade?"data":"sem"}
-         :{id:null,titulo:"",descricao:"",validade:hojeISO(7),categoria:RAMO_CAT[empresa.ramo]||"vest",regras:"",economia:"",fotoUrl:"",foto:null,prazo:7,...(rascunho||{})};
+  RASC=o?{id:o.id,entrega:o.entrega||"sim",titulo:o.titulo,descricao:o.descricao,validade:o.validade||null,categoria:o.categoria,regras:o.regras||"",economia:o.economia||"",fotoUrl:o.foto_url||"",foto:null,prazo:o.validade?"data":"sem"}
+         :{id:null,entrega:SO_NA_LOJA.includes(empresa.ramo)?"retirada":"sim",titulo:"",descricao:"",validade:hojeISO(7),categoria:RAMO_CAT[empresa.ramo]||"vest",regras:"",economia:"",fotoUrl:"",foto:null,prazo:7,...(rascunho||{})};
   abrirSheet(`<h2 style="margin-top:8px">${o?"Editar post":"Novo post"}</h2>
    <input type="file" accept="image/*" id="pFoto" hidden onchange="escolheuFoto(this)">
    <div class="comp-foto" id="pFotoBox"></div>
@@ -305,6 +306,10 @@ function novoPost(id){
    <div class="chips" id="pChipsPrazo">${PRAZOS.map(([n,d])=>`<button type="button" aria-pressed="false" data-d="${d===null?"sem":d}" onclick="escolhePrazo(${d===null?"null":d},this)">${n}</button>`).join("")}<button type="button" aria-pressed="false" data-d="data" onclick="escolhePrazo('data',this)">📅 Escolher data</button></div>
    <input class="inp" id="pData" type="date" min="${hojeISO()}" style="margin-top:8px;display:none" onchange="RASC.validade=this.value||null;atualizar()">
 
+   <div class="passo-t"><i>4</i>Faz entrega?</div>
+   <div class="chips" id="pChipsEnt"><button type="button" data-e="sim" aria-pressed="false" onclick="escolheEntrega('sim',this)">🛵 Sim, entrego</button><button type="button" data-e="retirada" aria-pressed="false" onclick="escolheEntrega('retirada',this)">🏪 Só na loja</button></div>
+   <p class="ajuda" id="pEntAjuda"></p>
+
    <details class="mais-op"><summary>⚙️ Mais opções (não precisa mexer)</summary>
     <label for="pCat">Categoria</label><select class="inp" id="pCat" onchange="RASC.categoria=this.value;salvarRascunho()">${CATS.map(([v,n])=>`<option value="${v}" ${v===RASC.categoria?"selected":""}>${n}</option>`).join("")}</select>
     <label for="pReg">Regras</label><input class="inp" id="pReg" maxlength="200" value="${esc(RASC.regras)}" placeholder="Ex: Válido para pagamento à vista." oninput="RASC.regras=this.value;salvarRascunho()">
@@ -319,6 +324,7 @@ function novoPost(id){
   if(RASC.titulo&&!pronta){$("#pTit").style.display="block";$("#pTit").value=RASC.titulo;$("#pOutro").setAttribute("aria-pressed","true")}
   const chip=[...$("#pChipsPrazo").children].find(b=>b.dataset.d===String(RASC.prazo));if(chip)chip.setAttribute("aria-pressed","true");
   if(RASC.prazo==="data"){$("#pData").style.display="block";$("#pData").value=RASC.validade||""}
+  marcar("#pChipsEnt",[...$("#pChipsEnt").children].find(b=>b.dataset.e===RASC.entrega));
   desenharFoto();atualizar();
   if(!o&&!RASC.fotoUrl&&!RASC.foto)$("#pFoto").click(); // já abre a galeria/câmera, como no Instagram
 }
@@ -333,10 +339,12 @@ function escolheOferta(t){RASC.titulo=t;$("#pTit").style.display="none";marcar("
 function outraOferta(){marcar("#pChipsOferta",$("#pOutro"));const i=$("#pTit");i.style.display="block";i.value=OFERTAS_PRONTAS.includes(RASC.titulo)?"":RASC.titulo;RASC.titulo=i.value.trim();i.focus();atualizar()}
 function escolhePrazo(d,btn){marcar("#pChipsPrazo",btn);RASC.prazo=d===null?"sem":d;$("#pData").style.display=d==="data"?"block":"none";
   RASC.validade=d===null?null:d==="data"?($("#pData").value||null):hojeISO(d);if(d==="data")$("#pData").focus();atualizar()}
-function salvarRascunho(){if(RASC&&!RASC.id){const {titulo,descricao,categoria,regras,economia,prazo,validade}=RASC;try{store.set("vc_rascunho",{titulo,descricao,categoria,regras,economia,prazo,validade})}catch(e){}}}
+function escolheEntrega(v,btn){RASC.entrega=v;marcar("#pChipsEnt",btn);atualizar()}
+function salvarRascunho(){if(RASC&&!RASC.id){const {titulo,descricao,categoria,regras,economia,prazo,validade,entrega}=RASC;try{store.set("vc_rascunho",{titulo,descricao,categoria,regras,economia,prazo,validade,entrega})}catch(e){}}}
 function atualizar(){
   $("#pcT").textContent=RASC.titulo||"Escolha a oferta";
   $("#pCont").textContent=`${RASC.descricao.length}/300`;
+  $("#pEntAjuda").textContent=RASC.entrega==="sim"?"O cliente vê o botão “Pedir com entrega” e o pedido chega no seu WhatsApp com o código do cupom.":"O cliente vem até a loja e mostra o cupom no caixa.";
   salvarRascunho();
 }
 async function publicar(){
@@ -346,13 +354,15 @@ async function publicar(){
   if(!RASC.foto&&!RASC.fotoUrl&&!confirm("Post sem foto chama menos atenção. Publicar mesmo assim?"))return;
   b.disabled=true;b.textContent="Publicando…";
   try{
-    const dados={titulo:RASC.titulo.slice(0,40),descricao:RASC.descricao.trim().slice(0,300),regras:RASC.regras.trim().slice(0,200),categoria:RASC.categoria,validade:RASC.validade||null,economia:parseFloat(String(RASC.economia||"0").replace(",","."))||0};
+    const dados={titulo:RASC.titulo.slice(0,40),descricao:RASC.descricao.trim().slice(0,300),regras:RASC.regras.trim().slice(0,200),categoria:RASC.categoria,validade:RASC.validade||null,economia:parseFloat(String(RASC.economia||"0").replace(",","."))||0,entrega:RASC.entrega==="retirada"?"retirada":"sim"};
     if(RASC.foto)dados.foto_url=await enviarFoto(RASC.foto);
     let salvo;
     if(DEMO){const l=store.get("vc_demo_ofertas",[]);
       if(RASC.id){const i=l.findIndex(x=>x.id===RASC.id);l[i]={...l[i],...dados};salvo=l[i]}else{salvo={id:String(Date.now()),ativa:true,criado_em:new Date().toISOString(),...dados};l.unshift(salvo)}
       store.set("vc_demo_ofertas",l)}
-    else{const r=RASC.id?await db.from("ofertas").update(dados).eq("id",RASC.id).select().single():await db.from("ofertas").insert({...dados,empresa_id:empresa.id}).select().single();
+    else{const gravar=d=>RASC.id?db.from("ofertas").update(d).eq("id",RASC.id).select().single():db.from("ofertas").insert({...d,empresa_id:empresa.id}).select().single();
+      let r=await gravar(dados);
+      if(r.error&&/entrega/i.test(r.error.message||"")){const {entrega,...semEntrega}=dados;r=await gravar(semEntrega);if(!r.error)toast("Oferta publicada. Para guardar a opção de entrega, rode a atualização do banco (supabase.sql).")}
       if(r.error)throw r.error;salvo=r.data}
     if(!RASC.id)localStorage.removeItem("vc_rascunho");
     const editou=!!RASC.id;RASC=null;await carregarOfertas();telaPainel();
