@@ -59,7 +59,7 @@ textarea.inp{min-height:90px;resize:vertical}
 .previa{margin-top:8px;border-radius:14px;overflow:hidden;background:#efe8d4;aspect-ratio:16/10;display:grid;place-items:center;color:var(--cinza);font-size:.9rem;text-align:center}
 .previa img{width:100%;height:100%;object-fit:cover}
 .foto-btn{display:flex;align-items:center;justify-content:center;gap:8px;border:2px dashed #c9b98a;border-radius:14px;min-height:56px;font-weight:700;color:var(--txt);cursor:pointer;background:#fffaf0;margin-top:8px}
-.foto-btn input{display:none}
+.foto-btn input,.arquivo{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
 .vazio{text-align:center;color:var(--cinza);padding:24px 8px}
 .vazio .e{font-size:2.6rem;display:block}
 .aviso{background:#fff6dc;border:1.5px solid #e6cf8d;border-radius:14px;padding:12px;font-size:.92rem;margin-bottom:14px}
@@ -93,9 +93,10 @@ textarea.inp{min-height:90px;resize:vertical}
 /* compositor */
 .comp-foto{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:16/10;background:#000;display:grid;place-items:center;margin-top:10px}
 .comp-foto img{width:100%;height:100%;object-fit:cover}
-.comp-foto .vazio-foto{color:#F3E3B5;text-align:center;font-weight:600;padding:12px}
+.comp-foto .vazio-foto{color:#F3E3B5;text-align:center;font-weight:600;padding:12px;width:100%;height:100%;display:grid;place-content:center;cursor:pointer;margin:0}
+.comp-foto .carregando{color:#F3E3B5;font-weight:700}
 .comp-foto .vazio-foto span{display:block;font-size:2.6rem}
-.comp-foto .trocar{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.7);color:#fff;border:0;border-radius:20px;padding:0 14px;min-height:40px;font-weight:700;cursor:pointer}
+.comp-foto .trocar{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.7);color:#fff;border:0;border-radius:20px;padding:0 14px;min-height:44px;font-weight:700;cursor:pointer;display:flex;align-items:center;margin:0;font-size:.95rem}
 .passo-t{font-weight:800;font-size:1.02rem;margin:18px 0 8px;display:flex;align-items:center;gap:8px}
 .passo-t i{font-style:normal;background:var(--azul);color:#fff;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.8rem}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
@@ -213,7 +214,7 @@ async function carregarOfertas(){
   const {data,error}=await db.from("ofertas").select("*").eq("empresa_id",empresa.id).order("criado_em",{ascending:false});if(error)toast(traduzErro(error));ofertas=data||[]}
 
 // ===== FOTOS: reduz e recorta no formato do app (16:10) antes de enviar =====
-function carregarImagem(file){return new Promise((res,rej)=>{if(!/^image\//.test(file.type))return rej(new Error("Escolha uma foto."));const img=new Image();img.onload=()=>res(img);img.onerror=()=>rej(new Error("Não foi possível abrir essa foto."));img.src=URL.createObjectURL(file)})}
+function carregarImagem(file){return new Promise((res,rej)=>{if(file.type&&!/^image\//.test(file.type))return rej(new Error("Escolha uma foto."));const img=new Image();img.onload=()=>res(img);img.onerror=()=>rej(new Error(/heic|heif/i.test(file.type+file.name)?"Essa foto está no formato HEIC do iPhone. Tire um print da foto e envie o print, ou no iPhone: Ajustes > Câmera > Formatos > Mais Compatível.":"Não foi possível abrir essa foto. Tente outra."));img.src=URL.createObjectURL(file)})}
 async function prepararFoto(file,{larg=1200,prop=16/10}={}){
   const img=await carregarImagem(file);let sw=img.width,sh=img.height,sx=0,sy=0;
   if(sw/sh>prop){sw=Math.round(sh*prop);sx=Math.round((img.width-sw)/2)}else{sh=Math.round(sw/prop);sy=Math.round((img.height-sh)/2)}
@@ -290,7 +291,7 @@ function novoPost(id){
   RASC=o?{id:o.id,entrega:o.entrega||"sim",titulo:o.titulo,descricao:o.descricao,validade:o.validade||null,categoria:o.categoria,regras:o.regras||"",economia:o.economia||"",fotoUrl:o.foto_url||"",foto:null,prazo:o.validade?"data":"sem"}
          :{id:null,entrega:"sim",titulo:"",descricao:"",validade:hojeISO(7),categoria:RAMO_CAT[empresa.ramo]||"vest",regras:"",economia:"",fotoUrl:"",foto:null,prazo:7,...(rascunho||{})};
   abrirSheet(`<h2 style="margin-top:8px">${o?"Editar post":"Novo post"}</h2>
-   <input type="file" accept="image/*" id="pFoto" hidden onchange="escolheuFoto(this)">
+   <input type="file" accept="image/*" id="pFoto" class="arquivo" tabindex="-1" onchange="escolheuFoto(this)">
    <div class="comp-foto" id="pFotoBox"></div>
 
    <div class="passo-t"><i>1</i>Qual é a oferta?</div>
@@ -325,14 +326,17 @@ function novoPost(id){
   if(RASC.prazo==="data"){$("#pData").style.display="block";$("#pData").value=RASC.validade||""}
   marcar("#pChipsEnt",[...$("#pChipsEnt").children].find(b=>b.dataset.e===RASC.entrega));
   desenharFoto();atualizar();
-  if(!o&&!RASC.fotoUrl&&!RASC.foto)$("#pFoto").click(); // já abre a galeria/câmera, como no Instagram
+  if(!o&&!RASC.fotoUrl&&!RASC.foto)try{$("#pFoto").click()}catch(e){} // tenta já abrir a galeria; se o aparelho bloquear, o cliente toca na área da foto
 }
 function desenharFoto(){const u=RASC.foto?URL.createObjectURL(RASC.foto):seguro(RASC.fotoUrl);
-  $("#pFotoBox").innerHTML=u?`<img src="${esc(u)}" alt="Foto do post"><button type="button" class="trocar" onclick="$('#pFoto').click()">🔄 Trocar foto</button>`
-   :`<button type="button" class="vazio-foto" style="background:none;border:0;cursor:pointer;width:100%;height:100%" onclick="$('#pFoto').click()"><span>📷</span>Toque para escolher a foto<br><small style="font-weight:500">da galeria ou tirar agora</small></button>`;
+  $("#pFotoBox").innerHTML=u?`<img src="${esc(u)}" alt="Foto do post"><label for="pFoto" class="trocar" role="button" tabindex="0">🔄 Trocar foto</label>`
+   :`<label for="pFoto" class="vazio-foto" role="button" tabindex="0"><span>📷</span>Toque aqui para escolher a foto<br><small style="font-weight:500">da galeria ou tirar agora</small></label>`;
   $("#pcIm").innerHTML=u?`<img src="${esc(u)}" alt="">`:"🏷️"}
 async function escolheuFoto(input){const f=input.files[0];input.value="";if(!f)return;
-  try{RASC.foto=await prepararFoto(f);desenharFoto()}catch(e){toast(traduzErro(e))}}
+  $("#pFotoBox").innerHTML=`<div class="carregando" role="status">⏳ Carregando foto…</div>`;
+  try{RASC.foto=await prepararFoto(f)}catch(e){toast(traduzErro(e))}
+  desenharFoto()}
+document.addEventListener("keydown",ev=>{const l=ev.target.closest&&ev.target.closest('label[for="pFoto"]');if(l&&(ev.key==="Enter"||ev.key===" ")){ev.preventDefault();$("#pFoto").click()}});
 function marcar(grupo,btn){[...$(grupo).children].forEach(b=>b.setAttribute("aria-pressed",b===btn?"true":"false"))}
 function escolheOferta(t){RASC.titulo=t;$("#pTit").style.display="none";marcar("#pChipsOferta",[...$("#pChipsOferta").children].find(b=>b.textContent===t));atualizar()}
 function outraOferta(){marcar("#pChipsOferta",$("#pOutro"));const i=$("#pTit");i.style.display="block";i.value=OFERTAS_PRONTAS.includes(RASC.titulo)?"":RASC.titulo;RASC.titulo=i.value.trim();i.focus();atualizar()}
