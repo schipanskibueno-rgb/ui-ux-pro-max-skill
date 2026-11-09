@@ -370,7 +370,7 @@ const OFERTAS = [
   {id:"5", emp:"VS Store", sub:"Liquidação", cat:"vest", img:"img/of1.jpg", tag:"Até 40% OFF", s:true, desc:"Liquidação com até 40% de desconto em toda a loja.", regras:"Enquanto durarem os estoques.", validade:"2026-11-20", economia:60},
   {id:"6", emp:"Burger da Praça", sub:"Hamburgueria", cat:"alim", emoji:"🍔", tag:"Combo R$ 29", s:true, desc:"Combo burger + fritas + refri por R$ 29,90.", regras:"Válido todos os dias após 18h.", validade:"2026-12-31", economia:10},
   {id:"7", emp:"Studio Bella", sub:"Salão de Beleza", cat:"est", emoji:"💇‍♀️", tag:"25% OFF", desc:"25% de desconto em escova e hidratação.", regras:"De terça a quinta.", validade:"2026-12-05", economia:20},
-  {id:"8", emp:"Clínica Vida", sub:"Consultas e Exames", cat:"sau", emoji:"🩺", tag:"20% OFF", desc:"20% de desconto em consultas particulares.", regras:"Apresente o cupom na recepção.", validade:"2026-12-31", economia:40},
+  {id:"8", entrega:"retirada", emp:"Clínica Vida", sub:"Consultas e Exames", cat:"sau", emoji:"🩺", tag:"20% OFF", desc:"20% de desconto em consultas particulares.", regras:"Apresente o cupom na recepção.", validade:"2026-12-31", economia:40},
   {id:"9", emp:"Barbearia Exemplo", sub:"Corte e Barba", cat:"barb", emoji:"💈", tag:"Barba grátis", s:true, desc:"Corte + barba pelo preço do corte.", regras:"Agende pelo WhatsApp da barbearia.", validade:"2026-12-20", economia:25}
 ];
 // ===== PONTOS E BRINDES =====
@@ -502,20 +502,20 @@ function verOferta(id){
   const cat=CATS.find(k=>k.id===o.cat), f=favs().includes(o.id);
   $("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ✕</button>
    <div style="border-radius:16px;overflow:hidden;height:150px;margin:10px 0 12px;background:linear-gradient(135deg,#1F2B57,#0E1428);display:grid;place-items:center;font-size:4rem">${o.img?`<img src="${o.img}" alt="" style="width:100%;height:100%;object-fit:cover">`:o.emoji}</div>
-   <span class="chip">${cat.ic} ${cat.nome}</span>${o.validade?`<span class="chip" style="${dias(o)<=3?"background:#ffe1e1;color:#b00":""}">⏰ ${prazoTxt(o)}</span>`:""}<span class="chip ent">🛵 Faz entrega</span>
+   <span class="chip">${cat.ic} ${cat.nome}</span>${o.validade?`<span class="chip" style="${dias(o)<=3?"background:#ffe1e1;color:#b00":""}">⏰ ${prazoTxt(o)}</span>`:""}<span class="chip ent">${o.entrega==="retirada"?"🏪 Só na loja":"🛵 Faz entrega"}</span>
    <h3 style="font-size:1.4rem;margin-top:8px">${esc(o.emp)}</h3><p style="color:var(--cinza)">${esc(o.sub)}</p>
    <div style="margin:12px 0;background:linear-gradient(#E9C766,#C9952A);color:#0E1428;font-weight:800;border-radius:12px;padding:10px;text-align:center;font-size:1.5rem">${o.tag.replace(/<br>/g," · ")}</div>
    <p style="font-size:1.05rem">${esc(o.desc)}</p><p style="font-size:.9rem;color:var(--cinza);margin-top:6px">📋 ${esc(o.regras)}</p>
    <div style="font-weight:800;font-size:1rem;margin-top:14px">💡 Como usar ${c?"seu cupom":"esta oferta"}</div>
    <div class="como mini">
     <div class="passo" style="${c?"opacity:.55":""}"><span class="n">1</span><div class="e">🎟️</div><b>${c?"Cupom pego ✓":"Toque em Pegar cupom"}</b></div>
-    <div class="passo"><span class="n">2</span><div class="e">🛵</div><b>Mostre no caixa ou peça com entrega</b></div>
+    <div class="passo"><span class="n">2</span><div class="e">${o.entrega==="retirada"?"🏪":"🛵"}</div><b>${o.entrega==="retirada"?"Mostre o código no caixa":"Mostre no caixa ou peça com entrega"}</b></div>
     <div class="passo"><span class="n">3</span><div class="e">⭐</div><b>Ganhe pontos na compra</b></div>
    </div>
    ${c?`<div class="codigo"><div style="font-size:.9rem;font-weight:700">Mostre esta tela no caixa</div><div class="qr" id="qr"></div><div class="c">${c.cod}</div></div>
      <button class="btn" onclick="copiar('${c.cod}')">📋 Copiar código</button><button class="btn" style="background:linear-gradient(#E9C766,#C9952A);color:#0E1428" onclick="registrarCompra('${o.id}')">⭐ Fiz a compra: ganhar pontos</button>`:
      `<button class="btn" style="min-height:60px;font-size:1.15rem" onclick="pegar('${o.id}')">🎟️ Pegar cupom grátis</button>`}
-   <button class="btn entrega" onclick="pedirEntrega('${o.id}')">🛵 Pedir com entrega</button>${c&&c.entrega?`<div class="entrega-info">✅ Pedido de entrega enviado em ${new Date(c.entrega).toLocaleDateString("pt-BR")}. Combine com a loja pelo WhatsApp.</div>`:""}
+   ${o.entrega==="retirada"?"":`<button class="btn entrega" onclick="pedirEntrega('${o.id}')">🛵 Pedir com entrega</button>${c&&c.entrega?`<div class="entrega-info">✅ Pedido de entrega enviado em ${new Date(c.entrega).toLocaleDateString("pt-BR")}. Combine com a loja pelo WhatsApp.</div>`:""}`}
    <button class="btn claro" onclick="favoritar('${o.id}');verOferta('${o.id}')">${f?"❤️ Salvo nos favoritos":"🤍 Salvar nos favoritos"}</button>
    <button class="btn verde" onclick="falarLoja('${o.id}')">💬 Falar ${o.whats?"com a loja":"no WhatsApp"}</button>
    <button class="btn claro" onclick="compartilhar('${o.id}')">📤 Mandar para um amigo</button>`;
@@ -656,7 +656,7 @@ async function carregarDoBanco(){
   if(!window.CONFIG||!CONFIG.SUPABASE_URL){ // modo demonstração: posts feitos na Área da Empresa deste aparelho
     try{const e=JSON.parse(localStorage.getItem("vc_demo_emp")||"null"),os=JSON.parse(localStorage.getItem("vc_demo_ofertas")||"[]").filter(o=>o.ativa&&/^(data:image\/|https:\/\/|$)/.test(o.foto_url||""));
       if(e&&os.length){OFERTAS.unshift(...os.map(o=>({id:"d"+String(o.id).replace(/\W/g,""),emp:e.nome,sub:e.ramo,cat:o.categoria,img:o.foto_url||"",emoji:(CATS.find(c=>c.id===o.categoria)||{}).ic||"🏷️",
-        tag:esc(o.titulo),s:o.titulo.length>10,desc:o.descricao,regras:o.regras||"Apresente o cupom no caixa.",validade:o.validade||"",economia:Number(o.economia)||0,destaque:true,whats:e.whatsapp||"" })));render()}}catch(err){}
+        tag:esc(o.titulo),s:o.titulo.length>10,desc:o.descricao,regras:o.regras||"Apresente o cupom no caixa.",validade:o.validade||"",economia:Number(o.economia)||0,destaque:true,whats:e.whatsapp||"",entrega:o.entrega||"sim"})));render()}}catch(err){}
     return}
   if(!window.CONFIG||!CONFIG.SUPABASE_URL||!window.supabase)return;
   try{
@@ -665,7 +665,7 @@ async function carregarDoBanco(){
     if(error||!data||!data.length)return; // sem ofertas reais ainda: mantém os exemplos
     const novas=data.map(o=>({id:o.id,emp:o.empresas.nome,sub:o.empresas.ramo,cat:o.categoria,img:o.foto_url||"",emoji:(CATS.find(c=>c.id===o.categoria)||{}).ic||"🏷️",
       tag:esc(o.titulo),s:o.titulo.length>10,desc:o.descricao,regras:o.regras||"Apresente o cupom no caixa.",validade:o.validade||"",economia:Number(o.economia)||0,
-      destaque:o.destaque,whats:o.empresas.whatsapp||"",logo:o.empresas.logo_url||"",banner:o.banner,topo:o.banner_topo||"" }));
+      destaque:o.destaque,whats:o.empresas.whatsapp||"",logo:o.empresas.logo_url||"",banner:o.banner,topo:o.banner_topo||"",entrega:o.entrega||"sim"}));
     if(!novas.some(o=>o.destaque))novas.slice(0,4).forEach(o=>o.destaque=true);
     OFERTAS.splice(0,OFERTAS.length,...novas);
     const bs=novas.filter(o=>o.banner&&o.img).map(o=>({of:o.id,foto:o.img,logo:o.logo,emoji:o.emoji,nome:o.emp,sub:o.sub,topo:o.topo||"OFERTA",oferta:o.tag}));
