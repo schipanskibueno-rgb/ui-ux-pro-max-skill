@@ -125,6 +125,10 @@ create policy "ofertas apagar" on public.ofertas for delete to authenticated usi
 alter table public.ofertas add column if not exists entrega text not null default 'sim';
 alter table public.ofertas drop constraint if exists ofertas_entrega_check;
 alter table public.ofertas add constraint ofertas_entrega_check check (entrega in ('sim','retirada'));
+-- Escolha da loja no cadastro (vem marcada em cada produto novo)
+alter table public.empresas add column if not exists entrega text not null default 'sim';
+alter table public.empresas drop constraint if exists empresas_entrega_check;
+alter table public.empresas add constraint empresas_entrega_check check (entrega in ('sim','retirada'));
 
 -- ---------- FOTOS (Storage) ----------
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
