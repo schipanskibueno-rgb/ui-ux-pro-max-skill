@@ -83,10 +83,14 @@ language plpgsql security definer set search_path = public as $$
 declare pl text; lim int; qtd int;
 begin
   if not public.is_admin() then
+    if tg_op = 'UPDATE' then new.empresa_id := old.empresa_id; end if;
+    select plano into pl from public.empresas where id = new.empresa_id;
     if tg_op = 'INSERT' then
-      new.destaque := false; new.banner := false;
+      new.destaque := false;
+      if pl is distinct from 'premium' then new.banner := false; end if;          -- banner do topo: só plano Premium
     else
-      new.destaque := old.destaque; new.banner := old.banner; new.empresa_id := old.empresa_id;
+      new.destaque := old.destaque;
+      if pl is distinct from 'premium' then new.banner := old.banner; end if;
     end if;
   end if;
   if new.ativa then

@@ -656,7 +656,10 @@ async function carregarDoBanco(){
   if(!window.CONFIG||!CONFIG.SUPABASE_URL){ // modo demonstração: posts feitos na Área da Empresa deste aparelho
     try{const e=JSON.parse(localStorage.getItem("vc_demo_emp")||"null"),os=JSON.parse(localStorage.getItem("vc_demo_ofertas")||"[]").filter(o=>o.ativa&&/^(data:image\/|https:\/\/|$)/.test(o.foto_url||""));
       if(e&&os.length){OFERTAS.unshift(...os.map(o=>({id:"d"+String(o.id).replace(/\W/g,""),emp:e.nome,sub:e.ramo,cat:o.categoria,img:o.foto_url||"",emoji:(CATS.find(c=>c.id===o.categoria)||{}).ic||"🏷️",
-        tag:esc(o.titulo),s:o.titulo.length>10,desc:o.descricao,regras:o.regras||"Apresente o cupom no caixa.",validade:o.validade||"",economia:Number(o.economia)||0,destaque:true,whats:e.whatsapp||"",entrega:o.entrega||"sim"})));render()}}catch(err){}
+        tag:esc(o.titulo),s:o.titulo.length>10,desc:o.descricao,regras:o.regras||"Apresente o cupom no caixa.",validade:o.validade||"",economia:Number(o.economia)||0,destaque:true,whats:e.whatsapp||"",entrega:o.entrega||"sim"})));
+        const bs=os.filter(o=>o.banner&&o.foto_url).map(o=>({of:"d"+String(o.id).replace(/\W/g,""),foto:o.foto_url,logo:/^(data:image\/|https:\/\/)/.test(e.logo_url||"")?e.logo_url:"",emoji:(CATS.find(c=>c.id===o.categoria)||{}).ic||"🏷️",nome:e.nome,sub:e.ramo,topo:esc(o.banner_topo||"OFERTA"),oferta:esc(o.titulo)}));
+        if(bs.length){BANNERS.unshift(...bs);slide=0}
+        render()}}catch(err){}
     return}
   if(!window.CONFIG||!CONFIG.SUPABASE_URL||!window.supabase)return;
   try{
@@ -665,7 +668,7 @@ async function carregarDoBanco(){
     if(error||!data||!data.length)return; // sem ofertas reais ainda: mantém os exemplos
     const novas=data.map(o=>({id:o.id,emp:o.empresas.nome,sub:o.empresas.ramo,cat:o.categoria,img:o.foto_url||"",emoji:(CATS.find(c=>c.id===o.categoria)||{}).ic||"🏷️",
       tag:esc(o.titulo),s:o.titulo.length>10,desc:o.descricao,regras:o.regras||"Apresente o cupom no caixa.",validade:o.validade||"",economia:Number(o.economia)||0,
-      destaque:o.destaque,whats:o.empresas.whatsapp||"",logo:o.empresas.logo_url||"",banner:o.banner,topo:o.banner_topo||"",entrega:o.entrega||"sim"}));
+      destaque:o.destaque,whats:o.empresas.whatsapp||"",logo:o.empresas.logo_url||"",banner:o.banner,topo:esc(o.banner_topo||""),entrega:o.entrega||"sim"}));
     if(!novas.some(o=>o.destaque))novas.slice(0,4).forEach(o=>o.destaque=true);
     OFERTAS.splice(0,OFERTAS.length,...novas);
     const bs=novas.filter(o=>o.banner&&o.img).map(o=>({of:o.id,foto:o.img,logo:o.logo,emoji:o.emoji,nome:o.emp,sub:o.sub,topo:o.topo||"OFERTA",oferta:o.tag}));

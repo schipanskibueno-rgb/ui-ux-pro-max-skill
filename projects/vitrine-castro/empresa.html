@@ -101,6 +101,16 @@ textarea.inp{min-height:90px;resize:vertical}
 .passo-t i{font-style:normal;background:var(--azul);color:#fff;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.8rem}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chips button{border:2px solid #d9cfb3;background:#fff;color:var(--txt);border-radius:30px;min-height:44px;padding:0 14px;font-weight:700;font-size:.95rem;cursor:pointer}
+.ban-opc{display:flex;gap:10px;align-items:flex-start;font-weight:700;margin:0;cursor:pointer}
+.ban-opc input{width:24px;height:24px;flex-shrink:0;margin-top:2px;accent-color:#C9952A}
+.selo-p{background:#0E1428;color:#D4A537;font-size:.7rem;font-weight:800;border-radius:20px;padding:3px 9px;letter-spacing:.5px}
+.pban{position:relative;border-radius:14px;overflow:hidden;aspect-ratio:16/10;background:#0E1428;margin:10px auto 0;max-width:300px;border:2px solid #D4A537}
+.pban img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pban .ov{position:absolute;inset:0;background:linear-gradient(90deg,rgba(14,20,40,.95),rgba(14,20,40,.6) 55%,rgba(14,20,40,0))}
+.pban .tx{position:absolute;left:12px;top:10px;bottom:10px;width:65%;display:flex;flex-direction:column;justify-content:space-between;color:#fff}
+.pban .nm{font-weight:800;font-size:.9rem}.pban .tp{font-size:.62rem;color:#F3E3B5;letter-spacing:1px;font-weight:700}
+.pban .of{font-weight:800;font-size:1.25rem;color:#E9C766;line-height:1}
+.pban .ct{align-self:flex-start;background:linear-gradient(#E9C766,#C9952A);color:#0E1428;font-weight:800;font-size:.7rem;border-radius:20px;padding:4px 10px}
 .chips button[aria-pressed="true"]{background:linear-gradient(#E9C766,#C9952A);border-color:#C9952A;color:#0E1428}
 .cont{font-size:.78rem;color:var(--cinza);text-align:right;margin-top:3px}
 details.mais-op{margin-top:16px;border-top:1px solid #efe6cc;padding-top:6px}
@@ -278,7 +288,7 @@ function verPost(id){const o=ofertas.find(x=>x.id===id);if(!o)return;
    <div style="margin-top:12px">${st}${o.banner?' <span class="status pend">⭐ Banner</span>':""}</div>
    <div class="pcard" style="max-width:none;box-shadow:none;margin-top:6px"><div class="t" style="margin:6px 0;font-size:1.4rem">${esc(o.titulo)}</div></div>
    <p style="font-size:1.02rem">${esc(o.descricao)}</p>${o.regras?`<p class="ajuda">📋 ${esc(o.regras)}</p>`:""}
-   <p class="ajuda" style="margin-top:6px">⏰ ${o.validade?"Válida até "+dataBR(o.validade):"Sem prazo"} · ${o.entrega==="retirada"?"🏪 Só na loja":"🛵 Faz entrega"}</p>
+   <p class="ajuda" style="margin-top:6px">⏰ ${o.validade?"Válida até "+dataBR(o.validade):"Sem prazo"} · ${o.entrega==="retirada"?"🏪 Só na loja":"🛵 Faz entrega"}${o.banner?" · ⭐ No banner do topo":""}</p>
    <div class="linha" style="margin-top:6px"><button class="btn" onclick="novoPost('${esc(o.id)}')">✏️ Editar</button><button class="btn claro" onclick="pausar('${esc(o.id)}',${!o.ativa})">${o.ativa?"⏸ Pausar":"▶️ Pôr no ar"}</button></div>
    <button class="btn ouro" onclick="compartilharPost('${esc(o.id)}')">📤 Compartilhar no WhatsApp / Instagram</button>
    <button class="btn verm" onclick="apagar('${esc(o.id)}')">🗑 Apagar post</button>`)}
@@ -288,8 +298,8 @@ let RASC=null;
 function novoPost(id){
   const o=ofertas.find(x=>x.id===id);
   const rascunho=!o&&store.get("vc_rascunho",null);
-  RASC=o?{id:o.id,entrega:o.entrega||"sim",titulo:o.titulo,descricao:o.descricao,validade:o.validade||null,categoria:o.categoria,regras:o.regras||"",economia:o.economia||"",fotoUrl:o.foto_url||"",foto:null,prazo:o.validade?"data":"sem"}
-         :{id:null,entrega:"sim",titulo:"",descricao:"",validade:hojeISO(7),categoria:RAMO_CAT[empresa.ramo]||"vest",regras:"",economia:"",fotoUrl:"",foto:null,prazo:7,...(rascunho||{})};
+  RASC=o?{id:o.id,entrega:o.entrega||"sim",titulo:o.titulo,descricao:o.descricao,validade:o.validade||null,categoria:o.categoria,regras:o.regras||"",economia:o.economia||"",fotoUrl:o.foto_url||"",foto:null,prazo:o.validade?"data":"sem",banner:!!o.banner,topo:o.banner_topo||""}
+         :{id:null,entrega:"sim",titulo:"",descricao:"",validade:hojeISO(7),categoria:RAMO_CAT[empresa.ramo]||"vest",regras:"",economia:"",fotoUrl:"",foto:null,prazo:7,banner:false,topo:"",...(rascunho||{})};
   abrirSheet(`<h2 style="margin-top:8px">${o?"Editar post":"Novo post"}</h2>
    <input type="file" accept="image/*" id="pFoto" class="arquivo" tabindex="-1" onchange="escolheuFoto(this)">
    <div class="comp-foto" id="pFotoBox"></div>
@@ -310,13 +320,18 @@ function novoPost(id){
    <div class="chips" id="pChipsEnt"><button type="button" data-e="sim" aria-pressed="false" onclick="escolheEntrega('sim',this)">🛵 Sim, entrego</button><button type="button" data-e="retirada" aria-pressed="false" onclick="escolheEntrega('retirada',this)">🏪 Só na loja</button></div>
    <p class="ajuda" id="pEntAjuda"></p>
 
+   <div class="passo-t"><i>5</i>Banner do topo <span class="selo-p">⭐ PREMIUM</span></div>
+   <label class="ban-opc"><input type="checkbox" id="pBanner" ${podeBanner()?"":"disabled"} ${RASC.banner&&podeBanner()?"checked":""} onchange="RASC.banner=this.checked;$('#pTopoBox').style.display=this.checked?'block':'none';atualizar()"><span>Mostrar esta oferta no banner grande que fica passando no topo do app</span></label>
+   <div id="pTopoBox" style="display:${RASC.banner&&podeBanner()?"block":"none"}"><label for="pTopo">Frase curta do banner (opcional)</label><input class="inp" id="pTopo" maxlength="20" value="${esc(RASC.topo)}" placeholder="Ex: LIQUIDAÇÃO, SÓ HOJE" oninput="RASC.topo=this.value;atualizar()"></div>
+   <p class="ajuda">${podeBanner()?"O banner usa a foto do post. Precisa ter foto.":"Disponível no plano Premium. Fale com o Vitrine Castro para liberar."}</p>
+
    <details class="mais-op"><summary>⚙️ Mais opções (não precisa mexer)</summary>
     <label for="pCat">Categoria</label><select class="inp" id="pCat" onchange="RASC.categoria=this.value;salvarRascunho()">${CATS.map(([v,n])=>`<option value="${v}" ${v===RASC.categoria?"selected":""}>${n}</option>`).join("")}</select>
     <label for="pReg">Regras</label><input class="inp" id="pReg" maxlength="200" value="${esc(RASC.regras)}" placeholder="Ex: Válido para pagamento à vista." oninput="RASC.regras=this.value;salvarRascunho()">
     <label for="pEco">Quanto o cliente economiza, em média (R$)</label><input class="inp" id="pEco" inputmode="decimal" value="${esc(RASC.economia)}" placeholder="Ex: 15" oninput="RASC.economia=this.value;salvarRascunho()">
    </details>
 
-   <div class="prev-app"><div class="rot">👀 ASSIM APARECE NO APP</div><div class="pcard"><div class="im" id="pcIm"></div><div class="i"><b>${esc(empresa.nome)}</b><small>${esc(empresa.ramo)}</small></div><div class="t" id="pcT"></div></div></div>
+   <div class="prev-app"><div class="rot">👀 ASSIM APARECE NO APP</div><div class="pcard"><div class="im" id="pcIm"></div><div class="i"><b>${esc(empresa.nome)}</b><small>${esc(empresa.ramo)}</small></div><div class="t" id="pcT"></div></div><div id="pcBanner"></div></div>
    <div class="erro" id="pErro"></div>
    <div class="publicar-barra"><button class="btn ouro" id="pBtn" onclick="publicar()">${o?"Salvar alterações":"🚀 Publicar"}</button></div>`);
   // marca as escolhas atuais
@@ -331,33 +346,39 @@ function novoPost(id){
 function desenharFoto(){const u=RASC.foto?URL.createObjectURL(RASC.foto):seguro(RASC.fotoUrl);
   $("#pFotoBox").innerHTML=u?`<img src="${esc(u)}" alt="Foto do post"><label for="pFoto" class="trocar" role="button" tabindex="0">🔄 Trocar foto</label>`
    :`<label for="pFoto" class="vazio-foto" role="button" tabindex="0"><span>📷</span>Toque aqui para escolher a foto<br><small style="font-weight:500">da galeria ou tirar agora</small></label>`;
-  $("#pcIm").innerHTML=u?`<img src="${esc(u)}" alt="">`:"🏷️"}
+  $("#pcIm").innerHTML=u?`<img src="${esc(u)}" alt="">`:"🏷️";previaBanner()}
 async function escolheuFoto(input){const f=input.files[0];input.value="";if(!f)return;
   $("#pFotoBox").innerHTML=`<div class="carregando" role="status">⏳ Carregando foto…</div>`;
   try{RASC.foto=await prepararFoto(f)}catch(e){toast(traduzErro(e))}
   desenharFoto()}
 document.addEventListener("keydown",ev=>{const l=ev.target.closest&&ev.target.closest('label[for="pFoto"]');if(l&&(ev.key==="Enter"||ev.key===" ")){ev.preventDefault();$("#pFoto").click()}});
+function podeBanner(){return DEMO||admin||empresa.plano==="premium"}
+function previaBanner(){const box=$("#pcBanner");if(!box)return;
+  if(!RASC.banner){box.innerHTML="";return}
+  const u=RASC.foto?URL.createObjectURL(RASC.foto):seguro(RASC.fotoUrl);
+  box.innerHTML=`<div class="rot" style="margin-top:14px">⭐ ASSIM APARECE NO BANNER DO TOPO</div><div class="pban">${u?`<img src="${esc(u)}" alt="">`:""}<span class="ov"></span><div class="tx"><span class="nm">${esc(empresa.nome)}</span><span><span class="tp">${esc((RASC.topo||"OFERTA").toUpperCase())}</span><br><span class="of">${esc(RASC.titulo||"Sua oferta")}</span></span><span class="ct">Ver oferta ›</span></div></div>`}
 function marcar(grupo,btn){[...$(grupo).children].forEach(b=>b.setAttribute("aria-pressed",b===btn?"true":"false"))}
 function escolheOferta(t){RASC.titulo=t;$("#pTit").style.display="none";marcar("#pChipsOferta",[...$("#pChipsOferta").children].find(b=>b.textContent===t));atualizar()}
 function outraOferta(){marcar("#pChipsOferta",$("#pOutro"));const i=$("#pTit");i.style.display="block";i.value=OFERTAS_PRONTAS.includes(RASC.titulo)?"":RASC.titulo;RASC.titulo=i.value.trim();i.focus();atualizar()}
 function escolhePrazo(d,btn){marcar("#pChipsPrazo",btn);RASC.prazo=d===null?"sem":d;$("#pData").style.display=d==="data"?"block":"none";
   RASC.validade=d===null?null:d==="data"?($("#pData").value||null):hojeISO(d);if(d==="data")$("#pData").focus();atualizar()}
 function escolheEntrega(v,btn){RASC.entrega=v;marcar("#pChipsEnt",btn);atualizar()}
-function salvarRascunho(){if(RASC&&!RASC.id){const {titulo,descricao,categoria,regras,economia,prazo,validade,entrega}=RASC;try{store.set("vc_rascunho",{titulo,descricao,categoria,regras,economia,prazo,validade,entrega})}catch(e){}}}
+function salvarRascunho(){if(RASC&&!RASC.id){const {titulo,descricao,categoria,regras,economia,prazo,validade,entrega,banner,topo}=RASC;try{store.set("vc_rascunho",{titulo,descricao,categoria,regras,economia,prazo,validade,entrega,banner,topo})}catch(e){}}}
 function atualizar(){
   $("#pcT").textContent=RASC.titulo||"Escolha a oferta";
+  previaBanner();
   $("#pCont").textContent=`${RASC.descricao.length}/300`;
   $("#pEntAjuda").textContent=RASC.entrega==="sim"?"O cliente vê o botão “Pedir com entrega” e o pedido chega no seu WhatsApp com o código do cupom.":"O cliente vem até a loja e mostra o cupom no caixa.";
   salvarRascunho();
 }
 async function publicar(){
   const er=$("#pErro"),b=$("#pBtn");er.style.display="none";
-  const falta=!RASC.titulo||RASC.titulo.length<2?"Escolha qual é a oferta (passo 1).":RASC.descricao.trim().length<3?"Escreva a legenda (passo 2).":RASC.prazo==="data"&&!RASC.validade?"Escolha a data (passo 3).":"";
+  const falta=!RASC.titulo||RASC.titulo.length<2?"Escolha qual é a oferta (passo 1).":RASC.descricao.trim().length<3?"Escreva a legenda (passo 2).":RASC.prazo==="data"&&!RASC.validade?"Escolha a data (passo 3).":RASC.banner&&podeBanner()&&!RASC.foto&&!RASC.fotoUrl?"Para aparecer no banner, escolha uma foto.":"";
   if(falta){er.textContent=falta;er.style.display="block";er.scrollIntoView({block:"center",behavior:"smooth"});return}
   if(!RASC.foto&&!RASC.fotoUrl&&!confirm("Post sem foto chama menos atenção. Publicar mesmo assim?"))return;
   b.disabled=true;b.textContent="Publicando…";
   try{
-    const dados={titulo:RASC.titulo.slice(0,40),descricao:RASC.descricao.trim().slice(0,300),regras:RASC.regras.trim().slice(0,200),categoria:RASC.categoria,validade:RASC.validade||null,economia:parseFloat(String(RASC.economia||"0").replace(",","."))||0,entrega:RASC.entrega==="retirada"?"retirada":"sim"};
+    const dados={titulo:RASC.titulo.slice(0,40),descricao:RASC.descricao.trim().slice(0,300),regras:RASC.regras.trim().slice(0,200),categoria:RASC.categoria,validade:RASC.validade||null,economia:parseFloat(String(RASC.economia||"0").replace(",","."))||0,entrega:RASC.entrega==="retirada"?"retirada":"sim",banner:!!(RASC.banner&&podeBanner()),banner_topo:RASC.banner&&podeBanner()?(String(RASC.topo||"").trim().toUpperCase().slice(0,20)||null):null};
     if(RASC.foto)dados.foto_url=await enviarFoto(RASC.foto);
     let salvo;
     if(DEMO){const l=store.get("vc_demo_ofertas",[]);
