@@ -100,11 +100,6 @@ textarea.inp{min-height:90px;resize:vertical}
 .passo-t i{font-style:normal;background:var(--azul);color:#fff;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.8rem}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chips button{border:2px solid #d9cfb3;background:#fff;color:var(--txt);border-radius:30px;min-height:44px;padding:0 14px;font-weight:700;font-size:.95rem;cursor:pointer}
-.opc{position:relative;margin:0;font-weight:700}
-.opc input{position:absolute;opacity:0}
-.opc span{display:flex;align-items:center;border:2px solid #d9cfb3;background:#fff;border-radius:30px;min-height:44px;padding:0 14px;cursor:pointer}
-.opc input:checked+span{background:linear-gradient(#E9C766,#C9952A);border-color:#C9952A;color:#0E1428}
-.opc input:focus-visible+span{outline:3px solid var(--ouro);outline-offset:2px}
 .chips button[aria-pressed="true"]{background:linear-gradient(#E9C766,#C9952A);border-color:#C9952A;color:#0E1428}
 .cont{font-size:.78rem;color:var(--cinza);text-align:right;margin-top:3px}
 details.mais-op{margin-top:16px;border-top:1px solid #efe6cc;padding-top:6px}
@@ -239,11 +234,6 @@ function formEmpresa(e={}){return `
   <label for="eRamo">Ramo</label><select class="inp" id="eRamo">${RAMOS.map(r=>`<option ${r===e.ramo?"selected":""}>${r}</option>`).join("")}</select>
   <label for="eWhats">WhatsApp da loja</label><input class="inp" id="eWhats" inputmode="tel" maxlength="20" value="${esc(e.whatsapp)}" placeholder="(42) 9 9999-9999">
   <p class="ajuda">Os clientes vão falar com você por este número.</p>
-  <fieldset style="border:0;margin-top:12px"><legend style="font-size:.9rem;font-weight:600;margin-bottom:5px">Sua loja faz entrega?</legend>
-   <div class="chips">
-    <label class="opc"><input type="radio" name="eEnt" value="sim" ${e.entrega!=="retirada"?"checked":""}><span>🛵 Sim, faço entrega</span></label>
-    <label class="opc"><input type="radio" name="eEnt" value="retirada" ${e.entrega==="retirada"?"checked":""}><span>🏪 Não, só na loja</span></label>
-   </div><p class="ajuda">Isso já vem marcado em cada produto que você postar. Dá para mudar em um produto específico.</p></fieldset>
   <label for="eEnd">Endereço</label><input class="inp" id="eEnd" maxlength="150" value="${esc(e.endereco)}" placeholder="Rua, número – bairro">
   <label>Logo da loja</label><div class="previa" id="eLogoPrev" style="aspect-ratio:1/1;width:120px">${seguro(e.logo_url)?`<img src="${esc(e.logo_url)}" alt="Logo">`:"Sem logo"}</div>
   <label class="foto-btn">📷 Escolher logo<input type="file" accept="image/*" id="eLogo" onchange="mostrarPrevia(this,'#eLogoPrev')"></label>
@@ -252,13 +242,11 @@ function telaCadastroEmpresa(){$("#main").innerHTML=`${DEMO?avisoDemo():""}<div 
   <form onsubmit="salvarEmpresa(event)">${formEmpresa()}<button class="btn ouro" id="eBtn">Cadastrar minha loja</button></form></div><div id="admBox"></div>`}
 async function salvarEmpresa(ev){ev.preventDefault();const b=$("#eBtn");b.disabled=true;$("#eErro").style.display="none";
   try{
-    const dados={nome:$("#eNome").value.trim(),ramo:$("#eRamo").value,whatsapp:$("#eWhats").value.trim(),endereco:$("#eEnd").value.trim(),entrega:(document.querySelector('input[name="eEnt"]:checked')||{}).value==="retirada"?"retirada":"sim"};
+    const dados={nome:$("#eNome").value.trim(),ramo:$("#eRamo").value,whatsapp:$("#eWhats").value.trim(),endereco:$("#eEnd").value.trim()};
     const f=$("#eLogo").files[0];if(f)dados.logo_url=await enviarFoto(await prepararFoto(f,{larg:400,prop:1}));
     if(DEMO){empresa={...(empresa||{id:"demo",aprovada:true,plano:"premium"}),...dados};store.set("vc_demo_emp",empresa)}
-    else{const gravar=d=>(empresa?db.from("empresas").update(d).eq("id",empresa.id):db.from("empresas").insert(d)).select().single();
-      let r=await gravar(dados);
-      if(r.error&&/entrega/i.test(r.error.message||"")){const {entrega,...semEntrega}=dados;r=await gravar(semEntrega);if(!r.error)toast("Loja salva. Para guardar a opção de entrega, rode a atualização do banco (supabase.sql).")}
-      if(r.error)throw r.error;empresa=r.data}
+    else{const q=empresa?db.from("empresas").update(dados).eq("id",empresa.id):db.from("empresas").insert(dados);
+      const {data,error}=await q.select().single();if(error)throw error;empresa=data}
     fechar();toast(empresa.aprovada?"✅ Dados salvos!":"✅ Loja cadastrada! Agora poste sua primeira oferta.");await iniciar();
   }catch(e){$("#eErro").textContent=traduzErro(e);$("#eErro").style.display="block"}finally{b.disabled=false}
 }
@@ -274,7 +262,6 @@ function telaPainel(){
   ${empresa.aprovada?"":`<div class="aviso">⏳ <b>Sua loja está em análise.</b> Você já pode postar; as ofertas aparecem no app assim que a loja for aprovada.${whatsAdm?` <a href="https://wa.me/${whatsAdm}?text=${encodeURIComponent("Olá! Cadastrei a loja "+empresa.nome+" na Área da Empresa do Vitrine Castro.")}" target="_blank" rel="noopener">Avisar pelo WhatsApp</a>`:""}</div>`}
   <div class="card"><div class="perfil-loja"><div class="logo">${seguro(empresa.logo_url)?`<img src="${esc(empresa.logo_url)}" alt="">`:"🏪"}</div>
    <div style="flex:1;min-width:0"><h2 style="margin:0">${esc(empresa.nome)}</h2><span class="status ${empresa.aprovada?"ok":"pend"}">${empresa.aprovada?"✓ Aprovada":"Em análise"}</span>${DEMO?"":` <span class="status pausa">Plano ${pl.nome}</span>`}
-    <div class="ajuda" style="margin-top:4px">${empresa.entrega==="retirada"?"🏪 Atende só na loja":"🛵 Faz entrega"}</div>
     <div class="nums"><span><b>${ofertas.length}</b>posts</span><span><b>${ativas}</b>no ar</span>${DEMO?"":`<span><b>${pl.lim}</b>limite</span>`}</div></div></div>
    <button class="btn claro" onclick="editarEmpresa()">✏️ Editar perfil da loja</button></div>
   <button class="postar" onclick="novoPost()"><span class="mais" aria-hidden="true">+</span><span><b>Postar oferta</b><small>Escolha a foto, escreva e publique. Leva 30 segundos.</small></span></button>
@@ -301,7 +288,7 @@ function novoPost(id){
   const o=ofertas.find(x=>x.id===id);
   const rascunho=!o&&store.get("vc_rascunho",null);
   RASC=o?{id:o.id,entrega:o.entrega||"sim",titulo:o.titulo,descricao:o.descricao,validade:o.validade||null,categoria:o.categoria,regras:o.regras||"",economia:o.economia||"",fotoUrl:o.foto_url||"",foto:null,prazo:o.validade?"data":"sem"}
-         :{id:null,entrega:empresa.entrega==="retirada"?"retirada":"sim",titulo:"",descricao:"",validade:hojeISO(7),categoria:RAMO_CAT[empresa.ramo]||"vest",regras:"",economia:"",fotoUrl:"",foto:null,prazo:7,...(rascunho||{})};
+         :{id:null,entrega:"sim",titulo:"",descricao:"",validade:hojeISO(7),categoria:RAMO_CAT[empresa.ramo]||"vest",regras:"",economia:"",fotoUrl:"",foto:null,prazo:7,...(rascunho||{})};
   abrirSheet(`<h2 style="margin-top:8px">${o?"Editar post":"Novo post"}</h2>
    <input type="file" accept="image/*" id="pFoto" hidden onchange="escolheuFoto(this)">
    <div class="comp-foto" id="pFotoBox"></div>
@@ -356,7 +343,7 @@ function salvarRascunho(){if(RASC&&!RASC.id){const {titulo,descricao,categoria,r
 function atualizar(){
   $("#pcT").textContent=RASC.titulo||"Escolha a oferta";
   $("#pCont").textContent=`${RASC.descricao.length}/300`;
-  $("#pEntAjuda").textContent=(RASC.entrega!==(empresa.entrega==="retirada"?"retirada":"sim")?"Diferente do padrão da sua loja. ":"")+(RASC.entrega==="sim"?"O cliente vê o botão “Pedir com entrega” e o pedido chega no seu WhatsApp com o código do cupom.":"O cliente vem até a loja e mostra o cupom no caixa.");
+  $("#pEntAjuda").textContent=RASC.entrega==="sim"?"O cliente vê o botão “Pedir com entrega” e o pedido chega no seu WhatsApp com o código do cupom.":"O cliente vem até a loja e mostra o cupom no caixa.";
   salvarRascunho();
 }
 async function publicar(){
