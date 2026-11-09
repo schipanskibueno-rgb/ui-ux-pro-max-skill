@@ -184,6 +184,11 @@ main{padding:16px 14px 0}
 .instalar .t{flex:1;min-width:0}.instalar b{display:block;font-size:1rem}.instalar small{color:#E8D9A8;font-size:.8rem}
 .instalar .btn-ouro{min-height:44px;padding:0 14px}
 .instalar .x{border:0;background:rgba(255,255,255,.12);color:#fff;border-radius:50%;width:44px;height:44px;font-size:.9rem;flex-shrink:0}
+.inst-simples{text-align:center;padding-top:6px}
+.inst-simples img{border-radius:18px;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.inst-simples h3{font-size:1.35rem;margin:10px 0 6px}
+.inst-simples .frase{font-size:1.2rem;line-height:1.5;margin:6px 4px 4px}
+.ic-inline{display:inline-flex;vertical-align:middle;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;background:#eef4ff;color:#007aff;border:1.5px solid #c9dafc}
 .inst-prev{display:flex;flex-direction:column;align-items:center;gap:6px;margin:14px auto 6px;padding:16px;border-radius:18px;background:linear-gradient(160deg,#1F2B57,#0E1428);color:#fff;width:150px}
 .inst-prev img{width:72px;height:72px;border-radius:17px;box-shadow:0 4px 14px rgba(0,0,0,.5)}
 .inst-prev span{font-size:.8rem}
@@ -265,7 +270,7 @@ label{display:block;font-size:.9rem;font-weight:600;margin:12px 0 5px}
   <div class="carrossel" aria-label="Lojas patrocinadas"><div class="slides" id="slides"></div></div>
   <div class="ctrl" id="dots"></div>
   <button class="ptsmini" id="ptsHome" onclick="ir('pontos')" aria-label="Meus pontos"></button>
-  <div class="instalar" id="instalarBox" style="display:none"><img class="ico" src="icons/icon-192.png" alt="" width="56" height="56"><span class="t"><b>Baixe o app grátis</b><small>Vitrine Castro na tela do seu celular</small></span><button class="btn-ouro" onclick="instalarApp()">📲 Baixar</button><button class="x" onclick="esconderInstalar()" aria-label="Agora não">✕</button></div>
+  <div class="instalar" id="instalarBox" style="display:none"><img class="ico" src="icons/icon-192.png" alt="" width="56" height="56"><span class="t"><b>Baixe o app</b><small>Grátis, direto na tela do celular</small></span><button class="btn-ouro" onclick="instalarApp()">Baixar</button><button class="x" onclick="esconderInstalar()" aria-label="Agora não">✕</button></div>
 
   <div class="tit"><h2>📂 Categorias</h2></div>
   <div class="cats" id="cats"></div>
@@ -667,15 +672,15 @@ const ICO_MAIS=`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stro
 function linkSite(){return location.href.split("#")[0].split("?")[0]}
 function prevIcone(){return `<div class="inst-prev" aria-hidden="true"><img src="icons/apple-touch-icon.png" alt=""><span>Vitrine</span></div><p style="text-align:center;color:var(--cinza);font-size:.85rem">Assim o app fica na tela do seu celular</p>`}
 function caixaLink(){return `<div class="linkbox"><span style="flex:1">${esc(linkSite())}</span><button class="btn-ouro" style="min-height:40px" onclick="copiar(linkSite())">Copiar</button></div>`}
+// Tela de baixar: UMA frase só, com a seta apontando o botão certo
 function telaInstalar(){
-  let passos;
-  if(ehIOS&&ehAppSocial)passos=`<p style="margin-top:12px">Você abriu pelo Instagram, Facebook ou WhatsApp. Para baixar, abra no <b>Safari</b>:</p><ol class="passos-inst"><li>Toque nos <b>três pontinhos ⋯</b> no canto da tela</li><li>Toque em <b>Abrir no navegador</b> (ou <b>Abrir no Safari</b>)</li><li>No Safari, toque em <b>📲 Baixar</b> de novo</li></ol><p style="font-size:.85rem;color:var(--cinza)">Ou copie o link e cole no Safari:</p>${caixaLink()}`;
-  else if(ehIOS)passos=`<ol class="passos-inst"><li><span class="ic">${ICO_COMPARTILHAR}</span><span>Toque em <b>Compartilhar</b> ${ehSafari?"na barra de baixo":"(no Chrome fica lá em cima, ao lado do endereço)"}</span></li><li><span class="ic">${ICO_MAIS}</span><span>Desça e toque em <b>Adicionar à Tela de Início</b></span></li><li><span class="ic" style="color:#007aff;font-weight:800">OK</span><span>Toque em <b>Adicionar</b>. Pronto!</span></li></ol>`;
-  else if(ehAndroid&&ehAppSocial)passos=`<p style="margin-top:12px">Você abriu pelo Instagram, Facebook ou WhatsApp. Para baixar, abra no <b>Chrome</b>:</p><ol class="passos-inst"><li>Toque nos <b>três pontinhos ⋮</b> no canto de cima</li><li>Toque em <b>Abrir no Chrome</b> (ou <b>Abrir no navegador</b>)</li><li>No Chrome, toque em <b>📲 Baixar</b> de novo</li></ol><p style="font-size:.85rem;color:var(--cinza)">Ou copie o link e cole no Chrome:</p>${caixaLink()}`;
-  else if(ehAndroid)passos=`<ol class="passos-inst"><li><span class="ic" style="color:#0E1428;font-weight:800;font-size:1.3rem">⋮</span><span>Toque nos <b>três pontinhos</b> no canto de cima</span></li><li><span class="ic">${ICO_MAIS}</span><span>Toque em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b></span></li><li><span class="ic" style="color:#0E1428;font-weight:800">OK</span><span>Toque em <b>Instalar</b>. Pronto!</span></li></ol>`;
-  else passos=`<p style="margin-top:12px;text-align:center">Aponte a câmera do celular para o código e abra o site. Depois toque em <b>📲 Baixar</b>.</p><div class="qr" id="qrInstalar" style="margin-top:8px"></div>${caixaLink()}`;
-  return `<h3 style="margin-top:6px;font-size:1.3rem">📲 Baixar o Vitrine Castro</h3><p style="color:var(--cinza)">É grátis, não ocupa espaço e abre direto nas ofertas de Castro.</p>${prevIcone()}${passos}
-   <button class="btn claro" onclick="compartilharApp()">📤 Mandar o app para um amigo</button>`;
+  let frase,extra="";
+  if(ehIOS&&ehAppSocial){frase=`Abra este link no <b>Safari</b> para baixar.`;extra=`<button class="btn" onclick="copiar(linkSite())">📋 Copiar link</button>`}
+  else if(ehIOS)frase=`Toque em <span class="ic-inline">${ICO_COMPARTILHAR}</span> ${ehSafari?"aqui embaixo":"no topo"} e depois em <b>Adicionar à Tela de Início</b>.`;
+  else if(ehAndroid&&ehAppSocial){frase=`Abra este link no <b>Chrome</b> para baixar.`;extra=`<button class="btn" onclick="copiar(linkSite())">📋 Copiar link</button>`}
+  else if(ehAndroid)frase=`Toque em <b class="ic-inline" style="font-size:1.3em">⋮</b> lá em cima e depois em <b>Instalar app</b>.`;
+  else{frase=`Aponte a câmera do celular para o código:`;extra=`<div class="qr" id="qrInstalar" style="margin-top:4px"></div>`}
+  return `<div class="inst-simples"><img src="icons/apple-touch-icon.png" alt="" width="76" height="76"><h3>Baixar o Vitrine</h3><p class="frase">${frase}</p>${extra}<button class="btn claro" onclick="fechar()">Entendi</button></div>`;
 }
 function setasGuia(){document.querySelectorAll(".seta-baixo,.seta-cima").forEach(e=>e.remove());if(ehAppSocial)return;
   let el=null;if(ehSafari){el=document.createElement("div");el.className="seta-baixo";el.textContent="⬇️"}else if(ehAndroid||ehIOS){el=document.createElement("div");el.className="seta-cima";el.textContent="⬆️"}
@@ -686,6 +691,7 @@ window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();promptInsta
 window.addEventListener("appinstalled",()=>{$("#instalarBox").style.display="none";toast("✅ App instalado na tela do celular!")});
 async function instalarApp(){
   if(instalado()){toast("✅ O app já está instalado neste celular");return}
+  if(!promptInstalar&&ehAndroid&&!ehAppSocial)await new Promise(r=>{let t=0;const i=setInterval(()=>{if(promptInstalar||++t>15){clearInterval(i);r()}},100)});
   if(promptInstalar){promptInstalar.prompt();const r=await promptInstalar.userChoice;promptInstalar=null;if(r.outcome==="accepted")$("#instalarBox").style.display="none";return} // Android: 1 toque
   abrir("instalar");setasGuia();
   const q=$("#qrInstalar");if(q){if(window.QRCode)new QRCode(q,{text:linkSite()+"#instalar",width:170,height:170,correctLevel:QRCode.CorrectLevel.M});else q.remove()}
