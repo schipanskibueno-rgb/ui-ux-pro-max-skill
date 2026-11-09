@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#000000">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Vitrine Castro">
+<meta name="apple-mobile-web-app-title" content="Vitrine">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="description" content="Vitrine Castro – o clube de descontos do comércio de Castro-PR. Ofertas, cupons, pontos e brindes.">
 <link rel="manifest" href="manifest.webmanifest">
@@ -179,9 +179,24 @@ main{padding:16px 14px 0}
 .plano li:before{content:"✓ ";color:var(--verde);font-weight:800}
 
 /* INSTALAR */
-.instalar{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid #D4A537;border-radius:16px;padding:10px 10px 10px 14px;margin-top:12px}
-.instalar .e{font-size:1.6rem}.instalar .t{flex:1;min-width:0}.instalar b{display:block;font-size:.95rem}.instalar small{color:var(--cinza);font-size:.8rem}
-.instalar .x{border:0;background:#f3eedf;border-radius:50%;width:36px;height:36px;font-size:.9rem;flex-shrink:0}
+.instalar{display:flex;align-items:center;gap:12px;background:#000;border:1.5px solid #D4A537;border-radius:18px;padding:12px;margin-top:12px;color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.25)}
+.instalar .ico{width:56px;height:56px;border-radius:14px;flex-shrink:0;box-shadow:0 0 0 1.5px rgba(212,165,55,.6)}
+.instalar .t{flex:1;min-width:0}.instalar b{display:block;font-size:1rem}.instalar small{color:#E8D9A8;font-size:.8rem}
+.instalar .btn-ouro{min-height:44px;padding:0 14px}
+.instalar .x{border:0;background:rgba(255,255,255,.12);color:#fff;border-radius:50%;width:44px;height:44px;font-size:.9rem;flex-shrink:0}
+.inst-prev{display:flex;flex-direction:column;align-items:center;gap:6px;margin:14px auto 6px;padding:16px;border-radius:18px;background:linear-gradient(160deg,#1F2B57,#0E1428);color:#fff;width:150px}
+.inst-prev img{width:72px;height:72px;border-radius:17px;box-shadow:0 4px 14px rgba(0,0,0,.5)}
+.inst-prev span{font-size:.8rem}
+.passos-inst{list-style:none;margin:14px 0 0;counter-reset:p}
+.passos-inst li{display:flex;align-items:center;gap:12px;background:#FAF6EC;border:1.5px solid #efe2bd;border-radius:14px;padding:10px 12px;margin-bottom:8px;font-size:1rem;counter-increment:p}
+.passos-inst li:before{content:counter(p);background:#0E1428;color:#fff;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:.85rem;font-weight:700;flex-shrink:0}
+.passos-inst .ic{width:38px;height:38px;border-radius:10px;background:#fff;border:1.5px solid #d4ddf2;display:grid;place-items:center;flex-shrink:0;color:#007aff}
+.seta-baixo{position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:70;font-size:2.4rem;animation:quica 1s infinite;pointer-events:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
+.seta-cima{position:fixed;right:14px;top:calc(4px + env(safe-area-inset-top));z-index:70;font-size:2.4rem;animation:quica 1s infinite;pointer-events:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
+@keyframes quica{0%,100%{translate:0 0}50%{translate:0 8px}}
+.seta-cima{animation-name:quica2}@keyframes quica2{0%,100%{translate:0 0}50%{translate:0 -8px}}
+@media (prefers-reduced-motion:reduce){.seta-baixo,.seta-cima{animation:none}}
+.linkbox{display:flex;gap:8px;align-items:center;background:#f4f7ff;border-radius:12px;padding:8px 8px 8px 12px;margin-top:10px;font-size:.85rem;word-break:break-all}
 
 /* NAV */
 nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;display:flex;justify-content:space-around;padding:6px 6px calc(6px + env(safe-area-inset-bottom));border-radius:20px 20px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,.12);z-index:10}
@@ -250,7 +265,7 @@ label{display:block;font-size:.9rem;font-weight:600;margin:12px 0 5px}
   <div class="carrossel" aria-label="Lojas patrocinadas"><div class="slides" id="slides"></div></div>
   <div class="ctrl" id="dots"></div>
   <button class="ptsmini" id="ptsHome" onclick="ir('pontos')" aria-label="Meus pontos"></button>
-  <div class="instalar" id="instalarBox" style="display:none"><span class="e">📲</span><span class="t"><b>Instale o Vitrine Castro</b><small>Fica com ícone na tela do celular</small></span><button class="btn-ouro" onclick="instalarApp()">Instalar</button><button class="x" onclick="esconderInstalar()" aria-label="Agora não">✕</button></div>
+  <div class="instalar" id="instalarBox" style="display:none"><img class="ico" src="icons/icon-192.png" alt="" width="56" height="56"><span class="t"><b>Baixe o app grátis</b><small>Vitrine Castro na tela do seu celular</small></span><button class="btn-ouro" onclick="instalarApp()">📲 Baixar</button><button class="x" onclick="esconderInstalar()" aria-label="Agora não">✕</button></div>
 
   <div class="tit"><h2>📂 Categorias</h2></div>
   <div class="cats" id="cats"></div>
@@ -329,7 +344,7 @@ label{display:block;font-size:.9rem;font-weight:600;margin:12px 0 5px}
     <button onclick="abrir('vip')"><span class="e">👑</span>Plano VIP</button>
     <button onclick="abrir('cidades')"><span class="e">📍</span>Cidade: <span id="cid" style="margin-left:4px">Castro – PR</span></button>
     <button onclick="letraGrande()"><span class="e">🔠</span>Letra grande</button>
-    <button onclick="instalarApp()"><span class="e">📲</span>Instalar o app no celular</button>
+    <button onclick="instalarApp()"><span class="e">📲</span>Baixar o app no celular</button>
     <button onclick="abrir('ajuda')" style="border-bottom:0"><span class="e">❓</span>Como usar o app</button>
   </div>
   <button class="btn verde" onclick="ajudaWhats()">💬 Falar com o suporte</button>
@@ -564,7 +579,7 @@ function compartilhar(id){const o=OFERTAS.find(x=>x.id===id);abrirLink("https://
 function indicar(){abrirLink("https://wa.me/?text="+encodeURIComponent(`Conhece o Vitrine Castro? É o clube de descontos de Castro, com ofertas em lojas, restaurantes, estética e saúde. É grátis! 👉 ${location.href.split("#")[0]}`))}
 function ajudaWhats(){abrirLink(wa("Olá! Preciso de ajuda com o app Vitrine Castro."))}
 function copiar(t){try{navigator.clipboard.writeText(t).then(()=>toast("Código copiado!"),()=>toast("Código: "+t))}catch(e){toast("Código: "+t)}}
-function fechar(){$("#modal").classList.remove("on")}
+function fechar(){$("#modal").classList.remove("on");$("#sheet").style.paddingBottom="";document.querySelectorAll(".seta-baixo,.seta-cima").forEach(e=>e.remove())}
 function letraGrande(){const on=document.documentElement.classList.toggle("grande");$("#btnAa").classList.toggle("on",on);store.set("gira_letra",on);toast(on?"Letra grande ligada":"Letra normal")}
 
 function abrir(tipo,planoSel){
@@ -578,7 +593,7 @@ function abrir(tipo,planoSel){
   if(tipo==="notifs"){$("#nbadge").style.display="none";h=`<h3 style="margin-top:6px">Avisos</h3><div class="notif"><b>🔥 VS Store: até 40% OFF</b>A liquidação começou! Aproveite.</div><div class="notif"><b>🍕 Pizzaria Castro</b>20% OFF em pizzas grandes. Termina logo!</div><div class="notif"><b>👑 Plano VIP</b>Seja VIP e receba ofertas antes de todo mundo.</div>`}
   if(tipo==="menu")h=`<h3 style="margin-top:6px">Menu</h3><div class="menu"><button onclick="fechar();ir('inicio')"><span class="e">🏠</span>Início</button><button onclick="fechar();ir('ofertas')"><span class="e">🏷️</span>Todas as ofertas</button><button onclick="fechar();ir('cupons')"><span class="e">🎟️</span>Meus cupons e favoritos</button><button onclick="fechar();ir('pontos')"><span class="e">⭐</span>Meus pontos e brindes</button><button onclick="fechar();ir('empresas')"><span class="e">🏪</span>Empresas parceiras e planos</button><button onclick="abrir('parceiro')"><span class="e">🤝</span>Cadastrar minha empresa</button><button onclick="abrir('vip')"><span class="e">👑</span>Plano VIP</button><button onclick="abrir('ajuda')"><span class="e">❓</span>Como usar o app</button><button onclick="abrir('instalar')"><span class="e">📲</span>Colocar na tela do celular</button><button onclick="ajudaWhats()"><span class="e">💬</span>Falar com o suporte</button></div>`;
   if(tipo==="ajuda")h=`<h3 style="font-size:1.3rem;margin-top:6px">❓ Como usar</h3><ol class="passos-ajuda" style="margin-top:12px"><li><b>Escolha uma oferta</b> na tela Início ou em Ofertas.</li><li>Toque no botão azul <b>Pegar cupom grátis</b>.</li><li>Vá até a loja e <b>mostre a tela do cupom</b> no caixa.</li><li>Seus cupons ficam guardados no botão <b>Cupons</b>, embaixo.</li><li>Toda compra com cupom vale <b>pontos</b>. Junte e troque por brindes no botão <b>Pontos</b>.</li></ol><p style="color:var(--cinza)">Letra pequena? Toque em <b>AA Letra</b> no topo da tela.</p><button class="btn verde" onclick="ajudaWhats()">💬 Ainda com dúvida? Fale com a gente</button>`;
-  if(tipo==="instalar")h=`<h3 style="margin-top:6px;font-size:1.3rem">📲 Instalar o Vitrine Castro</h3>${ehIOS?`<ol class="passos-ajuda" style="margin-top:12px"><li>Abra este site no <b>Safari</b>.</li><li>Toque no botão <b>Compartilhar</b> ⬆️ na barra de baixo.</li><li>Desça e toque em <b>Adicionar à Tela de Início</b>.</li><li>Toque em <b>Adicionar</b>. Pronto! O ícone da coroa aparece na sua tela.</li></ol>`:`<ol class="passos-ajuda" style="margin-top:12px"><li>Abra este site no <b>Chrome</b>.</li><li>Toque nos <b>três pontinhos ⋮</b> lá em cima.</li><li>Toque em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.</li><li>Confirme. Pronto! O ícone da coroa aparece na sua tela.</li></ol>`}`;
+  if(tipo==="instalar")h=telaInstalar();
   $("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ✕</button>`+h;$("#modal").classList.add("on");
 }
 function setCidade(c){$("#cid").textContent=c;fechar();toast("Cidade: "+c)}
@@ -638,17 +653,47 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")fechar()});
 if(store.get("gira_letra",false)){document.documentElement.classList.add("grande");$("#btnAa").classList.add("on")}
 // ===== INSTALAR APP (PWA) =====
 let promptInstalar=null;
-const ehIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+const UA=navigator.userAgent;
+const ehIOS=/iphone|ipad|ipod/i.test(UA)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const ehAndroid=/android/i.test(UA);
+const ehCelular=ehIOS||ehAndroid;
+const ehAppSocial=/FBAN|FBAV|Instagram|Line\/|WhatsApp|TikTok|; wv\)/i.test(UA);   // navegador de dentro do Instagram/Facebook/WhatsApp
+const ehSafari=ehIOS&&/Safari/i.test(UA)&&!/CriOS|FxiOS|EdgiOS|OPiOS|GSA/i.test(UA)&&!ehAppSocial;
 const instalado=()=>matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
-function mostrarInstalar(){if(instalado()||store.get("gira_sem_instalar",false))return;$("#instalarBox").style.display="flex"}
-function esconderInstalar(){$("#instalarBox").style.display="none";store.set("gira_sem_instalar",true)}
+function mostrarInstalar(){const ate=store.get("gira_sem_instalar",0);if(instalado()||(typeof ate==="number"&&ate>Date.now())||ate===true)return;$("#instalarBox").style.display="flex"}
+function esconderInstalar(){$("#instalarBox").style.display="none";store.set("gira_sem_instalar",Date.now()+7*864e5)} // volta a aparecer em 7 dias
+const ICO_COMPARTILHAR=`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8"/></svg>`;
+const ICO_MAIS=`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg>`;
+function linkSite(){return location.href.split("#")[0].split("?")[0]}
+function prevIcone(){return `<div class="inst-prev" aria-hidden="true"><img src="icons/apple-touch-icon.png" alt=""><span>Vitrine</span></div><p style="text-align:center;color:var(--cinza);font-size:.85rem">Assim o app fica na tela do seu celular</p>`}
+function caixaLink(){return `<div class="linkbox"><span style="flex:1">${esc(linkSite())}</span><button class="btn-ouro" style="min-height:40px" onclick="copiar(linkSite())">Copiar</button></div>`}
+function telaInstalar(){
+  let passos;
+  if(ehIOS&&ehAppSocial)passos=`<p style="margin-top:12px">Você abriu pelo Instagram, Facebook ou WhatsApp. Para baixar, abra no <b>Safari</b>:</p><ol class="passos-inst"><li>Toque nos <b>três pontinhos ⋯</b> no canto da tela</li><li>Toque em <b>Abrir no navegador</b> (ou <b>Abrir no Safari</b>)</li><li>No Safari, toque em <b>📲 Baixar</b> de novo</li></ol><p style="font-size:.85rem;color:var(--cinza)">Ou copie o link e cole no Safari:</p>${caixaLink()}`;
+  else if(ehIOS)passos=`<ol class="passos-inst"><li><span class="ic">${ICO_COMPARTILHAR}</span><span>Toque em <b>Compartilhar</b> ${ehSafari?"na barra de baixo":"(no Chrome fica lá em cima, ao lado do endereço)"}</span></li><li><span class="ic">${ICO_MAIS}</span><span>Desça e toque em <b>Adicionar à Tela de Início</b></span></li><li><span class="ic" style="color:#007aff;font-weight:800">OK</span><span>Toque em <b>Adicionar</b>. Pronto!</span></li></ol>`;
+  else if(ehAndroid&&ehAppSocial)passos=`<p style="margin-top:12px">Você abriu pelo Instagram, Facebook ou WhatsApp. Para baixar, abra no <b>Chrome</b>:</p><ol class="passos-inst"><li>Toque nos <b>três pontinhos ⋮</b> no canto de cima</li><li>Toque em <b>Abrir no Chrome</b> (ou <b>Abrir no navegador</b>)</li><li>No Chrome, toque em <b>📲 Baixar</b> de novo</li></ol><p style="font-size:.85rem;color:var(--cinza)">Ou copie o link e cole no Chrome:</p>${caixaLink()}`;
+  else if(ehAndroid)passos=`<ol class="passos-inst"><li><span class="ic" style="color:#0E1428;font-weight:800;font-size:1.3rem">⋮</span><span>Toque nos <b>três pontinhos</b> no canto de cima</span></li><li><span class="ic">${ICO_MAIS}</span><span>Toque em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b></span></li><li><span class="ic" style="color:#0E1428;font-weight:800">OK</span><span>Toque em <b>Instalar</b>. Pronto!</span></li></ol>`;
+  else passos=`<p style="margin-top:12px;text-align:center">Aponte a câmera do celular para o código e abra o site. Depois toque em <b>📲 Baixar</b>.</p><div class="qr" id="qrInstalar" style="margin-top:8px"></div>${caixaLink()}`;
+  return `<h3 style="margin-top:6px;font-size:1.3rem">📲 Baixar o Vitrine Castro</h3><p style="color:var(--cinza)">É grátis, não ocupa espaço e abre direto nas ofertas de Castro.</p>${prevIcone()}${passos}
+   <button class="btn claro" onclick="compartilharApp()">📤 Mandar o app para um amigo</button>`;
+}
+function setasGuia(){document.querySelectorAll(".seta-baixo,.seta-cima").forEach(e=>e.remove());if(ehAppSocial)return;
+  let el=null;if(ehSafari){el=document.createElement("div");el.className="seta-baixo";el.textContent="⬇️"}else if(ehAndroid||ehIOS){el=document.createElement("div");el.className="seta-cima";el.textContent="⬆️"}
+  if(el){el.setAttribute("aria-hidden","true");document.body.appendChild(el);if(ehSafari)$("#sheet").style.paddingBottom="calc(90px + env(safe-area-inset-bottom))";setTimeout(()=>el.remove(),12000)}}
+function compartilharApp(){const url=linkSite()+"#instalar",txt="Baixe o Vitrine Castro: ofertas e descontos das lojas de Castro, grátis! 👉 "+url;
+  if(navigator.share){navigator.share({title:"Vitrine Castro",text:txt}).catch(()=>{})}else abrirLink("https://wa.me/?text="+encodeURIComponent(txt))}
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();promptInstalar=e;mostrarInstalar()});
 window.addEventListener("appinstalled",()=>{$("#instalarBox").style.display="none";toast("✅ App instalado na tela do celular!")});
 async function instalarApp(){
-  if(promptInstalar){promptInstalar.prompt();const r=await promptInstalar.userChoice;promptInstalar=null;if(r.outcome==="accepted")$("#instalarBox").style.display="none";}
-  else abrir("instalar");
+  if(instalado()){toast("✅ O app já está instalado neste celular");return}
+  if(promptInstalar){promptInstalar.prompt();const r=await promptInstalar.userChoice;promptInstalar=null;if(r.outcome==="accepted")$("#instalarBox").style.display="none";return} // Android: 1 toque
+  abrir("instalar");setasGuia();
+  const q=$("#qrInstalar");if(q){if(window.QRCode)new QRCode(q,{text:linkSite()+"#instalar",width:170,height:170,correctLevel:QRCode.CorrectLevel.M});else q.remove()}
 }
-if(ehIOS&&!instalado())mostrarInstalar();
+// Mostra o cartão "Baixe o app" em qualquer celular (Android e iPhone) que ainda não instalou
+if(ehCelular&&!instalado())mostrarInstalar();
+// Link direto para baixar: site.com/#instalar  (bom para mandar no WhatsApp)
+if(/^#?instalar$/.test(location.hash)&&!instalado())setTimeout(instalarApp,600);
 if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});
 
 // ===== OFERTAS DO BANCO DE DADOS (Supabase) =====
