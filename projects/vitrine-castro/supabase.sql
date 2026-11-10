@@ -329,6 +329,7 @@ create table if not exists public.pagamentos (
   criado_em        timestamptz not null default now(),
   check ((tipo = 'mensalidade' and empresa_nome is not null) or (tipo = 'vip' and cliente_nome is not null))
 );
+alter table public.pagamentos add column if not exists plano text check (plano is null or plano in ('basico','destaque','premium'));  -- plano na época do pagamento
 create unique index if not exists pagamentos_1_mensalidade_por_mes on public.pagamentos (empresa_id, referencia) where tipo = 'mensalidade';
 create index if not exists pagamentos_data on public.pagamentos (pago_em desc);
 alter table public.pagamentos enable row level security;
