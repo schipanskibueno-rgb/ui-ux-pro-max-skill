@@ -130,6 +130,20 @@ alter table public.ofertas add column if not exists entrega text not null defaul
 alter table public.ofertas drop constraint if exists ofertas_entrega_check;
 alter table public.ofertas add constraint ofertas_entrega_check check (entrega in ('sim','retirada'));
 
+-- ---------- PREÇO "DE/POR", REGRAS DA OFERTA E HORÁRIO DA LOJA ----------
+alter table public.ofertas add column if not exists preco_de  numeric(10,2) check (preco_de  is null or (preco_de  > 0 and preco_de  < 1000000));
+alter table public.ofertas add column if not exists preco_por numeric(10,2) check (preco_por is null or (preco_por >= 0 and preco_por < 1000000));
+alter table public.ofertas add column if not exists limite_cupons int check (limite_cupons is null or limite_cupons between 1 and 100000); -- "Restam X cupons"
+alter table public.ofertas add column if not exists um_por_cliente boolean not null default true;                                      -- 1 cupom por pessoa
+alter table public.ofertas add column if not exists dias text check (dias is null or dias ~ '^[0-6](,[0-6]){0,6}$');                     -- dias da semana válidos (0=domingo)
+alter table public.ofertas add column if not exists hora_ini time;
+alter table public.ofertas add column if not exists hora_fim time;
+alter table public.ofertas add column if not exists inicia_em date;                                                                     -- oferta agendada
+alter table public.empresas add column if not exists abre time;
+alter table public.empresas add column if not exists fecha time;
+alter table public.empresas add column if not exists dias_func text check (dias_func is null or dias_func ~ '^[0-6](,[0-6]){0,6}$');
+alter table public.empresas add column if not exists instagram text check (instagram is null or instagram ~ '^[A-Za-z0-9._]{1,40}$');
+
 -- ---------- NÚMEROS DO EMPRESÁRIO (visualizações, cupons, entregas, compras) ----------
 -- O app registra o que acontece com cada oferta. Ninguém lê nem grava estas tabelas direto:
 -- só pelas funções abaixo. Não guarda nome nem telefone do cliente, só um código aleatório do aparelho.
@@ -191,27 +205,47 @@ end $$;
 -- App do cliente: cria o código oficial do cupom (máx. 30 cupons por aparelho por dia)
 create or replace function public.emitir_cupom(p_oferta uuid, p_aparelho text) returns text
 language plpgsql security definer set search_path = public as $$
-declare emp uuid; cod text; tent int := 0;
+declare o public.ofertas; cod text; tent int := 0;
 begin
   if p_aparelho is null or p_aparelho !~ '^[a-z0-9]{12,40}$' then return null; end if;
-  select o.empresa_id into emp from public.ofertas o join public.empresas e on e.id = o.empresa_id
-   where o.id = p_oferta and o.ativa and e.aprovada and (o.validade is null or o.validade >= current_date);
-  if emp is null then return null; end if;
+  select * into o from public.ofertas where id = p_oferta for update;          -- uma emissão por vez (o limite não estoura)
+  if not found or not o.ativa
+     or (o.validade is not null and o.validade < current_date)
+     or (o.inicia_em is not null and o.inicia_em > current_date)               -- oferta agendada ainda não começou
+     or not exists (select 1 from public.empresas e where e.id = o.empresa_id and e.aprovada) then
+    return null;
+  end if;
   select codigo into cod from public.cupons where oferta_id = p_oferta and aparelho = p_aparelho and usado_em is null limit 1;
   if cod is not null then return cod; end if;
+  if o.um_por_cliente and exists (select 1 from public.cupons where oferta_id = p_oferta and aparelho = p_aparelho) then
+    return 'JA_USOU';                                                         -- 1 cupom por pessoa
+  end if;
+  if o.limite_cupons is not null and (select count(*) from public.cupons where oferta_id = p_oferta) >= o.limite_cupons then
+    return 'ESGOTADO';                                                        -- acabaram os cupons
+  end if;
   if (select count(*) from public.cupons where aparelho = p_aparelho and criado_em > now() - interval '1 day') >= 30 then return null; end if;
   loop
     cod := 'VC-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 6));
     begin
-      insert into public.cupons (codigo, oferta_id, empresa_id, aparelho) values (cod, p_oferta, emp, p_aparelho);
+      insert into public.cupons (codigo, oferta_id, empresa_id, aparelho) values (cod, p_oferta, o.empresa_id, p_aparelho);
       exit;
     exception when unique_violation then
       tent := tent + 1; if tent > 5 then return null; end if;
     end;
   end loop;
-  insert into public.eventos (oferta_id, empresa_id, tipo, aparelho) values (p_oferta, emp, 'cupom', p_aparelho);
+  insert into public.eventos (oferta_id, empresa_id, tipo, aparelho) values (p_oferta, o.empresa_id, 'cupom', p_aparelho);
   return cod;
 end $$;
+
+-- App do cliente: quantos cupons já saíram de cada oferta (para mostrar "Restam X")
+create or replace function public.cupons_usados(p_ofertas uuid[]) returns table (oferta_id uuid, qtd bigint)
+language sql stable security definer set search_path = public as $$
+  select c.oferta_id, count(*) from public.cupons c
+   where cardinality(p_ofertas) <= 500 and c.oferta_id = any(p_ofertas)
+   group by c.oferta_id
+$$;
+revoke execute on function public.cupons_usados(uuid[]) from public;
+grant execute on function public.cupons_usados(uuid[]) to anon, authenticated;
 
 -- Área da Empresa: conferir um código (só cupons das ofertas da PRÓPRIA loja; 60 consultas a cada 10 min)
 create or replace function public.consultar_cupom(p_codigo text) returns json

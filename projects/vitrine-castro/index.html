@@ -245,6 +245,16 @@ label{display:block;font-size:.9rem;font-weight:600;margin:12px 0 5px}
 .btn.entrega{background:linear-gradient(#ea580c,#c2410c);color:#fff}
 .chip.ent{background:#ffedd5;color:#9a3412}
 .entrega-info{background:#fff7ed;border:1.5px solid #fdba74;border-radius:14px;padding:10px 12px;font-size:.9rem;color:#7c2d12;margin-top:8px}
+.of .pr{font-size:.78rem;color:var(--cinza);margin-top:2px}.of .pr b{color:var(--verde);font-size:.92rem}
+.restam{position:absolute;left:6px;top:6px;background:#d9141a;color:#fff;font-size:.7rem;font-weight:800;border-radius:20px;padding:3px 9px}
+.restam.fim{background:#4a5578}
+.precobox{background:#f2fbf5;border:1.5px solid #bfe8cd;border-radius:12px;padding:10px 12px;margin:-4px 0 12px;font-size:1rem}
+.precobox s{color:var(--cinza)}.precobox b{color:var(--verde);font-size:1.25rem}
+.lojabox{background:#FAF6EC;border:1.5px solid #efe2bd;border-radius:14px;padding:12px;margin-top:14px}
+.lojabox .st{font-weight:700;font-size:.9rem}.lojabox .st.ab{color:var(--verde)}.lojabox .st.fe{color:#b45309}
+.lojabtns{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.lojabtns a,.lojabtns button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:56px;border-radius:12px;background:#fff;border:1.5px solid #efe2bd;font-weight:700;font-size:.8rem;color:var(--txt);text-decoration:none;cursor:pointer}
+.lojabtns span{font-size:1.2rem}
 .passos-ajuda li{margin:0 0 10px 20px;font-size:1rem}
 </style>
 </head>
@@ -350,7 +360,8 @@ label{display:block;font-size:.9rem;font-weight:600;margin:12px 0 5px}
     <button onclick="abrir('cidades')"><span class="e">📍</span>Cidade: <span id="cid" style="margin-left:4px">Castro – PR</span></button>
     <button onclick="letraGrande()"><span class="e">🔠</span>Letra grande</button>
     <button onclick="instalarApp()"><span class="e">📲</span>Baixar o app no celular</button>
-    <button onclick="abrir('ajuda')" style="border-bottom:0"><span class="e">❓</span>Como usar o app</button>
+    <button onclick="abrir('ajuda')"><span class="e">❓</span>Como usar o app</button>
+    <button onclick="abrir('privacidade')" style="border-bottom:0"><span class="e">🔒</span>Privacidade e termos</button>
   </div>
   <button class="btn verde" onclick="ajudaWhats()">💬 Falar com o suporte</button>
 </section>
@@ -439,7 +450,25 @@ function wa(msg){return "https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(ms
 function tagTexto(o){const t=document.createElement("textarea");t.innerHTML=String(o.tag).replace(/<br>/g," ");return t.value}
 function abrirLink(u){const a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove()}
 function dias(o){return Math.round((new Date(o.validade+"T00:00:00")-hoje)/864e5)}
-function ativas(){return OFERTAS.filter(o=>!o.validade||dias(o)>=0)}
+const HOJE_ISO=new Date().toLocaleDateString("sv-SE");
+// oferta agendada só aparece a partir do dia de início
+function ativas(){return OFERTAS.filter(o=>(!o.validade||dias(o)>=0)&&(!o.inicia||o.inicia<=HOJE_ISO))}
+const DIAS_SEM=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+const brl=v=>Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const hh=h=>{const [a,b]=String(h||"").slice(0,5).split(":");return a?(+a)+"h"+(b&&b!=="00"?b:""):""};
+const listaDias=t=>String(t||"").split(",").filter(x=>x!=="").map(Number).filter(n=>n>=0&&n<=6);
+function diasTexto(t){const d=listaDias(t);if(!d.length||d.length===7)return "";const ord=[1,2,3,4,5,6,0].filter(x=>d.includes(x));
+  const i=[1,2,3,4,5,6,0];const seq=ord.every((x,k)=>k===0||i.indexOf(x)===i.indexOf(ord[k-1])+1);
+  return seq&&ord.length>2?DIAS_SEM[ord[0]]+" a "+DIAS_SEM[ord[ord.length-1]]:ord.map(x=>DIAS_SEM[x]).join(", ")}
+function regraTexto(o){return [diasTexto(o.dias),o.horaIni&&o.horaFim?hh(o.horaIni)+" às "+hh(o.horaFim):""].filter(Boolean).join(", ")}
+function restam(o){return o.limite?Math.max(0,o.limite-(o.usados||0)):null}
+function situacaoLoja(o){if(!o.abre||!o.fecha)return null;const n=new Date(),d=n.getDay(),m=n.getHours()*60+n.getMinutes(),dias=listaDias(o.diasFunc);
+  const [ah,am]=String(o.abre).split(":").map(Number),[fh,fm]=String(o.fecha).split(":").map(Number),a=ah*60+am,f=fh*60+fm;
+  const abreHoje=!dias.length||dias.includes(d),dentro=f>a?(m>=a&&m<f):(m>=a||m<f);
+  if(abreHoje&&dentro)return {aberto:true,txt:"🟢 Aberto agora · fecha às "+hh(o.fecha)};
+  if(abreHoje&&m<a)return {aberto:false,txt:"🔴 Fechado · abre hoje às "+hh(o.abre)};
+  let k=1;if(dias.length)while(k<7&&!dias.includes((d+k)%7))k++;
+  return {aberto:false,txt:"🔴 Fechado agora · abre "+(k===1?"amanhã":DIAS_SEM[(d+k)%7].toLowerCase())+" às "+hh(o.abre)}}
 function prazoTxt(o){if(!o.validade)return"";const d=dias(o);return d===0?"Termina hoje!":d===1?"Termina amanhã":d<=5?`Termina em ${d} dias`:"Até "+new Date(o.validade+"T00:00:00").toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})}
 function favs(){return store.get("gira_favs",[])}
 function imgOf(o){return o.img?`<img src="${o.img}" alt="" loading="lazy">`:`<span aria-hidden="true">${o.emoji||"🏷️"}</span>`}
@@ -459,10 +488,10 @@ let _obs=null;
 function observarCards(){if(!("IntersectionObserver" in window))return;
   if(!_obs)_obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){registrarEvento(e.target.dataset.of,"aparicao");_obs.unobserve(e.target)}}),{threshold:.6});
   document.querySelectorAll(".of[data-of]").forEach(el=>_obs.observe(el))}
-function cardOf(o){const f=favs().includes(o.id),d=o.validade?dias(o):99;
+function cardOf(o){const f=favs().includes(o.id),d=o.validade?dias(o):99,r=restam(o);
   return `<div class="of" data-of="${esc(o.id)}" role="button" tabindex="0" onclick="verOferta('${o.id}')" onkeydown="if(event.key==='Enter')verOferta('${o.id}')" aria-label="${esc(o.emp)}, ${esc(o.tag.replace(/<br>/g,' '))}">
-  <div class="im">${imgOf(o)}<button class="fav" onclick="event.stopPropagation();favoritar('${o.id}')" aria-label="${f?"Remover dos":"Salvar nos"} favoritos">${f?"❤️":"🤍"}</button>${o.validade?`<span class="prazo ${d<=3?"urg":""}">${prazoTxt(o)}</span>`:""}</div>
-  <div class="info"><b>${esc(o.emp)}</b><small>${esc(o.sub)}</small></div><div class="tag ${o.s?"s":""}">${o.tag}</div></div>`}
+  <div class="im">${imgOf(o)}<button class="fav" onclick="event.stopPropagation();favoritar('${o.id}')" aria-label="${f?"Remover dos":"Salvar nos"} favoritos">${f?"❤️":"🤍"}</button>${o.validade?`<span class="prazo ${d<=3?"urg":""}">${prazoTxt(o)}</span>`:""}${r===0?`<span class="restam fim">Esgotado</span>`:r!==null&&r<=20?`<span class="restam">🔥 Restam ${r}</span>`:""}</div>
+  <div class="info"><b>${esc(o.emp)}</b><small>${esc(o.sub)}</small>${o.precoDe&&o.precoPor?`<div class="pr"><s>${brl(o.precoDe)}</s> <b>${brl(o.precoPor)}</b></div>`:""}</div><div class="tag ${o.s?"s":""}">${o.tag}</div></div>`}
 
 function render(){
   $("#slides").innerHTML=BANNERS.map((b,i)=>b.anuncie?
@@ -536,12 +565,15 @@ function favoritar(id){let f=favs();const tem=f.includes(id);f=tem?f.filter(x=>x
 
 function verOferta(id){
   const o=OFERTAS.find(x=>x.id===id), c=store.get("gira_cupons",[]).find(x=>x.id===id);registrarEvento(id,"visualizacao");
-  const cat=CATS.find(k=>k.id===o.cat), f=favs().includes(o.id);
+  const r=restam(o),rg=regraTexto(o),sit=situacaoLoja(o),zap=String(o.whats||"").replace(/\D/g,""),insta=String(o.insta||"").replace(/[^A-Za-z0-9._]/g,"");
+  const mapa=o.end?"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(o.emp+", "+o.end+", Castro - PR"):"";
+  const cat=CATS.find(k=>k.id===o.cat)||{ic:"🏷️",nome:"Oferta"}, f=favs().includes(o.id);
   $("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ✕</button>
    <div style="border-radius:16px;overflow:hidden;height:150px;margin:10px 0 12px;background:linear-gradient(135deg,#1F2B57,#0E1428);display:grid;place-items:center;font-size:4rem">${o.img?`<img src="${o.img}" alt="" style="width:100%;height:100%;object-fit:cover">`:o.emoji}</div>
-   <span class="chip">${cat.ic} ${cat.nome}</span>${o.validade?`<span class="chip" style="${dias(o)<=3?"background:#ffe1e1;color:#b00":""}">⏰ ${prazoTxt(o)}</span>`:""}<span class="chip ent">${o.entrega==="retirada"?"🏪 Só na loja":"🛵 Faz entrega"}</span>
+   <span class="chip">${cat.ic} ${cat.nome}</span>${o.validade?`<span class="chip" style="${dias(o)<=3?"background:#ffe1e1;color:#b00":""}">⏰ ${prazoTxt(o)}</span>`:""}<span class="chip ent">${o.entrega==="retirada"?"🏪 Só na loja":"🛵 Faz entrega"}</span>${rg?`<span class="chip">📅 Vale ${esc(rg)}</span>`:""}${r!==null?`<span class="chip" style="${r<=20?"background:#ffe1e1;color:#b00":""}">${r===0?"Esgotado":"🎟️ Restam "+r+" de "+o.limite}</span>`:""}${o.umPorCliente?`<span class="chip">👤 1 por pessoa</span>`:""}
    <h3 style="font-size:1.4rem;margin-top:8px">${esc(o.emp)}</h3><p style="color:var(--cinza)">${esc(o.sub)}</p>
    <div style="margin:12px 0;background:linear-gradient(#E9C766,#C9952A);color:#0E1428;font-weight:800;border-radius:12px;padding:10px;text-align:center;font-size:1.5rem">${o.tag.replace(/<br>/g," · ")}</div>
+   ${o.precoDe&&o.precoPor?`<div class="precobox">De <s>${brl(o.precoDe)}</s> por <b>${brl(o.precoPor)}</b><br><small>Você economiza <b style="font-size:1rem">${brl(o.precoDe-o.precoPor)}</b></small></div>`:""}
    <p style="font-size:1.05rem">${esc(o.desc)}</p><p style="font-size:.9rem;color:var(--cinza);margin-top:6px">📋 ${esc(o.regras)}</p>
    <div style="font-weight:800;font-size:1rem;margin-top:14px">💡 Como usar ${c?"seu cupom":"esta oferta"}</div>
    <div class="como mini">
@@ -551,24 +583,29 @@ function verOferta(id){
    </div>
    ${c?`<div class="codigo"><div style="font-size:.9rem;font-weight:700">Mostre esta tela no caixa</div><div class="qr" id="qr"></div><div class="c">${c.cod}</div></div>
      <button class="btn" onclick="copiar('${c.cod}')">📋 Copiar código</button><button class="btn" style="background:linear-gradient(#E9C766,#C9952A);color:#0E1428" onclick="registrarCompra('${o.id}')">⭐ Fiz a compra: ganhar pontos</button>`:
-     `<button class="btn" style="min-height:60px;font-size:1.15rem" onclick="pegar('${o.id}')">🎟️ Pegar cupom grátis</button>`}
+     r===0?`<button class="btn" disabled style="min-height:60px;font-size:1.15rem;opacity:.6">Cupons esgotados</button>`:`<button class="btn" style="min-height:60px;font-size:1.15rem" onclick="pegar('${o.id}')">🎟️ Pegar cupom grátis</button>`}
    ${o.entrega==="retirada"?"":`<button class="btn entrega" onclick="pedirEntrega('${o.id}')">🛵 Pedir com entrega</button>${c&&c.entrega?`<div class="entrega-info">✅ Pedido de entrega enviado em ${new Date(c.entrega).toLocaleDateString("pt-BR")}. Combine com a loja pelo WhatsApp.</div>`:""}`}
    <button class="btn claro" onclick="favoritar('${o.id}');verOferta('${o.id}')">${f?"❤️ Salvo nos favoritos":"🤍 Salvar nos favoritos"}</button>
    <button class="btn verde" onclick="falarLoja('${o.id}')">💬 Falar ${o.whats?"com a loja":"no WhatsApp"}</button>
-   <button class="btn claro" onclick="compartilhar('${o.id}')">📤 Mandar para um amigo</button>`;
+   <button class="btn claro" onclick="compartilhar('${o.id}')">📤 Mandar para um amigo</button>
+   ${o.end||sit||zap||insta?`<div class="lojabox"><b>🏪 ${esc(o.emp)}</b>${sit?`<div class="st ${sit.aberto?"ab":"fe"}">${esc(sit.txt)}</div>`:""}${o.end?`<div style="font-size:.9rem;color:var(--cinza)">📍 ${esc(o.end)}</div>`:""}
+    <div class="lojabtns">${zap?`<a href="tel:+${zap.length<=11?"55"+zap:zap}"><span>📞</span>Ligar</a>`:""}${mapa?`<a href="${mapa}" target="_blank" rel="noopener"><span>🗺️</span>Como chegar</a>`:""}${insta?`<a href="https://instagram.com/${insta}" target="_blank" rel="noopener"><span>📸</span>Instagram</a>`:""}</div></div>`:""}`;
   $("#modal").classList.add("on");
   if(c){const el=$("#qr");if(window.QRCode)new QRCode(el,{text:"VC|"+c.cod+"|"+o.emp,width:150,height:150,correctLevel:QRCode.CorrectLevel.M});else el.remove()}
 }
 function pegar(id){
+  const o=OFERTAS.find(x=>x.id===id);if(o&&restam(o)===0){toast("Os cupons desta oferta acabaram");return}
   cupomDe(id);render();verOferta(id);toast("✅ Cupom guardado em Cupons");
   try{navigator.vibrate&&navigator.vibrate(40)}catch(e){}
 }
 /* ===== PEDIR COM ENTREGA: vai pelo WhatsApp da loja com o código do cupom ===== */
 function novoCodigoLocal(){return "VC-"+Array.from(crypto.getRandomValues(new Uint8Array(4)),b=>b.toString(36).toUpperCase().padStart(2,"0")).join("").replace(/[^A-Z0-9]/g,"").slice(0,6).padEnd(6,"X")}
 function cupomDe(id){let cs=store.get("gira_cupons",[]),c=cs.find(x=>x.id===id);
-  if(!c){c={id,cod:novoCodigoLocal(),em:Date.now()};cs.push(c);store.set("gira_cupons",cs);if(/^d/.test(String(id)))registrarEvento(id,"cupom");
+  if(!c){c={id,cod:novoCodigoLocal(),em:Date.now()};cs.push(c);store.set("gira_cupons",cs);const of=OFERTAS.find(x=>x.id===id);if(of&&of.limite)of.usados=(of.usados||0)+1;if(/^d/.test(String(id)))registrarEvento(id,"cupom");
     // site real: pede ao banco um código oficial (a loja confere e confirma a compra por ele)
     if(/^[0-9a-f-]{36}$/i.test(String(id))&&window._db)window._db.rpc("emitir_cupom",{p_oferta:id,p_aparelho:APARELHO}).then(({data})=>{
+      if(data==="ESGOTADO"||data==="JA_USOU"){const l=store.get("gira_cupons",[]).filter(x=>x.id!==id);store.set("gira_cupons",l);render();fechar();
+        toast(data==="ESGOTADO"?"Os cupons desta oferta acabaram":"Você já usou o cupom desta oferta");return}
       if(typeof data==="string"&&/^VC-[A-Z0-9]{5,8}$/.test(data)){const l=store.get("gira_cupons",[]),k=l.find(x=>x.id===id);if(k){k.cod=data;k.oficial=true;store.set("gira_cupons",l);render();if($("#modal").classList.contains("on")&&$("#sheet .codigo"))verOferta(id)}}},()=>{})}
   return c}
 function pedirEntrega(id){
@@ -617,10 +654,22 @@ function abrir(tipo,planoSel){
   if(tipo==="cidades")h=`<h3 style="margin-top:6px">Escolha sua cidade</h3><div class="menu">${["Castro – PR","Carambeí – PR","Ponta Grossa – PR","Tibagi – PR","Piraí do Sul – PR"].map(c=>`<button onclick="setCidade('${c}')"><span class="e">${c===$("#cid").textContent?"📍":"🏙️"}</span>${c}</button>`).join("")}</div>`;
   if(tipo==="notifs"){$("#nbadge").style.display="none";h=`<h3 style="margin-top:6px">Avisos</h3><div class="notif"><b>🔥 VS Store: até 40% OFF</b>A liquidação começou! Aproveite.</div><div class="notif"><b>🍕 Pizzaria Castro</b>20% OFF em pizzas grandes. Termina logo!</div><div class="notif"><b>👑 Plano VIP</b>Seja VIP e receba ofertas antes de todo mundo.</div>`}
   if(tipo==="menu")h=`<h3 style="margin-top:6px">Menu</h3><div class="menu"><button onclick="fechar();ir('inicio')"><span class="e">🏠</span>Início</button><button onclick="fechar();ir('ofertas')"><span class="e">🏷️</span>Todas as ofertas</button><button onclick="fechar();ir('cupons')"><span class="e">🎟️</span>Meus cupons e favoritos</button><button onclick="fechar();ir('pontos')"><span class="e">⭐</span>Meus pontos e brindes</button><button onclick="fechar();ir('empresas')"><span class="e">🏪</span>Empresas parceiras e planos</button><button onclick="abrir('parceiro')"><span class="e">🤝</span>Cadastrar minha empresa</button><button onclick="abrir('vip')"><span class="e">👑</span>Plano VIP</button><button onclick="abrir('ajuda')"><span class="e">❓</span>Como usar o app</button><button onclick="abrir('instalar')"><span class="e">📲</span>Colocar na tela do celular</button><button onclick="ajudaWhats()"><span class="e">💬</span>Falar com o suporte</button></div>`;
+  if(tipo==="privacidade")h=`<h3 style="font-size:1.3rem;margin-top:6px">🔒 Privacidade e termos</h3>
+    <p style="margin-top:10px">O Vitrine Castro respeita a <b>LGPD</b> (Lei Geral de Proteção de Dados).</p>
+    <ul class="passos-ajuda" style="margin-top:10px"><li>Seu nome, WhatsApp, cupons, favoritos e pontos ficam <b>salvos neste celular</b>.</li>
+     <li>Para contar visualizações e cupons das lojas, o app usa um <b>código aleatório do aparelho</b>, sem nome nem telefone.</li>
+     <li>Quando você pede com entrega ou fala no WhatsApp, a conversa é direto com a loja.</li>
+     <li>A loja vê apenas números totais e o seu primeiro nome em compras confirmadas.</li>
+     <li>Não vendemos nem compartilhamos seus dados.</li></ul>
+    <p style="font-size:.9rem;color:var(--cinza)"><b>Termos:</b> cada oferta tem preço, regras, limite de cupons e validade definidos pela loja. O desconto é dado pela loja no momento da compra. Pontos não valem dinheiro e não podem ser transferidos.</p>
+    <button class="btn claro" onclick="apagarMeusDados()">🗑 Apagar meus dados deste celular</button>
+    <button class="btn verde" onclick="ajudaWhats()">💬 Dúvidas? Fale com a gente</button>`;
   if(tipo==="ajuda")h=`<h3 style="font-size:1.3rem;margin-top:6px">❓ Como usar</h3><ol class="passos-ajuda" style="margin-top:12px"><li><b>Escolha uma oferta</b> na tela Início ou em Ofertas.</li><li>Toque no botão azul <b>Pegar cupom grátis</b>.</li><li>Vá até a loja e <b>mostre a tela do cupom</b> no caixa.</li><li>Seus cupons ficam guardados no botão <b>Cupons</b>, embaixo.</li><li>Toda compra com cupom vale <b>pontos</b>. Junte e troque por brindes no botão <b>Pontos</b>.</li></ol><p style="color:var(--cinza)">Letra pequena? Toque em <b>AA Letra</b> no topo da tela.</p><button class="btn verde" onclick="ajudaWhats()">💬 Ainda com dúvida? Fale com a gente</button>`;
   if(tipo==="instalar")h=telaInstalar();
   $("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ✕</button>`+h;$("#modal").classList.add("on");
 }
+function apagarMeusDados(){if(!confirm("Apagar seus dados, cupons, favoritos e pontos deste celular?"))return;
+  ["gira_perfil","gira_cupons","gira_favs","gira_pontos","vc_entrega","vc_aparelho"].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});fechar();render();toast("Seus dados foram apagados deste celular")}
 function setCidade(c){$("#cid").textContent=c;fechar();toast("Cidade: "+c)}
 function enviarParceiro(e){e.preventDefault();const v=i=>$("#e"+i).value;
   const m=`Olá! Quero ser parceiro do Vitrine Castro Clube de Desconto.\n\nEmpresa: ${v(1)}\nRamo: ${v(2)}\nResponsável: ${v(3)}\nWhatsApp: ${v(4)}\nPlano: ${v(6)}\nOferta: ${v(5)||"-"}`;
@@ -727,7 +776,7 @@ async function carregarDoBanco(){
   if(!window.CONFIG||!CONFIG.SUPABASE_URL){ // modo demonstração: posts feitos na Área da Empresa deste aparelho
     try{const e=JSON.parse(localStorage.getItem("vc_demo_emp")||"null"),os=JSON.parse(localStorage.getItem("vc_demo_ofertas")||"[]").filter(o=>o.ativa&&/^(data:image\/|https:\/\/|$)/.test(o.foto_url||""));
       if(e&&os.length){OFERTAS.unshift(...os.map(o=>({id:"d"+String(o.id).replace(/\W/g,""),emp:e.nome,sub:e.ramo,cat:o.categoria,img:o.foto_url||"",emoji:(CATS.find(c=>c.id===o.categoria)||{}).ic||"🏷️",
-        tag:esc(o.titulo),s:o.titulo.length>10,desc:o.descricao,regras:o.regras||"Apresente o cupom no caixa.",validade:o.validade||"",economia:Number(o.economia)||0,destaque:true,whats:e.whatsapp||"",entrega:o.entrega||"sim"})));
+        tag:esc(o.titulo),s:o.titulo.length>10,desc:o.descricao,regras:o.regras||"Apresente o cupom no caixa.",validade:o.validade||"",economia:(Number(o.preco_de)&&Number(o.preco_por))?Number(o.preco_de)-Number(o.preco_por):(Number(o.economia)||0),destaque:true,whats:e.whatsapp||"",entrega:o.entrega||"sim",precoDe:Number(o.preco_de)||null,precoPor:Number(o.preco_por)||null,limite:Number(o.limite_cupons)||null,umPorCliente:o.um_por_cliente!==false,dias:o.dias||"",horaIni:o.hora_ini||"",horaFim:o.hora_fim||"",inicia:o.inicia_em||"",end:e.endereco||"",abre:e.abre||"",fecha:e.fecha||"",diasFunc:e.dias_func||"",insta:e.instagram||"",usados:store.get("gira_cupons",[]).filter(c=>c.id==="d"+String(o.id).replace(/\W/g,"")).length})));
         const bs=os.filter(o=>o.banner&&o.foto_url).map(o=>({of:"d"+String(o.id).replace(/\W/g,""),foto:o.foto_url,logo:/^(data:image\/|https:\/\/)/.test(e.logo_url||"")?e.logo_url:"",emoji:(CATS.find(c=>c.id===o.categoria)||{}).ic||"🏷️",nome:e.nome,sub:e.ramo,topo:esc(o.banner_topo||"OFERTA"),oferta:esc(o.titulo)}));
         if(bs.length){BANNERS.unshift(...bs);slide=0}
         render()}}catch(err){}
@@ -735,13 +784,15 @@ async function carregarDoBanco(){
   if(!window.CONFIG||!CONFIG.SUPABASE_URL||!window.supabase)return;
   try{
     const db=supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_ANON_KEY);window._db=db;
-    const {data,error}=await db.from("ofertas").select("*,empresas!inner(nome,ramo,whatsapp,logo_url,aprovada)").eq("ativa",true).eq("empresas.aprovada",true).order("criado_em",{ascending:false});
+    const {data,error}=await db.from("ofertas").select("*,empresas!inner(*)").eq("ativa",true).eq("empresas.aprovada",true).order("criado_em",{ascending:false});
     if(error||!data||!data.length)return; // sem ofertas reais ainda: mantém os exemplos
     const novas=data.map(o=>({id:o.id,emp:o.empresas.nome,sub:o.empresas.ramo,cat:o.categoria,img:o.foto_url||"",emoji:(CATS.find(c=>c.id===o.categoria)||{}).ic||"🏷️",
       tag:esc(o.titulo),s:o.titulo.length>10,desc:o.descricao,regras:o.regras||"Apresente o cupom no caixa.",validade:o.validade||"",economia:Number(o.economia)||0,
-      destaque:o.destaque,whats:o.empresas.whatsapp||"",logo:o.empresas.logo_url||"",banner:o.banner,topo:esc(o.banner_topo||""),entrega:o.entrega||"sim"}));
+      destaque:o.destaque,whats:o.empresas.whatsapp||"",logo:o.empresas.logo_url||"",banner:o.banner,topo:esc(o.banner_topo||""),entrega:o.entrega||"sim",precoDe:Number(o.preco_de)||null,precoPor:Number(o.preco_por)||null,limite:Number(o.limite_cupons)||null,umPorCliente:o.um_por_cliente!==false,dias:o.dias||"",horaIni:o.hora_ini||"",horaFim:o.hora_fim||"",inicia:o.inicia_em||"",end:o.empresas.endereco||"",abre:o.empresas.abre||"",fecha:o.empresas.fecha||"",diasFunc:o.empresas.dias_func||"",insta:o.empresas.instagram||"",usados:0}));
     if(!novas.some(o=>o.destaque))novas.slice(0,4).forEach(o=>o.destaque=true);
     OFERTAS.splice(0,OFERTAS.length,...novas);
+    const comLimite=novas.filter(o=>o.limite).map(o=>o.id);
+    if(comLimite.length)db.rpc("cupons_usados",{p_ofertas:comLimite}).then(({data})=>{(data||[]).forEach(r=>{const o=OFERTAS.find(x=>x.id===r.oferta_id);if(o)o.usados=Number(r.qtd)||0});render()},()=>{});
     const bs=novas.filter(o=>o.banner&&o.img).map(o=>({of:o.id,foto:o.img,logo:o.logo,emoji:o.emoji,nome:o.emp,sub:o.sub,topo:o.topo||"OFERTA",oferta:o.tag}));
     BANNERS.splice(0,BANNERS.length,...bs,{anuncie:true});
     slide=0;$("#slides").style.transform="";render();
