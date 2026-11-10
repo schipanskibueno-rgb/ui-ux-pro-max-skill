@@ -303,6 +303,7 @@ function novoPost(id){
   abrirSheet(`<h2 style="margin-top:8px">${o?"Editar post":"Novo post"}</h2>
    <input type="file" accept="image/*" id="pFoto" class="arquivo" tabindex="-1" onchange="escolheuFoto(this)">
    <div class="comp-foto" id="pFotoBox"></div>
+   ${dentroDeVisualizador()?`<div class="aviso" style="margin:10px 0 0">📷 <b>A galeria não abriu?</b> Você está vendo o site por dentro de outro aplicativo (Claude, WhatsApp, Instagram), que bloqueia fotos. Abra o site no <b>Chrome</b> ou no <b>Safari</b> e poste de lá.</div>`:""}
 
    <div class="passo-t"><i>1</i>Qual é a oferta?</div>
    <div class="chips" id="pChipsOferta">${OFERTAS_PRONTAS.map(t=>`<button type="button" aria-pressed="false" onclick="escolheOferta(this.textContent)">${t}</button>`).join("")}<button type="button" aria-pressed="false" id="pOutro" onclick="outraOferta()">✏️ Outra</button></div>
@@ -357,6 +358,9 @@ function previaBanner(){const box=$("#pcBanner");if(!box)return;
   if(!RASC.banner){box.innerHTML="";return}
   const u=RASC.foto?URL.createObjectURL(RASC.foto):seguro(RASC.fotoUrl);
   box.innerHTML=`<div class="rot" style="margin-top:14px">⭐ ASSIM APARECE NO BANNER DO TOPO</div><div class="pban">${u?`<img src="${esc(u)}" alt="">`:""}<span class="ov"></span><div class="tx"><span class="nm">${esc(empresa.nome)}</span><span><span class="tp">${esc((RASC.topo||"OFERTA").toUpperCase())}</span><br><span class="of">${esc(RASC.titulo||"Sua oferta")}</span></span><span class="ct">Ver oferta ›</span></div></div>`}
+// Visualizadores de outros apps (prévia do Claude, WhatsApp, Instagram) costumam bloquear a galeria
+function dentroDeVisualizador(){let emMoldura=false;try{emMoldura=window.self!==window.top}catch(e){emMoldura=true}
+  return emMoldura||/FBAN|FBAV|Instagram|WhatsApp|; wv\)/i.test(navigator.userAgent)}
 function marcar(grupo,btn){[...$(grupo).children].forEach(b=>b.setAttribute("aria-pressed",b===btn?"true":"false"))}
 function escolheOferta(t){RASC.titulo=t;$("#pTit").style.display="none";marcar("#pChipsOferta",[...$("#pChipsOferta").children].find(b=>b.textContent===t));atualizar()}
 function outraOferta(){marcar("#pChipsOferta",$("#pOutro"));const i=$("#pTit");i.style.display="block";i.value=OFERTAS_PRONTAS.includes(RASC.titulo)?"":RASC.titulo;RASC.titulo=i.value.trim();i.focus();atualizar()}
