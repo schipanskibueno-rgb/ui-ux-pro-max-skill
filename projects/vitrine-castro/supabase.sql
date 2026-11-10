@@ -255,6 +255,17 @@ language sql stable security definer set search_path = public as $$
    group by ev.oferta_id, ev.tipo, ev.dia
 $$;
 
+-- Administrador: números de TODAS as lojas (só quem está na tabela admins)
+create or replace function public.metricas_admin(p_desde date) returns table (empresa_id uuid, tipo text, qtd bigint, valor numeric)
+language sql stable security definer set search_path = public as $$
+  select ev.empresa_id, ev.tipo, count(*), coalesce(sum(ev.valor), 0)
+    from public.eventos ev
+   where public.is_admin() and ev.dia >= p_desde
+   group by ev.empresa_id, ev.tipo
+$$;
+revoke execute on function public.metricas_admin(date) from public, anon;
+grant execute on function public.metricas_admin(date) to authenticated;
+
 revoke execute on function public.registrar_evento(uuid,text,text), public.emitir_cupom(uuid,text),
   public.consultar_cupom(text), public.confirmar_cupom(text,numeric), public.metricas_empresa(date) from public, anon;
 grant execute on function public.registrar_evento(uuid,text,text), public.emitir_cupom(uuid,text) to anon, authenticated;

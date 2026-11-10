@@ -144,8 +144,8 @@ textarea.inp{min-height:90px;resize:vertical}
 .opc-plano input{width:22px;height:22px;accent-color:#C9952A;margin-top:2px;flex-shrink:0}
 .opc-plano small{display:block;color:var(--cinza);font-weight:500}
 /* abas e números */
-.abas-p{display:flex;gap:4px;background:#efe8d4;border-radius:14px;padding:4px;margin:4px 0 14px;overflow-x:auto}
-.abas-p button{flex:1;border:0;background:none;min-height:46px;border-radius:10px;font-weight:700;font-size:.85rem;white-space:nowrap;padding:0 8px;color:var(--txt);cursor:pointer}
+.abas-p{display:flex;flex-wrap:wrap;gap:4px;background:#efe8d4;border-radius:14px;padding:4px;margin:4px 0 14px}
+.abas-p button{flex:1 1 auto;border:0;background:none;min-height:46px;border-radius:10px;font-weight:700;font-size:.85rem;white-space:nowrap;padding:0 8px;color:var(--txt);cursor:pointer}
 .abas-p button[aria-selected="true"]{background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.08)}
 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .kpi{background:#fff;border-radius:16px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
@@ -263,14 +263,14 @@ async function sair(){if(DEMO){if(!confirm("Apagar a loja e as ofertas de demons
 // ===== INÍCIO =====
 async function iniciar(){
   if(DEMO){empresa=store.get("vc_demo_emp",null);$("#btnSair").classList.toggle("escondido",!empresa);$("#btnSair").textContent="Recomeçar";
-    if(!empresa){location.hash==="#participar"?telaCadastroEmpresa():telaBoasVindas();return}await carregarOfertas();telaPainel();return}
+    if(!empresa){location.hash==="#participar"?telaCadastroEmpresa():telaBoasVindas();return}await carregarOfertas();if(location.hash==="#admin")ABA="admin";telaPainel();return}
   const {data:{session}}=await db.auth.getSession();
   if(!session){location.hash==="#entrar"?telaLogin("entrar"):location.hash==="#participar"?telaLogin("criar"):telaBoasVindas();return}
   user=session.user;$("#btnSair").classList.remove("escondido");
   const [{data:emp},{data:adm}]=await Promise.all([db.from("empresas").select("*").eq("dono",user.id).maybeSingle(),db.from("admins").select("user_id").eq("user_id",user.id).maybeSingle()]);
   empresa=emp;admin=!!adm;
-  if(!empresa){telaCadastroEmpresa();if(admin)painelAdmin(true);return}
-  await carregarOfertas();telaPainel();
+  if(!empresa){admin?telaAdminSolo():telaCadastroEmpresa();return}
+  await carregarOfertas();if(admin&&location.hash==="#admin")ABA="admin";telaPainel();
 }
 async function carregarOfertas(){
   if(DEMO){ofertas=store.get("vc_demo_ofertas",[]);return}
@@ -337,11 +337,10 @@ function telaPainel(){
     <div class="nums"><span><b>${ofertas.length}</b>posts</span><span><b>${ativas}</b>no ar</span>${DEMO?"":`<span><b>${pl.lim}</b>limite</span>`}</div></div></div>
    <button class="btn claro" onclick="editarEmpresa()">✏️ Editar perfil da loja</button></div>
   <button class="postar" onclick="novoPost()"><span class="mais" aria-hidden="true">+</span><span><b>Postar oferta</b><small>Escolha a foto, escreva e publique. Leva 30 segundos.</small></span></button>
-  <div class="abas-p" role="tablist">${[["resultados","📊 Resultados"],["posts","📸 Meus posts"],["confirmar","✅ Confirmar compra"],["plano","💼 Meu plano"]].map(([k,n])=>`<button role="tab" aria-selected="${ABA===k}" onclick="ABA='${k}';telaPainel()">${n}</button>`).join("")}</div>
+  <div class="abas-p" role="tablist">${[["resultados","📊 Resultados"],["posts","📸 Meus posts"],["confirmar","✅ Confirmar compra"],["plano","💼 Meu plano"],...(admin||DEMO?[["admin","👑 Admin"]]:[])].map(([k,n])=>`<button role="tab" aria-selected="${ABA===k}" onclick="ABA='${k}';telaPainel()">${n}</button>`).join("")}</div>
   <div id="abaBox"></div>
   <div id="admBox"></div>`;
-  ({resultados:abaResultados,posts:abaPosts,confirmar:abaConfirmar,plano:abaPlano})[ABA]();
-  if(admin)painelAdmin();
+  ({resultados:abaResultados,posts:abaPosts,confirmar:abaConfirmar,plano:abaPlano,admin:painelAdmin})[ABA]();
 }
 function abaPosts(){
   $("#abaBox").innerHTML=ofertas.length?`<div class="grade">${ofertas.map(o=>{const st=venceu(o)?"Vencida":!o.ativa?"Pausada":"";return `<button onclick="verPost('${esc(o.id)}')" aria-label="${esc(o.titulo)}${st?", "+st:""}">${seguro(o.foto_url)?`<img src="${esc(o.foto_url)}" alt="" loading="lazy">`:"🏷️"}${st?`<span class="st">${st}</span>`:""}<span class="t">${esc(o.titulo)}</span></button>`}).join("")}</div>`
@@ -648,19 +647,78 @@ function abaPlano(){const wa=((window.CONFIG&&CONFIG.WHATSAPP)||"").replace(/\D/
     ${p.id!==atual&&wa?`<a class="btn claro" href="https://wa.me/${wa}?text=${encodeURIComponent(`Olá! Quero mudar a loja ${empresa.nome} para o plano ${p.nome} (${p.preco}/mês).`)}" target="_blank" rel="noopener">Quero o ${p.nome}</a>`:""}</div>`).join("")}`}
 
 // ===== ADMINISTRADOR (só você) =====
+/* ===================================================================
+   ADMINISTRAÇÃO: todas as empresas, aprovação, planos, ofertas e números
+   =================================================================== */
+let ADM={filtro:"todas",busca:"",periodo:30,abertas:{}};
+async function dadosAdmin(){
+  const desde=ADM.periodo===0?"2000-01-01":hojeISO(-(ADM.periodo-1));
+  if(DEMO){const emp=store.get("vc_demo_emp",null),ofs=store.get("vc_demo_ofertas",[]),ids=new Set(ofs.map(o=>String(o.id)));
+    const met={};store.get("vc_demo_eventos",[]).forEach(ev=>{if(!ids.has(String(ev.oferta))||ev.dia<desde)return;const k="demo|"+ev.tipo;met[k]=met[k]||{empresa_id:"demo",tipo:ev.tipo,qtd:0,valor:0};met[k].qtd++;met[k].valor+=Number(ev.valor)||0});
+    return {emps:emp?[{...emp,id:"demo",criado_em:emp.criado_em||new Date().toISOString()}]:[],ofs:ofs.map(o=>({...o,empresa_id:"demo"})),met:Object.values(met)}}
+  const [a,b,c]=await Promise.all([db.from("empresas").select("*").order("criado_em",{ascending:false}),
+    db.from("ofertas").select("id,titulo,foto_url,ativa,validade,destaque,banner,banner_topo,empresa_id,criado_em").order("criado_em",{ascending:false}),
+    db.rpc("metricas_admin",{p_desde:desde})]);
+  if(a.error)throw a.error;
+  return {emps:a.data||[],ofs:b.data||[],met:(c.data||[]).map(r=>({...r,qtd:Number(r.qtd)||0,valor:Number(r.valor)||0})),semNumeros:!!c.error};
+}
+function alvoAdmin(){return $("#abaBox")||$("#main")}
 async function painelAdmin(){
-  const [{data:emps},{data:ofs}]=await Promise.all([db.from("empresas").select("*").order("criado_em",{ascending:false}),db.from("ofertas").select("id,titulo,ativa,destaque,banner,banner_topo,empresa_id").order("criado_em",{ascending:false})]);
-  const nomeEmp=id=>((emps||[]).find(e=>e.id===id)||{}).nome||"?";
-  $("#admBox").innerHTML=`<div class="card adm" style="margin-top:24px;border:2px solid var(--ouro)"><h2>👑 Painel do administrador</h2><p class="sub">Só você vê esta parte.</p>
-   <h3>Lojas (${(emps||[]).length})</h3>${(emps||[]).map(e=>`<div class="item"><span class="n"><b>${esc(e.nome)}</b><br><span class="ajuda">${esc(e.ramo)} · ${esc(e.whatsapp||"sem WhatsApp")}</span></span>
-     <select aria-label="Plano de ${esc(e.nome)}" onchange="admEmpresa('${e.id}',{plano:this.value})">${Object.entries(PLANOS).map(([k,v])=>`<option value="${k}" ${k===e.plano?"selected":""}>${v.nome}</option>`).join("")}</select>
-     ${e.aprovada?`<button class="mini" onclick="admEmpresa('${e.id}',{aprovada:false})">Suspender</button>`:`<button class="mini ou" onclick="admEmpresa('${e.id}',{aprovada:true})">✓ Aprovar</button>`}</div>`).join("")||'<p class="sub">Nenhuma loja ainda.</p>'}
-   <h3>Ofertas (${(ofs||[]).length})</h3>${(ofs||[]).map(o=>`<div class="item"><span class="n"><b>${esc(o.titulo)}</b> · ${esc(nomeEmp(o.empresa_id))}${o.ativa?"":' <span class="ajuda">(pausada)</span>'}</span>
-     <button class="mini ${o.destaque?"ou":""}" onclick="admOferta('${o.id}',{destaque:${!o.destaque}})">${o.destaque?"★ Destaque":"☆ Destaque"}</button>
-     <button class="mini ${o.banner?"ou":""}" onclick="admBanner('${o.id}',${!o.banner},'${esc(o.banner_topo||"")}')">${o.banner?"🖼 No banner":"🖼 Banner"}</button></div>`).join("")||'<p class="sub">Nenhuma oferta ainda.</p>'}
-  </div>`}
-async function admEmpresa(id,campos){const {error}=await db.from("empresas").update(campos).eq("id",id);toast(error?traduzErro(error):"✅ Atualizado");painelAdmin()}
-async function admOferta(id,campos){const {error}=await db.from("ofertas").update(campos).eq("id",id);toast(error?traduzErro(error):"✅ Atualizado");painelAdmin()}
+  const box=alvoAdmin();box.innerHTML=`<div class="vazio"><span class="e">⏳</span>Carregando empresas…</div>`;
+  let d;try{d=await dadosAdmin()}catch(err){box.innerHTML=`<div class="aviso">${esc(traduzErro(err))}</div>`;return}
+  window._adm=d;
+  const num={};d.met.forEach(r=>{const n=num[r.empresa_id]=num[r.empresa_id]||{visualizacao:0,cupom:0,entrega:0,compra:0,valor:0};n[r.tipo]=(n[r.tipo]||0)+r.qtd;if(r.tipo==="compra")n.valor+=r.valor});
+  const noAr=o=>o.ativa&&!venceu(o);
+  const tot={lojas:d.emps.length,aprov:d.emps.filter(x=>x.aprovada).length,analise:d.emps.filter(x=>!x.aprovada).length,ofertas:d.ofs.filter(noAr).length,
+    vis:Object.values(num).reduce((s,n)=>s+n.visualizacao,0),vendas:Object.values(num).reduce((s,n)=>s+n.compra,0),valor:Object.values(num).reduce((s,n)=>s+n.valor,0)};
+  const pagantes=d.emps.filter(x=>x.aprovada&&x.plano&&x.plano!=="basico").length;
+  const q=ADM.busca.trim().toLowerCase();
+  const lista=d.emps.filter(x=>ADM.filtro==="todas"||(ADM.filtro==="analise"&&!x.aprovada)||(ADM.filtro==="aprovadas"&&x.aprovada)||(ADM.filtro===x.plano))
+    .filter(x=>!q||(x.nome+" "+x.ramo+" "+(x.whatsapp||"")).toLowerCase().includes(q));
+  box.innerHTML=`${DEMO?`<div class="aviso">👑 <b>Prévia da administração.</b> No site real aparecem <b>todas</b> as empresas cadastradas. Aqui aparece só a loja de teste deste celular.</div>`:""}
+   <div class="card" style="border:2px solid var(--ouro)"><h2>👑 Administração do Vitrine</h2><p class="sub">Só você vê esta área. Últimos ${ADM.periodo||"—"} dias:</p>
+    <div class="chips" style="margin:8px 0 12px">${[[7,"7 dias"],[30,"30 dias"],[0,"Tudo"]].map(([v,n])=>`<button type="button" aria-pressed="${ADM.periodo===v}" onclick="ADM.periodo=${v};painelAdmin()">${n}</button>`).join("")}</div>
+    <div class="kpis">
+     <div class="kpi"><div class="n">${tot.lojas}</div><div class="r">🏪 Empresas</div><small>${tot.aprov} aprovada${tot.aprov===1?"":"s"}</small></div>
+     <div class="kpi"><div class="n" style="color:${tot.analise?"#b45309":"inherit"}">${tot.analise}</div><div class="r">⏳ Em análise</div><small>aguardando você aprovar</small></div>
+     <div class="kpi"><div class="n">${tot.ofertas}</div><div class="r">🏷️ Ofertas no ar</div><small>em todo o app</small></div>
+     <div class="kpi"><div class="n">${pagantes}</div><div class="r">💼 Planos Destaque/Premium</div><small>empresas em planos maiores</small></div>
+     <div class="kpi"><div class="n">${fmtN(tot.vis)}</div><div class="r">👀 Visualizações</div><small>de todas as lojas</small></div>
+     <div class="kpi"><div class="n">${fmtN(tot.vendas)}</div><div class="r">✅ Vendas confirmadas</div><small>pelo app</small></div>
+     <div class="kpi ouro" style="grid-column:1/-1"><div class="n">${fmtR(tot.valor)}</div><div class="r">💰 Vendido pelo Vitrine</div><small>soma de todas as compras confirmadas pelas lojas</small></div>
+    </div>${d.semNumeros?`<p class="ajuda" style="margin-top:8px">Para ver os números de todas as lojas, rode a atualização do banco (supabase.sql).</p>`:""}</div>
+
+   <h2 style="margin:16px 0 8px">Empresas</h2>
+   <input class="inp" type="search" placeholder="🔎 Buscar por nome, ramo ou WhatsApp" value="${esc(ADM.busca)}" oninput="ADM.busca=this.value;clearTimeout(window._tb);window._tb=setTimeout(()=>{painelAdmin().then(()=>{const i=document.querySelector('#admBusca');})},350)" id="admBusca" aria-label="Buscar empresa">
+   <div class="chips" style="margin:10px 0 12px">${[["todas","Todas"],["analise",`⏳ Em análise (${tot.analise})`],["aprovadas","✓ Aprovadas"],["basico","Básico"],["destaque","Destaque"],["premium","Premium"]].map(([k,n])=>`<button type="button" aria-pressed="${ADM.filtro===k}" onclick="ADM.filtro='${k}';painelAdmin()">${n}</button>`).join("")}</div>
+   ${lista.length?lista.map(x=>{const n=num[x.id]||{visualizacao:0,cupom:0,entrega:0,compra:0,valor:0},os=d.ofs.filter(o=>o.empresa_id===x.id),zap=String(x.whatsapp||"").replace(/\D/g,"");
+     return `<div class="card" style="padding:14px">
+      <div class="perfil-loja" style="gap:12px"><div class="logo" style="width:58px;height:58px">${seguro(x.logo_url)?`<img src="${esc(x.logo_url)}" alt="">`:"🏪"}</div>
+       <div style="flex:1;min-width:0"><b style="font-size:1.05rem">${esc(x.nome)}</b><br><span class="status ${x.aprovada?"ok":"pend"}">${x.aprovada?"✓ Aprovada":"⏳ Em análise"}</span> <span class="status pausa">${esc((PLANOS[x.plano]||{nome:x.plano}).nome)}</span>
+        <p class="ajuda" style="margin-top:4px">${esc(x.ramo)}${x.endereco?" · "+esc(x.endereco):""} · desde ${new Date(x.criado_em).toLocaleDateString("pt-BR")}</p></div></div>
+      <div class="mini-n" style="display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.85rem;color:var(--cinza);margin:10px 0 4px"><span>🏷️ <b style="color:var(--txt)">${os.filter(noAr).length}</b> no ar</span><span>👀 <b style="color:var(--txt)">${fmtN(n.visualizacao)}</b></span><span>🎟️ <b style="color:var(--txt)">${fmtN(n.cupom)}</b></span><span>🛵 <b style="color:var(--txt)">${fmtN(n.entrega)}</b></span><span>✅ <b style="color:var(--txt)">${fmtN(n.compra)}</b></span><span>💰 <b style="color:var(--txt)">${fmtR(n.valor)}</b></span></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+       ${x.aprovada?`<button class="mini" onclick="admEmpresa('${esc(x.id)}',{aprovada:false})">⏸ Suspender</button>`:`<button class="mini ou" onclick="admEmpresa('${esc(x.id)}',{aprovada:true})">✓ Aprovar</button>`}
+       <select class="mini" aria-label="Plano de ${esc(x.nome)}" onchange="admEmpresa('${esc(x.id)}',{plano:this.value})">${Object.entries(PLANOS).map(([k,v])=>`<option value="${k}" ${k===x.plano?"selected":""}>Plano ${v.nome}</option>`).join("")}</select>
+       ${zap?`<a class="mini" style="display:inline-flex;align-items:center;text-decoration:none;background:#dff5e7;color:#0d6b31" href="https://wa.me/${zap.length<=11?"55"+zap:zap}?text=${encodeURIComponent("Olá! Aqui é do Vitrine Castro, sobre a loja "+x.nome+".")}" target="_blank" rel="noopener">💬 WhatsApp</a>`:""}
+       <button class="mini" onclick="ADM.abertas['${esc(x.id)}']=!ADM.abertas['${esc(x.id)}'];painelAdmin()">${ADM.abertas[x.id]?"▲ Esconder ofertas":`▼ Ofertas (${os.length})`}</button>
+      </div>
+      ${ADM.abertas[x.id]?(os.length?os.map(o=>`<div class="item" style="display:flex;gap:8px;align-items:center;padding:8px 0;border-top:1px solid #f0e8d2;flex-wrap:wrap;margin-top:6px">
+        <span style="flex:1;min-width:140px"><b>${esc(o.titulo)}</b>${noAr(o)?"":` <span class="ajuda">(${venceu(o)?"vencida":"pausada"})</span>`}</span>
+        <button class="mini ${o.destaque?"ou":""}" onclick="admOferta('${esc(o.id)}',{destaque:${!o.destaque}})">${o.destaque?"★ Destaque":"☆ Destaque"}</button>
+        <button class="mini ${o.banner?"ou":""}" onclick="admBanner('${esc(o.id)}',${!o.banner},'${esc(o.banner_topo||"")}')">${o.banner?"🖼 No banner":"🖼 Banner"}</button></div>`).join(""):`<p class="ajuda" style="margin-top:8px">Nenhuma oferta ainda.</p>`):""}
+     </div>`}).join(""):`<div class="vazio"><span class="e">🏪</span>Nenhuma empresa ${ADM.filtro==="analise"?"em análise":"encontrada"}.</div>`}`;
+  const i=$("#admBusca");if(i&&ADM.busca&&document.activeElement!==i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}
+}
+// ações do administrador (no modo demonstração mudam só a loja de teste deste celular)
+async function admEmpresa(id,campos){
+  if(DEMO){const emp=store.get("vc_demo_emp",{});Object.assign(emp,campos);store.set("vc_demo_emp",emp);empresa=emp;toast("✅ Atualizado");painelAdmin();return}
+  const {error}=await db.from("empresas").update(campos).eq("id",id);toast(error?traduzErro(error):"✅ Atualizado");painelAdmin()}
+async function admOferta(id,campos){
+  if(DEMO){const l=store.get("vc_demo_ofertas",[]),o=l.find(x=>String(x.id)===String(id));if(o)Object.assign(o,campos);store.set("vc_demo_ofertas",l);ofertas=l;toast("✅ Atualizado");painelAdmin();return}
+  const {error}=await db.from("ofertas").update(campos).eq("id",id);toast(error?traduzErro(error):"✅ Atualizado");painelAdmin()}
+function telaAdminSolo(){$("#btnSair").classList.remove("escondido");
+  $("#main").innerHTML=`<div id="abaBox"></div><button class="btn claro" onclick="telaCadastroEmpresa()">🏪 Cadastrar uma loja minha também</button>`;painelAdmin()}
 function admBanner(id,ligar,topo){if(!ligar){admOferta(id,{banner:false});return}
   abrirSheet(`<h2 style="margin-top:8px">Colocar no banner do topo</h2><p class="sub">A oferta precisa ter foto. Escreva uma chamada curta que aparece acima do desconto.</p>
   <label for="bTopo">Chamada (opcional)</label><input class="inp" id="bTopo" maxlength="20" value="${topo}" placeholder="Ex: LIQUIDAÇÃO"><button class="btn ouro" onclick="fechar();admOferta('${id}',{banner:true,banner_topo:$('#bTopo').value.trim().toUpperCase()||null})">Colocar no banner</button>`)}
