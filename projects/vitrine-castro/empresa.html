@@ -111,6 +111,59 @@ textarea.inp{min-height:90px;resize:vertical}
 .pban .nm{font-weight:800;font-size:.9rem}.pban .tp{font-size:.62rem;color:#F3E3B5;letter-spacing:1px;font-weight:700}
 .pban .of{font-weight:800;font-size:1.25rem;color:#E9C766;line-height:1}
 .pban .ct{align-self:flex-start;background:linear-gradient(#E9C766,#C9952A);color:#0E1428;font-weight:800;font-size:.7rem;border-radius:20px;padding:4px 10px}
+/* ===== página para empresas que querem participar ===== */
+.lp-hero{background:#000;color:#fff;border-radius:22px;padding:22px 18px;text-align:center;border:1.5px solid #D4A537;margin-bottom:14px}
+.lp-hero img{width:84px;height:84px;border-radius:20px}
+.lp-hero h2{font-size:1.45rem;margin:10px 0 6px;line-height:1.25}.lp-hero h2 span{color:#D4A537}
+.lp-hero p{color:#E8D9A8;font-size:.98rem}
+.lp-passos{display:grid;gap:10px}
+.lp-passos div{display:flex;gap:12px;align-items:center;background:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.lp-passos b{display:block}.lp-passos small{color:var(--cinza)}
+.lp-passos i{font-style:normal;width:44px;height:44px;border-radius:50%;background:linear-gradient(#E9C766,#C9952A);display:grid;place-items:center;font-size:1.3rem;flex-shrink:0}
+.lp-ben{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lp-ben div{background:#fff;border-radius:16px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);font-size:.88rem}
+.lp-ben b{display:block;font-size:1rem;margin:4px 0 2px}
+.lp-plano{background:#fff;border:2px solid #efe6cc;border-radius:18px;padding:14px;margin-bottom:10px;position:relative}
+.lp-plano.dest{border-color:#D4A537}
+.lp-plano .selo{position:absolute;top:-11px;right:14px;background:#D4A537;color:#0E1428;font-size:.7rem;font-weight:800;border-radius:20px;padding:3px 10px}
+.lp-plano .preco{font-family:"Playfair Display",serif;font-size:1.7rem;font-weight:700;color:var(--ink-ouro,#7A6531)}
+.lp-plano .preco small{font-family:Poppins,sans-serif;font-size:.8rem;color:var(--cinza)}
+.lp-plano ul{list-style:none;margin-top:4px}.lp-plano li{font-size:.9rem;padding:2px 0}.lp-plano li:before{content:"✓ ";color:#13a049;font-weight:800}
+.lp-faq details{background:#fff;border-radius:14px;padding:0 14px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.lp-faq summary{cursor:pointer;font-weight:700;min-height:52px;display:flex;align-items:center}
+.lp-faq p{padding:0 0 12px;color:var(--cinza);font-size:.92rem}
+.lp-cta{position:sticky;bottom:0;background:linear-gradient(transparent,var(--creme) 30%);padding:14px 0 calc(8px + env(safe-area-inset-bottom))}
+.lp-t{font-size:1.15rem;margin:22px 2px 10px}
+/* passos do cadastro */
+.prog{display:flex;gap:6px;margin-bottom:14px}
+.prog div{flex:1;text-align:center;font-size:.72rem;font-weight:700;color:var(--cinza)}
+.prog div:before{content:"";display:block;height:6px;border-radius:4px;background:#e6dcc0;margin-bottom:5px}
+.prog div.on{color:#0E1428}.prog div.on:before{background:linear-gradient(90deg,#E9C766,#C9952A)}
+.opc-plano{display:flex;gap:10px;align-items:flex-start;border:2px solid #e6dcc0;border-radius:14px;padding:10px 12px;margin-bottom:8px;cursor:pointer;font-weight:600}
+.opc-plano:has(input:checked){border-color:#C9952A;background:#fffaf0}
+.opc-plano input{width:22px;height:22px;accent-color:#C9952A;margin-top:2px;flex-shrink:0}
+.opc-plano small{display:block;color:var(--cinza);font-weight:500}
+/* abas e números */
+.abas-p{display:flex;gap:4px;background:#efe8d4;border-radius:14px;padding:4px;margin:4px 0 14px;overflow-x:auto}
+.abas-p button{flex:1;border:0;background:none;min-height:46px;border-radius:10px;font-weight:700;font-size:.85rem;white-space:nowrap;padding:0 8px;color:var(--txt);cursor:pointer}
+.abas-p button[aria-selected="true"]{background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi{background:#fff;border-radius:16px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.kpi .n{font-size:1.6rem;font-weight:800;line-height:1.1;font-family:Montserrat,Poppins,sans-serif}
+.kpi .r{font-size:.82rem;font-weight:700}.kpi small{display:block;color:var(--cinza);font-size:.75rem;margin-top:2px}
+.kpi.ouro{background:linear-gradient(120deg,#0E1428,#1F2B57);color:#fff;border:1.5px solid #D4A537}.kpi.ouro small{color:#E8D9A8}.kpi.ouro .n{color:#E9C766}
+.graf{display:flex;align-items:flex-end;gap:4px;height:120px;padding:8px 4px 0;border-bottom:1.5px solid #e6dcc0}
+.graf div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:2px;height:100%}
+.graf i{display:block;width:100%;max-width:22px;border-radius:5px 5px 0 0;background:#c9d4ef;min-height:2px}
+.graf i.c{background:linear-gradient(#E9C766,#C9952A)}
+.graf-leg{display:flex;justify-content:space-between;font-size:.66rem;color:var(--cinza);margin-top:4px}
+.oft-num{display:flex;gap:10px;align-items:center;background:#fff;border-radius:14px;padding:8px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.oft-num .ft{width:58px;height:58px;border-radius:10px;overflow:hidden;background:#1F2B57;display:grid;place-items:center;flex-shrink:0}
+.oft-num .ft img{width:100%;height:100%;object-fit:cover}
+.oft-num b{display:block;font-size:.95rem}
+.oft-num .mini-n{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:.8rem;color:var(--cinza);margin-top:2px}
+.oft-num .mini-n span b{display:inline;color:var(--txt);font-size:.85rem}
+.res-ok{background:#dff5e7;color:#0d6b31;border-radius:14px;padding:14px;text-align:center;font-weight:700;margin-top:12px}
 .chips button[aria-pressed="true"]{background:linear-gradient(#E9C766,#C9952A);border-color:#C9952A;color:#0E1428}
 .cont{font-size:.78rem;color:var(--cinza);text-align:right;margin-top:3px}
 details.mais-op{margin-top:16px;border-top:1px solid #efe6cc;padding-top:6px}
@@ -180,8 +233,8 @@ let user=null,empresa=null,ofertas=[],admin=false;
 // ===== LOGIN =====
 function telaLogin(modo="entrar"){
   $("#btnSair").classList.add("escondido");
-  $("#main").innerHTML=`<div class="card">
-   <h2>Bem-vindo, lojista! 👋</h2><p class="sub">Entre para postar suas promoções no Vitrine Castro. É tão fácil quanto postar no Instagram.</p>
+  $("#main").innerHTML=`${modo==="criar"?progresso(1):""}<div class="card">
+   <h2>${modo==="criar"?"Crie sua conta de empresa":"Bem-vindo, lojista! 👋"}</h2><p class="sub">${modo==="criar"?"Passo 1 de 3: e-mail e senha para entrar na sua área.":"Entre para postar suas promoções e ver seus resultados."}</p>
    <div class="abas" style="margin-top:14px"><button class="${modo==="entrar"?"on":""}" onclick="telaLogin('entrar')">Entrar</button><button class="${modo==="criar"?"on":""}" onclick="telaLogin('criar')">Criar conta</button></div>
    <form onsubmit="entrar(event,'${modo}')">
     <label for="lEmail">E-mail</label><input class="inp" id="lEmail" type="email" autocomplete="email" required>
@@ -191,7 +244,7 @@ function telaLogin(modo="entrar"){
     <div class="erro" id="lErro"></div>
    </form>
    ${modo==="entrar"?`<button class="btn claro" onclick="esqueci()">Esqueci minha senha</button>`:""}
-  </div>`;
+  </div><button class="btn claro" onclick="telaBoasVindas()">← Conhecer o Vitrine para empresas</button>`;
 }
 async function entrar(ev,modo){ev.preventDefault();const email=$("#lEmail").value.trim(),senha=$("#lSenha").value,b=$("#btnEntrar");b.disabled=true;$("#lErro").style.display="none";
   try{
@@ -210,9 +263,9 @@ async function sair(){if(DEMO){if(!confirm("Apagar a loja e as ofertas de demons
 // ===== INÍCIO =====
 async function iniciar(){
   if(DEMO){empresa=store.get("vc_demo_emp",null);$("#btnSair").classList.toggle("escondido",!empresa);$("#btnSair").textContent="Recomeçar";
-    if(!empresa){telaCadastroEmpresa();return}await carregarOfertas();telaPainel();return}
+    if(!empresa){location.hash==="#participar"?telaCadastroEmpresa():telaBoasVindas();return}await carregarOfertas();telaPainel();return}
   const {data:{session}}=await db.auth.getSession();
-  if(!session){telaLogin();return}
+  if(!session){location.hash==="#entrar"?telaLogin("entrar"):location.hash==="#participar"?telaLogin("criar"):telaBoasVindas();return}
   user=session.user;$("#btnSair").classList.remove("escondido");
   const [{data:emp},{data:adm}]=await Promise.all([db.from("empresas").select("*").eq("dono",user.id).maybeSingle(),db.from("admins").select("user_id").eq("user_id",user.id).maybeSingle()]);
   empresa=emp;admin=!!adm;
@@ -249,16 +302,23 @@ function formEmpresa(e={}){return `
   <label>Logo da loja</label><div class="previa" id="eLogoPrev" style="aspect-ratio:1/1;width:120px">${seguro(e.logo_url)?`<img src="${esc(e.logo_url)}" alt="Logo">`:"Sem logo"}</div>
   <label class="foto-btn">📷 Escolher logo<input type="file" accept="image/*" id="eLogo" onchange="mostrarPrevia(this,'#eLogoPrev')"></label>
   <div class="erro" id="eErro"></div>`}
-function telaCadastroEmpresa(){$("#main").innerHTML=`${DEMO?avisoDemo():""}<div class="card"><h2>🏪 Cadastre sua loja</h2><p class="sub">Leva 1 minuto. Depois é só postar suas promoções, como no Instagram.</p>
-  <form onsubmit="salvarEmpresa(event)">${formEmpresa()}<button class="btn ouro" id="eBtn">Cadastrar minha loja</button></form></div><div id="admBox"></div>`}
+function telaCadastroEmpresa(){const plano=store.get("vc_plano_desejado","basico");
+  $("#main").innerHTML=`${DEMO?avisoDemo():""}${progresso(2)}<div class="card"><h2>🏪 Dados da sua loja</h2><p class="sub">${DEMO?"":"Passo 2 de 3. "}Leva 1 minuto. É assim que os clientes vão ver sua loja.</p>
+  <form onsubmit="salvarEmpresa(event)">${formEmpresa()}
+   <label style="margin-top:16px">Qual plano você quer?</label>
+   ${PLANOS_VENDA.map(p=>`<label class="opc-plano"><input type="radio" name="ePlano" value="${p.id}" ${p.id===plano?"checked":""}><span>${p.nome} – ${p.preco}/mês<small>${p.resumo}</small></span></label>`).join("")}
+   <p class="ajuda">🎁 As 20 primeiras lojas ganham 3 meses grátis. O plano é ativado depois que combinarmos pelo WhatsApp.</p>
+   <label class="opc-plano" style="margin-top:12px"><input type="checkbox" id="eTermos" required><span>Li e aceito os termos para empresas<small>As ofertas são reais, o desconto é dado na loja e eu confirmo as compras feitas com cupom.</small></span></label>
+   <button class="btn ouro" id="eBtn">Concluir cadastro</button></form></div><div id="admBox"></div>`}
 async function salvarEmpresa(ev){ev.preventDefault();const b=$("#eBtn");b.disabled=true;$("#eErro").style.display="none";
+  const primeiro=!empresa,planoEsc=(document.querySelector('input[name="ePlano"]:checked')||{}).value;if(planoEsc)store.set("vc_plano_desejado",planoEsc);
   try{
     const dados={nome:$("#eNome").value.trim(),ramo:$("#eRamo").value,whatsapp:$("#eWhats").value.trim(),endereco:$("#eEnd").value.trim()};
     const f=$("#eLogo").files[0];if(f)dados.logo_url=await enviarFoto(await prepararFoto(f,{larg:400,prop:1}));
     if(DEMO){empresa={...(empresa||{id:"demo",aprovada:true,plano:"premium"}),...dados};store.set("vc_demo_emp",empresa)}
     else{const q=empresa?db.from("empresas").update(dados).eq("id",empresa.id):db.from("empresas").insert(dados);
       const {data,error}=await q.select().single();if(error)throw error;empresa=data}
-    fechar();toast(empresa.aprovada?"✅ Dados salvos!":"✅ Loja cadastrada! Agora poste sua primeira oferta.");await iniciar();
+    fechar();if(primeiro){telaSucessoCadastro();return}toast("✅ Dados salvos!");await iniciar();
   }catch(e){$("#eErro").textContent=traduzErro(e);$("#eErro").style.display="block"}finally{b.disabled=false}
 }
 function editarEmpresa(){abrirSheet(`<h2 style="margin-top:8px">Dados da loja</h2><form onsubmit="salvarEmpresa(event)">${formEmpresa(empresa)}<button class="btn" id="eBtn">Salvar</button></form>`)}
@@ -266,6 +326,7 @@ function editarEmpresa(){abrirSheet(`<h2 style="margin-top:8px">Dados da loja</h
 // ===== PAINEL (perfil da loja + grade de posts) =====
 function avisoDemo(){return `<div class="demo-aviso"><b>Modo demonstração.</b> O que você postar fica só neste celular e aparece no app deste aparelho. Para valer para todos, preencha o config.js com o Supabase.</div>`}
 function venceu(o){return o.validade&&new Date(o.validade+"T23:59:59")<new Date()}
+let ABA="resultados";
 function telaPainel(){
   const pl=PLANOS[empresa.plano]||PLANOS.basico,ativas=ofertas.filter(o=>o.ativa&&!venceu(o)).length;
   const whatsAdm=((window.CONFIG&&CONFIG.WHATSAPP)||"").replace(/\D/g,"");
@@ -276,12 +337,15 @@ function telaPainel(){
     <div class="nums"><span><b>${ofertas.length}</b>posts</span><span><b>${ativas}</b>no ar</span>${DEMO?"":`<span><b>${pl.lim}</b>limite</span>`}</div></div></div>
    <button class="btn claro" onclick="editarEmpresa()">✏️ Editar perfil da loja</button></div>
   <button class="postar" onclick="novoPost()"><span class="mais" aria-hidden="true">+</span><span><b>Postar oferta</b><small>Escolha a foto, escreva e publique. Leva 30 segundos.</small></span></button>
-  <h2 style="margin:6px 0 10px">Meus posts</h2>
-  ${ofertas.length?`<div class="grade">${ofertas.map(o=>{const st=venceu(o)?"Vencida":!o.ativa?"Pausada":"";return `<button onclick="verPost('${esc(o.id)}')" aria-label="${esc(o.titulo)}${st?", "+st:""}">${seguro(o.foto_url)?`<img src="${esc(o.foto_url)}" alt="" loading="lazy">`:"🏷️"}${st?`<span class="st">${st}</span>`:""}<span class="t">${esc(o.titulo)}</span></button>`}).join("")}</div>`
-   :`<div class="vazio"><span class="e">📸</span>Você ainda não postou nenhuma oferta.<br>Toque em <b>Postar oferta</b> para começar.</div>`}
+  <div class="abas-p" role="tablist">${[["resultados","📊 Resultados"],["posts","📸 Meus posts"],["confirmar","✅ Confirmar compra"],["plano","💼 Meu plano"]].map(([k,n])=>`<button role="tab" aria-selected="${ABA===k}" onclick="ABA='${k}';telaPainel()">${n}</button>`).join("")}</div>
+  <div id="abaBox"></div>
   <div id="admBox"></div>`;
+  ({resultados:abaResultados,posts:abaPosts,confirmar:abaConfirmar,plano:abaPlano})[ABA]();
   if(admin)painelAdmin();
 }
+function abaPosts(){
+  $("#abaBox").innerHTML=ofertas.length?`<div class="grade">${ofertas.map(o=>{const st=venceu(o)?"Vencida":!o.ativa?"Pausada":"";return `<button onclick="verPost('${esc(o.id)}')" aria-label="${esc(o.titulo)}${st?", "+st:""}">${seguro(o.foto_url)?`<img src="${esc(o.foto_url)}" alt="" loading="lazy">`:"🏷️"}${st?`<span class="st">${st}</span>`:""}<span class="t">${esc(o.titulo)}</span></button>`}).join("")}</div>`
+   :`<div class="vazio"><span class="e">📸</span>Você ainda não postou nenhuma oferta.<br>Toque em <b>Postar oferta</b> para começar.</div>`}
 function verPost(id){const o=ofertas.find(x=>x.id===id);if(!o)return;
   const st=venceu(o)?'<span class="status pausa">Vencida</span>':o.ativa?'<span class="status ok">No ar</span>':'<span class="status pausa">Pausada</span>';
   abrirSheet(`<div class="comp-foto">${seguro(o.foto_url)?`<img src="${esc(o.foto_url)}" alt="">`:`<div class="vazio-foto"><span>🏷️</span></div>`}</div>
@@ -421,6 +485,167 @@ async function confirmarApagar(id){
   if(DEMO)store.set("vc_demo_ofertas",store.get("vc_demo_ofertas",[]).filter(x=>x.id!==id));
   else{const {error}=await db.from("ofertas").delete().eq("id",id);if(error){fechar();toast(traduzErro(error));return}}
   fechar();toast("Post apagado");await carregarOfertas();telaPainel()}
+
+
+/* ===================================================================
+   PÁGINA "ANUNCIE NO VITRINE" (para quem ainda não participa)
+   =================================================================== */
+const PLANOS_VENDA=[
+  {id:"basico",nome:"Básico",preco:"R$ 49,90",resumo:"1 oferta no ar por vez",itens:["1 oferta no ar por vez","Página da sua loja no app","Pedidos com entrega pelo WhatsApp","Painel com visualizações e vendas"]},
+  {id:"destaque",nome:"Destaque",preco:"R$ 99,90",resumo:"3 ofertas no ar + destaque na tela inicial",itens:["3 ofertas no ar ao mesmo tempo","Aparece em “Ofertas em destaque”","Painel com visualizações e vendas","Relatório de vendas pelo app"],dest:true},
+  {id:"premium",nome:"Premium",preco:"R$ 199,90",resumo:"ofertas ilimitadas + banner do topo",itens:["Ofertas ilimitadas","Banner grande no topo do app","Aviso no celular dos clientes","Relatório completo"]}];
+function progresso(n){const p=DEMO?["Sua loja","Pronto"]:["Conta","Sua loja","Pronto"],at=DEMO?n-1:n;
+  return `<div class="prog" aria-label="Passo ${at} de ${p.length}">${p.map((t,i)=>`<div class="${i<at?"on":""}">${t}</div>`).join("")}</div>`}
+function irCadastro(plano){if(plano)store.set("vc_plano_desejado",plano);window.scrollTo(0,0);DEMO?telaCadastroEmpresa():telaLogin("criar")}
+function telaBoasVindas(){
+  $("#btnSair").classList.add("escondido");
+  const wa=((window.CONFIG&&CONFIG.WHATSAPP)||"").replace(/\D/g,"");
+  $("#main").innerHTML=`${DEMO?avisoDemo():""}
+  <div class="lp-hero"><img src="icons/apple-touch-icon.png" alt="" width="84" height="84">
+   <h2>Mais clientes de Castro<br>na sua loja <span>todos os dias</span></h2>
+   <p>Poste suas ofertas no Vitrine Castro como no Instagram. Os moradores pegam o cupom, compram na loja ou pedem com entrega, e você vê quantos viram e quantos compraram.</p>
+   <button class="btn ouro" onclick="irCadastro()">Quero participar</button>
+   <button class="btn claro" onclick="${DEMO?"irCadastro()":"telaLogin('entrar')"}">Já tenho conta – Entrar</button></div>
+
+  <h3 class="lp-t">Como funciona</h3>
+  <div class="lp-passos">
+   <div><i>🏪</i><span><b>1. Cadastre sua loja</b><small>Nome, WhatsApp, endereço e logo. Leva 1 minuto.</small></span></div>
+   <div><i>📸</i><span><b>2. Poste suas ofertas</b><small>Foto, desconto e legenda, igual ao Instagram. Escolha se faz entrega.</small></span></div>
+   <div><i>🎟️</i><span><b>3. O cliente pega o cupom</b><small>Ele vai até a loja ou pede com entrega pelo seu WhatsApp, com o código do cupom.</small></span></div>
+   <div><i>📊</i><span><b>4. Você confirma e acompanha</b><small>Digite o código do cupom e o valor. Veja visualizações, cupons e vendas no seu painel.</small></span></div>
+  </div>
+
+  <h3 class="lp-t">O que você ganha</h3>
+  <div class="lp-ben">
+   <div>👀<b>Visualizações</b>Quantas pessoas viram cada oferta</div>
+   <div>🎟️<b>Cupons pegos</b>Quem se interessou de verdade</div>
+   <div>🛵<b>Pedidos de entrega</b>Chegam no seu WhatsApp com o cupom</div>
+   <div>✅<b>Vendas pelo app</b>Quantas compras e quanto vendeu</div>
+   <div>💸<b>Sem comissão</b>O dinheiro da venda é todo seu</div>
+   <div>📍<b>Só Castro</b>Clientes da sua cidade, perto de você</div>
+  </div>
+
+  <h3 class="lp-t">Planos</h3>
+  <div class="aviso">🎁 <b>Parceiro Fundador:</b> as 20 primeiras lojas ganham 3 meses grátis.</div>
+  ${PLANOS_VENDA.map(p=>`<div class="lp-plano ${p.dest?"dest":""}">${p.dest?'<span class="selo">MAIS ESCOLHIDO</span>':""}<b style="font-size:1.1rem">${p.nome}</b><div class="preco">${p.preco}<small> /mês</small></div><ul>${p.itens.map(i=>`<li>${i}</li>`).join("")}</ul><button class="btn ${p.dest?"ouro":"claro"}" onclick="irCadastro('${p.id}')">Quero o ${p.nome}</button></div>`).join("")}
+
+  <h3 class="lp-t">Perguntas frequentes</h3>
+  <div class="lp-faq">
+   ${[["Quanto custa?","Os planos vão de R$ 49,90 a R$ 199,90 por mês. As 20 primeiras lojas ganham 3 meses grátis. Não cobramos comissão sobre as vendas."],
+      ["Preciso de computador?","Não. Tudo funciona pelo celular: cadastrar, postar, confirmar compras e ver os resultados."],
+      ["Como o cliente usa o cupom?","Ele toca em “Pegar cupom” e recebe um código. Na loja, mostra o código ou o QR Code. Se pedir com entrega, o código vem na mensagem do WhatsApp."],
+      ["Como eu confirmo a venda?","Na aba “Confirmar compra”, digite o código do cupom (ou tire foto do QR Code) e o valor. Pronto: a venda entra nos seus resultados."],
+      ["Como sei se está dando resultado?","Na aba “Resultados” você vê quantas pessoas viram suas ofertas, quantas pegaram cupom, pediram entrega e compraram."],
+      ["Posso cancelar?","Sim, quando quiser. É só avisar pelo WhatsApp."]].map(([q,r])=>`<details><summary>${q}</summary><p>${r}</p></details>`).join("")}
+  </div>
+  <div class="lp-cta"><button class="btn ouro" onclick="irCadastro()">Quero participar</button>${wa?`<a class="btn verde" style="background:linear-gradient(#2fd36b,#13a049)" href="https://wa.me/${wa}?text=${encodeURIComponent("Olá! Tenho uma empresa em Castro e quero saber mais sobre o Vitrine Castro.")}" target="_blank" rel="noopener">💬 Tirar dúvidas no WhatsApp</a>`:""}</div>`;
+}
+function telaSucessoCadastro(){const wa=((window.CONFIG&&CONFIG.WHATSAPP)||"").replace(/\D/g,""),pl=PLANOS_VENDA.find(p=>p.id===store.get("vc_plano_desejado","basico"))||PLANOS_VENDA[0];
+  $("#btnSair").classList.remove("escondido");
+  $("#main").innerHTML=`${progresso(3)}<div class="card sucesso"><div class="ok" aria-hidden="true">✅</div><h2>Cadastro feito!</h2>
+   <p class="sub">${empresa.aprovada?"Sua loja já está no ar.":"Sua loja está <b>em análise</b>. Vamos conferir os dados e liberar rapidinho."} Plano escolhido: <b>${pl.nome} (${pl.preco}/mês)</b>.</p>
+   <button class="btn ouro" onclick="ABA='posts';carregarOfertas().then(()=>{telaPainel();novoPost()})">📸 Postar minha primeira oferta</button>
+   ${wa?`<a class="btn" style="background:linear-gradient(#2fd36b,#13a049)" href="https://wa.me/${wa}?text=${encodeURIComponent(`Olá! Cadastrei a loja ${empresa.nome} no Vitrine Castro e quero ativar o plano ${pl.nome} (${pl.preco}/mês).`)}" target="_blank" rel="noopener">💬 Ativar meu plano pelo WhatsApp</a>`:""}
+   <button class="btn claro" onclick="ABA='resultados';carregarOfertas().then(telaPainel)">Ir para o meu painel</button></div>`}
+
+/* ===================================================================
+   RESULTADOS: visualizações, cupons, pedidos e vendas de cada oferta
+   =================================================================== */
+let PERIODO=7;
+const TIPOS={aparicao:"Aparições",visualizacao:"Visualizações",whatsapp:"Cliques no WhatsApp",cupom:"Cupons pegos",entrega:"Pedidos de entrega",compra:"Compras confirmadas"};
+async function carregarMetricas(desde){
+  if(DEMO){const ids=new Set(ofertas.map(o=>String(o.id)));const m={};
+    store.get("vc_demo_eventos",[]).forEach(ev=>{if(!ids.has(String(ev.oferta))||ev.dia<desde)return;const k=ev.oferta+"|"+ev.tipo+"|"+ev.dia;
+      m[k]=m[k]||{oferta_id:String(ev.oferta),tipo:ev.tipo,dia:ev.dia,qtd:0,valor:0};m[k].qtd++;m[k].valor+=Number(ev.valor)||0});
+    return Object.values(m)}
+  const {data,error}=await db.rpc("metricas_empresa",{p_desde:desde});
+  if(error){console.warn(error);throw new Error("Não foi possível carregar os números. Rode a atualização do banco (supabase.sql).")}
+  return (data||[]).map(r=>({...r,oferta_id:String(r.oferta_id),qtd:Number(r.qtd)||0,valor:Number(r.valor)||0}));
+}
+const fmtN=n=>Math.round(n).toLocaleString("pt-BR"),fmtR=v=>Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+async function abaResultados(){
+  const box=$("#abaBox");box.innerHTML=`<div class="vazio"><span class="e">⏳</span>Carregando seus números…</div>`;
+  const desde=PERIODO===0?"2000-01-01":hojeISO(-(PERIODO-1));let rows;
+  try{rows=await carregarMetricas(desde)}catch(err){box.innerHTML=`<div class="aviso">${esc(err.message)}</div>`;return}
+  const tot={},porOferta={},porDia={};Object.keys(TIPOS).forEach(t=>tot[t]=0);let vendido=0;
+  rows.forEach(r=>{tot[r.tipo]=(tot[r.tipo]||0)+r.qtd;if(r.tipo==="compra")vendido+=r.valor;
+    const o=porOferta[r.oferta_id]=porOferta[r.oferta_id]||{v:0,c:0,e:0,w:0,k:0,a:0,r:0};
+    if(r.tipo==="visualizacao")o.v+=r.qtd;if(r.tipo==="cupom")o.c+=r.qtd;if(r.tipo==="entrega")o.e+=r.qtd;if(r.tipo==="whatsapp")o.w+=r.qtd;if(r.tipo==="aparicao")o.a+=r.qtd;if(r.tipo==="compra"){o.k+=r.qtd;o.r+=r.valor}
+    const d=porDia[r.dia]=porDia[r.dia]||{v:0,k:0};if(r.tipo==="visualizacao")d.v+=r.qtd;if(r.tipo==="compra")d.k+=r.qtd});
+  const conv=tot.visualizacao?Math.round(tot.compra/tot.visualizacao*1000)/10:0;
+  const nDias=PERIODO===0?14:Math.min(PERIODO,30),dias=[...Array(nDias)].map((_,i)=>hojeISO(-(nDias-1-i)));
+  const maxV=Math.max(1,...dias.map(d=>(porDia[d]||{}).v||0),...dias.map(d=>(porDia[d]||{}).k||0));
+  const lista=ofertas.map(o=>({o,n:porOferta[String(o.id)]||{v:0,c:0,e:0,w:0,k:0,a:0,r:0}})).sort((a,b)=>b.n.k-a.n.k||b.n.v-a.n.v);
+  box.innerHTML=`<div class="chips" style="margin-bottom:12px">${[[1,"Hoje"],[7,"7 dias"],[30,"30 dias"],[0,"Tudo"]].map(([d,n])=>`<button type="button" aria-pressed="${PERIODO===d}" onclick="PERIODO=${d};abaResultados();marcarPeriodo()">${n}</button>`).join("")}</div>
+   <div class="kpis">
+    <div class="kpi"><div class="n">${fmtN(tot.visualizacao)}</div><div class="r">👀 Visualizações</div><small>pessoas que abriram suas ofertas</small></div>
+    <div class="kpi"><div class="n">${fmtN(tot.aparicao)}</div><div class="r">📣 Aparições</div><small>vezes que suas ofertas apareceram na tela</small></div>
+    <div class="kpi"><div class="n">${fmtN(tot.cupom)}</div><div class="r">🎟️ Cupons pegos</div><small>clientes interessados</small></div>
+    <div class="kpi"><div class="n">${fmtN(tot.entrega)}</div><div class="r">🛵 Pedidos de entrega</div><small>enviados para o seu WhatsApp</small></div>
+    <div class="kpi"><div class="n">${fmtN(tot.whatsapp)}</div><div class="r">💬 Cliques no WhatsApp</div><small>pessoas que chamaram a loja</small></div>
+    <div class="kpi"><div class="n">${fmtN(tot.compra)}</div><div class="r">✅ Compras confirmadas</div><small>cupons que você confirmou</small></div>
+    <div class="kpi ouro" style="grid-column:1/-1"><div class="n">${fmtR(vendido)}</div><div class="r">💰 Vendido pelo Vitrine</div><small>${conv?`De cada 100 pessoas que viram, ${String(conv).replace(".",",")} compraram`:"Confirme as compras com cupom para ver quanto o app vendeu"}</small></div>
+   </div>
+   <div class="card" style="margin-top:14px"><h3>Por dia</h3><p class="ajuda">Barras azuis: visualizações · douradas: compras</p>
+    <div class="graf">${dias.map(d=>{const x=porDia[d]||{v:0,k:0};return `<div title="${dataBR(d)}: ${x.v} visualizações, ${x.k} compras"><i style="height:${x.v/maxV*100}%"></i><i class="c" style="height:${x.k/maxV*100}%"></i></div>`}).join("")}</div>
+    <div class="graf-leg"><span>${dataBR(dias[0]).slice(0,5)}</span><span>${dataBR(dias[dias.length-1]).slice(0,5)}</span></div></div>
+   <h3 style="margin:16px 0 8px">Cada oferta</h3>
+   ${lista.length?lista.map(({o,n})=>`<div class="oft-num"><div class="ft">${seguro(o.foto_url)?`<img src="${esc(o.foto_url)}" alt="">`:"🏷️"}</div><div style="flex:1;min-width:0"><b>${esc(o.titulo)}</b>
+     <div class="mini-n"><span>👀 <b>${fmtN(n.v)}</b></span><span>🎟️ <b>${fmtN(n.c)}</b></span><span>🛵 <b>${fmtN(n.e)}</b></span><span>✅ <b>${fmtN(n.k)}</b></span><span>💰 <b>${fmtR(n.r)}</b></span></div></div></div>`).join("")
+    :`<div class="vazio"><span class="e">📊</span>Poste sua primeira oferta para começar a ver os números.</div>`}
+   ${DEMO?`<p class="ajuda" style="margin-top:8px">No modo demonstração, os números contam só o que acontece neste celular (abra o app, veja a oferta, pegue o cupom e confirme aqui).</p>`:""}`;
+}
+function marcarPeriodo(){}
+
+/* ===================================================================
+   CONFIRMAR COMPRA: código do cupom (ou foto do QR Code) + valor
+   =================================================================== */
+const extrairCodigo=t=>{const m=String(t||"").toUpperCase().match(/VC-[A-Z0-9]{5,8}/);return m?m[0]:""};
+function abaConfirmar(){
+  $("#abaBox").innerHTML=empresa.aprovada||DEMO?`<div class="card"><h2>✅ Confirmar compra</h2><p class="sub">Quando o cliente comprar com cupom (na loja ou por entrega), confirme aqui. A venda entra nos seus resultados.</p>
+   <form onsubmit="event.preventDefault();consultarCupom()"><label for="cCod">Código do cupom</label>
+    <div class="linha"><input class="inp" id="cCod" maxlength="12" autocapitalize="characters" autocomplete="off" placeholder="VC-ABC12" style="flex:2;text-transform:uppercase"><button class="btn" style="margin:0;flex:1">Buscar</button></div></form>
+   <input type="file" accept="image/*" capture="environment" id="cFoto" class="arquivo" tabindex="-1" onchange="fotoQR(this)">
+   <label for="cFoto" class="foto-btn" role="button" tabindex="0">📷 Ou tire foto do QR Code do cliente</label>
+   <div id="cRes" aria-live="polite"></div></div>`:`<div class="aviso">⏳ Você poderá confirmar compras assim que a loja for aprovada.</div>`}
+let _jsqr=null;
+function carregarJsQR(){if(window.jsQR)return Promise.resolve();return _jsqr=_jsqr||new Promise((ok,er)=>{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js";s.integrity="sha384-b5Ya4Bq3qCyz39m2ISh+4DxjAIljdeFwK/BsXLuj9gugaNwAcj/ia15fxNZL9Nlx";s.crossOrigin="anonymous";s.onload=ok;s.onerror=()=>er(new Error("Não foi possível abrir o leitor de QR Code. Digite o código."));document.head.appendChild(s)})}
+async function fotoQR(input){const f=input.files[0];input.value="";if(!f)return;$("#cRes").innerHTML=`<p class="sub" style="margin-top:10px">Lendo o QR Code…</p>`;
+  try{const bmp=await createImageBitmap(f);let txt="";
+    if("BarcodeDetector" in window){try{const r=await new BarcodeDetector({formats:["qr_code"]}).detect(bmp);if(r[0])txt=r[0].rawValue}catch(e){}}
+    if(!txt){await carregarJsQR();const k=Math.min(1,1200/Math.max(bmp.width,bmp.height)),w=Math.round(bmp.width*k),h=Math.round(bmp.height*k),c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");x.drawImage(bmp,0,0,w,h);const r=jsQR(x.getImageData(0,0,w,h).data,w,h);txt=r?r.data:""}
+    const cod=extrairCodigo(txt);if(!cod)throw new Error("Não consegui ler o QR Code. Tente de novo com mais luz ou digite o código.");
+    $("#cCod").value=cod;consultarCupom()}catch(err){$("#cRes").innerHTML=`<div class="erro" style="display:block">${esc(traduzErro(err))}</div>`}}
+function demoCupom(cod){const cs=store.get("gira_cupons",[]),c=cs.find(x=>String(x.cod).toUpperCase()===cod);if(!c)return null;
+  const oid=String(c.id).replace(/^d/,""),o=ofertas.find(x=>String(x.id)===oid);if(!o||!/^d/.test(String(c.id)))return null;
+  const u=store.get("vc_demo_usados",{})[cod];return {titulo:o.titulo,oferta:oid,usado_em:u?u.em:null,valor:u?u.valor:null}}
+async function consultarCupom(){const cod=extrairCodigo($("#cCod").value),box=$("#cRes");
+  if(!cod){box.innerHTML=`<div class="erro" style="display:block">Digite o código do cupom. Ele começa com VC- (ex.: VC-ABC12).</div>`;return}
+  box.innerHTML=`<p class="sub" style="margin-top:10px">Conferindo…</p>`;
+  let r;
+  if(DEMO)r=demoCupom(cod);
+  else{const {data,error}=await db.rpc("consultar_cupom",{p_codigo:cod});if(error){box.innerHTML=`<div class="erro" style="display:block">${esc(traduzErro(error))}</div>`;return}r=data&&data.ok?data:null}
+  if(!r){box.innerHTML=`<div class="erro" style="display:block">Esse código não é de uma oferta da sua loja. Confira com o cliente.</div>`;return}
+  if(r.usado_em){box.innerHTML=`<div class="erro" style="display:block">Esse cupom já foi usado em ${new Date(r.usado_em).toLocaleDateString("pt-BR")}${r.valor?" (compra de "+fmtR(r.valor)+")":""}.</div>`;return}
+  box.innerHTML=`<div class="card" style="border:2px solid #D4A537;margin-top:12px;box-shadow:none"><p class="sub">Cupom <b>${esc(cod)}</b> ✓ válido</p><h3>${esc(r.titulo)}</h3>
+   <form onsubmit="event.preventDefault();confirmarCupom('${esc(cod)}')"><label for="cValor">Valor da compra (R$)</label><input class="inp" id="cValor" inputmode="decimal" required placeholder="Ex: 48,00">
+   <button class="btn ouro" id="cBtn">✅ Confirmar compra</button></form></div>`;setTimeout(()=>{const i=$("#cValor");i&&i.focus()},60)}
+async function confirmarCupom(cod){const v=parseFloat(String($("#cValor").value).replace(/\./g,"").replace(",","."))||0,b=$("#cBtn");
+  if(!(v>0&&v<=50000)){toast("Digite o valor da compra");return}b.disabled=true;
+  try{
+    if(DEMO){const r=demoCupom(cod);if(!r||r.usado_em)throw new Error("Cupom inválido ou já usado.");const us=store.get("vc_demo_usados",{});us[cod]={em:new Date().toISOString(),valor:v};store.set("vc_demo_usados",us);
+      const l=store.get("vc_demo_eventos",[]);l.push({oferta:r.oferta,tipo:"compra",dia:hojeISO(),valor:v,em:Date.now()});store.set("vc_demo_eventos",l)}
+    else{const {data,error}=await db.rpc("confirmar_cupom",{p_codigo:cod,p_valor:Math.round(v*100)/100});if(error)throw error;if(!data||!data.ok)throw new Error((data&&data.motivo)||"Não foi possível confirmar.")}
+    $("#cRes").innerHTML=`<div class="res-ok">✅ Compra de ${fmtR(v)} confirmada!<br><span style="font-weight:500">Ela já aparece em Resultados.</span></div>`;$("#cCod").value="";
+  }catch(err){toast(traduzErro(err));b.disabled=false}}
+
+/* ===================================================================
+   MEU PLANO
+   =================================================================== */
+function abaPlano(){const wa=((window.CONFIG&&CONFIG.WHATSAPP)||"").replace(/\D/g,""),atual=DEMO?"premium":empresa.plano;
+  $("#abaBox").innerHTML=`<div class="card"><h2>💼 Meu plano</h2><p class="sub">${DEMO?"No modo demonstração todas as funções estão liberadas.":`Seu plano é o <b>${(PLANOS[atual]||{}).nome||atual}</b>. Para mudar, fale com a gente pelo WhatsApp.`}</p></div>
+   ${PLANOS_VENDA.map(p=>`<div class="lp-plano ${p.id===atual?"dest":""}">${p.id===atual?'<span class="selo">SEU PLANO</span>':""}<b style="font-size:1.1rem">${p.nome}</b><div class="preco">${p.preco}<small> /mês</small></div><ul>${p.itens.map(i=>`<li>${i}</li>`).join("")}</ul>
+    ${p.id!==atual&&wa?`<a class="btn claro" href="https://wa.me/${wa}?text=${encodeURIComponent(`Olá! Quero mudar a loja ${empresa.nome} para o plano ${p.nome} (${p.preco}/mês).`)}" target="_blank" rel="noopener">Quero o ${p.nome}</a>`:""}</div>`).join("")}`}
 
 // ===== ADMINISTRADOR (só você) =====
 async function painelAdmin(){

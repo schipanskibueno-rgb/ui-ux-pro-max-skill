@@ -130,6 +130,136 @@ alter table public.ofertas add column if not exists entrega text not null defaul
 alter table public.ofertas drop constraint if exists ofertas_entrega_check;
 alter table public.ofertas add constraint ofertas_entrega_check check (entrega in ('sim','retirada'));
 
+-- ---------- NÚMEROS DO EMPRESÁRIO (visualizações, cupons, entregas, compras) ----------
+-- O app registra o que acontece com cada oferta. Ninguém lê nem grava estas tabelas direto:
+-- só pelas funções abaixo. Não guarda nome nem telefone do cliente, só um código aleatório do aparelho.
+create table if not exists public.eventos (
+  id         bigint generated always as identity primary key,
+  oferta_id  uuid not null references public.ofertas on delete cascade,
+  empresa_id uuid not null references public.empresas on delete cascade,
+  tipo       text not null check (tipo in ('aparicao','visualizacao','whatsapp','cupom','entrega','compra')),
+  aparelho   text check (char_length(aparelho) <= 40),
+  valor      numeric(10,2),
+  dia        date not null default current_date,
+  criado_em  timestamptz not null default now()
+);
+-- a mesma pessoa conta 1 aparição e 1 visualização por oferta por dia
+create unique index if not exists eventos_1_por_dia on public.eventos (oferta_id, tipo, aparelho, dia) where tipo in ('aparicao','visualizacao');
+create index if not exists eventos_empresa_dia on public.eventos (empresa_id, dia);
+create index if not exists eventos_aparelho_dia on public.eventos (aparelho, dia);
+alter table public.eventos enable row level security;
+revoke all on public.eventos from anon, authenticated;
+
+-- Cupons oficiais: o código é criado aqui, então a loja consegue conferir se é verdadeiro e se já foi usado
+create table if not exists public.cupons (
+  codigo     text primary key,
+  oferta_id  uuid not null references public.ofertas on delete cascade,
+  empresa_id uuid not null references public.empresas on delete cascade,
+  aparelho   text check (char_length(aparelho) <= 40),
+  criado_em  timestamptz not null default now(),
+  usado_em   timestamptz,
+  valor      numeric(10,2)
+);
+create index if not exists cupons_aparelho on public.cupons (aparelho, criado_em);
+alter table public.cupons enable row level security;
+revoke all on public.cupons from anon, authenticated;
+
+-- Conta as tentativas de consultar código (contra quem tenta adivinhar cupons)
+create table if not exists public.tentativas (
+  empresa_id uuid not null,
+  criado_em  timestamptz not null default now()
+);
+create index if not exists tentativas_empresa on public.tentativas (empresa_id, criado_em);
+alter table public.tentativas enable row level security;
+revoke all on public.tentativas from anon, authenticated;
+
+-- App do cliente: registra aparição, visualização, clique no WhatsApp ou pedido de entrega
+create or replace function public.registrar_evento(p_oferta uuid, p_tipo text, p_aparelho text) returns void
+language plpgsql security definer set search_path = public as $$
+declare emp uuid;
+begin
+  if p_tipo not in ('aparicao','visualizacao','whatsapp','entrega') then return; end if;
+  if p_aparelho is null or p_aparelho !~ '^[a-z0-9]{12,40}$' then return; end if;
+  select o.empresa_id into emp from public.ofertas o join public.empresas e on e.id = o.empresa_id
+   where o.id = p_oferta and o.ativa and e.aprovada;
+  if emp is null then return; end if;
+  if (select count(*) from public.eventos where aparelho = p_aparelho and dia = current_date) >= 300 then return; end if; -- limite por aparelho/dia
+  insert into public.eventos (oferta_id, empresa_id, tipo, aparelho) values (p_oferta, emp, p_tipo, p_aparelho)
+  on conflict do nothing;
+end $$;
+
+-- App do cliente: cria o código oficial do cupom (máx. 30 cupons por aparelho por dia)
+create or replace function public.emitir_cupom(p_oferta uuid, p_aparelho text) returns text
+language plpgsql security definer set search_path = public as $$
+declare emp uuid; cod text; tent int := 0;
+begin
+  if p_aparelho is null or p_aparelho !~ '^[a-z0-9]{12,40}$' then return null; end if;
+  select o.empresa_id into emp from public.ofertas o join public.empresas e on e.id = o.empresa_id
+   where o.id = p_oferta and o.ativa and e.aprovada and (o.validade is null or o.validade >= current_date);
+  if emp is null then return null; end if;
+  select codigo into cod from public.cupons where oferta_id = p_oferta and aparelho = p_aparelho and usado_em is null limit 1;
+  if cod is not null then return cod; end if;
+  if (select count(*) from public.cupons where aparelho = p_aparelho and criado_em > now() - interval '1 day') >= 30 then return null; end if;
+  loop
+    cod := 'VC-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 6));
+    begin
+      insert into public.cupons (codigo, oferta_id, empresa_id, aparelho) values (cod, p_oferta, emp, p_aparelho);
+      exit;
+    exception when unique_violation then
+      tent := tent + 1; if tent > 5 then return null; end if;
+    end;
+  end loop;
+  insert into public.eventos (oferta_id, empresa_id, tipo, aparelho) values (p_oferta, emp, 'cupom', p_aparelho);
+  return cod;
+end $$;
+
+-- Área da Empresa: conferir um código (só cupons das ofertas da PRÓPRIA loja; 60 consultas a cada 10 min)
+create or replace function public.consultar_cupom(p_codigo text) returns json
+language plpgsql security definer set search_path = public as $$
+declare emp uuid; c public.cupons; tit text;
+begin
+  select id into emp from public.empresas where dono = auth.uid();
+  if emp is null then raise exception 'Cadastre sua loja primeiro.'; end if;
+  if (select count(*) from public.tentativas where empresa_id = emp and criado_em > now() - interval '10 minutes') >= 60 then
+    raise exception 'Muitas tentativas. Aguarde alguns minutos.';
+  end if;
+  insert into public.tentativas (empresa_id) values (emp);
+  select * into c from public.cupons where codigo = upper(trim(p_codigo)) and empresa_id = emp;
+  if not found then return json_build_object('ok', false); end if;
+  select titulo into tit from public.ofertas where id = c.oferta_id;
+  return json_build_object('ok', true, 'titulo', tit, 'usado_em', c.usado_em, 'valor', c.valor);
+end $$;
+
+-- Área da Empresa: confirmar a compra (uma vez só) e registrar o valor vendido
+create or replace function public.confirmar_cupom(p_codigo text, p_valor numeric) returns json
+language plpgsql security definer set search_path = public as $$
+declare emp uuid; c public.cupons;
+begin
+  select id into emp from public.empresas where dono = auth.uid() and aprovada;
+  if emp is null then raise exception 'Só lojas aprovadas podem confirmar compras.'; end if;
+  if p_valor is null or p_valor <= 0 or p_valor > 50000 then raise exception 'Valor da compra inválido.'; end if;
+  select * into c from public.cupons where codigo = upper(trim(p_codigo)) and empresa_id = emp for update;  -- trava contra confirmar 2 vezes
+  if not found then return json_build_object('ok', false, 'motivo', 'Código não encontrado para a sua loja.'); end if;
+  if c.usado_em is not null then return json_build_object('ok', false, 'motivo', 'Este cupom já foi usado.'); end if;
+  update public.cupons set usado_em = now(), valor = round(p_valor, 2) where codigo = c.codigo;
+  insert into public.eventos (oferta_id, empresa_id, tipo, aparelho, valor) values (c.oferta_id, emp, 'compra', c.aparelho, round(p_valor, 2));
+  return json_build_object('ok', true);
+end $$;
+
+-- Área da Empresa: números da PRÓPRIA loja por oferta e por dia
+create or replace function public.metricas_empresa(p_desde date) returns table (oferta_id uuid, tipo text, dia date, qtd bigint, valor numeric)
+language sql stable security definer set search_path = public as $$
+  select ev.oferta_id, ev.tipo, ev.dia, count(*), coalesce(sum(ev.valor), 0)
+    from public.eventos ev join public.empresas e on e.id = ev.empresa_id
+   where e.dono = auth.uid() and ev.dia >= p_desde
+   group by ev.oferta_id, ev.tipo, ev.dia
+$$;
+
+revoke execute on function public.registrar_evento(uuid,text,text), public.emitir_cupom(uuid,text),
+  public.consultar_cupom(text), public.confirmar_cupom(text,numeric), public.metricas_empresa(date) from public, anon;
+grant execute on function public.registrar_evento(uuid,text,text), public.emitir_cupom(uuid,text) to anon, authenticated;
+grant execute on function public.consultar_cupom(text), public.confirmar_cupom(text,numeric), public.metricas_empresa(date) to authenticated;
+
 -- ---------- FOTOS (Storage) ----------
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('fotos', 'fotos', true, 2097152, array['image/jpeg','image/png','image/webp'])

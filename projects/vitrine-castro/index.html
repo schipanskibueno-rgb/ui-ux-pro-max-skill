@@ -322,7 +322,7 @@ label{display:block;font-size:.9rem;font-weight:600;margin:12px 0 5px}
   <div class="card" style="background:linear-gradient(100deg,#0E1428,#1F2B57);color:#fff">
     <h3>🏪 Tem uma empresa em Castro?</h3>
     <p style="color:#dfe7ff">Divulgue suas ofertas no Vitrine Castro e atraia novos clientes todos os dias.</p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn-ouro" onclick="abrir('parceiro')">Quero ser parceiro ›</button><a class="btn-ouro" style="display:inline-flex;align-items:center;text-decoration:none;background:#fff;box-shadow:none" href="empresa.html">🔑 Área da Empresa</a></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><a class="btn-ouro" style="display:inline-flex;align-items:center;text-decoration:none" href="empresa.html">Quero ser parceiro ›</a><a class="btn-ouro" style="display:inline-flex;align-items:center;text-decoration:none;background:#fff;box-shadow:none" href="empresa.html">🔑 Área da Empresa</a></div>
   </div>
   <div class="tit" style="margin-top:6px"><h2>💼 Planos para empresas</h2></div>
   <div class="fundador"><div class="t">PARCEIRO FUNDADOR</div><h3>3 meses grátis</h3><p>Para as 20 primeiras lojas. Ganha o selo de Parceiro Fundador e destaque no lançamento.</p></div>
@@ -412,9 +412,9 @@ const BRINDES = [
 
 // ===== PLANOS PARA EMPRESAS =====
 const PLANOS = [
-  {id:"basico",   nome:"Básico",   preco:"R$ 49",  itens:["1 oferta ativa","Página da loja no app","Participa dos pontos"]},
-  {id:"destaque", nome:"Destaque", preco:"R$ 99",  itens:["3 ofertas ativas","Aparece em Ofertas em destaque","Relatório simples"], dest:true},
-  {id:"premium",  nome:"Premium",  preco:"R$ 199", itens:["Ofertas ilimitadas","Banner no topo do app","Aviso no celular dos clientes","Relatório mensal"]}
+  {id:"basico",   nome:"Básico",   preco:"R$ 49,90",  itens:["1 oferta ativa","Página da loja no app","Participa dos pontos"]},
+  {id:"destaque", nome:"Destaque", preco:"R$ 99,90",  itens:["3 ofertas ativas","Aparece em Ofertas em destaque","Relatório simples"], dest:true},
+  {id:"premium",  nome:"Premium",  preco:"R$ 199,90", itens:["Ofertas ilimitadas","Banner no topo do app","Aviso no celular dos clientes","Relatório mensal"]}
 ];
 
 // Banners do topo (lojas patrocinadas – plano Premium). foto: imagem de fundo | logo: imagem redonda ou emoji
@@ -443,8 +443,24 @@ function ativas(){return OFERTAS.filter(o=>!o.validade||dias(o)>=0)}
 function prazoTxt(o){if(!o.validade)return"";const d=dias(o);return d===0?"Termina hoje!":d===1?"Termina amanhã":d<=5?`Termina em ${d} dias`:"Até "+new Date(o.validade+"T00:00:00").toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})}
 function favs(){return store.get("gira_favs",[])}
 function imgOf(o){return o.img?`<img src="${o.img}" alt="" loading="lazy">`:`<span aria-hidden="true">${o.emoji||"🏷️"}</span>`}
+/* ===== NÚMEROS PARA O EMPRESÁRIO: aparições, visualizações, cliques, cupons, entregas =====
+   Não guarda nome nem telefone: só um código aleatório do aparelho, para não contar a mesma pessoa duas vezes no dia. */
+const APARELHO=(()=>{let a=store.get("vc_aparelho","");if(!/^[a-z0-9]{12,40}$/.test(a)){a=Array.from(crypto.getRandomValues(new Uint8Array(10)),b=>b.toString(16).padStart(2,"0")).join("");store.set("vc_aparelho",a)}return a})();
+const _jaContou=new Set();
+function registrarEvento(id,tipo){id=String(id);const k=tipo+":"+id;if(_jaContou.has(k)&&(tipo==="aparicao"||tipo==="visualizacao"))return;_jaContou.add(k);
+  const dia=new Date().toLocaleDateString("sv-SE");
+  if(/^d\w+$/.test(id)){ // modo demonstração: oferta postada na Área da Empresa deste aparelho
+    const l=store.get("vc_demo_eventos",[]),oid=id.slice(1);
+    if((tipo==="aparicao"||tipo==="visualizacao")&&l.some(e=>e.oferta===oid&&e.tipo===tipo&&e.dia===dia))return;
+    l.push({oferta:oid,tipo,dia,em:Date.now()});if(l.length>5000)l.splice(0,l.length-5000);store.set("vc_demo_eventos",l);return}
+  if(/^[0-9a-f-]{36}$/i.test(id)&&window._db)window._db.rpc("registrar_evento",{p_oferta:id,p_tipo:tipo,p_aparelho:APARELHO}).then(()=>{},()=>{});
+}
+let _obs=null;
+function observarCards(){if(!("IntersectionObserver" in window))return;
+  if(!_obs)_obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){registrarEvento(e.target.dataset.of,"aparicao");_obs.unobserve(e.target)}}),{threshold:.6});
+  document.querySelectorAll(".of[data-of]").forEach(el=>_obs.observe(el))}
 function cardOf(o){const f=favs().includes(o.id),d=o.validade?dias(o):99;
-  return `<div class="of" role="button" tabindex="0" onclick="verOferta('${o.id}')" onkeydown="if(event.key==='Enter')verOferta('${o.id}')" aria-label="${esc(o.emp)}, ${esc(o.tag.replace(/<br>/g,' '))}">
+  return `<div class="of" data-of="${esc(o.id)}" role="button" tabindex="0" onclick="verOferta('${o.id}')" onkeydown="if(event.key==='Enter')verOferta('${o.id}')" aria-label="${esc(o.emp)}, ${esc(o.tag.replace(/<br>/g,' '))}">
   <div class="im">${imgOf(o)}<button class="fav" onclick="event.stopPropagation();favoritar('${o.id}')" aria-label="${f?"Remover dos":"Salvar nos"} favoritos">${f?"❤️":"🤍"}</button>${o.validade?`<span class="prazo ${d<=3?"urg":""}">${prazoTxt(o)}</span>`:""}</div>
   <div class="info"><b>${esc(o.emp)}</b><small>${esc(o.sub)}</small></div><div class="tag ${o.s?"s":""}">${o.tag}</div></div>`}
 
@@ -457,6 +473,7 @@ function render(){
   $("#maisCats").innerHTML=CATS.filter(c=>!c.img).map(c=>`<button class="chipcat" onclick="filtrarCat('${c.id}')">${c.ic} ${c.nome}</button>`).join("");
   $("#destaques").innerHTML=ativas().filter(o=>o.destaque).map(cardOf).join("");
   renderTodas();renderEmp();renderCupons();renderPerfil();renderOla();renderPontos();renderPlanos();
+  observarCards();
 }
 function renderFiltro(){$("#filtroCats").innerHTML=`<button class="chipcat ${!catSel?"on":""}" onclick="filtrarCat(null)">✨ Todas</button>`+CATS.map(c=>`<button class="chipcat ${catSel===c.id?"on":""}" onclick="filtrarCat('${c.id}')">${c.ic} ${c.nome}</button>`).join("")}
 function renderTodas(lista){
@@ -510,15 +527,15 @@ function buscar(t){
 }
 function limparBusca(){$("#q").value="";buscar("");$("#q").focus()}
 
-function irSlide(i){slide=(i+BANNERS.length)%BANNERS.length;$("#slides").style.transform=`translateX(-${slide*100}%)`;document.querySelectorAll("#dots button").forEach((e,k)=>e.classList.toggle("on",k===slide));reiniciar()}
+function irSlide(i){slide=(i+BANNERS.length)%BANNERS.length;if(BANNERS[slide]&&BANNERS[slide].of)registrarEvento(BANNERS[slide].of,"aparicao");$("#slides").style.transform=`translateX(-${slide*100}%)`;document.querySelectorAll("#dots button").forEach((e,k)=>e.classList.toggle("on",k===slide));reiniciar()}
 let auto;function reiniciar(){clearInterval(auto);if(!matchMedia("(prefers-reduced-motion: reduce)").matches)auto=setInterval(()=>irSlide(slide+1),6000)}
-function clicBanner(i){const b=BANNERS[i];b.anuncie?abrir("parceiro","premium"):verOferta(b.of)}
+function clicBanner(i){const b=BANNERS[i];b.anuncie?location.href="empresa.html":verOferta(b.of)}
 (function(){let x0=null;const el=document.querySelector(".carrossel");el.addEventListener("touchstart",e=>x0=e.touches[0].clientX,{passive:true});el.addEventListener("touchend",e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>40)irSlide(slide+(dx<0?1:-1));x0=null})})();
 
 function favoritar(id){let f=favs();const tem=f.includes(id);f=tem?f.filter(x=>x!==id):[...f,id];store.set("gira_favs",f);toast(tem?"Removido dos favoritos":"Salvo nos favoritos ❤️");render()}
 
 function verOferta(id){
-  const o=OFERTAS.find(x=>x.id===id), c=store.get("gira_cupons",[]).find(x=>x.id===id);
+  const o=OFERTAS.find(x=>x.id===id), c=store.get("gira_cupons",[]).find(x=>x.id===id);registrarEvento(id,"visualizacao");
   const cat=CATS.find(k=>k.id===o.cat), f=favs().includes(o.id);
   $("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ✕</button>
    <div style="border-radius:16px;overflow:hidden;height:150px;margin:10px 0 12px;background:linear-gradient(135deg,#1F2B57,#0E1428);display:grid;place-items:center;font-size:4rem">${o.img?`<img src="${o.img}" alt="" style="width:100%;height:100%;object-fit:cover">`:o.emoji}</div>
@@ -543,14 +560,17 @@ function verOferta(id){
   if(c){const el=$("#qr");if(window.QRCode)new QRCode(el,{text:"VC|"+c.cod+"|"+o.emp,width:150,height:150,correctLevel:QRCode.CorrectLevel.M});else el.remove()}
 }
 function pegar(id){
-  const cs=store.get("gira_cupons",[]);
-  const cod="VC-"+Math.random().toString(36).slice(2,7).toUpperCase();
-  cs.push({id,cod,em:Date.now()});store.set("gira_cupons",cs);render();verOferta(id);toast("✅ Cupom guardado em Cupons");
+  cupomDe(id);render();verOferta(id);toast("✅ Cupom guardado em Cupons");
   try{navigator.vibrate&&navigator.vibrate(40)}catch(e){}
 }
 /* ===== PEDIR COM ENTREGA: vai pelo WhatsApp da loja com o código do cupom ===== */
+function novoCodigoLocal(){return "VC-"+Array.from(crypto.getRandomValues(new Uint8Array(4)),b=>b.toString(36).toUpperCase().padStart(2,"0")).join("").replace(/[^A-Z0-9]/g,"").slice(0,6).padEnd(6,"X")}
 function cupomDe(id){let cs=store.get("gira_cupons",[]),c=cs.find(x=>x.id===id);
-  if(!c){c={id,cod:"VC-"+Math.random().toString(36).slice(2,7).toUpperCase(),em:Date.now()};cs.push(c);store.set("gira_cupons",cs)}return c}
+  if(!c){c={id,cod:novoCodigoLocal(),em:Date.now()};cs.push(c);store.set("gira_cupons",cs);if(/^d/.test(String(id)))registrarEvento(id,"cupom");
+    // site real: pede ao banco um código oficial (a loja confere e confirma a compra por ele)
+    if(/^[0-9a-f-]{36}$/i.test(String(id))&&window._db)window._db.rpc("emitir_cupom",{p_oferta:id,p_aparelho:APARELHO}).then(({data})=>{
+      if(typeof data==="string"&&/^VC-[A-Z0-9]{5,8}$/.test(data)){const l=store.get("gira_cupons",[]),k=l.find(x=>x.id===id);if(k){k.cod=data;k.oficial=true;store.set("gira_cupons",l);render();if($("#modal").classList.contains("on")&&$("#sheet .codigo"))verOferta(id)}}},()=>{})}
+  return c}
 function pedirEntrega(id){
   const o=OFERTAS.find(x=>x.id===id),c=cupomDe(id),salvo=store.get("vc_entrega",{}),p=store.get("gira_perfil",null);render();
   $("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ✕</button>
@@ -564,9 +584,9 @@ function pedirEntrega(id){
     <button class="btn verde" style="min-height:60px;font-size:1.1rem">💬 Enviar pedido pelo WhatsApp</button>
    </form>
    <p style="font-size:.85rem;color:var(--cinza);margin-top:10px">Seu endereço fica salvo só neste celular para os próximos pedidos.</p>`;
-  $("#modal").classList.add("on");setTimeout(()=>{const i=$("#enEnd").value?$("#enObs"):$("#enEnd");i&&i.focus()},80);
+  $("#modal").classList.add("on");setTimeout(()=>{const e=$("#enEnd");if(!e)return;const i=e.value?$("#enObs"):e;i&&i.focus()},80);
 }
-function enviarEntrega(ev,id){ev.preventDefault();
+function enviarEntrega(ev,id){ev.preventDefault();registrarEvento(id,"entrega");
   const o=OFERTAS.find(x=>x.id===id),c=cupomDe(id),v=i=>$("#"+i).value.trim();
   store.set("vc_entrega",{nome:v("enNome"),end:v("enEnd"),ref:v("enRef")});
   const msg=`🛵 *Pedido pelo Vitrine Castro*\nOferta: ${tagTexto(o)} – ${o.emp}\nCupom: *${c.cod}*\nNome: ${v("enNome")}\nEndereço: ${v("enEnd")}${v("enRef")?"\nReferência: "+v("enRef"):""}${v("enObs")?"\nObservação: "+v("enObs"):""}\n\nQuero fazer o pedido com o desconto do cupom!`;
@@ -578,7 +598,7 @@ function enviarEntrega(ev,id){ev.preventDefault();
    <p style="color:var(--cinza)">Termine de combinar com a <b>${esc(o.emp)}</b> pelo WhatsApp. O desconto vale pelo cupom <b>${c.cod}</b>.</p></div>
    <button class="btn" onclick="verOferta('${o.id}')">Ver meu cupom</button><button class="btn claro" onclick="fechar()">Fechar</button>`;
 }
-function falarLoja(id){const o=OFERTAS.find(x=>x.id===id);const msg=`Olá! Vi a oferta da ${o.emp} (${o.tag.replace(/<br>/g," ")}) no Vitrine Castro e quero saber mais.`;
+function falarLoja(id){const o=OFERTAS.find(x=>x.id===id);registrarEvento(id,"whatsapp");const msg=`Olá! Vi a oferta da ${o.emp} (${o.tag.replace(/<br>/g," ")}) no Vitrine Castro e quero saber mais.`;
   const num=(o.whats||"").replace(/\D/g,"");abrirLink(num?"https://wa.me/"+(num.length<=11?"55"+num:num)+"?text="+encodeURIComponent(msg):wa(msg))}
 function compartilhar(id){const o=OFERTAS.find(x=>x.id===id);abrirLink("https://wa.me/?text="+encodeURIComponent(`Olha essa oferta: ${o.emp} – ${o.tag.replace(/<br>/g," ")} no Vitrine Castro Clube de Desconto! 👉 ${location.href.split("#")[0]}`))}
 function indicar(){abrirLink("https://wa.me/?text="+encodeURIComponent(`Conhece o Vitrine Castro? É o clube de descontos de Castro, com ofertas em lojas, restaurantes, estética e saúde. É grátis! 👉 ${location.href.split("#")[0]}`))}
@@ -714,7 +734,7 @@ async function carregarDoBanco(){
     return}
   if(!window.CONFIG||!CONFIG.SUPABASE_URL||!window.supabase)return;
   try{
-    const db=supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_ANON_KEY);
+    const db=supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_ANON_KEY);window._db=db;
     const {data,error}=await db.from("ofertas").select("*,empresas!inner(nome,ramo,whatsapp,logo_url,aprovada)").eq("ativa",true).eq("empresas.aprovada",true).order("criado_em",{ascending:false});
     if(error||!data||!data.length)return; // sem ofertas reais ainda: mantém os exemplos
     const novas=data.map(o=>({id:o.id,emp:o.empresas.nome,sub:o.empresas.ramo,cat:o.categoria,img:o.foto_url||"",emoji:(CATS.find(c=>c.id===o.categoria)||{}).ic||"🏷️",
