@@ -721,8 +721,16 @@ async function confirmarCupom(cod){const v=parseFloat(String($("#cValor").value)
 /* ===================================================================
    MEU PLANO
    =================================================================== */
-function abaPlano(){const wa=((window.CONFIG&&CONFIG.WHATSAPP)||"").replace(/\D/g,""),atual=DEMO?"premium":empresa.plano;
-  $("#abaBox").innerHTML=`<div class="card"><h2>💼 Meu plano</h2><p class="sub">${DEMO?"No modo demonstração todas as funções estão liberadas.":`Seu plano é o <b>${(PLANOS[atual]||{}).nome||atual}</b>. Para mudar, fale com a gente pelo WhatsApp.`}</p></div>
+async function minhasMensalidades(){const box=$("#mensBox");if(!box)return;
+  let l=[];if(DEMO)l=store.get("vc_demo_pagamentos",[]).filter(p=>p.tipo==="mensalidade"&&p.empresa_id==="demo").sort((a,b)=>String(b.referencia).localeCompare(String(a.referencia)));
+  else{const {data,error}=await db.rpc("minhas_mensalidades");if(error){box.innerHTML="";return}l=data||[]}
+  const mes=hojeISO().slice(0,7),M=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"],nm=r=>M[+String(r).slice(5)-1]+"/"+String(r).slice(0,4);
+  const pago=l.find(p=>p.referencia===mes);
+  box.innerHTML=`<div class="card"><h3>💳 Minhas mensalidades</h3>
+   <p style="margin-top:6px">${pago?`<span class="status ok">✓ ${nm(mes)} paga</span>`:`<span class="status pend">⏳ ${nm(mes)}: vence dia 10</span>`}</p>
+   ${l.length?l.map(p=>`<div style="display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px solid #f0e8d2;font-size:.9rem"><span>${nm(p.referencia)}<small style="display:block;color:var(--cinza)">pago em ${dataBR(String(p.pago_em).slice(0,10))}</small></span><b>${fmtR(p.valor)}</b></div>`).join(""):`<p class="ajuda">Nenhum pagamento registrado ainda. Assim que o Vitrine receber, ele aparece aqui.</p>`}</div>`}
+function abaPlano(){const wa=((window.CONFIG&&CONFIG.WHATSAPP)||"").replace(/\D/g,""),atual=DEMO?"premium":empresa.plano;setTimeout(minhasMensalidades,0);
+  $("#abaBox").innerHTML=`<div id="mensBox"></div><div class="card"><h2>💼 Meu plano</h2><p class="sub">${DEMO?"No modo demonstração todas as funções estão liberadas.":`Seu plano é o <b>${(PLANOS[atual]||{}).nome||atual}</b>. Para mudar, fale com a gente pelo WhatsApp.`}</p></div>
    ${PLANOS_VENDA.map(p=>`<div class="lp-plano ${p.id===atual?"dest":""}">${p.id===atual?'<span class="selo">SEU PLANO</span>':""}<b style="font-size:1.1rem">${p.nome}</b><div class="preco">${p.preco}<small> /mês</small></div><ul>${p.itens.map(i=>`<li>${i}</li>`).join("")}</ul>
     ${p.id!==atual&&wa?`<a class="btn claro" href="https://wa.me/${wa}?text=${encodeURIComponent(`Olá! Quero mudar a loja ${empresa.nome} para o plano ${p.nome} (${p.preco}/mês).`)}" target="_blank" rel="noopener">Quero o ${p.nome}</a>`:""}</div>`).join("")}`}
 

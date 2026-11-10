@@ -216,6 +216,15 @@ details.mais-op summary{cursor:pointer;font-weight:700;min-height:44px;display:f
 .vendas details summary{cursor:pointer;font-weight:700;color:var(--azul2);padding:10px 0;min-height:44px}
 .ficha-l{margin-top:8px}.ficha-l .ln{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid #f0e8d2;font-size:.9rem}
 .ficha-l .ln span{color:var(--cinza)}.ficha-l .ln b{text-align:right;overflow-wrap:anywhere}
+.nav-adm button{font-size:.95rem}
+.mes-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;background:#f6f1e3;border-radius:14px;padding:6px}
+.mes-nav b{font-size:1.02rem}.mes-nav .mini{min-width:48px;font-size:1.3rem}.mes-nav .mini:disabled{opacity:.35}
+.fin-l{padding:14px}.fin-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.fin-top b{display:block;font-size:1rem;overflow-wrap:anywhere}.fin-top small{display:block;color:var(--cinza);font-size:.8rem;margin-top:2px}
+.fin-bt{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.mini.zap{display:inline-flex;align-items:center;text-decoration:none;background:#dff5e7;color:#0d6b31}
+.hist{margin-top:8px}.hist summary{cursor:pointer;font-weight:700;color:var(--azul2);min-height:40px;display:flex;align-items:center}
+.ficha-l .ln small{font-weight:400;font-size:.78rem}
 </style>
 </head>
 <body>
@@ -262,6 +271,7 @@ function traduzErro(e){const m=(e&&e.message)||String(e);
   if(/at least 6/i.test(m))return"A senha precisa ter pelo menos 6 caracteres.";
   if(/quota|exceeded/i.test(m))return"O espaço do modo demonstração acabou. Apague uma oferta para postar outra.";
   if(/Failed to fetch|NetworkError/i.test(m))return"Sem internet. Tente de novo.";
+  if(/row-level security|permission denied/i.test(m))return"Sem permissão. Entre com o login do administrador.";
   return m}
 
 /* ===== MODO: banco real (Supabase) ou DEMONSTRAÇÃO (fica só neste celular) ===== */
@@ -414,7 +424,7 @@ async function painelAdmin(recarregar=true){
     .filter(i=>!q||(i.x.nome+" "+i.x.ramo+" "+(i.x.whatsapp||"")).toLowerCase().includes(q))
     .sort(ADM.ordem==="vendas"?(a,b)=>b.n.valor-a.n.valor||b.n.compra-a.n.compra:ADM.ordem==="vistas"?(a,b)=>b.n.visualizacao-a.n.visualizacao:ADM.ordem==="nome"?(a,b)=>a.x.nome.localeCompare(b.x.nome,"pt-BR"):(a,b)=>a.d.nivel-b.d.nivel||a.n.visualizacao-b.n.visualizacao);
   const per=ADM.periodo?`últimos ${ADM.periodo} dias`:"desde o início";
-  box.innerHTML=`${DEMO?`<div class="aviso">👑 <b>Prévia da administração.</b> As lojas marcadas “(exemplo)” são de mentira, só para você ver como a análise funciona. No site real aparecem <b>todas as empresas cadastradas</b>.</div>`:""}
+  box.innerHTML=navAdm("emp")+`${DEMO?`<div class="aviso">👑 <b>Prévia da administração.</b> As lojas marcadas “(exemplo)” são de mentira, só para você ver como a análise funciona. No site real aparecem <b>todas as empresas cadastradas</b>.</div>`:""}
    <div class="card" style="border:2px solid var(--ouro)"><h2>👑 Administração do Vitrine</h2><p class="sub">Só você vê esta área. Números dos ${per}:</p>
     <div class="chips" style="margin:8px 0 12px">${[[7,"7 dias"],[30,"30 dias"],[0,"Tudo"]].map(([v,n])=>`<button type="button" aria-pressed="${ADM.periodo===v}" onclick="ADM.periodo=${v};painelAdmin()">${n}</button>`).join("")}</div>
     <div class="kpis">
@@ -465,6 +475,7 @@ async function admDetalhe(id){
   if(x.exemplo)rows=exemploDias(id);
   else if(DEMO){const ids=new Set(os.map(o=>String(o.id))),m={},desde=desdePeriodo();store.get("vc_demo_eventos",[]).forEach(ev=>{if(!ids.has(String(ev.oferta))||ev.dia<desde)return;const k=ev.oferta+"|"+ev.tipo+"|"+ev.dia;m[k]=m[k]||{oferta_id:String(ev.oferta),tipo:ev.tipo,dia:ev.dia,qtd:0,valor:0};m[k].qtd++;m[k].valor+=Number(ev.valor)||0});rows=Object.values(m)}
   else{const r=await db.rpc("metricas_admin_empresa",{p_empresa:id,p_desde:desdePeriodo()});if(!r.error)rows=(r.data||[]).map(r=>({...r,oferta_id:String(r.oferta_id),qtd:Number(r.qtd)||0,valor:Number(r.valor)||0}))}
+  if(!window._fin){try{window._fin=await dadosFin()}catch(e){window._fin=null}}
   let vendas=[];
   if(x.exemplo){let k=0;rows.filter(r=>r.tipo==="compra").forEach(r=>{for(let j=0;j<r.qtd;j++){k++;vendas.push({codigo:"VC-EX"+String(1000+k*37%9000).slice(-4),oferta_id:r.oferta_id,usado_em:r.dia+"T"+String(r.dia===hojeISO()?Math.max(0,new Date().getHours()-1-(k%3)):11+(k*5)%10).padStart(2,"0")+":"+String((k*17)%60).padStart(2,"0")+":00",valor:Math.round(r.valor/r.qtd*100)/100})}})}
   else if(DEMO){const us=store.get("vc_demo_usados",{}),mapa={};os.forEach(o=>mapa["d"+String(o.id).replace(/\W/g,"")]=String(o.id));
@@ -532,6 +543,7 @@ async function admDetalhe(id){
        <button class="mini ${o.banner?"ou":""}" onclick="admBanner('${esc(o.id)}',${!o.banner},'${esc(o.banner_topo||"")}')">${o.banner?"🖼 No banner":"🖼 Pôr no banner"}</button></div></div>`}).join("")
     :`<div class="vazio"><span class="e">🏷️</span>Esta loja ainda não postou ofertas.</div>`}
 
+   ${fichaFin(x)}
    <div class="card" style="margin-top:14px"><h3>⚙️ Ações</h3>
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
      ${x.aprovada?`<button class="mini" onclick="admEmpresa('${esc(x.id)}',{aprovada:false})">⏸ Suspender loja</button>`:`<button class="mini ou" onclick="admEmpresa('${esc(x.id)}',{aprovada:true})">✓ Aprovar loja</button>`}
@@ -567,6 +579,195 @@ function admPost(id){const p=(window._admPub||{})[String(id)];if(!p)return;const
     ${lin("🎟️ Pegaram cupom",fmtN(m.cupom)||"0")}${lin("🛵 Pedidos de entrega",fmtN(m.entrega)||"0")}${lin("✅ Compras confirmadas",fmtN(m.compra)||"0")}${lin("💰 Vendido",fmtR(m.valor))}
     ${lin("Conversão (cupom ÷ visualização)",m.visualizacao?Math.round(m.cupom/m.visualizacao*100)+"%":"")}</div>
    <button class="btn claro" onclick="fechar()">Fechar</button>`)}
+/* ===================================================================
+   FINANCEIRO: mensalidades das empresas, assinantes VIP e caixa
+   Você registra cada pagamento recebido (Pix, dinheiro, cartão...).
+   Só o administrador lê e grava a tabela "pagamentos" (regra no banco).
+   =================================================================== */
+const PRECO_PLANO={basico:49.90,destaque:99.90,premium:199.90},VIP_PRECO=9.90,DIA_VENC=10,VIP_DIAS=30;
+const FORMAS={pix:"Pix",dinheiro:"Dinheiro",cartao:"Cartão",boleto:"Boleto",cortesia:"Cortesia (grátis)",outro:"Outro"};
+const MESES=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+const mesAtual=()=>hojeISO().slice(0,7);
+const nomeMes=m=>{const [a,b]=String(m).split("-");return (MESES[+b-1]||"?")+" de "+a};
+const mesCurto=m=>{const [a,b]=String(m).split("-");return (MESES[+b-1]||"?").slice(0,3)+"/"+a.slice(2)};
+const somaMes=(m,k)=>{let [a,b]=String(m).split("-").map(Number);b+=k;while(b<1){b+=12;a--}while(b>12){b-=12;a++}return a+"-"+String(b).padStart(2,"0")};
+const limpaNome=s=>String(s||"").replace(/ \((exemplo|sua loja de teste)\)$/,"");
+const valorDe=v=>{let t=String(v??"").trim().replace(/[R$\s]/g,"");t=t.includes(",")?t.replace(/\./g,"").replace(",","."):t;const n=parseFloat(t);return isFinite(n)&&n>=0&&n<100000?Math.round(n*100)/100:null};
+const soDig=s=>String(s||"").replace(/\D/g,"");
+const linkZap=(num,txt)=>{const z=soDig(num);return z?`https://wa.me/${z.length<=11?"55"+z:z}?text=${encodeURIComponent(txt)}`:""};
+const pixTxt=()=>{const k=window.CONFIG&&CONFIG.PIX;return k?` Chave Pix: ${k}`:""};
+let FIN={mes:mesAtual(),aba:"caixa",filtro:"todas"};
+
+// Demonstração: pagamentos de exemplo (ficam só neste aparelho)
+function seedDemoPag(){if(store.get("vc_demo_pagamentos",null))return;
+  const l=[],m0=mesAtual(),hojeDia=Number(hojeISO().slice(8));let n=0;
+  const dia=(ref,d)=>ref+"-"+String(ref===m0?Math.max(1,Math.min(hojeDia,d)):d).padStart(2,"0");
+  [["ex1",[0,1,2,3]],["ex2",[1,2,3]],["ex3",[0,1,2]],["ex4",[1,2,3,4]],["ex5",[0,1]],["ex6",[2,3,4,5]]].forEach(([e,ks])=>{const ex=EX_ADM.find(x=>x.id===e);
+    ks.forEach(k=>{const ref=somaMes(m0,-k);l.push({id:"p"+(++n),tipo:"mensalidade",empresa_id:e,empresa_nome:ex.nome,valor:PRECO_PLANO[ex.plano],referencia:ref,forma:k%3?"pix":"dinheiro",pago_em:dia(ref,3+k%6),obs:null})})});
+  [["Ana Paula Souza","42999881001",[0,1,2],2],["Carlos Eduardo Lima","42999881002",[0,1],1],["Fernanda Ribeiro","42999881003",[1,2,3],8],["João Pedro Martins","42999881004",[0],4],["Mariana Costa","42999881005",[2,3],12]]
+   .forEach(([nome,w,ks,d])=>ks.forEach(k=>{const ref=somaMes(m0,-k),pg=dia(ref,d);l.push({id:"p"+(++n),tipo:"vip",cliente_nome:nome,cliente_whatsapp:w,valor:VIP_PRECO,referencia:pg.slice(0,7),forma:"pix",pago_em:pg,obs:null})}));
+  store.set("vc_demo_pagamentos",l)}
+async function dadosFin(){
+  if(DEMO){seedDemoPag();return store.get("vc_demo_pagamentos",[]).map(p=>({...p,valor:Number(p.valor)||0}))}
+  const {data,error}=await db.from("pagamentos").select("*").order("pago_em",{ascending:false}).limit(5000);
+  if(error)throw new Error(/does not exist|relation|schema cache/i.test(error.message)?"Para usar o Financeiro, rode a atualização do banco (supabase.sql) no Supabase.":traduzErro(error));
+  return (data||[]).map(p=>({...p,valor:Number(p.valor)||0}))}
+async function salvarPag(p){
+  if(DEMO){const l=store.get("vc_demo_pagamentos",[]);
+    if(p.tipo==="mensalidade"&&l.some(x=>x.tipo==="mensalidade"&&String(x.empresa_id)===String(p.empresa_id)&&x.referencia===p.referencia))throw new Error("A mensalidade desse mês já foi registrada.");
+    l.unshift({...p,id:"p"+Date.now().toString(36),criado_em:new Date().toISOString()});store.set("vc_demo_pagamentos",l);return}
+  const {error}=await db.from("pagamentos").insert(p);
+  if(error)throw new Error(/duplicate|unique/i.test(error.message)?"A mensalidade desse mês já foi registrada.":traduzErro(error))}
+async function apagarPag(id){if(!confirm("Desfazer este pagamento? Ele sai do caixa."))return;
+  if(DEMO){store.set("vc_demo_pagamentos",store.get("vc_demo_pagamentos",[]).filter(p=>String(p.id)!==String(id)))}
+  else{const {error}=await db.from("pagamentos").delete().eq("id",id);if(error){toast(traduzErro(error));return}}
+  toast("Pagamento desfeito");finVoltar()}
+function finVoltar(){window._fin=null;ADM.detalhe?(window._adm=null,admDetalhe(ADM.detalhe)):telaFinanceiro()}
+
+function navAdm(a){return `<div class="abas-p nav-adm" role="tablist"><button role="tab" aria-selected="${a==="emp"}" onclick="painelAdmin(false)">🏪 Empresas</button><button role="tab" aria-selected="${a==="fin"}" onclick="telaFinanceiro(${a==="fin"})">💰 Financeiro</button></div>`}
+function statusMens(x,M,P){const pg=P.find(p=>p.tipo==="mensalidade"&&String(p.empresa_id)===String(x.id)&&p.referencia===M);
+  if(pg)return {k:"paga",pg,cor:"vd",txt:`✓ Paga em ${dataBR(pg.pago_em)} · ${FORMAS[pg.forma]||esc(pg.forma)}`};
+  const atual=mesAtual(),atras=M<atual||(M===atual&&Number(hojeISO().slice(8))>DIA_VENC);
+  return atras?{k:"atrasada",cor:"vm",txt:`🔴 Atrasada · venceu ${DIA_VENC}/${M.slice(5)}`}:{k:"aberto",cor:"am",txt:`⏳ Vence ${DIA_VENC}/${M.slice(5)}`}}
+const precoDe=x=>PRECO_PLANO[x.plano]||PRECO_PLANO.basico;
+function cobradas(emps,M,P){return emps.filter(x=>(x.aprovada&&String(x.criado_em||"").slice(0,7)<=M)||P.some(p=>p.tipo==="mensalidade"&&String(p.empresa_id)===String(x.id)&&p.referencia===M))}
+function assinantes(P){const g={};
+  P.filter(p=>p.tipo==="vip").forEach(p=>{const k=soDig(p.cliente_whatsapp)||String(p.cliente_nome||"").trim().toLowerCase();const a=g[k]=g[k]||{pags:[],total:0};a.pags.push(p);a.total+=p.valor});
+  const hoje=new Date(hojeISO()+"T12:00:00");
+  return Object.values(g).map(a=>{a.pags.sort((x,y)=>String(y.pago_em).localeCompare(String(x.pago_em)));const u=a.pags[0];a.nome=u.cliente_nome;a.whats=u.cliente_whatsapp;
+    const v=new Date(u.pago_em+"T12:00:00");v.setDate(v.getDate()+VIP_DIAS);a.vence=v.toLocaleDateString("sv-SE");a.dias=Math.round((v-hoje)/864e5);
+    a.st=a.dias<0?"vencido":a.dias<=7?"vencendo":"ativo";return a})}
+
+async function telaFinanceiro(recarregar=true){
+  ADM.detalhe=null;const box=alvoAdmin();
+  if(recarregar||!window._fin||!window._adm){box.innerHTML=navAdm("fin")+`<div class="vazio"><span class="e">⏳</span>Carregando o financeiro…</div>`;
+    try{const [f,a]=await Promise.all([dadosFin(),window._adm?Promise.resolve(window._adm):dadosAdmin()]);window._fin=f;window._adm=a;if(!window._admA)window._admA=analiseAdm(a)}
+    catch(err){box.innerHTML=navAdm("fin")+`<div class="aviso">${esc(err.message||traduzErro(err))}</div>`;return}}
+  const P=window._fin,emps=window._adm.emps,M=FIN.mes,atual=mesAtual();
+  const mesBar=`<div class="mes-nav"><button class="mini" onclick="FIN.mes=somaMes(FIN.mes,-1);telaFinanceiro(false)" aria-label="Mês anterior">‹</button><b>${nomeMes(M).replace(/^./,c=>c.toUpperCase())}</b><button class="mini" onclick="FIN.mes=somaMes(FIN.mes,1);telaFinanceiro(false)" aria-label="Próximo mês" ${M>=somaMes(atual,1)?"disabled":""}>›</button></div>`;
+  const abas=`<div class="chips" style="margin:6px 0 12px">${[["caixa","📊 Caixa"],["mens","🏪 Mensalidades"],["vip","👑 Assinantes VIP"]].map(([k,t])=>`<button type="button" aria-pressed="${FIN.aba===k}" onclick="FIN.aba='${k}';FIN.filtro='todas';telaFinanceiro(false)">${t}</button>`).join("")}</div>`;
+  const recMes=t=>P.filter(p=>p.tipo===t&&String(p.pago_em).slice(0,7)===M);
+  const soma=l=>l.reduce((s,p)=>s+p.valor,0);
+  let corpo="";
+  if(FIN.aba==="caixa"){
+    const mens=recMes("mensalidade"),vip=recMes("vip"),tot=soma(mens)+soma(vip);
+    const cob=cobradas(emps,M,P),abertas=cob.filter(x=>statusMens(x,M,P).k!=="paga"),valAberto=abertas.reduce((s,x)=>s+precoDe(x),0);
+    const ass=assinantes(P),ativos=ass.filter(a=>a.st!=="vencido").length;
+    const meses=[...Array(6)].map((_,i)=>somaMes(M,i-5)),porMes=meses.map(m=>({m,a:soma(P.filter(p=>p.tipo==="mensalidade"&&String(p.pago_em).slice(0,7)===m)),b:soma(P.filter(p=>p.tipo==="vip"&&String(p.pago_em).slice(0,7)===m))})),mx=Math.max(1,...porMes.map(x=>x.a+x.b));
+    const porEmp={};P.filter(p=>p.tipo==="mensalidade").forEach(p=>{const k=String(p.empresa_id||p.empresa_nome);const e=porEmp[k]=porEmp[k]||{nome:limpaNome((emps.find(x=>String(x.id)===String(p.empresa_id))||{}).nome||p.empresa_nome),id:p.empresa_id,total:0,n:0};e.total+=p.valor;e.n++});
+    const rankEmp=Object.values(porEmp).sort((a,b)=>b.total-a.total),rankVip=[...ass].sort((a,b)=>b.total-a.total);
+    const totMens=soma(P.filter(p=>p.tipo==="mensalidade")),totVip=soma(P.filter(p=>p.tipo==="vip"));
+    corpo=`<div class="kpis">
+      <div class="kpi ouro" style="grid-column:1/-1"><div class="n">${fmtR(tot)}</div><div class="r">💰 Total em caixa em ${MESES[+M.slice(5)-1]}</div><small>${fmtR(soma(mens))} de mensalidades + ${fmtR(soma(vip))} do VIP</small></div>
+      <div class="kpi"><div class="n">${fmtR(soma(mens))}</div><div class="r">🏪 Mensalidades</div><small>${mens.length} pagamento${mens.length===1?"":"s"} recebido${mens.length===1?"":"s"}</small></div>
+      <div class="kpi"><div class="n">${fmtR(soma(vip))}</div><div class="r">👑 Plano VIP</div><small>${vip.length} pagamento${vip.length===1?"":"s"} de clientes</small></div>
+      <div class="kpi"><div class="n" style="color:${abertas.length?"#b0141a":"inherit"}">${fmtR(valAberto)}</div><div class="r">⏳ Falta receber</div><small>${abertas.length} empresa${abertas.length===1?"":"s"} sem pagar ${MESES[+M.slice(5)-1]}</small></div>
+      <div class="kpi"><div class="n">${ativos}</div><div class="r">👑 VIPs ativos</div><small>de ${ass.length} cliente${ass.length===1?"":"s"} que já assinaram</small></div>
+     </div>
+     <div class="card" style="margin-top:14px"><h3>📈 Caixa dos últimos 6 meses</h3><p class="ajuda">Azul: mensalidades · dourado: VIP</p>
+      <div class="graf" style="height:140px">${porMes.map(x=>`<div title="${nomeMes(x.m)}: ${fmtR(x.a+x.b)}"><i class="c" style="height:${x.b/mx*100}%"></i><i style="height:${x.a/mx*100}%;background:#3d5299"></i></div>`).join("")}</div>
+      <div class="graf-leg" style="justify-content:space-around">${porMes.map(x=>`<span>${mesCurto(x.m)}</span>`).join("")}</div>
+      <div class="ficha-l">${porMes.slice().reverse().map(x=>`<div class="ln"><span>${nomeMes(x.m)}</span><b>${fmtR(x.a+x.b)}</b></div>`).join("")}</div></div>
+     <div class="card" style="margin-top:14px"><h3>🧮 Desde o início</h3><div class="ficha-l">
+      <div class="ln"><span>🏪 Mensalidades</span><b>${fmtR(totMens)}</b></div><div class="ln"><span>👑 Plano VIP</span><b>${fmtR(totVip)}</b></div><div class="ln"><span><b style="color:var(--txt)">Total em caixa</b></span><b>${fmtR(totMens+totVip)}</b></div></div></div>
+     <div class="card" style="margin-top:14px"><h3>🏪 Quanto cada empresa já pagou</h3>
+      ${rankEmp.length?`<div class="ficha-l">${rankEmp.map(e=>`<div class="ln"><span>${e.id&&window._admA&&window._admA.info[e.id]?`<a href="#" onclick="event.preventDefault();admDetalhe('${esc(e.id)}')">${esc(e.nome)}</a>`:esc(e.nome)}<small style="display:block">${e.n} mensalidade${e.n===1?"":"s"}</small></span><b>${fmtR(e.total)}</b></div>`).join("")}</div>`:`<p class="ajuda">Nenhuma mensalidade registrada ainda.</p>`}</div>
+     <div class="card" style="margin-top:14px"><h3>👑 Quanto cada cliente VIP já pagou</h3>
+      ${rankVip.length?`<div class="ficha-l">${rankVip.map(a=>`<div class="ln"><span>${esc(a.nome)}<small style="display:block">${a.pags.length} pagamento${a.pags.length===1?"":"s"} · ${a.st==="vencido"?"VIP vencido":"VIP até "+dataBR(a.vence)}</small></span><b>${fmtR(a.total)}</b></div>`).join("")}</div>`:`<p class="ajuda">Nenhum cliente VIP registrado ainda.</p>`}</div>
+     <div class="card" style="margin-top:14px"><h3>🧾 Pagamentos recebidos em ${MESES[+M.slice(5)-1]}</h3>
+      ${[...mens,...vip].length?`<div class="vendas">${[...mens,...vip].sort((a,b)=>String(b.pago_em).localeCompare(String(a.pago_em))).map(p=>linhaPag(p,emps)).join("")}</div>`:`<p class="ajuda">Nenhum pagamento neste mês.</p>`}</div>
+     <button class="btn claro" style="margin-top:14px" onclick="baixarPlanilha()">⬇️ Baixar planilha de pagamentos (Excel)</button>`;
+  }
+  if(FIN.aba==="mens"){
+    const cob=cobradas(emps,M,P).map(x=>({x,s:statusMens(x,M,P)}));
+    const pagas=cob.filter(c=>c.s.k==="paga"),atr=cob.filter(c=>c.s.k==="atrasada"),abr=cob.filter(c=>c.s.k==="aberto");
+    const esperado=cob.reduce((s,c)=>s+precoDe(c.x),0),recebido=pagas.reduce((s,c)=>s+c.s.pg.valor,0);
+    const lista=cob.filter(c=>FIN.filtro==="todas"||c.s.k===FIN.filtro||(FIN.filtro==="devendo"&&c.s.k!=="paga")).sort((a,b)=>({atrasada:0,aberto:1,paga:2}[a.s.k]-{atrasada:0,aberto:1,paga:2}[b.s.k])||a.x.nome.localeCompare(b.x.nome,"pt-BR"));
+    corpo=`<div class="kpis">
+      <div class="kpi"><div class="n">${fmtR(recebido)}</div><div class="r">✅ Recebido</div><small>${pagas.length} de ${cob.length} empresas pagaram</small></div>
+      <div class="kpi"><div class="n" style="color:${atr.length+abr.length?"#b0141a":"inherit"}">${fmtR(Math.max(0,esperado-recebido))}</div><div class="r">⏳ Falta receber</div><small>${atr.length} atrasada${atr.length===1?"":"s"} · ${abr.length} a vencer</small></div>
+     </div>
+     <p class="ajuda" style="margin:10px 0 4px">Mensalidade vence todo dia ${DIA_VENC}. Valores: Básico ${fmtR(PRECO_PLANO.basico)} · Destaque ${fmtR(PRECO_PLANO.destaque)} · Premium ${fmtR(PRECO_PLANO.premium)}.</p>
+     <div class="chips" style="margin:8px 0 12px">${[["todas",`Todas (${cob.length})`],["devendo",`⚠️ Não pagaram (${atr.length+abr.length})`],["atrasada",`🔴 Atrasadas (${atr.length})`],["paga",`✓ Pagas (${pagas.length})`]].map(([k,t])=>`<button type="button" aria-pressed="${FIN.filtro===k}" onclick="FIN.filtro='${k}';telaFinanceiro(false)">${t}</button>`).join("")}</div>
+     ${lista.length?lista.map(({x,s})=>`<div class="card fin-l">
+       <div class="fin-top"><div style="min-width:0"><b>${esc(x.nome)}</b><small>Plano ${esc((PLANOS[x.plano]||{nome:x.plano||"Básico"}).nome)} · ${fmtR(s.pg?s.pg.valor:precoDe(x))}</small></div><span class="selo-d ${s.cor}">${s.txt}</span></div>
+       <div class="fin-bt">${s.pg?`<button class="mini" onclick="apagarPag('${esc(s.pg.id)}')">↩️ Desfazer</button>`:`<button class="mini ou" onclick="formMens('${esc(x.id)}')">✓ Recebi o pagamento</button>${x.whatsapp?`<a class="mini zap" href="${linkZap(x.whatsapp,`Olá! Aqui é do Vitrine Castro 😊 Passando para lembrar da mensalidade de ${nomeMes(M)} da ${limpaNome(x.nome)}: ${fmtR(precoDe(x))} (plano ${(PLANOS[x.plano]||{nome:"Básico"}).nome}), com vencimento no dia ${DIA_VENC}.${pixTxt()} Obrigado pela parceria!`)}" target="_blank" rel="noopener">💬 Cobrar</a>`:""}`}
+        ${window._admA&&window._admA.info[x.id]?`<button class="mini" onclick="admDetalhe('${esc(x.id)}')">Ver empresa ›</button>`:""}</div></div>`).join("")
+      :`<div class="vazio"><span class="e">🏪</span>Nenhuma empresa nesta lista.</div>`}`;
+  }
+  if(FIN.aba==="vip"){
+    const ass=assinantes(P),q=(ADM.buscaVip||"").trim().toLowerCase();
+    const ativos=ass.filter(a=>a.st==="ativo"),venc=ass.filter(a=>a.st==="vencendo"),vencidos=ass.filter(a=>a.st==="vencido"),vipMes=recMes("vip");
+    const lista=ass.filter(a=>FIN.filtro==="todas"||a.st===FIN.filtro).filter(a=>!q||(a.nome+" "+(a.whats||"")).toLowerCase().includes(q)).sort((a,b)=>({vencendo:0,vencido:1,ativo:2}[a.st]-{vencendo:0,vencido:1,ativo:2}[b.st])||a.dias-b.dias);
+    corpo=`<div class="kpis">
+      <div class="kpi"><div class="n">${ativos.length+venc.length}</div><div class="r">👑 VIPs ativos</div><small>${venc.length} vence${venc.length===1?"":"m"} em até 7 dias</small></div>
+      <div class="kpi"><div class="n">${fmtR(soma(vipMes))}</div><div class="r">💰 Recebido em ${MESES[+M.slice(5)-1]}</div><small>${vipMes.length} pagamento${vipMes.length===1?"":"s"} de ${fmtR(VIP_PRECO)}</small></div>
+     </div>
+     <button class="btn ouro" style="margin-top:12px" onclick="formVip()">➕ Registrar pagamento VIP</button>
+     <p class="ajuda">Quando um cliente pagar os ${fmtR(VIP_PRECO)}, registre aqui. O VIP vale ${VIP_DIAS} dias a partir do pagamento.</p>
+     <input class="inp" type="search" id="vipBusca" style="margin-top:10px" placeholder="🔎 Buscar cliente por nome ou WhatsApp" value="${esc(ADM.buscaVip||"")}" oninput="ADM.buscaVip=this.value;clearTimeout(window._tv);window._tv=setTimeout(()=>{telaFinanceiro(false);const i=$('#vipBusca');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},350)" aria-label="Buscar cliente VIP">
+     <div class="chips" style="margin:10px 0 12px">${[["todas",`Todos (${ass.length})`],["vencendo",`⏰ Vencendo (${venc.length})`],["vencido",`🔴 Vencidos (${vencidos.length})`],["ativo",`✓ Ativos (${ativos.length})`]].map(([k,t])=>`<button type="button" aria-pressed="${FIN.filtro===k}" onclick="FIN.filtro='${k}';telaFinanceiro(false)">${t}</button>`).join("")}</div>
+     ${(window._vipLista=lista).length?lista.map((a,k)=>`<div class="card fin-l">
+       <div class="fin-top"><div style="min-width:0"><b>${esc(a.nome)}</b><small>${a.whats?esc(a.whats)+" · ":""}${a.pags.length} pagamento${a.pags.length===1?"":"s"} · total ${fmtR(a.total)}</small></div>
+        <span class="selo-d ${a.st==="ativo"?"vd":a.st==="vencendo"?"am":"vm"}">${a.st==="vencido"?`🔴 Venceu ${dataBR(a.vence)}`:a.st==="vencendo"?`⏰ Vence ${a.dias===0?"hoje":"em "+a.dias+" dia"+(a.dias>1?"s":"")}`:`✓ VIP até ${dataBR(a.vence)}`}</span></div>
+       <details class="hist"><summary>Ver pagamentos</summary>${a.pags.map(p=>`<div class="vd-l"><span>${dataBR(p.pago_em)}<small>${FORMAS[p.forma]||esc(p.forma)}${p.obs?" · "+esc(p.obs):""}</small></span><b>${fmtR(p.valor)}</b><button class="mini" style="min-height:36px" onclick="apagarPag('${esc(p.id)}')" aria-label="Desfazer pagamento">↩️</button></div>`).join("")}</details>
+       <div class="fin-bt"><button class="mini ou" onclick="formVip(${k})">✓ Renovou</button>${a.whats&&a.st!=="ativo"?`<a class="mini zap" href="${linkZap(a.whats,`Olá, ${String(a.nome).split(" ")[0]}! Aqui é do Vitrine Castro 😊 Seu Plano VIP ${a.st==="vencido"?"venceu em "+dataBR(a.vence):"vence em "+dataBR(a.vence)}. Para continuar com os descontos exclusivos e pontos em dobro, é só renovar por ${fmtR(VIP_PRECO)}.${pixTxt()}`)}" target="_blank" rel="noopener">💬 Cobrar renovação</a>`:""}</div></div>`).join("")
+      :`<div class="vazio"><span class="e">👑</span>${ass.length?"Nenhum cliente nesta lista.":"Nenhum cliente VIP ainda. Quando alguém pagar, toque em “Registrar pagamento VIP”."}</div>`}`;
+  }
+  box.innerHTML=navAdm("fin")+(DEMO?`<div class="aviso">💰 <b>Prévia do financeiro.</b> Os pagamentos e clientes que aparecem são de exemplo e ficam só neste aparelho.</div>`:"")+
+   `<div class="card" style="border:2px solid var(--ouro)"><h2>💰 Financeiro</h2><p class="sub">Mensalidades das empresas e assinaturas VIP dos clientes.</p>${mesBar}</div>${abas}${corpo}`;
+}
+function linhaPag(p,emps){const e=p.tipo==="mensalidade"?limpaNome((emps.find(x=>String(x.id)===String(p.empresa_id))||{}).nome||p.empresa_nome):p.cliente_nome;
+  return `<div class="vd-l"><span>${p.tipo==="vip"?"👑 ":"🏪 "}${esc(e)}<small>${dataBR(p.pago_em)} · ${p.tipo==="vip"?"VIP":"mensalidade "+mesCurto(p.referencia)} · ${FORMAS[p.forma]||esc(p.forma)}${p.obs?" · "+esc(p.obs):""}</small></span><b>${fmtR(p.valor)}</b><button class="mini" style="min-height:36px" onclick="apagarPag('${esc(p.id)}')" aria-label="Desfazer pagamento">↩️</button></div>`}
+const selForma=(id,v="pix")=>`<select class="inp" id="${id}">${Object.entries(FORMAS).map(([k,n])=>`<option value="${k}" ${k===v?"selected":""}>${n}</option>`).join("")}</select>`;
+function formMens(id){const x=(window._adm.emps||[]).find(e=>String(e.id)===String(id));if(!x)return;
+  abrirSheet(`<h2 style="margin-top:8px">✓ Mensalidade recebida</h2><p class="sub"><b>${esc(x.nome)}</b> · plano ${esc((PLANOS[x.plano]||{nome:"Básico"}).nome)}</p>
+   <form onsubmit="event.preventDefault();gravarMens('${esc(x.id)}')">
+    <label for="fRef">Mês da mensalidade</label><input class="inp" id="fRef" type="month" required value="${FIN.mes}">
+    <label for="fVal">Valor recebido (R$)</label><input class="inp" id="fVal" inputmode="decimal" required value="${String(precoDe(x).toFixed(2)).replace(".",",")}">
+    <label for="fForma">Como pagou</label>${selForma("fForma")}
+    <label for="fData">Data do pagamento</label><input class="inp" id="fData" type="date" required max="${hojeISO()}" value="${hojeISO()}">
+    <label for="fObs">Observação (opcional)</label><input class="inp" id="fObs" maxlength="200" placeholder="Ex: pagou 2 meses juntos">
+    <div class="erro" id="fErro"></div><button class="btn ouro" id="fBtn">Salvar pagamento</button></form>`)}
+async function gravarMens(id){const x=(window._adm.emps||[]).find(e=>String(e.id)===String(id)),v=valorDe($("#fVal").value),ref=$("#fRef").value,dt=$("#fData").value,er=$("#fErro");
+  const erro=m=>{er.textContent=m;er.style.display="block"};
+  if(!/^\d{4}-\d{2}$/.test(ref))return erro("Escolha o mês.");if(v===null)return erro("Digite um valor válido, ex: 49,90.");if(!dt||dt>hojeISO())return erro("A data não pode ser no futuro.");
+  $("#fBtn").disabled=true;
+  try{await salvarPag({tipo:"mensalidade",empresa_id:x.id,empresa_nome:limpaNome(x.nome),valor:v,referencia:ref,forma:$("#fForma").value,pago_em:dt,obs:$("#fObs").value.trim()||null});fechar();toast("✅ Mensalidade registrada");finVoltar()}
+  catch(e){erro(e.message);$("#fBtn").disabled=false}}
+function formVip(k){const a=k==null?null:(window._vipLista||[])[k],nome=a?a.nome:"",whats=a?soDig(a.whats):"";
+  abrirSheet(`<h2 style="margin-top:8px">👑 Pagamento do Plano VIP</h2><p class="sub">Registre o cliente que pagou. O VIP vale ${VIP_DIAS} dias a partir da data do pagamento.</p>
+   <form onsubmit="event.preventDefault();gravarVip()">
+    <label for="vNome">Nome do cliente</label><input class="inp" id="vNome" required minlength="2" maxlength="80" value="${esc(nome)}" autocomplete="off">
+    <label for="vWhats">WhatsApp do cliente</label><input class="inp" id="vWhats" inputmode="tel" maxlength="20" value="${esc(whats)}" placeholder="(42) 9 9999-9999">
+    <label for="vVal">Valor recebido (R$)</label><input class="inp" id="vVal" inputmode="decimal" required value="${String(VIP_PRECO.toFixed(2)).replace(".",",")}">
+    <label for="vForma">Como pagou</label>${selForma("vForma")}
+    <label for="vData">Data do pagamento</label><input class="inp" id="vData" type="date" required max="${hojeISO()}" value="${hojeISO()}">
+    <label for="vObs">Observação (opcional)</label><input class="inp" id="vObs" maxlength="200">
+    <div class="erro" id="vErro"></div><button class="btn ouro" id="vBtn">Salvar pagamento VIP</button></form>`)}
+async function gravarVip(){const nome=$("#vNome").value.trim(),w=soDig($("#vWhats").value),v=valorDe($("#vVal").value),dt=$("#vData").value,er=$("#vErro");
+  const erro=m=>{er.textContent=m;er.style.display="block"};
+  if(nome.length<2)return erro("Digite o nome do cliente.");if(w&&(w.length<10||w.length>13))return erro("WhatsApp inválido. Use DDD + número.");
+  if(v===null)return erro("Digite um valor válido, ex: 9,90.");if(!dt||dt>hojeISO())return erro("A data não pode ser no futuro.");
+  $("#vBtn").disabled=true;
+  try{await salvarPag({tipo:"vip",cliente_nome:nome,cliente_whatsapp:w||null,valor:v,referencia:dt.slice(0,7),forma:$("#vForma").value,pago_em:dt,obs:$("#vObs").value.trim()||null});fechar();toast("✅ Pagamento VIP registrado");finVoltar()}
+  catch(e){erro(e.message);$("#vBtn").disabled=false}}
+function baixarPlanilha(){const P=window._fin||[],emps=(window._adm||{}).emps||[];
+  const cel=v=>{let s=String(v??"");if(/^[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'};   // evita fórmula maliciosa no Excel
+  const linhas=[["Data do pagamento","Tipo","Empresa ou cliente","WhatsApp","Mês de referência","Forma","Valor (R$)","Observação"]].concat(
+    P.slice().sort((a,b)=>String(a.pago_em).localeCompare(String(b.pago_em))).map(p=>[dataBR(p.pago_em),p.tipo==="vip"?"VIP":"Mensalidade",p.tipo==="vip"?p.cliente_nome:limpaNome((emps.find(x=>String(x.id)===String(p.empresa_id))||{}).nome||p.empresa_nome),p.cliente_whatsapp||"",p.referencia,FORMAS[p.forma]||p.forma,String(p.valor.toFixed(2)).replace(".",","),p.obs||""]));
+  const csv="﻿"+linhas.map(l=>l.map(cel).join(";")).join("\r\n"),a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="vitrine-castro-pagamentos-"+hojeISO()+".csv";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+// Ficha da empresa: mensalidades daquela loja
+function fichaFin(x){const P=window._fin;
+  if(!P)return `<div class="card" style="margin-top:14px"><h3>💳 Mensalidades</h3><p class="ajuda">Para ver as mensalidades, rode a atualização do banco (supabase.sql).</p></div>`;
+  const ps=P.filter(p=>p.tipo==="mensalidade"&&String(p.empresa_id)===String(x.id)).sort((a,b)=>b.referencia.localeCompare(a.referencia)),s=statusMens(x,mesAtual(),P),tot=ps.reduce((t,p)=>t+p.valor,0);
+  return `<div class="card" style="margin-top:14px"><h3>💳 Mensalidades</h3>
+   <div class="fin-top" style="margin-top:6px"><span>${nomeMes(mesAtual())} · ${fmtR(s.pg?s.pg.valor:precoDe(x))}</span><span class="selo-d ${s.cor}">${s.txt}</span></div>
+   <div class="ficha-l"><div class="ln"><span>Total já pago ao Vitrine</span><b>${fmtR(tot)}</b></div><div class="ln"><span>Mensalidades pagas</span><b>${ps.length}</b></div></div>
+   ${ps.length?`<details class="hist"><summary>Ver histórico de pagamentos</summary>${ps.map(p=>`<div class="vd-l"><span>${nomeMes(p.referencia)}<small>pago em ${dataBR(p.pago_em)} · ${FORMAS[p.forma]||esc(p.forma)}${p.obs?" · "+esc(p.obs):""}</small></span><b>${fmtR(p.valor)}</b><button class="mini" style="min-height:36px" onclick="apagarPag('${esc(p.id)}')" aria-label="Desfazer pagamento">↩️</button></div>`).join("")}</details>`:""}
+   <div class="fin-bt">${s.pg?"":`<button class="mini ou" onclick="FIN.mes=mesAtual();formMens('${esc(x.id)}')">✓ Recebi a mensalidade</button>${x.whatsapp?`<a class="mini zap" href="${linkZap(x.whatsapp,`Olá! Aqui é do Vitrine Castro 😊 Passando para lembrar da mensalidade de ${nomeMes(mesAtual())} da ${limpaNome(x.nome)}: ${fmtR(precoDe(x))}, com vencimento no dia ${DIA_VENC}.${pixTxt()} Obrigado pela parceria!`)}" target="_blank" rel="noopener">💬 Cobrar</a>`:""}`}</div></div>`}
+
 function admAtualizar(){window._adm=null;ADM.detalhe?admDetalhe(ADM.detalhe):painelAdmin()}
 
 // ações do administrador (no modo demonstração mudam só a loja de teste deste celular)

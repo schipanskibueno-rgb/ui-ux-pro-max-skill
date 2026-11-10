@@ -311,6 +311,44 @@ $$;
 revoke execute on function public.metricas_admin_empresa(uuid, date) from public, anon;
 grant execute on function public.metricas_admin_empresa(uuid, date) to authenticated;
 
+-- ---------- FINANCEIRO: mensalidades das empresas e Plano VIP dos clientes ----------
+-- O administrador registra cada pagamento recebido. Só administradores leem e gravam.
+create table if not exists public.pagamentos (
+  id               uuid primary key default gen_random_uuid(),
+  tipo             text not null check (tipo in ('mensalidade','vip')),
+  empresa_id       uuid references public.empresas on delete set null,
+  empresa_nome     text check (empresa_nome is null or char_length(empresa_nome) <= 80),
+  cliente_nome     text check (cliente_nome is null or char_length(cliente_nome) between 2 and 80),
+  cliente_whatsapp text check (cliente_whatsapp is null or cliente_whatsapp ~ '^[0-9]{10,13}$'),
+  valor            numeric(10,2) not null check (valor >= 0 and valor < 100000),
+  referencia       text not null check (referencia ~ '^[0-9]{4}-(0[1-9]|1[0-2])$'),   -- mês: 2026-11
+  forma            text not null default 'pix' check (forma in ('pix','dinheiro','cartao','boleto','cortesia','outro')),
+  pago_em          date not null default current_date check (pago_em <= current_date + 1),
+  obs              text check (obs is null or char_length(obs) <= 200),
+  criado_por       uuid default auth.uid(),
+  criado_em        timestamptz not null default now(),
+  check ((tipo = 'mensalidade' and empresa_nome is not null) or (tipo = 'vip' and cliente_nome is not null))
+);
+create unique index if not exists pagamentos_1_mensalidade_por_mes on public.pagamentos (empresa_id, referencia) where tipo = 'mensalidade';
+create index if not exists pagamentos_data on public.pagamentos (pago_em desc);
+alter table public.pagamentos enable row level security;
+revoke all on public.pagamentos from public, anon;
+grant select, insert, update, delete on public.pagamentos to authenticated;
+drop policy if exists "so admin financeiro" on public.pagamentos;
+create policy "so admin financeiro" on public.pagamentos for all to authenticated
+  using (public.is_admin()) with check (public.is_admin());
+
+-- A empresa vê só as PRÓPRIAS mensalidades (sem observações internas do administrador)
+create or replace function public.minhas_mensalidades() returns table (referencia text, valor numeric, forma text, pago_em date)
+language sql stable security definer set search_path = public as $$
+  select p.referencia, p.valor, p.forma, p.pago_em
+    from public.pagamentos p join public.empresas e on e.id = p.empresa_id
+   where p.tipo = 'mensalidade' and e.dono = auth.uid()
+   order by p.referencia desc limit 24
+$$;
+revoke execute on function public.minhas_mensalidades() from public, anon;
+grant execute on function public.minhas_mensalidades() to authenticated;
+
 -- Administrador: vendas (cupons) de UMA loja, para a ficha da empresa
 create or replace function public.vendas_admin_empresa(p_empresa uuid, p_desde date)
 returns table (codigo text, oferta_id uuid, criado_em timestamptz, usado_em timestamptz, valor numeric)

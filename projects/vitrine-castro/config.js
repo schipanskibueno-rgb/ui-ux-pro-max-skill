@@ -4,5 +4,6 @@
 window.CONFIG = {
   SUPABASE_URL: "",        // ex: "https://abcdefgh.supabase.co"
   SUPABASE_ANON_KEY: "",   // a chave "anon public" (NÃO use a service_role)
-  WHATSAPP: ""             // seu número com 55 + DDD, ex: "5542999999999"
+  WHATSAPP: "",            // seu número com 55 + DDD, ex: "5542999999999"
+  PIX: ""                  // (opcional) sua chave Pix, vai junto nas mensagens de cobrança
 };
