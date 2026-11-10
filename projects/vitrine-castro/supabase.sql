@@ -311,6 +311,20 @@ $$;
 revoke execute on function public.metricas_admin_empresa(uuid, date) from public, anon;
 grant execute on function public.metricas_admin_empresa(uuid, date) to authenticated;
 
+-- Administrador: vendas (cupons) de UMA loja, para a ficha da empresa
+create or replace function public.vendas_admin_empresa(p_empresa uuid, p_desde date)
+returns table (codigo text, oferta_id uuid, criado_em timestamptz, usado_em timestamptz, valor numeric)
+language sql stable security definer set search_path = public as $$
+  select c.codigo, c.oferta_id, c.criado_em, c.usado_em, c.valor
+    from public.cupons c
+   where public.is_admin() and c.empresa_id = p_empresa
+     and (c.criado_em >= p_desde or c.usado_em >= p_desde)
+   order by coalesce(c.usado_em, c.criado_em) desc
+   limit 500
+$$;
+revoke execute on function public.vendas_admin_empresa(uuid, date) from public, anon;
+grant execute on function public.vendas_admin_empresa(uuid, date) to authenticated;
+
 revoke execute on function public.registrar_evento(uuid,text,text), public.emitir_cupom(uuid,text),
   public.consultar_cupom(text), public.confirmar_cupom(text,numeric), public.metricas_empresa(date) from public, anon;
 grant execute on function public.registrar_evento(uuid,text,text), public.emitir_cupom(uuid,text) to anon, authenticated;

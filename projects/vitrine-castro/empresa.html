@@ -286,17 +286,20 @@ async function esqueci(){const email=($("#lEmail").value||"").trim();if(!email){
 async function sair(){if(DEMO){if(!confirm("Apagar a loja e as ofertas de demonstração deste celular?"))return;localStorage.removeItem("vc_demo_emp");localStorage.removeItem("vc_demo_ofertas");empresa=null;ofertas=[];telaCadastroEmpresa();return}
   await db.auth.signOut();user=null;empresa=null;telaLogin()}
 
+function telaSouAdmin(){$("#main").innerHTML=`<div class="card" style="text-align:center"><div style="font-size:3rem" aria-hidden="true">👑</div><h2>Você é o administrador</h2>
+  <p class="sub">A administração fica em uma página separada, na coroa 👑 do topo do app.</p><a class="btn ouro" href="admin.html">Abrir a Administração</a>
+  <button class="btn claro" onclick="telaCadastroEmpresa()">🏪 Cadastrar uma loja minha também</button></div>`}
 // ===== INÍCIO =====
 async function iniciar(){
   if(DEMO){empresa=store.get("vc_demo_emp",null);$("#btnSair").classList.toggle("escondido",!empresa);$("#btnSair").textContent="Recomeçar";
-    if(!empresa){location.hash==="#participar"?telaCadastroEmpresa():telaBoasVindas();return}await carregarOfertas();if(location.hash==="#admin")ABA="admin";telaPainel();return}
+    if(!empresa){location.hash==="#participar"?telaCadastroEmpresa():telaBoasVindas();return}await carregarOfertas();telaPainel();return}
   const {data:{session}}=await db.auth.getSession();
   if(!session){location.hash==="#entrar"?telaLogin("entrar"):location.hash==="#participar"?telaLogin("criar"):telaBoasVindas();return}
   user=session.user;$("#btnSair").classList.remove("escondido");
   const [{data:emp},{data:adm}]=await Promise.all([db.from("empresas").select("*").eq("dono",user.id).maybeSingle(),db.from("admins").select("user_id").eq("user_id",user.id).maybeSingle()]);
   empresa=emp;admin=!!adm;
-  if(!empresa){admin?telaAdminSolo():telaCadastroEmpresa();return}
-  await carregarOfertas();if(admin&&location.hash==="#admin")ABA="admin";telaPainel();
+  if(!empresa){admin?telaSouAdmin():telaCadastroEmpresa();return}
+  await carregarOfertas();telaPainel();
 }
 async function carregarOfertas(){
   if(DEMO){ofertas=store.get("vc_demo_ofertas",[]);return}
@@ -371,10 +374,10 @@ function telaPainel(){
     <div class="nums"><span><b>${ofertas.length}</b>posts</span><span><b>${ativas}</b>no ar</span>${DEMO?"":`<span><b>${pl.lim}</b>limite</span>`}</div></div></div>
    <button class="btn claro" onclick="editarEmpresa()">✏️ Editar perfil da loja</button></div>
   <button class="postar" onclick="novoPost()"><span class="mais" aria-hidden="true">+</span><span><b>Postar oferta</b><small>Escolha a foto, escreva e publique. Leva 30 segundos.</small></span></button>
-  <div class="abas-p" role="tablist">${[["resultados","📊 Resultados"],["posts","📸 Meus posts"],["confirmar","✅ Confirmar compra"],["plano","💼 Meu plano"],...(admin||DEMO?[["admin","👑 Admin"]]:[])].map(([k,n])=>`<button role="tab" aria-selected="${ABA===k}" onclick="ABA='${k}';telaPainel()">${n}</button>`).join("")}</div>
+  <div class="abas-p" role="tablist">${[["resultados","📊 Resultados"],["posts","📸 Meus posts"],["confirmar","✅ Confirmar compra"],["plano","💼 Meu plano"]].map(([k,n])=>`<button role="tab" aria-selected="${ABA===k}" onclick="ABA='${k}';telaPainel()">${n}</button>`).join("")}</div>
   <div id="abaBox"></div>
   <div id="admBox"></div>`;
-  ({resultados:abaResultados,posts:abaPosts,confirmar:abaConfirmar,plano:abaPlano,admin:painelAdmin})[ABA]();
+  (({resultados:abaResultados,posts:abaPosts,confirmar:abaConfirmar,plano:abaPlano})[ABA]||abaResultados)();
 }
 function abaPosts(){
   $("#abaBox").innerHTML=ofertas.length?`<div class="grade">${ofertas.map(o=>{const st=venceu(o)?"Vencida":!o.ativa?"Pausada":"";return `<button onclick="verPost('${esc(o.id)}')" aria-label="${esc(o.titulo)}${st?", "+st:""}">${seguro(o.foto_url)?`<img src="${esc(o.foto_url)}" alt="" loading="lazy">`:"🏷️"}${st?`<span class="st">${st}</span>`:""}<span class="t">${esc(o.titulo)}</span></button>`}).join("")}</div>`
@@ -722,249 +725,6 @@ function abaPlano(){const wa=((window.CONFIG&&CONFIG.WHATSAPP)||"").replace(/\D/
   $("#abaBox").innerHTML=`<div class="card"><h2>💼 Meu plano</h2><p class="sub">${DEMO?"No modo demonstração todas as funções estão liberadas.":`Seu plano é o <b>${(PLANOS[atual]||{}).nome||atual}</b>. Para mudar, fale com a gente pelo WhatsApp.`}</p></div>
    ${PLANOS_VENDA.map(p=>`<div class="lp-plano ${p.id===atual?"dest":""}">${p.id===atual?'<span class="selo">SEU PLANO</span>':""}<b style="font-size:1.1rem">${p.nome}</b><div class="preco">${p.preco}<small> /mês</small></div><ul>${p.itens.map(i=>`<li>${i}</li>`).join("")}</ul>
     ${p.id!==atual&&wa?`<a class="btn claro" href="https://wa.me/${wa}?text=${encodeURIComponent(`Olá! Quero mudar a loja ${empresa.nome} para o plano ${p.nome} (${p.preco}/mês).`)}" target="_blank" rel="noopener">Quero o ${p.nome}</a>`:""}</div>`).join("")}`}
-
-// ===== ADMINISTRADOR (só você) =====
-/* ===================================================================
-   ADMINISTRAÇÃO: todas as empresas, aprovação, planos, ofertas e números
-   =================================================================== */
-function alvoAdmin(){return $("#abaBox")||$("#main")}
-let ADM={filtro:"todas",busca:"",periodo:30,ordem:"ajuda",detalhe:null};
-const NUM0=()=>({aparicao:0,visualizacao:0,whatsapp:0,cupom:0,entrega:0,compra:0,valor:0});
-function somaPorEmpresa(met){const num={};met.forEach(r=>{const n=num[r.empresa_id]=num[r.empresa_id]||NUM0();n[r.tipo]=(n[r.tipo]||0)+r.qtd;if(r.tipo==="compra")n.valor+=r.valor});return num}
-const desdePeriodo=()=>ADM.periodo===0?"2000-01-01":hojeISO(-(ADM.periodo-1));
-
-/* Lojas de exemplo: aparecem SÓ na demonstração, para você ver como a análise funciona.
-   No site real a lista mostra as empresas cadastradas de verdade. */
-const EX_ADM=[
- {id:"ex1",nome:"Pizzaria Castro",ramo:"Alimentação",plano:"premium",aprovada:true,whatsapp:"42999990001",endereco:"Rua Benjamin Constant, 120 – Centro",ha:120,ant:.8,
-  ofs:[{id:"ex1a",titulo:"20% OFF",ha:9,validade:12,destaque:true,n:{aparicao:900,visualizacao:310,whatsapp:40,cupom:95,entrega:38,compra:52,valor:3120}},
-       {id:"ex1b",titulo:"Leve 2, pague 1",ha:20,validade:5,n:{aparicao:500,visualizacao:150,whatsapp:12,cupom:41,entrega:20,compra:18,valor:1080}}]},
- {id:"ex2",nome:"VS Store",ramo:"Vestuário",plano:"destaque",aprovada:true,whatsapp:"42999990002",endereco:"Rua XV de Novembro, 300 – Centro",ha:90,ant:1.1,
-  ofs:[{id:"ex2a",titulo:"30% OFF",ha:12,validade:18,n:{aparicao:600,visualizacao:140,whatsapp:6,cupom:0,entrega:0,compra:0,valor:0}}]},
- {id:"ex3",nome:"VS Estética",ramo:"Estética",plano:"destaque",aprovada:true,whatsapp:"42999990003",endereco:"Rua Cel. Jorge Marcondes, 45",ha:75,ant:1,
-  ofs:[{id:"ex3a",titulo:"2 áreas grátis",ha:15,validade:30,n:{aparicao:400,visualizacao:120,whatsapp:15,cupom:30,entrega:0,compra:0,valor:0}}]},
- {id:"ex4",nome:"Farmácia Saúde Castro",ramo:"Saúde",plano:"basico",aprovada:true,whatsapp:"42999990004",endereco:"Av. Pres. Vargas, 800",ha:150,ant:2.4,
-  ofs:[{id:"ex4a",titulo:"15% OFF",ha:28,validade:20,n:{aparicao:260,visualizacao:70,whatsapp:5,cupom:14,entrega:4,compra:6,valor:410}}]},
- {id:"ex5",nome:"Pet Feliz",ramo:"Pet",plano:"basico",aprovada:true,whatsapp:"42999990005",endereco:"Rua Dr. Jorge Xavier da Silva, 50",ha:60,ant:1,
-  ofs:[{id:"ex5a",titulo:"10% OFF",ha:33,validade:25,n:{aparicao:120,visualizacao:9,whatsapp:0,cupom:1,entrega:0,compra:0,valor:0}}]},
- {id:"ex6",nome:"Barbearia Central",ramo:"Barbearia",plano:"basico",aprovada:true,whatsapp:"42999990006",endereco:"Praça Getúlio Vargas, 12",ha:200,ant:0,
-  ofs:[{id:"ex6a",titulo:"Corte + barba 20% OFF",ha:45,validade:-6,n:NUM0()}]},
- {id:"ex7",nome:"Academia Força Total",ramo:"Academia",plano:"basico",aprovada:false,whatsapp:"42999990007",endereco:"Rua Sete de Setembro, 999",ha:1,ant:0,ofs:[]}];
-const exFator=()=>(ADM.periodo||90)/30;
-function exemplosAdm(){const f=exFator(),emps=[],ofs=[],met=[],ant={};
-  EX_ADM.forEach(e=>{emps.push({id:e.id,nome:e.nome+" (exemplo)",ramo:e.ramo,plano:e.plano,aprovada:e.aprovada,whatsapp:e.whatsapp,endereco:e.endereco,abre:"09:00",fecha:"19:00",dias_func:"1,2,3,4,5,6",criado_em:new Date(Date.now()-e.ha*864e5).toISOString(),exemplo:true});
-    const a=ant[e.id]=NUM0();
-    e.ofs.forEach(o=>{ofs.push({id:o.id,titulo:o.titulo,empresa_id:e.id,ativa:true,destaque:!!o.destaque,banner:false,foto_url:"",criado_em:new Date(Date.now()-o.ha*864e5).toISOString(),validade:hojeISO(o.validade)});
-      Object.keys(TIPOS).concat("valor").forEach(t=>{const v=Math.round((o.n[t]||0)*f);if(t!=="valor"&&v)met.push({empresa_id:e.id,tipo:t,qtd:v,valor:t==="compra"?Math.round(o.n.valor*f):0});a[t]+=Math.round((o.n[t]||0)*f*e.ant)})})});
-  return {emps,ofs,met,ant}}
-function exemploDias(id){const e=EX_ADM.find(x=>x.id===id),n=ADM.periodo===0?60:ADM.periodo,rows=[],f=exFator();
-  const pesos=[...Array(n)].map((_,i)=>1+.6*Math.sin(i*1.3)+(i%7>=5?.7:0)),soma=pesos.reduce((s,p)=>s+p,0);
-  (e?e.ofs:[]).forEach(o=>Object.keys(TIPOS).forEach(t=>pesos.forEach((p,i)=>{const q=Math.round((o.n[t]||0)*f*p/soma);if(q)rows.push({oferta_id:o.id,tipo:t,dia:hojeISO(-(n-1-i)),qtd:q,valor:t==="compra"?Math.round(o.n.valor*f*p/soma):0})})));
-  return rows}
-
-async function dadosAdmin(){
-  const P=ADM.periodo,desde=desdePeriodo(),desdeAnt=P===0?null:hojeISO(-(2*P-1));
-  if(DEMO){const emp=store.get("vc_demo_emp",null),ofs=store.get("vc_demo_ofertas",[]),ids=new Set(ofs.map(o=>String(o.id)));
-    const evs=store.get("vc_demo_eventos",[]).filter(ev=>ids.has(String(ev.oferta)));
-    const agreg=(de,ate)=>{const m={};evs.forEach(ev=>{if(ev.dia<de||(ate&&ev.dia>=ate))return;const k=ev.tipo;m[k]=m[k]||{empresa_id:"demo",tipo:ev.tipo,qtd:0,valor:0};m[k].qtd++;m[k].valor+=Number(ev.valor)||0});return Object.values(m)};
-    const ex=exemplosAdm(),ant=somaPorEmpresa(desdeAnt?agreg(desdeAnt,desde):[]);
-    return {emps:(emp?[{...emp,id:"demo",nome:emp.nome+" (sua loja de teste)",criado_em:emp.criado_em||new Date().toISOString()}]:[]).concat(ex.emps),
-      ofs:ofs.map(o=>({...o,empresa_id:"demo"})).concat(ex.ofs),met:agreg(desde).concat(ex.met),ant:desdeAnt?{...ex.ant,...ant}:null}}
-  const cols="id,titulo,foto_url,ativa,validade,destaque,banner,banner_topo,empresa_id,criado_em";
-  const rpc=d=>db.rpc("metricas_admin",{p_desde:d});
-  const [a,b,c,c2]=await Promise.all([db.from("empresas").select("*").order("criado_em",{ascending:false}),
-    db.from("ofertas").select(cols+",preco_de,preco_por,limite_cupons,inicia_em,entrega").order("criado_em",{ascending:false}),
-    rpc(desde),desdeAnt?rpc(desdeAnt):Promise.resolve({data:null})]);
-  if(a.error)throw a.error;
-  const ofs=b.error?await db.from("ofertas").select(cols).order("criado_em",{ascending:false}):b;   // banco ainda sem as colunas novas
-  const norm=rows=>(rows||[]).map(r=>({...r,empresa_id:String(r.empresa_id),qtd:Number(r.qtd)||0,valor:Number(r.valor)||0}));
-  const met=norm(c.data);let ant=null;
-  if(desdeAnt&&!c2.error&&c2.data){const tudo=somaPorEmpresa(norm(c2.data)),cur=somaPorEmpresa(met);ant={};   // período anterior = (2 períodos) − (período atual)
-    Object.keys(tudo).forEach(id=>{ant[id]=NUM0();Object.keys(ant[id]).forEach(t=>ant[id][t]=Math.max(0,(tudo[id][t]||0)-((cur[id]||{})[t]||0)))})}
-  return {emps:a.data||[],ofs:ofs.data||[],met,ant,semNumeros:!!c.error}}
-
-/* ---------- Diagnóstico: está tendo procura? precisa de promoção nova? ---------- */
-const noArAdm=o=>o.ativa&&!venceu(o)&&!(o.inicia_em&&o.inicia_em>hojeISO());
-function diagnostico(x,n,ant,os,media){
-  const noAr=os.filter(noArAdm);
-  const ult=os.length?Math.floor((Date.now()-Math.max(...os.map(o=>new Date(o.criado_em).getTime())))/864e5):null;
-  const vence=Math.min(99,...noAr.map(o=>o.validade?Math.ceil((new Date(o.validade+"T23:59:59")-Date.now())/864e5)-1:99));
-  let d;
-  if(!x.aprovada)d={nivel:0,cor:"az",ic:"⏳",t:"Em análise",txt:"Loja nova esperando aprovação. Confira os dados e aprove para ela aparecer no app.",dicas:["Confira nome, WhatsApp e endereço.","Aprove e combine o plano pelo WhatsApp."]};
-  else if(!noAr.length)d={nivel:1,cor:"vm",ic:"🚫",t:"Sem oferta no ar",txt:os.length?"Todas as ofertas estão pausadas ou vencidas. Hoje a loja não aparece no app.":"A loja ainda não postou nenhuma oferta.",
-    dicas:["Pedir para postar uma oferta nova (leva 1 minuto pelo celular).","Sugerir um desconto de 20% ou 30% para recomeçar com força."]};
-  else if(n.visualizacao===0||(media>=5&&n.visualizacao<media*.3))d={nivel:1,cor:"vm",ic:"🔴",t:n.visualizacao?"Pouca procura":"Ninguém abriu as ofertas",
-    txt:`${fmtN(n.visualizacao)} visualizaç${n.visualizacao===1?"ão":"ões"} no período. A média das lojas do app é ${fmtN(media)}.`,
-    dicas:["Trocar a foto por uma mais bonita e clara do produto.","Aumentar o desconto (ex.: de 10% para 20% ou 30%).","Colocar a oferta em ★ Destaque ou no banner do topo por alguns dias."]};
-  else if(n.cupom===0)d={nivel:2,cor:"lj",ic:"🟠",t:"Veem, mas não pegam cupom",txt:`${fmtN(n.visualizacao)} pessoas abriram a oferta, mas ninguém pegou o cupom. A oferta não está convencendo.`,
-    dicas:["Mostrar o preço “De/Por” para o cliente ver quanto economiza.","Deixar a legenda mais direta, com o produto e o preço.","Testar um desconto maior ou um brinde na compra."]};
-  else if(n.compra===0)d={nivel:2,cor:"lj",ic:"🟡",t:"Pegam cupom, mas sem compra confirmada",txt:`${fmtN(n.cupom)} cupo${n.cupom===1?"m":"ns"} pego${n.cupom===1?"":"s"} e nenhuma compra confirmada no painel.`,
-    dicas:["Lembrar a loja de confirmar as compras no painel (aba ✅ Confirmar compra).","Se a oferta é “só na loja”, sugerir ativar a entrega.","Conferir se os dias e horários da oferta não estão muito apertados."]};
-  else if(ant&&ant.visualizacao>=5&&n.visualizacao<ant.visualizacao*.6)d={nivel:3,cor:"am",ic:"📉",t:"Procura caindo",
-    txt:`As visualizações caíram de ${fmtN(ant.visualizacao)} para ${fmtN(n.visualizacao)} em relação ao período anterior.`,
-    dicas:["Renovar a oferta com foto e desconto novos.","Fazer uma oferta relâmpago de fim de semana."]};
-  else if(vence<=3)d={nivel:3,cor:"am",ic:"⌛",t:vence<=0?"Oferta vence hoje":`Oferta vence em ${vence} dia${vence>1?"s":""}`,txt:"Se não postar outra, a loja some do app.",dicas:["Lembrar a loja de renovar a oferta ou postar uma nova."]};
-  else d={nivel:4,cor:"vd",ic:"🟢",t:"Vendendo bem",txt:`${fmtN(n.compra)} compra${n.compra===1?"":"s"} confirmada${n.compra===1?"":"s"} · ${fmtR(n.valor)} vendidos pelo app.`,
-    dicas:x.plano==="premium"?["Pedir um depoimento da loja para usar na divulgação do Vitrine."]:["Oferecer o plano Destaque/Premium para vender ainda mais."]};
-  if(x.aprovada&&ult!==null&&ult>=21)d.dicas.push(`A última oferta foi postada há ${ult} dias. Uma novidade chama atenção.`);
-  d.ult=ult;return d}
-const NIVEIS=[["ajuda","⚠️ Precisam de ajuda"],["analise","⏳ Em análise"],["vd","🟢 Vendendo bem"]];
-function tendencia(atual,antes){if(antes==null)return "";if(!antes&&!atual)return "";if(!antes)return `<span class="tend up">novo</span>`;
-  const p=Math.round((atual-antes)/antes*100);return p===0?`<span class="tend">= 0%</span>`:`<span class="tend ${p>0?"up":"dn"}">${p>0?"▲":"▼"} ${Math.abs(p)}%</span>`}
-function analiseAdm(d){
-  const num=somaPorEmpresa(d.met),info={};
-  d.emps.forEach(x=>{const os=d.ofs.filter(o=>String(o.empresa_id)===String(x.id));info[x.id]={x,os,n:num[x.id]||NUM0(),ant:d.ant?(d.ant[x.id]||NUM0()):null}});
-  const comOferta=Object.values(info).filter(i=>i.x.aprovada&&i.os.some(noArAdm));
-  const media=comOferta.length?comOferta.reduce((s,i)=>s+i.n.visualizacao,0)/comOferta.length:0;
-  Object.values(info).forEach(i=>i.d=diagnostico(i.x,i.n,i.ant,i.os,media));
-  const rank=Object.values(info).filter(i=>i.x.aprovada).sort((a,b)=>b.n.valor-a.n.valor||b.n.compra-a.n.compra||b.n.visualizacao-a.n.visualizacao);
-  rank.forEach((i,k)=>i.pos=k+1);
-  return {info,media,rank}}
-
-async function painelAdmin(recarregar=true){
-  ADM.detalhe=null;
-  const box=alvoAdmin();let d=!recarregar&&window._adm;
-  if(!d){box.innerHTML=`<div class="vazio"><span class="e">⏳</span>Carregando empresas…</div>`;
-    try{d=await dadosAdmin()}catch(err){box.innerHTML=`<div class="aviso">${esc(traduzErro(err))}</div>`;return}}
-  window._adm=d;const A=analiseAdm(d);window._admA=A;
-  const todas=Object.values(A.info),num=todas.map(i=>i.n);
-  const tot={lojas:d.emps.length,aprov:d.emps.filter(x=>x.aprovada).length,analise:d.emps.filter(x=>!x.aprovada).length,ofertas:d.ofs.filter(noArAdm).length,
-    vis:num.reduce((s,n)=>s+n.visualizacao,0),cup:num.reduce((s,n)=>s+n.cupom,0),vendas:num.reduce((s,n)=>s+n.compra,0),valor:num.reduce((s,n)=>s+n.valor,0)};
-  const ajuda=todas.filter(i=>i.d.nivel>=1&&i.d.nivel<=3),cont=c=>todas.filter(i=>i.d.cor===c).length;
-  const q=ADM.busca.trim().toLowerCase();
-  const lista=todas.filter(i=>ADM.filtro==="todas"||(ADM.filtro==="ajuda"&&i.d.nivel>=1&&i.d.nivel<=3)||(ADM.filtro==="analise"&&!i.x.aprovada)||(ADM.filtro==="vd"&&i.d.nivel===4)||(ADM.filtro===i.x.plano))
-    .filter(i=>!q||(i.x.nome+" "+i.x.ramo+" "+(i.x.whatsapp||"")).toLowerCase().includes(q))
-    .sort(ADM.ordem==="vendas"?(a,b)=>b.n.valor-a.n.valor||b.n.compra-a.n.compra:ADM.ordem==="vistas"?(a,b)=>b.n.visualizacao-a.n.visualizacao:ADM.ordem==="nome"?(a,b)=>a.x.nome.localeCompare(b.x.nome,"pt-BR"):(a,b)=>a.d.nivel-b.d.nivel||a.n.visualizacao-b.n.visualizacao);
-  const per=ADM.periodo?`últimos ${ADM.periodo} dias`:"desde o início";
-  box.innerHTML=`${DEMO?`<div class="aviso">👑 <b>Prévia da administração.</b> As lojas marcadas “(exemplo)” são de mentira, só para você ver como a análise funciona. No site real aparecem <b>todas as empresas cadastradas</b>.</div>`:""}
-   <div class="card" style="border:2px solid var(--ouro)"><h2>👑 Administração do Vitrine</h2><p class="sub">Só você vê esta área. Números dos ${per}:</p>
-    <div class="chips" style="margin:8px 0 12px">${[[7,"7 dias"],[30,"30 dias"],[0,"Tudo"]].map(([v,n])=>`<button type="button" aria-pressed="${ADM.periodo===v}" onclick="ADM.periodo=${v};painelAdmin()">${n}</button>`).join("")}</div>
-    <div class="kpis">
-     <div class="kpi"><div class="n">${tot.lojas}</div><div class="r">🏪 Empresas</div><small>${tot.aprov} aprovada${tot.aprov===1?"":"s"} · ${tot.ofertas} oferta${tot.ofertas===1?"":"s"} no ar</small></div>
-     <div class="kpi"><div class="n" style="color:${tot.analise?"#b45309":"inherit"}">${tot.analise}</div><div class="r">⏳ Em análise</div><small>aguardando você aprovar</small></div>
-     <div class="kpi"><div class="n">${fmtN(tot.vis)}</div><div class="r">👀 Visualizações</div><small>${fmtN(tot.cup)} cupons pegos</small></div>
-     <div class="kpi"><div class="n">${fmtN(tot.vendas)}</div><div class="r">✅ Vendas confirmadas</div><small>pelo app</small></div>
-     <div class="kpi ouro" style="grid-column:1/-1"><div class="n">${fmtR(tot.valor)}</div><div class="r">💰 Vendido pelo Vitrine</div><small>soma de todas as compras confirmadas pelas lojas</small></div>
-    </div>${d.semNumeros?`<p class="ajuda" style="margin-top:8px">Para ver os números de todas as lojas, rode a atualização do banco (supabase.sql).</p>`:""}</div>
-
-   <div class="card adm-alerta">
-    <h3>🩺 Termômetro das lojas</h3>
-    <p class="ajuda" style="margin-bottom:10px">O app analisa a procura de cada loja e mostra quem precisa de uma promoção nova.</p>
-    <div class="termo">
-     <button type="button" class="t vm" onclick="ADM.filtro='ajuda';painelAdmin(false)"><b>${cont("vm")}</b>🔴 Sem procura ou sem oferta</button>
-     <button type="button" class="t lj" onclick="ADM.filtro='ajuda';painelAdmin(false)"><b>${cont("lj")}</b>🟠 Veem, mas não compram</button>
-     <button type="button" class="t am" onclick="ADM.filtro='ajuda';painelAdmin(false)"><b>${cont("am")}</b>📉 Caindo ou vencendo</button>
-     <button type="button" class="t vd" onclick="ADM.filtro='vd';painelAdmin(false)"><b>${cont("vd")}</b>🟢 Vendendo bem</button>
-    </div>
-    ${ajuda.length?`<p style="margin-top:10px;font-weight:600">⚠️ ${ajuda.length} loja${ajuda.length===1?" precisa":"s precisam"} de atenção. Toque no nome para ver a análise.</p>`:""}
-   </div>
-
-   <h2 style="margin:16px 0 8px">Empresas cadastradas (${tot.lojas})</h2>
-   <input class="inp" type="search" placeholder="🔎 Buscar por nome, ramo ou WhatsApp" value="${esc(ADM.busca)}" oninput="ADM.busca=this.value;clearTimeout(window._tb);window._tb=setTimeout(()=>painelAdmin(false),350)" id="admBusca" aria-label="Buscar empresa">
-   <div class="chips" style="margin:10px 0 8px">${[["todas","Todas"],["ajuda",`⚠️ Precisam de ajuda (${ajuda.length})`],["analise",`⏳ Em análise (${tot.analise})`],["vd","🟢 Vendendo bem"],["basico","Básico"],["destaque","Destaque"],["premium","Premium"]].map(([k,n])=>`<button type="button" aria-pressed="${ADM.filtro===k}" onclick="ADM.filtro='${k}';painelAdmin(false)">${n}</button>`).join("")}</div>
-   <label for="admOrdem" style="margin:4px 0 6px">Ordenar por</label>
-   <select class="inp" id="admOrdem" onchange="ADM.ordem=this.value;painelAdmin(false)">${[["ajuda","Quem precisa de ajuda primeiro"],["vendas","Quem mais vendeu"],["vistas","Mais visualizações"],["nome","Nome (A a Z)"]].map(([k,n])=>`<option value="${k}" ${ADM.ordem===k?"selected":""}>${n}</option>`).join("")}</select>
-   <div style="margin-top:12px">
-   ${lista.length?lista.map(({x,n,ant,os,d:dg,pos})=>`<button type="button" class="adm-linha" onclick="admDetalhe('${esc(x.id)}')" aria-label="Ver análise de ${esc(x.nome)}">
-     <span class="logo">${seguro(x.logo_url)?`<img src="${esc(x.logo_url)}" alt="">`:"🏪"}</span>
-     <span class="meio"><b>${esc(x.nome)}</b>
-      <span class="selo-d ${dg.cor}">${dg.ic} ${esc(dg.t)}</span>
-      <span class="mini-n">${esc(x.ramo||"")} · ${esc((PLANOS[x.plano]||{nome:x.plano||"—"}).nome)}${pos?` · ${pos}º em vendas`:""}</span>
-      <span class="mini-n"><span>👀 <b>${fmtN(n.visualizacao)}</b>${tendencia(n.visualizacao,ant&&ant.visualizacao)}</span><span>🎟️ <b>${fmtN(n.cupom)}</b></span><span>✅ <b>${fmtN(n.compra)}</b></span><span>💰 <b>${fmtR(n.valor)}</b></span></span></span>
-     <span class="chev" aria-hidden="true">›</span></button>`).join("")
-    :`<div class="vazio"><span class="e">🏪</span>Nenhuma empresa ${ADM.filtro==="analise"?"em análise":ADM.filtro==="ajuda"?"precisando de ajuda agora 🎉":"encontrada"}.</div>`}</div>`;
-  const i=$("#admBusca");if(i&&ADM.busca&&document.activeElement!==i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}
-}
-
-/* ---------- Ficha completa de uma empresa ---------- */
-async function admDetalhe(id){
-  const box=alvoAdmin();ADM.detalhe=id;
-  if(!window._adm||!window._admA||!window._admA.info[id]){try{window._adm=await dadosAdmin();window._admA=analiseAdm(window._adm)}catch(err){box.innerHTML=`<div class="aviso">${esc(traduzErro(err))}</div>`;return}}
-  const A=window._admA,I=A.info[id];if(!I){painelAdmin();return}
-  const {x,n,ant,os,d:dg}=I;
-  box.innerHTML=`<div class="vazio"><span class="e">⏳</span>Analisando ${esc(x.nome)}…</div>`;window.scrollTo(0,0);
-  let rows=[];
-  if(x.exemplo)rows=exemploDias(id);
-  else if(DEMO){const ids=new Set(os.map(o=>String(o.id))),m={},desde=desdePeriodo();store.get("vc_demo_eventos",[]).forEach(ev=>{if(!ids.has(String(ev.oferta))||ev.dia<desde)return;const k=ev.oferta+"|"+ev.tipo+"|"+ev.dia;m[k]=m[k]||{oferta_id:String(ev.oferta),tipo:ev.tipo,dia:ev.dia,qtd:0,valor:0};m[k].qtd++;m[k].valor+=Number(ev.valor)||0});rows=Object.values(m)}
-  else{const r=await db.rpc("metricas_admin_empresa",{p_empresa:id,p_desde:desdePeriodo()});if(!r.error)rows=(r.data||[]).map(r=>({...r,oferta_id:String(r.oferta_id),qtd:Number(r.qtd)||0,valor:Number(r.valor)||0}))}
-  if(ADM.detalhe!==id)return;
-  const porOf={},porDia={};rows.forEach(r=>{const o=porOf[r.oferta_id]=porOf[r.oferta_id]||NUM0();o[r.tipo]+=r.qtd;if(r.tipo==="compra")o.valor+=r.valor;
-    const dd=porDia[r.dia]=porDia[r.dia]||{v:0,c:0,k:0};if(r.tipo==="visualizacao")dd.v+=r.qtd;if(r.tipo==="cupom")dd.c+=r.qtd;if(r.tipo==="compra")dd.k+=r.qtd});
-  const nDias=ADM.periodo===0?30:Math.min(ADM.periodo,30),dias=[...Array(nDias)].map((_,i)=>hojeISO(-(nDias-1-i)));
-  const maxV=Math.max(1,...dias.map(d=>(porDia[d]||{}).v||0));
-  const mesmoRamo=Object.values(A.info).filter(i=>i.x.aprovada&&i.x.ramo===x.ramo&&i.os.some(noArAdm));
-  const mediaRamo=mesmoRamo.length?mesmoRamo.reduce((s,i)=>s+i.n.visualizacao,0)/mesmoRamo.length:0;
-  const pct=(a,b)=>b?Math.round(a/b*100):0;
-  const funil=[["📣","Viram na tela",n.aparicao],["👀","Abriram a oferta",n.visualizacao],["🎟️","Pegaram cupom",n.cupom],["✅","Compraram",n.compra]],fMax=Math.max(1,...funil.map(f=>f[2]));
-  const ofs=os.map(o=>({o,m:porOf[String(o.id)]||NUM0()})).sort((a,b)=>b.m.compra-a.m.compra||b.m.cupom-a.m.cupom||b.m.visualizacao-a.m.visualizacao);
-  const melhor=ofs.length>1&&(ofs[0].m.cupom||ofs[0].m.compra)?String(ofs[0].o.id):null;
-  const zap=String(x.whatsapp||"").replace(/\D/g,""),zapUrl=t=>`https://wa.me/${zap.length<=11?"55"+zap:zap}?text=${encodeURIComponent(t)}`;
-  const per=ADM.periodo?`nos últimos ${ADM.periodo} dias`:"desde o início";
-  const msg=`Olá! Aqui é do Vitrine Castro 😊 Veja como está a ${x.nome.replace(/ \((exemplo|sua loja de teste)\)$/,"")} no app ${per}: 👀 ${fmtN(n.visualizacao)} visualizações, 🎟️ ${fmtN(n.cupom)} cupons e ✅ ${fmtN(n.compra)} compras confirmadas. Dica: ${dg.dicas[0]} Quer ajuda para montar uma promoção nova?`;
-  const linha=(ic,txt)=>txt?`<p class="ajuda" style="margin-top:3px">${ic} ${txt}</p>`:"";
-  const horario=x.abre&&x.fecha?`${String(x.abre).slice(0,5)} às ${String(x.fecha).slice(0,5)}${x.dias_func?" · "+String(x.dias_func).split(",").map(k=>["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"][k]).filter(Boolean).join(", "):""}`:"";
-  box.innerHTML=`<button class="mini" style="margin-bottom:12px" onclick="painelAdmin(false)">← Voltar para a lista</button>
-   <div class="card">
-    <div class="perfil-loja" style="gap:12px"><div class="logo" style="width:64px;height:64px">${seguro(x.logo_url)?`<img src="${esc(x.logo_url)}" alt="">`:"🏪"}</div>
-     <div style="flex:1;min-width:0"><h2 style="margin:0">${esc(x.nome)}</h2>
-      <span class="status ${x.aprovada?"ok":"pend"}">${x.aprovada?"✓ Aprovada":"⏳ Em análise"}</span> <span class="status pausa">Plano ${esc((PLANOS[x.plano]||{nome:x.plano||"—"}).nome)}</span>${I.pos?` <span class="status pausa">🏆 ${I.pos}º de ${A.rank.length} em vendas</span>`:""}</div></div>
-    ${linha("🏷️",esc(x.ramo||""))}${linha("📍",esc(x.endereco||""))}${linha("📞",esc(x.whatsapp||""))}${linha("🕘",esc(horario))}${x.instagram?linha("📸","@"+esc(x.instagram)):""}${linha("📅","No Vitrine desde "+new Date(x.criado_em).toLocaleDateString("pt-BR")+(dg.ult!=null?` · última oferta postada há ${dg.ult} dia${dg.ult===1?"":"s"}`:""))}
-   </div>
-
-   <div class="diag ${dg.cor}"><div class="dt">${dg.ic} ${esc(dg.t)}</div><p>${esc(dg.txt)}</p>
-    <p style="font-weight:700;margin-top:8px">💡 O que sugerir para a loja:</p><ul>${dg.dicas.map(t=>`<li>${esc(t)}</li>`).join("")}</ul>
-    ${zap?`<a class="btn" style="background:linear-gradient(#2fd36b,#13a049);margin-top:10px" href="${zapUrl(msg)}" target="_blank" rel="noopener">💬 Mandar análise e sugestão pelo WhatsApp</a>`:""}</div>
-
-   <div class="chips" style="margin:14px 0 10px">${[[7,"7 dias"],[30,"30 dias"],[0,"Tudo"]].map(([v,t])=>`<button type="button" aria-pressed="${ADM.periodo===v}" onclick="ADM.periodo=${v};window._adm=null;admDetalhe('${esc(id)}')">${t}</button>`).join("")}</div>
-   <div class="kpis">
-    <div class="kpi"><div class="n">${fmtN(n.visualizacao)}</div><div class="r">👀 Visualizações ${tendencia(n.visualizacao,ant&&ant.visualizacao)}</div><small>média do app: ${fmtN(A.media)}${mesmoRamo.length>1?` · do ramo: ${fmtN(mediaRamo)}`:""}</small></div>
-    <div class="kpi"><div class="n">${fmtN(n.cupom)}</div><div class="r">🎟️ Cupons ${tendencia(n.cupom,ant&&ant.cupom)}</div><small>clientes interessados</small></div>
-    <div class="kpi"><div class="n">${fmtN(n.entrega+n.whatsapp)}</div><div class="r">💬 Contatos</div><small>${fmtN(n.entrega)} pedidos de entrega · ${fmtN(n.whatsapp)} no WhatsApp</small></div>
-    <div class="kpi"><div class="n">${fmtN(n.compra)}</div><div class="r">✅ Compras ${tendencia(n.compra,ant&&ant.compra)}</div><small>confirmadas pela loja</small></div>
-    <div class="kpi ouro" style="grid-column:1/-1"><div class="n">${fmtR(n.valor)}</div><div class="r">💰 Vendido pelo Vitrine ${tendencia(n.valor,ant&&ant.valor)}</div><small>${n.compra?`ticket médio ${fmtR(n.valor/n.compra)}`:"nenhuma compra confirmada no período"}</small></div>
-   </div>
-
-   <div class="card" style="margin-top:14px"><h3>🔻 Caminho do cliente</h3><p class="ajuda">Mostra em que parte a loja está perdendo clientes.</p>
-    ${funil.map(([ic,t,v],k)=>`<div class="funil"><div class="fl"><span>${ic} ${t}</span><b>${fmtN(v)}${k?` <small>(${pct(v,funil[k-1][2])}%)</small>`:""}</b></div><div class="fb"><i style="width:${Math.max(v?3:0,v/fMax*100)}%"></i></div></div>`).join("")}
-    <p class="ajuda" style="margin-top:8px">Os números entre parênteses mostram quantos passaram da etapa anterior.</p></div>
-
-   <div class="card" style="margin-top:14px"><h3>📅 Procura por dia</h3><p class="ajuda">Barras azuis: visualizações · douradas: cupons pegos</p>
-    <div class="graf">${dias.map(dd=>{const v=porDia[dd]||{v:0,c:0};return `<div title="${dataBR(dd)}: ${v.v} visualizações, ${v.c} cupons"><i style="height:${v.v/maxV*100}%"></i><i class="c" style="height:${v.c/maxV*100}%"></i></div>`}).join("")}</div>
-    <div class="graf-leg"><span>${dataBR(dias[0]).slice(0,5)}</span><span>${dataBR(dias[dias.length-1]).slice(0,5)}</span></div></div>
-
-   <h3 style="margin:16px 0 8px">🏷️ Ofertas da loja (${os.length})</h3>
-   ${ofs.length?ofs.map(({o,m})=>{const ar=noArAdm(o),dv=o.validade?Math.ceil((new Date(o.validade+"T23:59:59")-Date.now())/864e5)-1:null;
-     return `<div class="oft-num" style="flex-wrap:wrap"><div class="ft">${seguro(o.foto_url)?`<img src="${esc(o.foto_url)}" alt="">`:"🏷️"}</div><div style="flex:1;min-width:0"><b>${esc(o.titulo)}</b>
-      <span class="mini-n" style="display:flex"><span>${ar?`<span class="status ok">no ar</span>`:`<span class="status pausa">${venceu(o)?"vencida":o.inicia_em&&o.inicia_em>hojeISO()?"agendada":"pausada"}</span>`}</span>${String(o.id)===melhor?`<span class="status ok">🏆 Melhor oferta</span>`:""}${ar&&m.visualizacao>=5&&!m.cupom?`<span class="status pend">😴 ninguém pegou</span>`:""}</span>
-      <div class="mini-n"><span>👀 <b>${fmtN(m.visualizacao)}</b></span><span>🎟️ <b>${fmtN(m.cupom)}</b></span><span>✅ <b>${fmtN(m.compra)}</b></span><span>💰 <b>${fmtR(m.valor)}</b></span>${m.visualizacao?`<span>conversão <b>${pct(m.cupom,m.visualizacao)}%</b></span>`:""}</div>
-      <p class="ajuda" style="margin-top:2px">Postada em ${new Date(o.criado_em).toLocaleDateString("pt-BR")}${dv!=null&&ar?` · ${dv<=0?"vence hoje":`vence em ${dv} dia${dv>1?"s":""}`}`:""}${o.preco_de&&o.preco_por?` · de ${fmtR(o.preco_de)} por ${fmtR(o.preco_por)}`:""}</p></div>
-      <div style="display:flex;gap:6px;width:100%"><button class="mini ${o.destaque?"ou":""}" onclick="admOferta('${esc(o.id)}',{destaque:${!o.destaque}})">${o.destaque?"★ Em destaque":"☆ Pôr em destaque"}</button>
-       <button class="mini ${o.banner?"ou":""}" onclick="admBanner('${esc(o.id)}',${!o.banner},'${esc(o.banner_topo||"")}')">${o.banner?"🖼 No banner":"🖼 Pôr no banner"}</button></div></div>`}).join("")
-    :`<div class="vazio"><span class="e">🏷️</span>Esta loja ainda não postou ofertas.</div>`}
-
-   <div class="card" style="margin-top:14px"><h3>⚙️ Ações</h3>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
-     ${x.aprovada?`<button class="mini" onclick="admEmpresa('${esc(x.id)}',{aprovada:false})">⏸ Suspender loja</button>`:`<button class="mini ou" onclick="admEmpresa('${esc(x.id)}',{aprovada:true})">✓ Aprovar loja</button>`}
-     <select class="mini" aria-label="Plano de ${esc(x.nome)}" onchange="admEmpresa('${esc(x.id)}',{plano:this.value})">${Object.entries(PLANOS).map(([k,v])=>`<option value="${k}" ${k===x.plano?"selected":""}>Plano ${v.nome}</option>`).join("")}</select>
-     ${zap?`<a class="mini" style="display:inline-flex;align-items:center;text-decoration:none;background:#dff5e7;color:#0d6b31" href="${zapUrl("Olá! Aqui é do Vitrine Castro, sobre a loja "+x.nome.replace(/ \((exemplo|sua loja de teste)\)$/,"")+".")}" target="_blank" rel="noopener">💬 Chamar no WhatsApp</a>`:""}
-    </div></div>
-   <button class="btn claro" style="margin-top:14px" onclick="painelAdmin(false)">← Voltar para a lista de empresas</button>`;
-}
-function admAtualizar(){window._adm=null;ADM.detalhe?admDetalhe(ADM.detalhe):painelAdmin()}
-
-// ações do administrador (no modo demonstração mudam só a loja de teste deste celular)
-const exemplo=id=>/^ex\d/.test(String(id))&&(toast("Esta é uma loja de exemplo, só para demonstração"),true);
-async function admEmpresa(id,campos){if(exemplo(id))return;
-  if(DEMO){const emp=store.get("vc_demo_emp",{});Object.assign(emp,campos);store.set("vc_demo_emp",emp);empresa=emp;toast("✅ Atualizado");admAtualizar();return}
-  const {error}=await db.from("empresas").update(campos).eq("id",id);toast(error?traduzErro(error):"✅ Atualizado");admAtualizar()}
-async function admOferta(id,campos){if(exemplo(id))return;
-  if(DEMO){const l=store.get("vc_demo_ofertas",[]),o=l.find(x=>String(x.id)===String(id));if(o)Object.assign(o,campos);store.set("vc_demo_ofertas",l);ofertas=l;toast("✅ Atualizado");admAtualizar();return}
-  const {error}=await db.from("ofertas").update(campos).eq("id",id);toast(error?traduzErro(error):"✅ Atualizado");admAtualizar()}
-function telaAdminSolo(){$("#btnSair").classList.remove("escondido");
-  $("#main").innerHTML=`<div id="abaBox"></div><button class="btn claro" onclick="telaCadastroEmpresa()">🏪 Cadastrar uma loja minha também</button>`;painelAdmin()}
-function admBanner(id,ligar,topo){if(exemplo(id))return;if(!ligar){admOferta(id,{banner:false});return}
-  abrirSheet(`<h2 style="margin-top:8px">Colocar no banner do topo</h2><p class="sub">A oferta precisa ter foto. Escreva uma chamada curta que aparece acima do desconto.</p>
-  <label for="bTopo">Chamada (opcional)</label><input class="inp" id="bTopo" maxlength="20" value="${topo}" placeholder="Ex: LIQUIDAÇÃO"><button class="btn ouro" onclick="fechar();admOferta('${id}',{banner:true,banner_topo:$('#bTopo').value.trim().toUpperCase()||null})">Colocar no banner</button>`)}
 
 document.addEventListener("keydown",e=>{if(e.key==="Escape")fechar()});
 if(!DEMO)db.auth.onAuthStateChange((ev)=>{if(ev==="PASSWORD_RECOVERY")abrirSheet(`<h2 style="margin-top:8px">Criar nova senha</h2><form onsubmit="novaSenha(event)"><label for="nSenha">Nova senha</label><input class="inp" id="nSenha" type="password" minlength="6" required autocomplete="new-password"><button class="btn">Salvar senha</button></form>`)});

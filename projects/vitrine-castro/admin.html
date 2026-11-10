@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="robots" content="noindex, nofollow">
+<title>Administração – Vitrine Castro</title>
+<link rel="icon" type="image/png" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--azul:#0E1428;--azul2:#1F2B57;--ouro:#D4A537;--txt:#0b1a45;--cinza:#4a5578;--verde:#13a049;--verm:#d9141a;--creme:#FAF6EC}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
+body{font-family:Poppins,system-ui,sans-serif;background:#e9e3d3;color:var(--txt);line-height:1.4}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:3px solid var(--ouro);outline-offset:2px}
+.app{max-width:560px;margin:0 auto;min-height:100vh;background:var(--creme);padding-bottom:40px}
+header{background:#000;color:#fff;padding:calc(14px + env(safe-area-inset-top)) 16px 16px;border-radius:0 0 24px 24px;display:flex;align-items:center;gap:10px}
+header .v{font-family:Montserrat,Poppins,sans-serif;font-size:1.4rem;font-weight:800}
+header .c{font-family:Montserrat,Poppins,sans-serif;font-size:1.4rem;font-weight:800;color:var(--ouro)}
+header small{display:block;color:#E8D9A8;font-size:.78rem;letter-spacing:1px}
+header .sair{margin-left:auto;background:rgba(255,255,255,.1);color:#fff;border:0;border-radius:12px;min-height:44px;padding:0 14px;font-weight:600;cursor:pointer}
+main{padding:16px}
+.card{background:#fff;border-radius:18px;padding:16px;box-shadow:0 3px 12px rgba(0,0,0,.07);margin-bottom:14px}
+h2{font-size:1.25rem;margin-bottom:6px}
+h3{font-size:1.05rem}
+p.sub{color:var(--cinza);font-size:.92rem}
+label{display:block;font-size:.9rem;font-weight:600;margin:12px 0 5px}
+.inp{width:100%;border:2px solid #d9cfb3;border-radius:12px;padding:10px 14px;min-height:50px;font-size:1rem;background:#fff;color:var(--txt);outline:0}
+.inp:focus{border-color:var(--azul2)}
+textarea.inp{min-height:90px;resize:vertical}
+.ajuda{font-size:.8rem;color:var(--cinza);margin-top:4px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:14px;background:var(--azul);color:#fff;border:0;border-radius:14px;min-height:52px;font-weight:700;font-size:1rem;cursor:pointer;text-decoration:none}
+.btn.ouro{background:linear-gradient(#E9C766,#C9952A);color:var(--azul)}
+.btn.claro{background:#efe8d4;color:var(--txt)}
+.btn.verm{background:#fde4e4;color:#a30d12}
+.btn:disabled{opacity:.6;cursor:wait}
+.linha{display:flex;gap:8px}.linha>*{flex:1}
+.abas{display:flex;background:#efe8d4;border-radius:14px;padding:4px;margin-bottom:6px}
+.abas button{flex:1;border:0;background:none;min-height:46px;border-radius:10px;font-weight:700;font-size:.95rem;color:var(--txt);cursor:pointer}
+.abas button.on{background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.status{display:inline-block;border-radius:20px;padding:4px 12px;font-size:.8rem;font-weight:700}
+.status.ok{background:#dff5e7;color:#0d6b31}.status.pend{background:#fff3cd;color:#7a5a00}.status.pausa{background:#eee;color:#555}
+.empresa-top{display:flex;gap:12px;align-items:center}
+.logo{width:64px;height:64px;border-radius:14px;background:var(--azul2);overflow:hidden;flex-shrink:0;display:grid;place-items:center;color:var(--ouro);font-size:1.6rem}
+.logo img{width:100%;height:100%;object-fit:cover}
+.oferta{display:flex;gap:12px;background:#fff;border-radius:16px;padding:10px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:10px}
+.oferta .ft{width:96px;height:96px;border-radius:12px;background:var(--azul2);overflow:hidden;flex-shrink:0;display:grid;place-items:center;font-size:2rem}
+.oferta .ft img{width:100%;height:100%;object-fit:cover}
+.oferta .tx{flex:1;min-width:0}
+.oferta b{display:block;font-size:1rem}
+.oferta .tag{display:inline-block;background:linear-gradient(#E9C766,#C9952A);color:var(--azul);font-weight:800;border-radius:8px;padding:2px 10px;font-size:.9rem;margin:4px 0}
+.oferta .acoes{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.mini{border:0;border-radius:10px;min-height:40px;padding:0 12px;font-weight:600;font-size:.85rem;cursor:pointer;background:#efe8d4;color:var(--txt)}
+.mini.az{background:var(--azul);color:#fff}.mini.vm{background:#fde4e4;color:#a30d12}.mini.ou{background:var(--ouro);color:var(--azul)}
+.previa{margin-top:8px;border-radius:14px;overflow:hidden;background:#efe8d4;aspect-ratio:16/10;display:grid;place-items:center;color:var(--cinza);font-size:.9rem;text-align:center}
+.previa img{width:100%;height:100%;object-fit:cover}
+.foto-btn{display:flex;align-items:center;justify-content:center;gap:8px;border:2px dashed #c9b98a;border-radius:14px;min-height:56px;font-weight:700;color:var(--txt);cursor:pointer;background:#fffaf0;margin-top:8px}
+.foto-btn input,.arquivo{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
+.vazio{text-align:center;color:var(--cinza);padding:24px 8px}
+.vazio .e{font-size:2.6rem;display:block}
+.aviso{background:#fff6dc;border:1.5px solid #e6cf8d;border-radius:14px;padding:12px;font-size:.92rem;margin-bottom:14px}
+.erro{background:#fde4e4;border:1.5px solid #f2b3b5;color:#7a0b0f;border-radius:12px;padding:10px 12px;font-size:.9rem;margin-top:10px;display:none}
+.modal{position:fixed;inset:0;background:rgba(5,15,50,.6);display:none;align-items:flex-end;justify-content:center;z-index:50}
+.modal.on{display:flex}
+.sheet{background:#fff;width:100%;max-width:560px;border-radius:24px 24px 0 0;padding:16px 18px calc(22px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto}
+.fechar{display:flex;align-items:center;gap:6px;margin-left:auto;background:#efe8d4;border:0;border-radius:30px;padding:0 16px;min-height:44px;font-weight:700;cursor:pointer}
+.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translateX(-50%);background:var(--azul);color:#fff;padding:12px 18px;border-radius:30px;font-size:.95rem;opacity:0;transition:.3s;z-index:60;pointer-events:none;max-width:92vw;text-align:center}
+.toast.on{opacity:1}
+.adm h3{margin:14px 0 8px}
+.adm .item{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #f0e8d2;flex-wrap:wrap}
+.adm .item .n{flex:1;min-width:140px}
+.adm select{min-height:40px;border-radius:10px;border:1.5px solid #d9cfb3;padding:0 8px}
+.escondido{display:none}
+/* ===== POSTAR (estilo Instagram) ===== */
+.postar{display:flex;align-items:center;gap:14px;width:100%;background:#fff;border:0;border-radius:18px;padding:14px;box-shadow:0 3px 12px rgba(0,0,0,.07);margin-bottom:14px;text-align:left;cursor:pointer;color:var(--txt)}
+.postar .mais{width:62px;height:62px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;font-size:2.2rem;font-weight:400;color:#fff;background:linear-gradient(135deg,#E9C766,#C9952A 55%,#0E1428);box-shadow:0 0 0 3px #fff,0 0 0 5px #D4A537}
+.postar b{display:block;font-size:1.15rem}.postar small{color:var(--cinza);font-size:.88rem}
+.demo-aviso{background:#000;color:#F3E3B5;border-radius:14px;padding:10px 14px;font-size:.85rem;margin-bottom:14px}
+.demo-aviso b{color:#D4A537}
+.perfil-loja{display:flex;align-items:center;gap:14px}
+.perfil-loja .logo{width:76px;height:76px;border-radius:50%;box-shadow:0 0 0 3px #fff,0 0 0 5px #D4A537}
+.nums{display:flex;gap:18px;margin-top:6px;font-size:.85rem;color:var(--cinza)}.nums b{display:block;color:var(--txt);font-size:1.1rem}
+.grade{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;border-radius:14px;overflow:hidden}
+.grade button{position:relative;aspect-ratio:1/1;border:0;padding:0;background:var(--azul2);overflow:hidden;cursor:pointer;display:grid;place-items:center;font-size:2rem}
+.grade img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.grade .t{position:absolute;left:4px;right:4px;bottom:4px;background:linear-gradient(#E9C766,#C9952A);color:#0E1428;font-weight:800;font-size:.72rem;border-radius:6px;padding:2px 4px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grade .st{position:absolute;top:4px;left:4px;background:rgba(0,0,0,.75);color:#fff;font-size:.66rem;font-weight:700;border-radius:10px;padding:2px 7px}
+.grade .st.ok{background:#13a049}
+/* compositor */
+.comp-foto{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:16/10;background:#000;display:grid;place-items:center;margin-top:10px}
+.comp-foto img{width:100%;height:100%;object-fit:cover}
+.comp-foto .vazio-foto{color:#F3E3B5;text-align:center;font-weight:600;padding:12px;width:100%;height:100%;display:grid;place-content:center;cursor:pointer;margin:0}
+.comp-foto .carregando{color:#F3E3B5;font-weight:700}
+.comp-foto .vazio-foto span{display:block;font-size:2.6rem}
+.comp-foto .trocar{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.7);color:#fff;border:0;border-radius:20px;padding:0 14px;min-height:44px;font-weight:700;cursor:pointer;display:flex;align-items:center;margin:0;font-size:.95rem}
+.passo-t{font-weight:800;font-size:1.02rem;margin:18px 0 8px;display:flex;align-items:center;gap:8px}
+.passo-t i{font-style:normal;background:var(--azul);color:#fff;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.8rem}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{border:2px solid #d9cfb3;background:#fff;color:var(--txt);border-radius:30px;min-height:44px;padding:0 14px;font-weight:700;font-size:.95rem;cursor:pointer}
+.ban-opc{display:flex;gap:10px;align-items:flex-start;font-weight:700;margin:0;cursor:pointer}
+.ban-opc input{width:24px;height:24px;flex-shrink:0;margin-top:2px;accent-color:#C9952A}
+.selo-p{background:#0E1428;color:#D4A537;font-size:.7rem;font-weight:800;border-radius:20px;padding:3px 9px;letter-spacing:.5px}
+.pban{position:relative;border-radius:14px;overflow:hidden;aspect-ratio:16/10;background:#0E1428;margin:10px auto 0;max-width:300px;border:2px solid #D4A537}
+.pban img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pban .ov{position:absolute;inset:0;background:linear-gradient(90deg,rgba(14,20,40,.95),rgba(14,20,40,.6) 55%,rgba(14,20,40,0))}
+.pban .tx{position:absolute;left:12px;top:10px;bottom:10px;width:65%;display:flex;flex-direction:column;justify-content:space-between;color:#fff}
+.pban .nm{font-weight:800;font-size:.9rem}.pban .tp{font-size:.62rem;color:#F3E3B5;letter-spacing:1px;font-weight:700}
+.pban .of{font-weight:800;font-size:1.25rem;color:#E9C766;line-height:1}
+.pban .ct{align-self:flex-start;background:linear-gradient(#E9C766,#C9952A);color:#0E1428;font-weight:800;font-size:.7rem;border-radius:20px;padding:4px 10px}
+/* ===== página para empresas que querem participar ===== */
+.lp-hero{background:#000;color:#fff;border-radius:22px;padding:22px 18px;text-align:center;border:1.5px solid #D4A537;margin-bottom:14px}
+.lp-hero img{width:84px;height:84px;border-radius:20px}
+.lp-hero h2{font-size:1.45rem;margin:10px 0 6px;line-height:1.25}.lp-hero h2 span{color:#D4A537}
+.lp-hero p{color:#E8D9A8;font-size:.98rem}
+.lp-passos{display:grid;gap:10px}
+.lp-passos div{display:flex;gap:12px;align-items:center;background:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.lp-passos b{display:block}.lp-passos small{color:var(--cinza)}
+.lp-passos i{font-style:normal;width:44px;height:44px;border-radius:50%;background:linear-gradient(#E9C766,#C9952A);display:grid;place-items:center;font-size:1.3rem;flex-shrink:0}
+.lp-ben{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lp-ben div{background:#fff;border-radius:16px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);font-size:.88rem}
+.lp-ben b{display:block;font-size:1rem;margin:4px 0 2px}
+.lp-plano{background:#fff;border:2px solid #efe6cc;border-radius:18px;padding:14px;margin-bottom:10px;position:relative}
+.lp-plano.dest{border-color:#D4A537}
+.lp-plano .selo{position:absolute;top:-11px;right:14px;background:#D4A537;color:#0E1428;font-size:.7rem;font-weight:800;border-radius:20px;padding:3px 10px}
+.lp-plano .preco{font-family:"Playfair Display",serif;font-size:1.7rem;font-weight:700;color:var(--ink-ouro,#7A6531)}
+.lp-plano .preco small{font-family:Poppins,sans-serif;font-size:.8rem;color:var(--cinza)}
+.lp-plano ul{list-style:none;margin-top:4px}.lp-plano li{font-size:.9rem;padding:2px 0}.lp-plano li:before{content:"✓ ";color:#13a049;font-weight:800}
+.lp-faq details{background:#fff;border-radius:14px;padding:0 14px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.lp-faq summary{cursor:pointer;font-weight:700;min-height:52px;display:flex;align-items:center}
+.lp-faq p{padding:0 0 12px;color:var(--cinza);font-size:.92rem}
+.lp-cta{position:sticky;bottom:0;background:linear-gradient(transparent,var(--creme) 30%);padding:14px 0 calc(8px + env(safe-area-inset-bottom))}
+.lp-t{font-size:1.15rem;margin:22px 2px 10px}
+/* passos do cadastro */
+.prog{display:flex;gap:6px;margin-bottom:14px}
+.prog div{flex:1;text-align:center;font-size:.72rem;font-weight:700;color:var(--cinza)}
+.prog div:before{content:"";display:block;height:6px;border-radius:4px;background:#e6dcc0;margin-bottom:5px}
+.prog div.on{color:#0E1428}.prog div.on:before{background:linear-gradient(90deg,#E9C766,#C9952A)}
+.opc-plano{display:flex;gap:10px;align-items:flex-start;border:2px solid #e6dcc0;border-radius:14px;padding:10px 12px;margin-bottom:8px;cursor:pointer;font-weight:600}
+.opc-plano:has(input:checked){border-color:#C9952A;background:#fffaf0}
+.opc-plano input{width:22px;height:22px;accent-color:#C9952A;margin-top:2px;flex-shrink:0}
+.opc-plano small{display:block;color:var(--cinza);font-weight:500}
+/* abas e números */
+.abas-p{display:flex;flex-wrap:wrap;gap:4px;background:#efe8d4;border-radius:14px;padding:4px;margin:4px 0 14px}
+.abas-p button{flex:1 1 auto;border:0;background:none;min-height:46px;border-radius:10px;font-weight:700;font-size:.85rem;white-space:nowrap;padding:0 8px;color:var(--txt);cursor:pointer}
+.abas-p button[aria-selected="true"]{background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi{background:#fff;border-radius:16px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.kpi .n{font-size:1.6rem;font-weight:800;line-height:1.1;font-family:Montserrat,Poppins,sans-serif}
+.kpi .r{font-size:.82rem;font-weight:700}.kpi small{display:block;color:var(--cinza);font-size:.75rem;margin-top:2px}
+.kpi.ouro{background:linear-gradient(120deg,#0E1428,#1F2B57);color:#fff;border:1.5px solid #D4A537}.kpi.ouro small{color:#E8D9A8}.kpi.ouro .n{color:#E9C766}
+.graf{display:flex;align-items:flex-end;gap:4px;height:120px;padding:8px 4px 0;border-bottom:1.5px solid #e6dcc0}
+.graf div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:2px;height:100%}
+.graf i{display:block;width:100%;max-width:22px;border-radius:5px 5px 0 0;background:#c9d4ef;min-height:2px}
+.graf i.c{background:linear-gradient(#E9C766,#C9952A)}
+.graf-leg{display:flex;justify-content:space-between;font-size:.66rem;color:var(--cinza);margin-top:4px}
+.oft-num{display:flex;gap:10px;align-items:center;background:#fff;border-radius:14px;padding:8px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.oft-num .ft{width:58px;height:58px;border-radius:10px;overflow:hidden;background:#1F2B57;display:grid;place-items:center;flex-shrink:0}
+.oft-num .ft img{width:100%;height:100%;object-fit:cover}
+.oft-num b{display:block;font-size:.95rem}
+.oft-num .mini-n{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:.8rem;color:var(--cinza);margin-top:2px}
+.oft-num .mini-n span b{display:inline;color:var(--txt);font-size:.85rem}
+.adm-linha{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:#fff;border:0;border-radius:16px;padding:12px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,.06);cursor:pointer;font:inherit;color:var(--txt);min-height:72px;transition:transform .12s ease}
+.adm-linha:active{transform:scale(.99)}.adm-linha:focus-visible{outline:3px solid var(--ouro);outline-offset:2px}
+.adm-linha .logo{width:52px;height:52px;border-radius:12px;overflow:hidden;background:#1F2B57;display:grid;place-items:center;flex-shrink:0;font-size:1.5rem}
+.adm-linha .logo img{width:100%;height:100%;object-fit:cover}
+.adm-linha .meio{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}.adm-linha .meio>b{font-size:1rem;overflow-wrap:anywhere}
+.adm-linha .mini-n{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:.8rem;color:var(--cinza)}.adm-linha .mini-n b{color:var(--txt)}
+.adm-linha .chev{font-size:1.7rem;color:var(--cinza);line-height:1}
+.selo-d{align-self:flex-start;font-size:.76rem;font-weight:700;border-radius:999px;padding:3px 10px}
+.selo-d.vm,.diag.vm,.termo .t.vm{background:#fde4e4;color:#8a0e12}.selo-d.lj,.diag.lj,.termo .t.lj{background:#ffedd5;color:#8a3b06}
+.selo-d.am,.diag.am,.termo .t.am{background:#fff3cd;color:#6b4e00}.selo-d.vd,.diag.vd,.termo .t.vd{background:#dff5e7;color:#0d5a2a}.selo-d.az,.diag.az{background:#e7ecfa;color:#1F2B57}
+.termo{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.termo .t{border:0;border-radius:14px;padding:10px 12px;text-align:left;font:inherit;font-size:.8rem;font-weight:600;cursor:pointer;min-height:68px}
+.termo .t b{display:block;font-size:1.5rem;line-height:1.1;font-family:Montserrat,Poppins,sans-serif}
+.diag{border-radius:16px;padding:14px 16px;margin-top:12px}.diag .dt{font-weight:800;font-size:1.15rem;margin-bottom:4px}
+.diag ul{margin:6px 0 0 18px}.diag li{margin:4px 0}
+.tend{font-size:.72rem;font-weight:700;margin-left:4px;color:var(--cinza);white-space:nowrap}.tend.up{color:#0d7a3a}.tend.dn{color:#b0141a}
+.funil{margin-top:10px}.funil .fl{display:flex;justify-content:space-between;gap:8px;font-size:.88rem;margin-bottom:4px}.funil .fl small{color:var(--cinza);font-weight:600}
+.funil .fb{height:12px;background:#f1ead6;border-radius:99px;overflow:hidden}.funil .fb i{display:block;height:100%;background:linear-gradient(90deg,#1F2B57,#3d5299);border-radius:99px}
+.res-ok{background:#dff5e7;color:#0d6b31;border-radius:14px;padding:14px;text-align:center;font-weight:700;margin-top:12px}
+.dias-sem{display:flex;gap:4px;flex-wrap:wrap}
+.dias-sem label{margin:0;position:relative}
+.dias-sem input{position:absolute;opacity:0}
+.dias-sem span{display:grid;place-items:center;min-width:44px;min-height:44px;border:2px solid #d9cfb3;border-radius:12px;font-weight:700;font-size:.85rem;background:#fff;cursor:pointer}
+.dias-sem input:checked+span{background:#0E1428;color:#D4A537;border-color:#0E1428}
+.dias-sem input:focus-visible+span{outline:3px solid var(--ouro);outline-offset:2px}
+.precos-in{display:flex;gap:8px;align-items:flex-end}.precos-in>div{flex:1}
+.pcard .pr{font-size:.78rem;color:var(--cinza)}.pcard .pr b{color:#13a049;font-size:.9rem}
+.chips button[aria-pressed="true"]{background:linear-gradient(#E9C766,#C9952A);border-color:#C9952A;color:#0E1428}
+.cont{font-size:.78rem;color:var(--cinza);text-align:right;margin-top:3px}
+details.mais-op{margin-top:16px;border-top:1px solid #efe6cc;padding-top:6px}
+details.mais-op summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center;color:var(--azul2)}
+.prev-app{margin-top:18px;border:2px dashed #d9cfb3;border-radius:16px;padding:12px;background:var(--creme)}
+.prev-app .rot{font-size:.78rem;font-weight:700;color:var(--cinza);margin-bottom:8px;letter-spacing:.5px}
+.pcard{max-width:210px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 3px 12px rgba(0,0,0,.12)}
+.pcard .im{aspect-ratio:16/10;background:linear-gradient(135deg,#1F2B57,#0E1428);display:grid;place-items:center;font-size:2.2rem;overflow:hidden}
+.pcard .im img{width:100%;height:100%;object-fit:cover}
+.pcard .i{padding:8px 10px 0}.pcard .i b{display:block;line-height:1.2}.pcard .i small{color:var(--cinza);font-size:.8rem}
+.pcard .t{margin:8px 10px 10px;background:linear-gradient(#E9C766,#C9952A);color:#0E1428;font-weight:800;border-radius:10px;padding:8px 4px;text-align:center;font-size:1.05rem;word-break:break-word}
+.publicar-barra{position:sticky;bottom:calc(-22px - env(safe-area-inset-bottom));background:#fff;padding:10px 0 calc(6px + env(safe-area-inset-bottom));margin-top:8px;box-shadow:0 -8px 12px -8px rgba(0,0,0,.15)}
+.publicar-barra .btn{margin-top:0;min-height:58px;font-size:1.15rem}
+.sucesso{text-align:center;padding-top:10px}
+.sucesso .ok{width:84px;height:84px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;font-size:2.6rem;background:linear-gradient(#E9C766,#C9952A);animation:pop .5s cubic-bezier(.16,1,.3,1)}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sucesso .ok{animation:none}}
+
+.adm-login{text-align:center}.adm-login form{text-align:left}.adm-login .coroa{font-size:3rem;line-height:1;margin-bottom:6px}
+.pub-desc{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:.85rem;color:var(--cinza);margin-top:2px;font-weight:400}
+.vendas{margin-top:8px}.vd-l{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid #f0e8d2}
+.vd-l span{font-weight:600;font-size:.9rem}.vd-l small{display:block;color:var(--cinza);font-weight:400;font-size:.78rem;overflow-wrap:anywhere}.vd-l b{white-space:nowrap}
+.vendas details summary{cursor:pointer;font-weight:700;color:var(--azul2);padding:10px 0;min-height:44px}
+.ficha-l{margin-top:8px}.ficha-l .ln{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid #f0e8d2;font-size:.9rem}
+.ficha-l .ln span{color:var(--cinza)}.ficha-l .ln b{text-align:right;overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <img src="img/logo-simbolo.png" alt="" width="47" height="50" style="display:block;height:50px;width:auto">
+  <div><span class="v">Vitrine</span> <span class="c">Castro</span><small>👑 ADMINISTRAÇÃO</small></div>
+  <button class="sair escondido" id="btnSair" onclick="sair()">Sair</button>
+</header>
+<main id="main"><div class="vazio"><span class="e">⏳</span>Carregando…</div></main>
+<p style="text-align:center"><a href="./" style="color:var(--azul2);font-weight:600">← Voltar para o app</a></p>
+</div>
+
+<div class="modal" id="modal" onclick="if(event.target===this)fechar()" role="dialog" aria-modal="true"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* Vitrine Castro – ÁREA DO ADMINISTRADOR
+   Segurança: esta página só mostra a tela. Quem decide o que cada pessoa pode ver é o banco
+   (Supabase): as funções metricas_admin*, vendas_admin_empresa e as regras das tabelas só
+   entregam dados para quem está na tabela "admins". */
+const CATS=[["vest","👕 Vestuário"],["alim","🍔 Alimentação"],["est","💆‍♀️ Estética"],["sau","🩺 Saúde"],["barb","💈 Barbearia"],["pet","🐶 Pet"],["acad","🏋️ Academia"],["auto","🚗 Automotivo"]];
+const RAMOS=["Vestuário","Alimentação","Estética","Saúde","Barbearia","Pet","Academia","Automotivo","Outro"];
+const RAMO_CAT={"Vestuário":"vest","Alimentação":"alim","Estética":"est","Saúde":"sau","Barbearia":"barb","Pet":"pet","Academia":"acad","Automotivo":"auto"};
+const PLANOS={basico:{nome:"Básico",lim:1},destaque:{nome:"Destaque",lim:3},premium:{nome:"Premium",lim:"ilimitadas"}};
+// Botões prontos para o "Qual é a oferta?" e o "Até quando?"
+const OFERTAS_PRONTAS=["10% OFF","20% OFF","30% OFF","50% OFF","Leve 2, pague 1","Brinde na compra","Frete grátis"];
+const PRAZOS=[["Hoje",0],["3 dias",3],["1 semana",7],["15 dias",15],["1 mês",30],["Sem prazo",null]];
+const EXEMPLOS={"Vestuário":"Ex: Peças da nova coleção com desconto. Corra que é por pouco tempo!","Alimentação":"Ex: Pizza grande de qualquer sabor, de segunda a quinta.","Estética":"Ex: Escova + hidratação com horário marcado.","Saúde":"Ex: Desconto em perfumaria e dermocosméticos.","Barbearia":"Ex: Corte + barba pelo preço do corte.","Pet":"Ex: Banho e tosa para cães de pequeno porte.","Academia":"Ex: Primeira mensalidade com desconto.","Automotivo":"Ex: Troca de óleo + filtro com desconto."};
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const seguro=u=>/^(https:\/\/|data:image\/)/.test(String(u||""))?u:"";
+const hojeISO=(d=0)=>{const t=new Date();t.setDate(t.getDate()+d);return t.toLocaleDateString("sv-SE")};
+const dataBR=d=>d?new Date(d+"T00:00:00").toLocaleDateString("pt-BR"):"";
+const store={get(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v??d}catch(e){return d}},set(k,v){localStorage.setItem(k,JSON.stringify(v))}};
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),3200)}
+function fechar(){$("#modal").classList.remove("on");document.body.style.overflow=""}
+function abrirSheet(h){$("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ✕</button>`+h;$("#modal").classList.add("on");document.body.style.overflow="hidden";$("#sheet").scrollTop=0}
+function traduzErro(e){const m=(e&&e.message)||String(e);
+  if(/Invalid login/i.test(m))return"E-mail ou senha incorretos.";
+  if(/already registered/i.test(m))return"Este e-mail já tem conta. Use a aba Entrar.";
+  if(/Email not confirmed/i.test(m))return"Confirme seu e-mail: abra a mensagem que enviamos e clique no link.";
+  if(/at least 6/i.test(m))return"A senha precisa ter pelo menos 6 caracteres.";
+  if(/quota|exceeded/i.test(m))return"O espaço do modo demonstração acabou. Apague uma oferta para postar outra.";
+  if(/Failed to fetch|NetworkError/i.test(m))return"Sem internet. Tente de novo.";
+  return m}
+
+/* ===== MODO: banco real (Supabase) ou DEMONSTRAÇÃO (fica só neste celular) ===== */
+const DEMO=!(window.CONFIG&&CONFIG.SUPABASE_URL&&CONFIG.SUPABASE_ANON_KEY);
+const db=DEMO?null:supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_ANON_KEY);
+function venceu(o){return o.validade&&new Date(o.validade+"T23:59:59")<new Date()}
+const TIPOS={aparicao:"Aparições",visualizacao:"Visualizações",whatsapp:"Cliques no WhatsApp",cupom:"Cupons pegos",entrega:"Pedidos de entrega",compra:"Compras confirmadas"};
+const fmtN=n=>Math.round(n).toLocaleString("pt-BR"),fmtR=v=>Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+let user=null,empresa=null,ofertas=[];
+const sess={get(k){try{return sessionStorage.getItem(k)}catch(e){return null}},set(k,v){try{v==null?sessionStorage.removeItem(k):sessionStorage.setItem(k,v)}catch(e){}}};
+function mostrarSair(on){$("#btnSair").classList.toggle("escondido",!on)}
+function telaLoginAdm(msg){mostrarSair(false);
+  $("#main").innerHTML=`${DEMO?`<div class="aviso">👑 <b>Modo demonstração.</b> Digite qualquer e-mail e uma senha de 6 letras ou mais para ver a prévia.</div>`:""}
+   <div class="card adm-login"><div class="coroa" aria-hidden="true">👑</div><h2>Área do administrador</h2><p class="sub">Só para quem administra o Vitrine Castro. Aqui você vê todas as empresas, as vendas e as publicações.</p>
+    <form onsubmit="entrarAdm(event)">
+     <label for="lEmail">E-mail</label><input class="inp" id="lEmail" type="email" autocomplete="username" required>
+     <label for="lSenha">Senha</label><input class="inp" id="lSenha" type="password" autocomplete="current-password" minlength="6" required>
+     <button class="btn" id="btnEntrar">Entrar</button>
+     <div class="erro" id="lErro" style="${msg?"display:block":""}">${esc(msg||"")}</div>
+    </form>
+    ${DEMO?"":`<button class="btn claro" onclick="esqueciAdm()">Esqueci minha senha</button>`}
+   </div>`}
+async function entrarAdm(ev){ev.preventDefault();const email=$("#lEmail").value.trim(),senha=$("#lSenha").value,b=$("#btnEntrar");b.disabled=true;$("#lErro").style.display="none";
+  try{if(DEMO){sess.set("vc_demo_adm","1")}else{const {error}=await db.auth.signInWithPassword({email,password:senha});if(error)throw error}
+    await iniciarAdm()}
+  catch(e){$("#lErro").textContent=traduzErro(e);$("#lErro").style.display="block"}finally{b.disabled=false}}
+async function esqueciAdm(){const email=($("#lEmail").value||"").trim();if(!email){$("#lErro").textContent="Digite seu e-mail acima primeiro.";$("#lErro").style.display="block";return}
+  const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.href.split("#")[0]});toast(error?traduzErro(error):"Enviamos um link para criar uma nova senha.")}
+async function sair(){if(DEMO)sess.set("vc_demo_adm",null);else await db.auth.signOut();window._adm=null;telaLoginAdm()}
+async function iniciarAdm(){
+  if(DEMO){if(sess.get("vc_demo_adm")){mostrarSair(true);painelAdmin()}else telaLoginAdm();return}
+  const {data:{session}}=await db.auth.getSession();if(!session){telaLoginAdm();return}
+  user=session.user;
+  const {data:adm}=await db.from("admins").select("user_id").eq("user_id",user.id).maybeSingle();
+  if(!adm){mostrarSair(true);
+    $("#main").innerHTML=`<div class="card adm-login"><div class="coroa" aria-hidden="true">🔒</div><h2>Este login não é de administrador</h2>
+     <p class="sub">Você entrou como <b>${esc(user.email)}</b>. Para ver esta área, saia e entre com o login do administrador.</p>
+     <button class="btn" onclick="sair()">Sair e entrar como administrador</button><a class="btn claro" href="empresa.html">Ir para a Área da Empresa</a></div>`;return}
+  mostrarSair(true);painelAdmin()}
+
+/* ===================================================================
+   ADMINISTRAÇÃO: todas as empresas, aprovação, planos, ofertas e números
+   =================================================================== */
+function alvoAdmin(){return $("#abaBox")||$("#main")}
+let ADM={filtro:"todas",busca:"",periodo:30,ordem:"ajuda",detalhe:null};
+const NUM0=()=>({aparicao:0,visualizacao:0,whatsapp:0,cupom:0,entrega:0,compra:0,valor:0});
+function somaPorEmpresa(met){const num={};met.forEach(r=>{const n=num[r.empresa_id]=num[r.empresa_id]||NUM0();n[r.tipo]=(n[r.tipo]||0)+r.qtd;if(r.tipo==="compra")n.valor+=r.valor});return num}
+const desdePeriodo=()=>ADM.periodo===0?"2000-01-01":hojeISO(-(ADM.periodo-1));
+
+/* Lojas de exemplo: aparecem SÓ na demonstração, para você ver como a análise funciona.
+   No site real a lista mostra as empresas cadastradas de verdade. */
+const EX_ADM=[
+ {id:"ex1",nome:"Pizzaria Castro",ramo:"Alimentação",plano:"premium",aprovada:true,whatsapp:"42999990001",endereco:"Rua Benjamin Constant, 120 – Centro",ha:120,ant:.8,
+  ofs:[{id:"ex1a",titulo:"20% OFF",ha:9,validade:12,destaque:true,n:{aparicao:900,visualizacao:310,whatsapp:40,cupom:95,entrega:38,compra:52,valor:3120}},
+       {id:"ex1b",titulo:"Leve 2, pague 1",ha:20,validade:5,n:{aparicao:500,visualizacao:150,whatsapp:12,cupom:41,entrega:20,compra:18,valor:1080}}]},
+ {id:"ex2",nome:"VS Store",ramo:"Vestuário",plano:"destaque",aprovada:true,whatsapp:"42999990002",endereco:"Rua XV de Novembro, 300 – Centro",ha:90,ant:1.1,
+  ofs:[{id:"ex2a",titulo:"30% OFF",ha:12,validade:18,n:{aparicao:600,visualizacao:140,whatsapp:6,cupom:0,entrega:0,compra:0,valor:0}}]},
+ {id:"ex3",nome:"VS Estética",ramo:"Estética",plano:"destaque",aprovada:true,whatsapp:"42999990003",endereco:"Rua Cel. Jorge Marcondes, 45",ha:75,ant:1,
+  ofs:[{id:"ex3a",titulo:"2 áreas grátis",ha:15,validade:30,n:{aparicao:400,visualizacao:120,whatsapp:15,cupom:30,entrega:0,compra:0,valor:0}}]},
+ {id:"ex4",nome:"Farmácia Saúde Castro",ramo:"Saúde",plano:"basico",aprovada:true,whatsapp:"42999990004",endereco:"Av. Pres. Vargas, 800",ha:150,ant:2.4,
+  ofs:[{id:"ex4a",titulo:"15% OFF",ha:28,validade:20,n:{aparicao:260,visualizacao:70,whatsapp:5,cupom:14,entrega:4,compra:6,valor:410}}]},
+ {id:"ex5",nome:"Pet Feliz",ramo:"Pet",plano:"basico",aprovada:true,whatsapp:"42999990005",endereco:"Rua Dr. Jorge Xavier da Silva, 50",ha:60,ant:1,
+  ofs:[{id:"ex5a",titulo:"10% OFF",ha:33,validade:25,n:{aparicao:120,visualizacao:9,whatsapp:0,cupom:1,entrega:0,compra:0,valor:0}}]},
+ {id:"ex6",nome:"Barbearia Central",ramo:"Barbearia",plano:"basico",aprovada:true,whatsapp:"42999990006",endereco:"Praça Getúlio Vargas, 12",ha:200,ant:0,
+  ofs:[{id:"ex6a",titulo:"Corte + barba 20% OFF",ha:45,validade:-6,n:NUM0()}]},
+ {id:"ex7",nome:"Academia Força Total",ramo:"Academia",plano:"basico",aprovada:false,whatsapp:"42999990007",endereco:"Rua Sete de Setembro, 999",ha:1,ant:0,ofs:[]}];
+const exFator=()=>(ADM.periodo||90)/30;
+function exemplosAdm(){const f=exFator(),emps=[],ofs=[],met=[],ant={};
+  EX_ADM.forEach(e=>{emps.push({id:e.id,nome:e.nome+" (exemplo)",ramo:e.ramo,plano:e.plano,aprovada:e.aprovada,whatsapp:e.whatsapp,endereco:e.endereco,abre:"09:00",fecha:"19:00",dias_func:"1,2,3,4,5,6",criado_em:new Date(Date.now()-e.ha*864e5).toISOString(),exemplo:true});
+    const a=ant[e.id]=NUM0();
+    e.ofs.forEach(o=>{ofs.push({id:o.id,titulo:o.titulo,empresa_id:e.id,ativa:true,destaque:!!o.destaque,banner:false,foto_url:"",criado_em:new Date(Date.now()-o.ha*864e5).toISOString(),validade:hojeISO(o.validade)});
+      Object.keys(TIPOS).concat("valor").forEach(t=>{const v=Math.round((o.n[t]||0)*f);if(t!=="valor"&&v)met.push({empresa_id:e.id,tipo:t,qtd:v,valor:t==="compra"?Math.round(o.n.valor*f):0});a[t]+=Math.round((o.n[t]||0)*f*e.ant)})})});
+  return {emps,ofs,met,ant}}
+function exemploDias(id){const e=EX_ADM.find(x=>x.id===id),n=ADM.periodo===0?60:ADM.periodo,rows=[],f=exFator();
+  const pesos=[...Array(n)].map((_,i)=>1+.6*Math.sin(i*1.3)+(i%7>=5?.7:0)),soma=pesos.reduce((s,p)=>s+p,0);
+  (e?e.ofs:[]).forEach(o=>Object.keys(TIPOS).forEach(t=>pesos.forEach((p,i)=>{const q=Math.round((o.n[t]||0)*f*p/soma);if(q)rows.push({oferta_id:o.id,tipo:t,dia:hojeISO(-(n-1-i)),qtd:q,valor:t==="compra"?Math.round(o.n.valor*f*p/soma):0})})));
+  return rows}
+
+async function dadosAdmin(){
+  const P=ADM.periodo,desde=desdePeriodo(),desdeAnt=P===0?null:hojeISO(-(2*P-1));
+  if(DEMO){const emp=store.get("vc_demo_emp",null),ofs=store.get("vc_demo_ofertas",[]),ids=new Set(ofs.map(o=>String(o.id)));
+    const evs=store.get("vc_demo_eventos",[]).filter(ev=>ids.has(String(ev.oferta)));
+    const agreg=(de,ate)=>{const m={};evs.forEach(ev=>{if(ev.dia<de||(ate&&ev.dia>=ate))return;const k=ev.tipo;m[k]=m[k]||{empresa_id:"demo",tipo:ev.tipo,qtd:0,valor:0};m[k].qtd++;m[k].valor+=Number(ev.valor)||0});return Object.values(m)};
+    const ex=exemplosAdm(),ant=somaPorEmpresa(desdeAnt?agreg(desdeAnt,desde):[]);
+    return {emps:(emp?[{...emp,id:"demo",nome:emp.nome+" (sua loja de teste)",criado_em:emp.criado_em||new Date().toISOString()}]:[]).concat(ex.emps),
+      ofs:ofs.map(o=>({...o,empresa_id:"demo"})).concat(ex.ofs),met:agreg(desde).concat(ex.met),ant:desdeAnt?{...ex.ant,...ant}:null}}
+  const cols="id,titulo,descricao,regras,categoria,foto_url,ativa,validade,destaque,banner,banner_topo,empresa_id,criado_em";
+  const rpc=d=>db.rpc("metricas_admin",{p_desde:d});
+  const [a,b,c,c2]=await Promise.all([db.from("empresas").select("*").order("criado_em",{ascending:false}),
+    db.from("ofertas").select(cols+",preco_de,preco_por,limite_cupons,um_por_cliente,dias,hora_ini,hora_fim,inicia_em,entrega").order("criado_em",{ascending:false}),
+    rpc(desde),desdeAnt?rpc(desdeAnt):Promise.resolve({data:null})]);
+  if(a.error)throw a.error;
+  const ofs=b.error?await db.from("ofertas").select(cols).order("criado_em",{ascending:false}):b;   // banco ainda sem as colunas novas
+  const norm=rows=>(rows||[]).map(r=>({...r,empresa_id:String(r.empresa_id),qtd:Number(r.qtd)||0,valor:Number(r.valor)||0}));
+  const met=norm(c.data);let ant=null;
+  if(desdeAnt&&!c2.error&&c2.data){const tudo=somaPorEmpresa(norm(c2.data)),cur=somaPorEmpresa(met);ant={};   // período anterior = (2 períodos) − (período atual)
+    Object.keys(tudo).forEach(id=>{ant[id]=NUM0();Object.keys(ant[id]).forEach(t=>ant[id][t]=Math.max(0,(tudo[id][t]||0)-((cur[id]||{})[t]||0)))})}
+  return {emps:a.data||[],ofs:ofs.data||[],met,ant,semNumeros:!!c.error}}
+
+/* ---------- Diagnóstico: está tendo procura? precisa de promoção nova? ---------- */
+const noArAdm=o=>o.ativa&&!venceu(o)&&!(o.inicia_em&&o.inicia_em>hojeISO());
+function diagnostico(x,n,ant,os,media){
+  const noAr=os.filter(noArAdm);
+  const ult=os.length?Math.floor((Date.now()-Math.max(...os.map(o=>new Date(o.criado_em).getTime())))/864e5):null;
+  const vence=Math.min(99,...noAr.map(o=>o.validade?Math.ceil((new Date(o.validade+"T23:59:59")-Date.now())/864e5)-1:99));
+  let d;
+  if(!x.aprovada)d={nivel:0,cor:"az",ic:"⏳",t:"Em análise",txt:"Loja nova esperando aprovação. Confira os dados e aprove para ela aparecer no app.",dicas:["Confira nome, WhatsApp e endereço.","Aprove e combine o plano pelo WhatsApp."]};
+  else if(!noAr.length)d={nivel:1,cor:"vm",ic:"🚫",t:"Sem oferta no ar",txt:os.length?"Todas as ofertas estão pausadas ou vencidas. Hoje a loja não aparece no app.":"A loja ainda não postou nenhuma oferta.",
+    dicas:["Pedir para postar uma oferta nova (leva 1 minuto pelo celular).","Sugerir um desconto de 20% ou 30% para recomeçar com força."]};
+  else if(n.visualizacao===0||(media>=5&&n.visualizacao<media*.3))d={nivel:1,cor:"vm",ic:"🔴",t:n.visualizacao?"Pouca procura":"Ninguém abriu as ofertas",
+    txt:`${fmtN(n.visualizacao)} visualizaç${n.visualizacao===1?"ão":"ões"} no período. A média das lojas do app é ${fmtN(media)}.`,
+    dicas:["Trocar a foto por uma mais bonita e clara do produto.","Aumentar o desconto (ex.: de 10% para 20% ou 30%).","Colocar a oferta em ★ Destaque ou no banner do topo por alguns dias."]};
+  else if(n.cupom===0)d={nivel:2,cor:"lj",ic:"🟠",t:"Veem, mas não pegam cupom",txt:`${fmtN(n.visualizacao)} pessoas abriram a oferta, mas ninguém pegou o cupom. A oferta não está convencendo.`,
+    dicas:["Mostrar o preço “De/Por” para o cliente ver quanto economiza.","Deixar a legenda mais direta, com o produto e o preço.","Testar um desconto maior ou um brinde na compra."]};
+  else if(n.compra===0)d={nivel:2,cor:"lj",ic:"🟡",t:"Pegam cupom, mas sem compra confirmada",txt:`${fmtN(n.cupom)} cupo${n.cupom===1?"m":"ns"} pego${n.cupom===1?"":"s"} e nenhuma compra confirmada no painel.`,
+    dicas:["Lembrar a loja de confirmar as compras no painel (aba ✅ Confirmar compra).","Se a oferta é “só na loja”, sugerir ativar a entrega.","Conferir se os dias e horários da oferta não estão muito apertados."]};
+  else if(ant&&ant.visualizacao>=5&&n.visualizacao<ant.visualizacao*.6)d={nivel:3,cor:"am",ic:"📉",t:"Procura caindo",
+    txt:`As visualizações caíram de ${fmtN(ant.visualizacao)} para ${fmtN(n.visualizacao)} em relação ao período anterior.`,
+    dicas:["Renovar a oferta com foto e desconto novos.","Fazer uma oferta relâmpago de fim de semana."]};
+  else if(vence<=3)d={nivel:3,cor:"am",ic:"⌛",t:vence<=0?"Oferta vence hoje":`Oferta vence em ${vence} dia${vence>1?"s":""}`,txt:"Se não postar outra, a loja some do app.",dicas:["Lembrar a loja de renovar a oferta ou postar uma nova."]};
+  else d={nivel:4,cor:"vd",ic:"🟢",t:"Vendendo bem",txt:`${fmtN(n.compra)} compra${n.compra===1?"":"s"} confirmada${n.compra===1?"":"s"} · ${fmtR(n.valor)} vendidos pelo app.`,
+    dicas:x.plano==="premium"?["Pedir um depoimento da loja para usar na divulgação do Vitrine."]:["Oferecer o plano Destaque/Premium para vender ainda mais."]};
+  if(x.aprovada&&ult!==null&&ult>=21)d.dicas.push(`A última oferta foi postada há ${ult} dias. Uma novidade chama atenção.`);
+  d.ult=ult;return d}
+const NIVEIS=[["ajuda","⚠️ Precisam de ajuda"],["analise","⏳ Em análise"],["vd","🟢 Vendendo bem"]];
+function tendencia(atual,antes){if(antes==null)return "";if(!antes&&!atual)return "";if(!antes)return `<span class="tend up">novo</span>`;
+  const p=Math.round((atual-antes)/antes*100);return p===0?`<span class="tend">= 0%</span>`:`<span class="tend ${p>0?"up":"dn"}">${p>0?"▲":"▼"} ${Math.abs(p)}%</span>`}
+function analiseAdm(d){
+  const num=somaPorEmpresa(d.met),info={};
+  d.emps.forEach(x=>{const os=d.ofs.filter(o=>String(o.empresa_id)===String(x.id));info[x.id]={x,os,n:num[x.id]||NUM0(),ant:d.ant?(d.ant[x.id]||NUM0()):null}});
+  const comOferta=Object.values(info).filter(i=>i.x.aprovada&&i.os.some(noArAdm));
+  const media=comOferta.length?comOferta.reduce((s,i)=>s+i.n.visualizacao,0)/comOferta.length:0;
+  Object.values(info).forEach(i=>i.d=diagnostico(i.x,i.n,i.ant,i.os,media));
+  const rank=Object.values(info).filter(i=>i.x.aprovada).sort((a,b)=>b.n.valor-a.n.valor||b.n.compra-a.n.compra||b.n.visualizacao-a.n.visualizacao);
+  rank.forEach((i,k)=>i.pos=k+1);
+  return {info,media,rank}}
+
+async function painelAdmin(recarregar=true){
+  ADM.detalhe=null;
+  const box=alvoAdmin();let d=!recarregar&&window._adm;
+  if(!d){box.innerHTML=`<div class="vazio"><span class="e">⏳</span>Carregando empresas…</div>`;
+    try{d=await dadosAdmin()}catch(err){box.innerHTML=`<div class="aviso">${esc(traduzErro(err))}</div>`;return}}
+  window._adm=d;const A=analiseAdm(d);window._admA=A;
+  const todas=Object.values(A.info),num=todas.map(i=>i.n);
+  const tot={lojas:d.emps.length,aprov:d.emps.filter(x=>x.aprovada).length,analise:d.emps.filter(x=>!x.aprovada).length,ofertas:d.ofs.filter(noArAdm).length,
+    vis:num.reduce((s,n)=>s+n.visualizacao,0),cup:num.reduce((s,n)=>s+n.cupom,0),vendas:num.reduce((s,n)=>s+n.compra,0),valor:num.reduce((s,n)=>s+n.valor,0)};
+  const ajuda=todas.filter(i=>i.d.nivel>=1&&i.d.nivel<=3),cont=c=>todas.filter(i=>i.d.cor===c).length;
+  const q=ADM.busca.trim().toLowerCase();
+  const lista=todas.filter(i=>ADM.filtro==="todas"||(ADM.filtro==="ajuda"&&i.d.nivel>=1&&i.d.nivel<=3)||(ADM.filtro==="analise"&&!i.x.aprovada)||(ADM.filtro==="vd"&&i.d.nivel===4)||(ADM.filtro===i.x.plano))
+    .filter(i=>!q||(i.x.nome+" "+i.x.ramo+" "+(i.x.whatsapp||"")).toLowerCase().includes(q))
+    .sort(ADM.ordem==="vendas"?(a,b)=>b.n.valor-a.n.valor||b.n.compra-a.n.compra:ADM.ordem==="vistas"?(a,b)=>b.n.visualizacao-a.n.visualizacao:ADM.ordem==="nome"?(a,b)=>a.x.nome.localeCompare(b.x.nome,"pt-BR"):(a,b)=>a.d.nivel-b.d.nivel||a.n.visualizacao-b.n.visualizacao);
+  const per=ADM.periodo?`últimos ${ADM.periodo} dias`:"desde o início";
+  box.innerHTML=`${DEMO?`<div class="aviso">👑 <b>Prévia da administração.</b> As lojas marcadas “(exemplo)” são de mentira, só para você ver como a análise funciona. No site real aparecem <b>todas as empresas cadastradas</b>.</div>`:""}
+   <div class="card" style="border:2px solid var(--ouro)"><h2>👑 Administração do Vitrine</h2><p class="sub">Só você vê esta área. Números dos ${per}:</p>
+    <div class="chips" style="margin:8px 0 12px">${[[7,"7 dias"],[30,"30 dias"],[0,"Tudo"]].map(([v,n])=>`<button type="button" aria-pressed="${ADM.periodo===v}" onclick="ADM.periodo=${v};painelAdmin()">${n}</button>`).join("")}</div>
+    <div class="kpis">
+     <div class="kpi"><div class="n">${tot.lojas}</div><div class="r">🏪 Empresas</div><small>${tot.aprov} aprovada${tot.aprov===1?"":"s"} · ${tot.ofertas} oferta${tot.ofertas===1?"":"s"} no ar</small></div>
+     <div class="kpi"><div class="n" style="color:${tot.analise?"#b45309":"inherit"}">${tot.analise}</div><div class="r">⏳ Em análise</div><small>aguardando você aprovar</small></div>
+     <div class="kpi"><div class="n">${fmtN(tot.vis)}</div><div class="r">👀 Visualizações</div><small>${fmtN(tot.cup)} cupons pegos</small></div>
+     <div class="kpi"><div class="n">${fmtN(tot.vendas)}</div><div class="r">✅ Vendas confirmadas</div><small>pelo app</small></div>
+     <div class="kpi ouro" style="grid-column:1/-1"><div class="n">${fmtR(tot.valor)}</div><div class="r">💰 Vendido pelo Vitrine</div><small>soma de todas as compras confirmadas pelas lojas</small></div>
+    </div>${d.semNumeros?`<p class="ajuda" style="margin-top:8px">Para ver os números de todas as lojas, rode a atualização do banco (supabase.sql).</p>`:""}</div>
+
+   <div class="card adm-alerta">
+    <h3>🩺 Termômetro das lojas</h3>
+    <p class="ajuda" style="margin-bottom:10px">O app analisa a procura de cada loja e mostra quem precisa de uma promoção nova.</p>
+    <div class="termo">
+     <button type="button" class="t vm" onclick="ADM.filtro='ajuda';painelAdmin(false)"><b>${cont("vm")}</b>🔴 Sem procura ou sem oferta</button>
+     <button type="button" class="t lj" onclick="ADM.filtro='ajuda';painelAdmin(false)"><b>${cont("lj")}</b>🟠 Veem, mas não compram</button>
+     <button type="button" class="t am" onclick="ADM.filtro='ajuda';painelAdmin(false)"><b>${cont("am")}</b>📉 Caindo ou vencendo</button>
+     <button type="button" class="t vd" onclick="ADM.filtro='vd';painelAdmin(false)"><b>${cont("vd")}</b>🟢 Vendendo bem</button>
+    </div>
+    ${ajuda.length?`<p style="margin-top:10px;font-weight:600">⚠️ ${ajuda.length} loja${ajuda.length===1?" precisa":"s precisam"} de atenção. Toque no nome para ver a análise.</p>`:""}
+   </div>
+
+   <h2 style="margin:16px 0 8px">Empresas cadastradas (${tot.lojas})</h2>
+   <input class="inp" type="search" placeholder="🔎 Buscar por nome, ramo ou WhatsApp" value="${esc(ADM.busca)}" oninput="ADM.busca=this.value;clearTimeout(window._tb);window._tb=setTimeout(()=>painelAdmin(false),350)" id="admBusca" aria-label="Buscar empresa">
+   <div class="chips" style="margin:10px 0 8px">${[["todas","Todas"],["ajuda",`⚠️ Precisam de ajuda (${ajuda.length})`],["analise",`⏳ Em análise (${tot.analise})`],["vd","🟢 Vendendo bem"],["basico","Básico"],["destaque","Destaque"],["premium","Premium"]].map(([k,n])=>`<button type="button" aria-pressed="${ADM.filtro===k}" onclick="ADM.filtro='${k}';painelAdmin(false)">${n}</button>`).join("")}</div>
+   <label for="admOrdem" style="margin:4px 0 6px">Ordenar por</label>
+   <select class="inp" id="admOrdem" onchange="ADM.ordem=this.value;painelAdmin(false)">${[["ajuda","Quem precisa de ajuda primeiro"],["vendas","Quem mais vendeu"],["vistas","Mais visualizações"],["nome","Nome (A a Z)"]].map(([k,n])=>`<option value="${k}" ${ADM.ordem===k?"selected":""}>${n}</option>`).join("")}</select>
+   <div style="margin-top:12px">
+   ${lista.length?lista.map(({x,n,ant,os,d:dg,pos})=>`<button type="button" class="adm-linha" onclick="admDetalhe('${esc(x.id)}')" aria-label="Ver análise de ${esc(x.nome)}">
+     <span class="logo">${seguro(x.logo_url)?`<img src="${esc(x.logo_url)}" alt="">`:"🏪"}</span>
+     <span class="meio"><b>${esc(x.nome)}</b>
+      <span class="selo-d ${dg.cor}">${dg.ic} ${esc(dg.t)}</span>
+      <span class="mini-n">${esc(x.ramo||"")} · ${esc((PLANOS[x.plano]||{nome:x.plano||"—"}).nome)}${pos?` · ${pos}º em vendas`:""}</span>
+      <span class="mini-n"><span>👀 <b>${fmtN(n.visualizacao)}</b>${tendencia(n.visualizacao,ant&&ant.visualizacao)}</span><span>🎟️ <b>${fmtN(n.cupom)}</b></span><span>✅ <b>${fmtN(n.compra)}</b></span><span>💰 <b>${fmtR(n.valor)}</b></span></span></span>
+     <span class="chev" aria-hidden="true">›</span></button>`).join("")
+    :`<div class="vazio"><span class="e">🏪</span>Nenhuma empresa ${ADM.filtro==="analise"?"em análise":ADM.filtro==="ajuda"?"precisando de ajuda agora 🎉":"encontrada"}.</div>`}</div>`;
+  const i=$("#admBusca");if(i&&ADM.busca&&document.activeElement!==i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}
+}
+
+/* ---------- Ficha completa de uma empresa ---------- */
+async function admDetalhe(id){
+  const box=alvoAdmin();ADM.detalhe=id;
+  if(!window._adm||!window._admA||!window._admA.info[id]){try{window._adm=await dadosAdmin();window._admA=analiseAdm(window._adm)}catch(err){box.innerHTML=`<div class="aviso">${esc(traduzErro(err))}</div>`;return}}
+  const A=window._admA,I=A.info[id];if(!I){painelAdmin();return}
+  const {x,n,ant,os,d:dg}=I;
+  box.innerHTML=`<div class="vazio"><span class="e">⏳</span>Analisando ${esc(x.nome)}…</div>`;window.scrollTo(0,0);
+  let rows=[];
+  if(x.exemplo)rows=exemploDias(id);
+  else if(DEMO){const ids=new Set(os.map(o=>String(o.id))),m={},desde=desdePeriodo();store.get("vc_demo_eventos",[]).forEach(ev=>{if(!ids.has(String(ev.oferta))||ev.dia<desde)return;const k=ev.oferta+"|"+ev.tipo+"|"+ev.dia;m[k]=m[k]||{oferta_id:String(ev.oferta),tipo:ev.tipo,dia:ev.dia,qtd:0,valor:0};m[k].qtd++;m[k].valor+=Number(ev.valor)||0});rows=Object.values(m)}
+  else{const r=await db.rpc("metricas_admin_empresa",{p_empresa:id,p_desde:desdePeriodo()});if(!r.error)rows=(r.data||[]).map(r=>({...r,oferta_id:String(r.oferta_id),qtd:Number(r.qtd)||0,valor:Number(r.valor)||0}))}
+  let vendas=[];
+  if(x.exemplo){let k=0;rows.filter(r=>r.tipo==="compra").forEach(r=>{for(let j=0;j<r.qtd;j++){k++;vendas.push({codigo:"VC-EX"+String(1000+k*37%9000).slice(-4),oferta_id:r.oferta_id,usado_em:r.dia+"T"+String(r.dia===hojeISO()?Math.max(0,new Date().getHours()-1-(k%3)):11+(k*5)%10).padStart(2,"0")+":"+String((k*17)%60).padStart(2,"0")+":00",valor:Math.round(r.valor/r.qtd*100)/100})}})}
+  else if(DEMO){const us=store.get("vc_demo_usados",{}),mapa={};os.forEach(o=>mapa["d"+String(o.id).replace(/\W/g,"")]=String(o.id));
+    store.get("gira_cupons",[]).forEach(c=>{if(!mapa[c.id])return;const u=us[c.cod];vendas.push({codigo:c.cod,oferta_id:mapa[c.id],criado_em:new Date(c.em).toISOString(),usado_em:u?u.em:null,valor:u?u.valor:null})})}
+  else{const r=await db.rpc("vendas_admin_empresa",{p_empresa:id,p_desde:desdePeriodo()});if(!r.error)vendas=(r.data||[]).map(v=>({...v,oferta_id:String(v.oferta_id),valor:v.valor==null?null:Number(v.valor)}))}
+  if(ADM.detalhe!==id)return;
+  const desdeV=desdePeriodo(),vend=vendas.filter(v=>v.usado_em&&String(v.usado_em).slice(0,10)>=desdeV).sort((a,b)=>String(b.usado_em).localeCompare(String(a.usado_em)));
+  const naoUsados=Math.max(0,n.cupom-n.compra),titulo=oid=>(os.find(o=>String(o.id)===String(oid))||{titulo:"Oferta apagada"}).titulo;
+  const porOf={},porDia={};rows.forEach(r=>{const o=porOf[r.oferta_id]=porOf[r.oferta_id]||NUM0();o[r.tipo]+=r.qtd;if(r.tipo==="compra")o.valor+=r.valor;
+    const dd=porDia[r.dia]=porDia[r.dia]||{v:0,c:0,k:0};if(r.tipo==="visualizacao")dd.v+=r.qtd;if(r.tipo==="cupom")dd.c+=r.qtd;if(r.tipo==="compra")dd.k+=r.qtd});
+  const nDias=ADM.periodo===0?30:Math.min(ADM.periodo,30),dias=[...Array(nDias)].map((_,i)=>hojeISO(-(nDias-1-i)));
+  const maxV=Math.max(1,...dias.map(d=>(porDia[d]||{}).v||0));
+  const mesmoRamo=Object.values(A.info).filter(i=>i.x.aprovada&&i.x.ramo===x.ramo&&i.os.some(noArAdm));
+  const mediaRamo=mesmoRamo.length?mesmoRamo.reduce((s,i)=>s+i.n.visualizacao,0)/mesmoRamo.length:0;
+  const pct=(a,b)=>b?Math.round(a/b*100):0;
+  const funil=[["📣","Viram na tela",n.aparicao],["👀","Abriram a oferta",n.visualizacao],["🎟️","Pegaram cupom",n.cupom],["✅","Compraram",n.compra]],fMax=Math.max(1,...funil.map(f=>f[2]));
+  const ofs=os.map(o=>({o,m:porOf[String(o.id)]||NUM0()}));window._admPub={};ofs.forEach(p=>window._admPub[String(p.o.id)]=p);ofs.sort((a,b)=>b.m.compra-a.m.compra||b.m.cupom-a.m.cupom||b.m.visualizacao-a.m.visualizacao);
+  const melhor=ofs.length>1&&(ofs[0].m.cupom||ofs[0].m.compra)?String(ofs[0].o.id):null;
+  const zap=String(x.whatsapp||"").replace(/\D/g,""),zapUrl=t=>`https://wa.me/${zap.length<=11?"55"+zap:zap}?text=${encodeURIComponent(t)}`;
+  const per=ADM.periodo?`nos últimos ${ADM.periodo} dias`:"desde o início";
+  const msg=`Olá! Aqui é do Vitrine Castro 😊 Veja como está a ${x.nome.replace(/ \((exemplo|sua loja de teste)\)$/,"")} no app ${per}: 👀 ${fmtN(n.visualizacao)} visualizações, 🎟️ ${fmtN(n.cupom)} cupons e ✅ ${fmtN(n.compra)} compras confirmadas. Dica: ${dg.dicas[0]} Quer ajuda para montar uma promoção nova?`;
+  const linha=(ic,txt)=>txt?`<p class="ajuda" style="margin-top:3px">${ic} ${txt}</p>`:"";
+  const horario=x.abre&&x.fecha?`${String(x.abre).slice(0,5)} às ${String(x.fecha).slice(0,5)}${x.dias_func?" · "+String(x.dias_func).split(",").map(k=>["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"][k]).filter(Boolean).join(", "):""}`:"";
+  box.innerHTML=`<button class="mini" style="margin-bottom:12px" onclick="painelAdmin(false)">← Voltar para a lista</button>
+   <div class="card">
+    <div class="perfil-loja" style="gap:12px"><div class="logo" style="width:64px;height:64px">${seguro(x.logo_url)?`<img src="${esc(x.logo_url)}" alt="">`:"🏪"}</div>
+     <div style="flex:1;min-width:0"><h2 style="margin:0">${esc(x.nome)}</h2>
+      <span class="status ${x.aprovada?"ok":"pend"}">${x.aprovada?"✓ Aprovada":"⏳ Em análise"}</span> <span class="status pausa">Plano ${esc((PLANOS[x.plano]||{nome:x.plano||"—"}).nome)}</span>${I.pos?` <span class="status pausa">🏆 ${I.pos}º de ${A.rank.length} em vendas</span>`:""}</div></div>
+    ${linha("🏷️",esc(x.ramo||""))}${linha("📍",esc(x.endereco||""))}${linha("📞",esc(x.whatsapp||""))}${linha("🕘",esc(horario))}${x.instagram?linha("📸","@"+esc(x.instagram)):""}${linha("📅","No Vitrine desde "+new Date(x.criado_em).toLocaleDateString("pt-BR")+(dg.ult!=null?` · última oferta postada há ${dg.ult} dia${dg.ult===1?"":"s"}`:""))}
+   </div>
+
+   <div class="diag ${dg.cor}"><div class="dt">${dg.ic} ${esc(dg.t)}</div><p>${esc(dg.txt)}</p>
+    <p style="font-weight:700;margin-top:8px">💡 O que sugerir para a loja:</p><ul>${dg.dicas.map(t=>`<li>${esc(t)}</li>`).join("")}</ul>
+    ${zap?`<a class="btn" style="background:linear-gradient(#2fd36b,#13a049);margin-top:10px" href="${zapUrl(msg)}" target="_blank" rel="noopener">💬 Mandar análise e sugestão pelo WhatsApp</a>`:""}</div>
+
+   <div class="chips" style="margin:14px 0 10px">${[[7,"7 dias"],[30,"30 dias"],[0,"Tudo"]].map(([v,t])=>`<button type="button" aria-pressed="${ADM.periodo===v}" onclick="ADM.periodo=${v};window._adm=null;admDetalhe('${esc(id)}')">${t}</button>`).join("")}</div>
+   <div class="kpis">
+    <div class="kpi"><div class="n">${fmtN(n.visualizacao)}</div><div class="r">👀 Visualizações ${tendencia(n.visualizacao,ant&&ant.visualizacao)}</div><small>média do app: ${fmtN(A.media)}${mesmoRamo.length>1?` · do ramo: ${fmtN(mediaRamo)}`:""}</small></div>
+    <div class="kpi"><div class="n">${fmtN(n.cupom)}</div><div class="r">🎟️ Cupons ${tendencia(n.cupom,ant&&ant.cupom)}</div><small>clientes interessados</small></div>
+    <div class="kpi"><div class="n">${fmtN(n.entrega+n.whatsapp)}</div><div class="r">💬 Contatos</div><small>${fmtN(n.entrega)} pedidos de entrega · ${fmtN(n.whatsapp)} no WhatsApp</small></div>
+    <div class="kpi"><div class="n">${fmtN(n.compra)}</div><div class="r">✅ Compras ${tendencia(n.compra,ant&&ant.compra)}</div><small>confirmadas pela loja</small></div>
+    <div class="kpi ouro" style="grid-column:1/-1"><div class="n">${fmtR(n.valor)}</div><div class="r">💰 Vendido pelo Vitrine ${tendencia(n.valor,ant&&ant.valor)}</div><small>${n.compra?`ticket médio ${fmtR(n.valor/n.compra)}`:"nenhuma compra confirmada no período"}</small></div>
+   </div>
+
+   <div class="card" style="margin-top:14px"><h3>🔻 Caminho do cliente</h3><p class="ajuda">Mostra em que parte a loja está perdendo clientes.</p>
+    ${funil.map(([ic,t,v],k)=>`<div class="funil"><div class="fl"><span>${ic} ${t}</span><b>${fmtN(v)}${k?` <small>(${pct(v,funil[k-1][2])}%)</small>`:""}</b></div><div class="fb"><i style="width:${Math.max(v?3:0,v/fMax*100)}%"></i></div></div>`).join("")}
+    <p class="ajuda" style="margin-top:8px">Os números entre parênteses mostram quantos passaram da etapa anterior.</p></div>
+
+   <div class="card" style="margin-top:14px"><h3>📅 Procura por dia</h3><p class="ajuda">Barras azuis: visualizações · douradas: cupons pegos</p>
+    <div class="graf">${dias.map(dd=>{const v=porDia[dd]||{v:0,c:0};return `<div title="${dataBR(dd)}: ${v.v} visualizações, ${v.c} cupons"><i style="height:${v.v/maxV*100}%"></i><i class="c" style="height:${v.c/maxV*100}%"></i></div>`}).join("")}</div>
+    <div class="graf-leg"><span>${dataBR(dias[0]).slice(0,5)}</span><span>${dataBR(dias[dias.length-1]).slice(0,5)}</span></div></div>
+
+   <div class="card" style="margin-top:14px"><h3>🧾 Vendas confirmadas (${fmtN(vend.length)})</h3>
+    <p class="ajuda">${fmtN(n.cupom)} cupons pegos ${per} · ${fmtN(n.compra)} usados na compra · ${fmtN(naoUsados)} ainda não usados</p>
+    ${vend.length?`<div class="vendas">${vend.map((v,k)=>`${k===15?`<details><summary>Ver todas as ${vend.length} vendas</summary>`:""}<div class="vd-l"><span>${dataHora(v.usado_em)}<small>${esc(titulo(v.oferta_id))} · cupom ${esc(v.codigo)}</small></span><b>${fmtR(v.valor)}</b></div>`).join("")}${vend.length>15?"</details>":""}</div>`
+      :`<p class="ajuda" style="margin-top:8px">Nenhuma venda confirmada ${per}.${n.cupom?" Os clientes pegaram cupom, mas a loja não confirmou compras no painel.":""}</p>`}</div>
+
+   <h3 style="margin:16px 0 8px">📸 Publicações da loja (${os.length})</h3>
+   ${ofs.length?ofs.map(({o,m})=>{const ar=noArAdm(o),dv=o.validade?Math.ceil((new Date(o.validade+"T23:59:59")-Date.now())/864e5)-1:null;
+     return `<div class="oft-num" style="flex-wrap:wrap"><button type="button" class="ft" style="border:0;padding:0;cursor:pointer" onclick="admPost('${esc(o.id)}')" aria-label="Ver publicação ${esc(o.titulo)}">${seguro(o.foto_url)?`<img src="${esc(o.foto_url)}" alt="" loading="lazy">`:"🏷️"}</button><div style="flex:1;min-width:0"><b>${esc(o.titulo)}</b>${o.descricao?`<span class="pub-desc">${esc(o.descricao)}</span>`:""}
+      <span class="mini-n" style="display:flex"><span>${ar?`<span class="status ok">no ar</span>`:`<span class="status pausa">${venceu(o)?"vencida":o.inicia_em&&o.inicia_em>hojeISO()?"agendada":"pausada"}</span>`}</span>${String(o.id)===melhor?`<span class="status ok">🏆 Melhor oferta</span>`:""}${ar&&m.visualizacao>=5&&!m.cupom?`<span class="status pend">😴 ninguém pegou</span>`:""}</span>
+      <div class="mini-n"><span>👀 <b>${fmtN(m.visualizacao)}</b></span><span>🎟️ <b>${fmtN(m.cupom)}</b></span><span>✅ <b>${fmtN(m.compra)}</b></span><span>💰 <b>${fmtR(m.valor)}</b></span>${m.visualizacao?`<span>conversão <b>${pct(m.cupom,m.visualizacao)}%</b></span>`:""}</div>
+      <p class="ajuda" style="margin-top:2px">Postada em ${new Date(o.criado_em).toLocaleDateString("pt-BR")}${dv!=null&&ar?` · ${dv<=0?"vence hoje":`vence em ${dv} dia${dv>1?"s":""}`}`:""}${o.preco_de&&o.preco_por?` · de ${fmtR(o.preco_de)} por ${fmtR(o.preco_por)}`:""}</p></div>
+      <div style="display:flex;gap:6px;width:100%;flex-wrap:wrap"><button class="mini az" onclick="admPost('${esc(o.id)}')">🔍 Ver tudo</button><button class="mini ${o.destaque?"ou":""}" onclick="admOferta('${esc(o.id)}',{destaque:${!o.destaque}})">${o.destaque?"★ Em destaque":"☆ Pôr em destaque"}</button>
+       <button class="mini ${o.banner?"ou":""}" onclick="admBanner('${esc(o.id)}',${!o.banner},'${esc(o.banner_topo||"")}')">${o.banner?"🖼 No banner":"🖼 Pôr no banner"}</button></div></div>`}).join("")
+    :`<div class="vazio"><span class="e">🏷️</span>Esta loja ainda não postou ofertas.</div>`}
+
+   <div class="card" style="margin-top:14px"><h3>⚙️ Ações</h3>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+     ${x.aprovada?`<button class="mini" onclick="admEmpresa('${esc(x.id)}',{aprovada:false})">⏸ Suspender loja</button>`:`<button class="mini ou" onclick="admEmpresa('${esc(x.id)}',{aprovada:true})">✓ Aprovar loja</button>`}
+     <select class="mini" aria-label="Plano de ${esc(x.nome)}" onchange="admEmpresa('${esc(x.id)}',{plano:this.value})">${Object.entries(PLANOS).map(([k,v])=>`<option value="${k}" ${k===x.plano?"selected":""}>Plano ${v.nome}</option>`).join("")}</select>
+     ${zap?`<a class="mini" style="display:inline-flex;align-items:center;text-decoration:none;background:#dff5e7;color:#0d6b31" href="${zapUrl("Olá! Aqui é do Vitrine Castro, sobre a loja "+x.nome.replace(/ \((exemplo|sua loja de teste)\)$/,"")+".")}" target="_blank" rel="noopener">💬 Chamar no WhatsApp</a>`:""}
+    </div></div>
+   <button class="btn claro" style="margin-top:14px" onclick="painelAdmin(false)">← Voltar para a lista de empresas</button>`;
+}
+const dataHora=t=>new Date(t).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"});
+const DIAS_TXT=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+function admPost(id){const p=(window._admPub||{})[String(id)];if(!p)return;const {o,m}=p,ar=noArAdm(o);
+  const lin=(r,v)=>v?`<div class="ln"><span>${r}</span><b>${v}</b></div>`:"";
+  const cat=(CATS.find(c=>c[0]===o.categoria)||[,""])[1];
+  abrirSheet(`${seguro(o.foto_url)?`<img src="${esc(o.foto_url)}" alt="" style="width:100%;border-radius:16px;margin-top:8px;max-height:340px;object-fit:cover">`:""}
+   <h2 style="margin-top:12px">${esc(o.titulo)}</h2>
+   <p>${ar?`<span class="status ok">no ar</span>`:`<span class="status pausa">${venceu(o)?"vencida":o.inicia_em&&o.inicia_em>hojeISO()?"agendada":"pausada"}</span>`} ${o.destaque?`<span class="status pend">★ destaque</span>`:""} ${o.banner?`<span class="status pend">🖼 banner</span>`:""}</p>
+   ${o.descricao?`<p style="margin-top:10px;white-space:pre-line">${esc(o.descricao)}</p>`:""}
+   <div class="ficha-l">
+    ${lin("Postada em",new Date(o.criado_em).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"}))}
+    ${lin("Válida até",o.validade?dataBR(o.validade):"sem prazo")}
+    ${lin("Começa em",o.inicia_em?dataBR(o.inicia_em):"")}
+    ${lin("Categoria",esc(cat))}
+    ${lin("Preço",o.preco_de&&o.preco_por?`de ${fmtR(o.preco_de)} por ${fmtR(o.preco_por)}`:o.preco_por?fmtR(o.preco_por):"")}
+    ${lin("Entrega",o.entrega==="retirada"?"🏪 Só na loja":"🛵 Faz entrega")}
+    ${lin("Limite de cupons",o.limite_cupons?fmtN(o.limite_cupons):"sem limite")}
+    ${lin("Cupom por cliente",o.um_por_cliente===false?"pode repetir":"1 por pessoa")}
+    ${lin("Dias",o.dias?String(o.dias).split(",").map(k=>DIAS_TXT[k]).filter(Boolean).join(", "):"todos")}
+    ${lin("Horário",o.hora_ini&&o.hora_fim?String(o.hora_ini).slice(0,5)+" às "+String(o.hora_fim).slice(0,5):"")}
+    ${lin("Regras",esc(o.regras||""))}
+   </div>
+   <h3 style="margin-top:14px">Números ${ADM.periodo?`dos últimos ${ADM.periodo} dias`:"desde o início"}</h3>
+   <div class="ficha-l">${lin("📣 Apareceu na tela",fmtN(m.aparicao))}${lin("👀 Abriram a oferta",fmtN(m.visualizacao)||"0")}${lin("💬 Chamaram no WhatsApp",fmtN(m.whatsapp)||"0")}
+    ${lin("🎟️ Pegaram cupom",fmtN(m.cupom)||"0")}${lin("🛵 Pedidos de entrega",fmtN(m.entrega)||"0")}${lin("✅ Compras confirmadas",fmtN(m.compra)||"0")}${lin("💰 Vendido",fmtR(m.valor))}
+    ${lin("Conversão (cupom ÷ visualização)",m.visualizacao?Math.round(m.cupom/m.visualizacao*100)+"%":"")}</div>
+   <button class="btn claro" onclick="fechar()">Fechar</button>`)}
+function admAtualizar(){window._adm=null;ADM.detalhe?admDetalhe(ADM.detalhe):painelAdmin()}
+
+// ações do administrador (no modo demonstração mudam só a loja de teste deste celular)
+const exemplo=id=>/^ex\d/.test(String(id))&&(toast("Esta é uma loja de exemplo, só para demonstração"),true);
+async function admEmpresa(id,campos){if(exemplo(id))return;
+  if(DEMO){const emp=store.get("vc_demo_emp",{});Object.assign(emp,campos);store.set("vc_demo_emp",emp);empresa=emp;toast("✅ Atualizado");admAtualizar();return}
+  const {error}=await db.from("empresas").update(campos).eq("id",id);toast(error?traduzErro(error):"✅ Atualizado");admAtualizar()}
+async function admOferta(id,campos){if(exemplo(id))return;
+  if(DEMO){const l=store.get("vc_demo_ofertas",[]),o=l.find(x=>String(x.id)===String(id));if(o)Object.assign(o,campos);store.set("vc_demo_ofertas",l);ofertas=l;toast("✅ Atualizado");admAtualizar();return}
+  const {error}=await db.from("ofertas").update(campos).eq("id",id);toast(error?traduzErro(error):"✅ Atualizado");admAtualizar()}
+function admBanner(id,ligar,topo){if(exemplo(id))return;if(!ligar){admOferta(id,{banner:false});return}
+  abrirSheet(`<h2 style="margin-top:8px">Colocar no banner do topo</h2><p class="sub">A oferta precisa ter foto. Escreva uma chamada curta que aparece acima do desconto.</p>
+  <label for="bTopo">Chamada (opcional)</label><input class="inp" id="bTopo" maxlength="20" value="${topo}" placeholder="Ex: LIQUIDAÇÃO"><button class="btn ouro" onclick="fechar();admOferta('${id}',{banner:true,banner_topo:$('#bTopo').value.trim().toUpperCase()||null})">Colocar no banner</button>`)}
+
+
+document.addEventListener("keydown",e=>{if(e.key==="Escape")fechar()});
+if(!DEMO)db.auth.onAuthStateChange((ev)=>{if(ev==="PASSWORD_RECOVERY")abrirSheet(`<h2 style="margin-top:8px">Criar nova senha</h2><form onsubmit="novaSenha(event)"><label for="nSenha">Nova senha</label><input class="inp" id="nSenha" type="password" minlength="6" required autocomplete="new-password"><button class="btn">Salvar senha</button></form>`)});
+async function novaSenha(ev){ev.preventDefault();const {error}=await db.auth.updateUser({password:$("#nSenha").value});fechar();toast(error?traduzErro(error):"✅ Senha alterada!");iniciarAdm()}
+iniciarAdm().catch(e=>{$("#main").innerHTML=`<div class="card"><h2>Sem conexão</h2><p class="sub">${esc(traduzErro(e))}</p><button class="btn" onclick="location.reload()">Tentar de novo</button></div>`});
+</script>
+</body>
+</html>

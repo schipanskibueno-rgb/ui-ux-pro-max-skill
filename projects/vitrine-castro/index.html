@@ -30,7 +30,7 @@ button{font-family:inherit;cursor:pointer}
 header{background:#000;padding:calc(12px + env(safe-area-inset-top)) 16px 18px;border-radius:0 0 24px 24px;position:relative;overflow:hidden}
 .top{display:flex;align-items:center;gap:8px}
 .marca .simbolo{height:64px;width:auto;flex-shrink:0;display:block}.marca .palavra{width:142px;max-width:100%;height:auto;display:block}
-.icobtn.on{background:#D4A537;color:#0E1428}.icobtn{background:rgba(255,255,255,.08);border:0;color:#fff;min-width:48px;height:48px;border-radius:14px;display:grid;place-items:center;position:relative}
+.icobtn.coroa{min-width:40px;font-size:1.15rem;text-decoration:none}.icobtn.on{background:#D4A537;color:#0E1428}.icobtn{background:rgba(255,255,255,.08);border:0;color:#fff;min-width:48px;height:48px;border-radius:14px;display:grid;place-items:center;position:relative}
 .badge{position:absolute;top:2px;right:2px;background:var(--verm);color:#fff;font-size:12px;font-weight:700;border-radius:50%;width:20px;height:20px;display:grid;place-items:center;border:2px solid #fff}
 .marca{flex:1;display:flex;align-items:center;gap:10px;min-width:0}.marca svg{flex-shrink:0}.marca .wm{display:flex;flex-direction:column;line-height:1}.marca .v{font-family:Montserrat,sans-serif;font-weight:800;font-size:1.6rem;letter-spacing:-.5px;color:#fff}.marca .c{font-family:Montserrat,sans-serif;font-weight:700;font-size:.66rem;letter-spacing:4.5px;color:#D4A537;margin-top:3px}.marca .cd{font-family:Montserrat,sans-serif;font-size:.58rem;letter-spacing:2.5px;color:#E8D9A8;margin-top:3px}.logo{flex:1;min-width:0;max-width:260px;display:block;margin:0 auto;-webkit-mask-image:radial-gradient(ellipse 60% 62% at 50% 50%,#000 70%,transparent 100%);mask-image:radial-gradient(ellipse 60% 62% at 50% 50%,#000 70%,transparent 100%)}
 .slogan{text-align:center;color:#F3E3B5;font-style:italic;font-weight:500;font-size:.9rem;margin-top:8px}
@@ -265,6 +265,7 @@ label{display:block;font-size:.9rem;font-weight:600;margin:12px 0 5px}
     <div class="marca" role="img" aria-label="Vitrine Castro"><img class="simbolo" src="img/logo-simbolo.png" alt="" width="189" height="200"><span class="wm"><img class="palavra" src="img/logo-palavra.png" alt="" width="393" height="72"><span class="c">CASTRO</span></span></div>
     <button class="icobtn" id="btnAa" onclick="letraGrande()" aria-label="Aumentar o tamanho da letra"><span style="font-weight:800;font-size:.95rem">A<span style="font-size:1.35em">A</span></span></button>
     <button class="icobtn" onclick="abrir('notifs')" aria-label="Avisos"><svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22zm7-6V11a7 7 0 0 0-5.5-6.84V3.5a1.5 1.5 0 0 0-3 0v.66A7 7 0 0 0 5 11v5l-2 2v1h18v-1z"/></svg><span class="badge" id="nbadge">3</span></button>
+    <a class="icobtn coroa" href="admin.html" aria-label="Área do administrador" title="Administração">👑</a>
   </div>
   <div class="campo">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0b1a45" stroke-width="2.6"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
