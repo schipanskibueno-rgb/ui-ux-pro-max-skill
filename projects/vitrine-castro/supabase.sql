@@ -300,6 +300,17 @@ $$;
 revoke execute on function public.metricas_admin(date) from public, anon;
 grant execute on function public.metricas_admin(date) to authenticated;
 
+-- Administrador: ficha de UMA loja (números por oferta e por dia)
+create or replace function public.metricas_admin_empresa(p_empresa uuid, p_desde date) returns table (oferta_id uuid, tipo text, dia date, qtd bigint, valor numeric)
+language sql stable security definer set search_path = public as $$
+  select ev.oferta_id, ev.tipo, ev.dia, count(*), coalesce(sum(ev.valor), 0)
+    from public.eventos ev
+   where public.is_admin() and ev.empresa_id = p_empresa and ev.dia >= p_desde
+   group by ev.oferta_id, ev.tipo, ev.dia
+$$;
+revoke execute on function public.metricas_admin_empresa(uuid, date) from public, anon;
+grant execute on function public.metricas_admin_empresa(uuid, date) to authenticated;
+
 revoke execute on function public.registrar_evento(uuid,text,text), public.emitir_cupom(uuid,text),
   public.consultar_cupom(text), public.confirmar_cupom(text,numeric), public.metricas_empresa(date) from public, anon;
 grant execute on function public.registrar_evento(uuid,text,text), public.emitir_cupom(uuid,text) to anon, authenticated;
