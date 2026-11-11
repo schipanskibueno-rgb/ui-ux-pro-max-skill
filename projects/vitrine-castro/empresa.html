@@ -812,6 +812,13 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")fechar()});
 if(!DEMO)db.auth.onAuthStateChange((ev)=>{if(ev==="PASSWORD_RECOVERY")abrirSheet(`<h2 style="margin-top:8px">Criar nova senha</h2><form onsubmit="novaSenha(event)"><label for="nSenha">Nova senha</label><input class="inp" id="nSenha" type="password" minlength="6" required autocomplete="new-password"><button class="btn">Salvar senha</button></form>`)});
 async function novaSenha(ev){ev.preventDefault();const {error}=await db.auth.updateUser({password:$("#nSenha").value});fechar();toast(error?traduzErro(error):"✅ Senha alterada!");iniciar()}
 iniciar().catch(e=>{$("#main").innerHTML=`<div class="card"><h2>Sem conexão</h2><p class="sub">${esc(traduzErro(e))}</p><button class="btn" onclick="location.reload()">Tentar de novo</button></div>`});
+
+// Quando o Vitrine roda dentro de outra tela (ex.: prévia de um app), alguns celulares
+// não abrem a galeria. Se o toque não abriu nada, avisa como resolver.
+(function avisoGaleria(){let emJanela=false;try{emJanela=window.self!==window.top}catch(e){emJanela=true}if(!emJanela)return;
+  document.addEventListener("click",e=>{const inp=e.target.closest&&e.target.closest('input[type=file]');if(!inp)return;
+    let abriu=false;const marca=()=>{abriu=true};window.addEventListener("blur",marca,{once:true});inp.addEventListener("change",marca,{once:true});
+    setTimeout(()=>{window.removeEventListener("blur",marca);if(!abriu&&document.hasFocus())toast("Esta prévia não deixa abrir a galeria. Abra o Vitrine pelo link no Chrome ou Safari para escolher fotos.")},1500)},true)})();
 </script>
 </body>
 </html>
