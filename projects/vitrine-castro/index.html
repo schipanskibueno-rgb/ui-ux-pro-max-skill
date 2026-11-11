@@ -177,6 +177,21 @@ main{padding:12px 12px 0}
 .trilho::-webkit-scrollbar{display:none}
 .trilho .of{flex:0 0 46%;scroll-snap-align:start}
 
+/* chamada para empresas na tela inicial */
+.chamada-emp{display:block;width:100%;margin:22px 0 14px;text-align:left;color:#fff;border:1.5px solid var(--ouro);border-radius:var(--raio-g);padding:16px;position:relative;overflow:hidden;
+  background:radial-gradient(120% 90% at 100% 0%,rgba(212,165,55,.35) 0%,rgba(212,165,55,0) 55%),linear-gradient(135deg,#000 0%,#1c1c22 70%,#2b2310 100%);box-shadow:0 8px 24px rgba(0,0,0,.18);transition:transform .15s ease,box-shadow .15s ease}
+.chamada-emp:hover{transform:translateY(-1px);box-shadow:0 12px 28px rgba(0,0,0,.24)}.chamada-emp:active{transform:scale(.99)}
+.ce-selo{display:inline-block;font-size:.62rem;font-weight:800;letter-spacing:.08em;color:var(--preto);background:var(--ouro);border-radius:999px;padding:4px 10px}
+.ce-linha{display:flex;align-items:center;gap:12px;margin-top:12px}
+.ce-ic{width:54px;height:54px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;background:var(--ouro);color:var(--preto)}
+.ce-ic svg{width:28px;height:28px}
+.ce-tx b{display:block;font-size:1.25rem;line-height:1.2;color:#fff}
+.ce-tx span{display:block;font-size:.9rem;color:#D9D3BF;margin-top:3px;line-height:1.35}
+.ce-lista{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.ce-lista span{font-size:.75rem;font-weight:600;color:var(--ouro-2);background:rgba(212,165,55,.12);border:1px solid rgba(212,165,55,.35);border-radius:999px;padding:4px 9px}
+.ce-cta{display:flex;align-items:center;justify-content:center;gap:4px;margin-top:14px;min-height:50px;border-radius:10px;background:var(--ouro);color:var(--preto);font-weight:800;font-size:1rem;animation:ceBrilho 2.6s ease-in-out infinite}
+@keyframes ceBrilho{0%,100%{box-shadow:0 0 0 0 rgba(212,165,55,0)}50%{box-shadow:0 0 0 6px rgba(212,165,55,.18)}}
+@media (prefers-reduced-motion:reduce){.ce-cta{animation:none}.chamada-emp{transition:none}}
 /* ---------- CARTÃO DE OFERTA ---------- */
 .ofertas{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .of{background:var(--card);border-radius:var(--raio);overflow:hidden;box-shadow:var(--sombra);display:flex;flex-direction:column;position:relative;cursor:pointer;color:var(--txt);text-align:left;transition:box-shadow .15s ease}
@@ -520,11 +535,12 @@ body.travado{overflow:hidden}
   <div class="ofertas" id="destaques"></div>
   <div class="secao"><h2><span data-ic="store"></span>Lojas parceiras</h2><button class="link" onclick="ir('empresas')">Ver todas<span data-ic="chev"></span></button></div>
   <div class="lojas-trilho" id="lojasHome"></div>
-  <div class="secao"><h2><span data-ic="briefcase"></span>Tem uma loja em Castro?</h2></div>
-  <div class="card" style="display:flex;gap:12px;align-items:center">
-   <div style="flex:1"><h3>Anuncie no Vitrine</h3><p>Poste ofertas em 1 minuto e veja quantos clientes chegaram pelo app.</p></div>
-   <button class="btn-ouro" onclick="ir('negocios')">Ver planos</button>
-  </div>
+  <button class="chamada-emp" onclick="ir('negocios')" aria-label="Você tem uma empresa? Clique aqui e publique suas ofertas no Vitrine">
+   <span class="ce-selo">PARA EMPRESAS · 3 MESES GRÁTIS</span>
+   <span class="ce-linha"><span class="ce-ic" data-ic="store"></span><span class="ce-tx"><b>Você tem uma empresa?</b><span>Publique suas ofertas no Vitrine e atraia clientes de Castro todos os dias.</span></span></span>
+   <span class="ce-lista"><span>✓ Poste em 1 minuto</span><span>✓ Veja quantos clientes chegaram</span><span>✓ Pedidos no seu WhatsApp</span></span>
+   <span class="ce-cta">Clique aqui e publique suas ofertas<span data-ic="chev"></span></span>
+  </button>
   <button class="faixa-vip" id="faixaVip" onclick="abrir('vip')"></button>
   <button class="item card" style="padding:0 14px" onclick="indicar()"><span data-ic="gift"></span><span class="tx"><b>Indique para um amigo</b><small>Mande o Vitrine no WhatsApp de quem você gosta</small></span><span class="seta" data-ic="chev"></span></button>
  </div>
