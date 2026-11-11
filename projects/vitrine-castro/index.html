@@ -110,7 +110,8 @@ main{padding:12px 12px 0}
 .faixa-vip{width:100%;display:flex;align-items:center;gap:10px;background:linear-gradient(100deg,var(--preto) 0%,var(--preto-3) 100%);color:#fff;border:1.5px solid var(--ouro);border-radius:999px;padding:0 14px;min-height:50px;text-align:left}
 .faixa-vip .ic{color:var(--ouro)}
 .faixa-vip b{color:var(--ouro);font-weight:800;white-space:nowrap}
-.faixa-vip span{flex:1;min-width:0;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.faixa-vip span{flex:1;min-width:0;font-size:.9rem;line-height:1.3}
+.faixa-vip{padding-top:8px!important;padding-bottom:8px!important;border-radius:18px!important}
 
 /* atalhos com ícones */
 .atalhos{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin:14px -12px 0;padding:2px 12px 4px}
@@ -143,7 +144,8 @@ main{padding:12px 12px 0}
 
 /* carrossel patrocinado */
 .carrossel{position:relative;border-radius:var(--raio-g);overflow:hidden;aspect-ratio:16/9;background:var(--preto);margin-top:0;box-shadow:var(--sombra)}
-#homeTudo>.faixa-vip{margin-top:10px}
+#homeTudo>.faixa-vip{margin:4px 0 12px}
+#homeTudo>.instalar{margin-top:8px}
 .slides{display:flex;height:100%;transition:transform .5s ease}
 @media (prefers-reduced-motion:reduce){.slides{transition:none}}
 .slide{min-width:100%;height:100%;position:relative;border:0;padding:0;background:var(--preto);display:block;text-align:left;color:#fff;overflow:hidden}
@@ -510,10 +512,9 @@ body.travado{overflow:hidden}
  <div id="homeTudo">
   <div class="carrossel" aria-label="Lojas patrocinadas"><div class="slides" id="slides"></div></div>
   <div class="ctrl" id="dots"></div>
-  <button class="faixa-vip" id="faixaVip" onclick="abrir('vip')"></button>
+  <div class="instalar" id="instalarBox" style="display:none"><img class="ico" src="icons/icon-192.png" alt="" width="48" height="48"><span class="t"><b>Baixe o Vitrine no seu celular</b><small>Grátis, direto na tela</small></span><button class="btn-ouro" onclick="instalarApp()">Baixar</button><button class="x" onclick="esconderInstalar()" aria-label="Agora não" data-ic="close"></button></div>
   <div class="atalhos" id="atalhos" aria-label="Atalhos"></div>
   <button class="pts-mini" id="ptsHome" onclick="ir('pontos')" aria-label="Meus pontos"></button>
-  <div class="instalar" id="instalarBox" style="display:none"><img class="ico" src="icons/icon-192.png" alt="" width="48" height="48"><span class="t"><b>Baixe o app Vitrine</b><small>Grátis, na tela do celular</small></span><button class="btn-ouro" onclick="instalarApp()">Baixar</button><button class="x" onclick="esconderInstalar()" aria-label="Agora não" data-ic="close"></button></div>
   <div id="relampagoBox"></div>
   <div class="secao"><h2><span data-ic="fire"></span>Ofertas em destaque</h2><button class="link" onclick="filtrarCat(null)">Ver todas<span data-ic="chev"></span></button></div>
   <div class="ofertas" id="destaques"></div>
@@ -524,6 +525,7 @@ body.travado{overflow:hidden}
    <div style="flex:1"><h3>Anuncie no Vitrine</h3><p>Poste ofertas em 1 minuto e veja quantos clientes chegaram pelo app.</p></div>
    <button class="btn-ouro" onclick="ir('negocios')">Ver planos</button>
   </div>
+  <button class="faixa-vip" id="faixaVip" onclick="abrir('vip')"></button>
   <button class="item card" style="padding:0 14px" onclick="indicar()"><span data-ic="gift"></span><span class="tx"><b>Indique para um amigo</b><small>Mande o Vitrine no WhatsApp de quem você gosta</small></span><span class="seta" data-ic="chev"></span></button>
  </div>
  <div id="homeCatBox" hidden>
@@ -853,7 +855,7 @@ function renderTabs(){$("#tabsCat").innerHTML=[{id:null,nome:"Tudo"},...CATS].ma
 function tabHome(id){catSelHome=id;renderTabs();renderHome();pintarIcones();observarCards();const b=document.querySelector('#tabsCat [aria-selected="true"]');if(b)b.scrollIntoView({inline:"center",block:"nearest",behavior:"smooth"})}
 function renderHome(){
   const vipOn=vip(),p=store.get("gira_perfil",null);
-  $("#faixaVip").innerHTML=`${ic("crown",22)}<b>Vitrine VIP</b><span>${vipOn?"Você é VIP"+(p&&p.vipAte?" até "+dataCurta(p.vipAte):""):"Assine por R$ 9,90/mês"}</span>${ic("chev",18)}`;
+  $("#faixaVip").innerHTML=`${ic("crown",22)}<b>Vitrine VIP</b><span>${vipOn?"Você é VIP"+(p&&p.vipAte?" até "+dataCurta(p.vipAte):""):"Seja cliente VIP por R$ 9,90/mês"}</span>${ic("chev",18)}`;
   const ncup=store.get("gira_cupons",[]).length,at=[
     ["ofertas","tag","Ofertas","filtrarCat(null)","",""],
     ["cupons","ticket","Cupons","ir('cupons')",ncup?String(ncup):"","verde"],
