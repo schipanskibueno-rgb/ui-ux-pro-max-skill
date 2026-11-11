@@ -158,6 +158,11 @@ main{padding:12px 12px 0}
 /* carrossel patrocinado */
 .carrossel{position:relative;border-radius:var(--raio-g);overflow:hidden;aspect-ratio:16/9;background:var(--preto);margin-top:0;box-shadow:var(--sombra)}
 #homeTudo>.faixa-vip{margin:4px 0 12px}
+.indica-ouro{background:linear-gradient(100deg,var(--ouro-2) 0%,var(--ouro) 100%)!important;color:#000!important;border:0;border-radius:18px!important;padding:8px 14px!important;box-shadow:0 4px 14px rgba(212,165,55,.3)}
+.indica-ouro:hover{filter:brightness(1.05)}
+.indica-ouro>.ic,.indica-ouro .seta,.indica-ouro .tx b{color:#000!important}
+.indica-ouro .tx b{font-weight:800}
+.indica-ouro .tx small{color:rgba(0,0,0,.72)!important}
 #homeTudo>.instalar{margin-top:8px}
 .slides{display:flex;height:100%;transition:transform .5s ease}
 @media (prefers-reduced-motion:reduce){.slides{transition:none}}
@@ -559,7 +564,7 @@ body.travado{overflow:hidden}
    <span class="ce-ic" data-ic="store"></span><span class="ce-frase">Empresário, publique <b>aqui</b></span><span class="ce-seta" data-ic="chev"></span>
   </button>
   <button class="faixa-vip" id="faixaVip" onclick="abrir('vip')"></button>
-  <button class="item card" style="padding:0 14px" onclick="indicar()"><span data-ic="gift"></span><span class="tx"><b>Indique para um amigo</b><small>Mande o Vitrine no WhatsApp de quem você gosta</small></span><span class="seta" data-ic="chev"></span></button>
+  <button class="item card indica-ouro" onclick="indicar()"><span data-ic="gift"></span><span class="tx"><b>Indique para um amigo</b><small>Mande o Vitrine no WhatsApp de quem você gosta</small></span><span class="seta" data-ic="chev"></span></button>
  </div>
  <div id="homeCatBox" hidden>
   <div class="secao" style="margin-top:6px"><h2 id="homeCatTit"></h2><button class="link" onclick="ir('categorias')">Categorias<span data-ic="chev"></span></button></div>
