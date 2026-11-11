@@ -339,6 +339,82 @@ drop policy if exists "so admin financeiro" on public.pagamentos;
 create policy "so admin financeiro" on public.pagamentos for all to authenticated
   using (public.is_admin()) with check (public.is_admin());
 
+-- ---------- VITRINE VIP: pedido com Pix (QR Code) ----------
+-- O cliente gera o pedido no app (sem login). O valor é fixo aqui no banco (R$ 9,90).
+-- Só o administrador vê os pedidos e confirma o Pix; aí o VIP ativa sozinho no celular do cliente.
+create table if not exists public.pedidos_vip (
+  txid      text primary key check (txid ~ '^VIP[A-Z0-9]{8}$'),
+  aparelho  text not null check (aparelho ~ '^[a-z0-9]{12,40}$'),
+  nome      text not null check (char_length(nome) between 2 and 80),
+  whatsapp  text check (whatsapp is null or whatsapp ~ '^[0-9]{10,13}$'),
+  valor     numeric(10,2) not null default 9.90 check (valor > 0 and valor < 1000),
+  criado_em timestamptz not null default now(),
+  pago_em   timestamptz,
+  vip_ate   date
+);
+create index if not exists pedidos_vip_aparelho on public.pedidos_vip (aparelho, criado_em desc);
+alter table public.pedidos_vip enable row level security;
+revoke all on public.pedidos_vip from public, anon;
+grant select, delete on public.pedidos_vip to authenticated;
+drop policy if exists "so admin pedidos vip" on public.pedidos_vip;
+create policy "so admin pedidos vip" on public.pedidos_vip for all to authenticated
+  using (public.is_admin()) with check (public.is_admin());
+
+create or replace function public.pedir_vip(p_aparelho text, p_nome text, p_whats text) returns text
+language plpgsql security definer set search_path = public as $$
+declare t text; n text := btrim(coalesce(p_nome, '')); w text := nullif(regexp_replace(coalesce(p_whats, ''), '\D', '', 'g'), '');
+begin
+  if p_aparelho is null or p_aparelho !~ '^[a-z0-9]{12,40}$' then return null; end if;
+  if char_length(n) < 2 or char_length(n) > 80 then return null; end if;
+  if w is not null and w !~ '^[0-9]{10,13}$' then w := null; end if;
+  -- reaproveita o pedido em aberto deste celular (últimas 24h)
+  select txid into t from public.pedidos_vip
+   where aparelho = p_aparelho and pago_em is null and criado_em > now() - interval '1 day' order by criado_em desc limit 1;
+  if t is not null then update public.pedidos_vip set nome = n, whatsapp = w where txid = t; return t; end if;
+  -- limites contra abuso
+  if (select count(*) from public.pedidos_vip where aparelho = p_aparelho and criado_em > now() - interval '1 day') >= 5 then return null; end if;
+  if (select count(*) from public.pedidos_vip where pago_em is null and criado_em > now() - interval '1 hour') >= 300 then return null; end if;
+  loop
+    t := 'VIP' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 8));
+    begin
+      insert into public.pedidos_vip (txid, aparelho, nome, whatsapp) values (t, p_aparelho, n, w);
+      exit;
+    exception when unique_violation then null;
+    end;
+  end loop;
+  return t;
+end $$;
+
+-- O app pergunta: este celular tem VIP pago? até quando?
+create or replace function public.status_vip(p_aparelho text) returns table (vip_ate date, pendente text)
+language sql stable security definer set search_path = public as $$
+  select (select max(v.vip_ate) from public.pedidos_vip v where v.aparelho = p_aparelho and v.pago_em is not null),
+         (select v.txid from public.pedidos_vip v where v.aparelho = p_aparelho and v.pago_em is null
+           and v.criado_em > now() - interval '1 day' order by v.criado_em desc limit 1)
+   where p_aparelho ~ '^[a-z0-9]{12,40}$'
+$$;
+
+-- Administrador confirma o Pix: ativa 30 dias (somando se ainda tiver VIP) e lança no caixa
+create or replace function public.confirmar_vip(p_txid text, p_forma text default 'pix') returns date
+language plpgsql security definer set search_path = public as $$
+declare pd public.pedidos_vip; base date; ate date;
+begin
+  if not public.is_admin() then raise exception 'Apenas o administrador pode confirmar pagamentos.'; end if;
+  select * into pd from public.pedidos_vip where txid = p_txid for update;
+  if not found then raise exception 'Pedido não encontrado.'; end if;
+  if pd.pago_em is not null then return pd.vip_ate; end if;           -- já confirmado: não lança 2 vezes
+  select greatest(current_date, coalesce(max(vip_ate), current_date)) into base
+    from public.pedidos_vip where aparelho = pd.aparelho and pago_em is not null;
+  ate := base + 30;
+  update public.pedidos_vip set pago_em = now(), vip_ate = ate where txid = pd.txid;
+  insert into public.pagamentos (tipo, cliente_nome, cliente_whatsapp, valor, referencia, forma, pago_em, obs)
+  values ('vip', pd.nome, pd.whatsapp, pd.valor, to_char(current_date, 'YYYY-MM'), coalesce(nullif(p_forma, ''), 'pix'), current_date, 'Pedido ' || pd.txid);
+  return ate;
+end $$;
+revoke execute on function public.pedir_vip(text, text, text), public.status_vip(text), public.confirmar_vip(text, text) from public, anon;
+grant execute on function public.pedir_vip(text, text, text), public.status_vip(text) to anon, authenticated;
+grant execute on function public.confirmar_vip(text, text) to authenticated;
+
 -- A empresa vê só as PRÓPRIAS mensalidades (sem observações internas do administrador)
 create or replace function public.minhas_mensalidades() returns table (referencia text, valor numeric, forma text, pago_em date)
 language sql stable security definer set search_path = public as $$

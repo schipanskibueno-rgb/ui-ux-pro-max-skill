@@ -122,6 +122,21 @@ main{padding:16px 14px 0}
 .of .tag.s{font-size:.85rem}
 
 /* VIP */
+.vip-topo{text-align:center;margin-top:6px}.vip-topo .cr{font-size:3.4rem;line-height:1}.vip-topo h3{font-size:1.6rem;font-weight:800;margin-top:4px}.vip-topo h3 span{color:#C9952A}
+.vip-topo p{color:var(--cinza)}.vip-topo.pq h3{font-size:1.35rem;margin-top:10px}
+.vip-preco{display:inline-flex;align-items:baseline;gap:4px;margin-top:10px;background:linear-gradient(100deg,#0E1428,#1F2B57);color:#fff;border:1.5px solid #D4A537;border-radius:16px;padding:8px 18px}
+.vip-preco b{font-size:2rem;color:#E9C766;font-family:Montserrat,Poppins,sans-serif}.vip-preco small{font-size:.9rem;opacity:.9}
+.vip-sub{font-size:.85rem;margin-top:6px}
+.vip-ok{display:inline-block;margin-top:10px;background:#dff5e7;color:#0d6b31;font-weight:800;border-radius:999px;padding:8px 16px}
+.vip-lista{list-style:none;margin:14px 0 4px;background:#f4f7ff;border-radius:16px;padding:12px 14px}.vip-lista li{display:flex;gap:8px;padding:6px 0;font-size:1rem;color:var(--txt)}
+.vip-quem{margin-top:12px;border:2px solid #E9C766;background:#fffaf0;border-radius:14px;padding:12px;text-align:center}.vip-quem span{display:block;font-size:.85rem;color:var(--cinza)}.vip-quem b{display:block;font-size:1.1rem}.vip-quem small{color:var(--cinza)}
+.btn.ouro-g{background:linear-gradient(#ffe066,#f5b400);color:#1b1b1b;font-weight:800}
+.ajuda-c{text-align:center;font-size:.85rem;color:var(--cinza);margin-top:8px}
+.pix-qr{display:grid;place-items:center;background:#fff;border:2px solid #e6dcc0;border-radius:18px;padding:16px;margin:14px auto 0;width:fit-content}.pix-qr img,.pix-qr canvas{display:block}
+.pix-cod{text-align:center;margin-top:10px;font-size:.9rem;color:var(--cinza)}.pix-cod b{color:var(--txt);letter-spacing:.5px}
+.aviso-ex{background:#fff3cd;color:#6b4e00;border-radius:12px;padding:10px 12px;margin-top:12px;font-size:.88rem}
+.vip-espera{background:#eef3ff;border-radius:12px;padding:12px;margin-top:12px;font-size:.92rem}
+
 .vip{margin-top:18px;background:linear-gradient(100deg,#0E1428,#1F2B57);border:1.5px solid #D4A537;border-radius:18px;padding:14px;display:flex;align-items:center;gap:10px;color:#fff;box-shadow:0 6px 16px rgba(7,31,107,.3)}
 .vip .cr{font-size:2.2rem}
 .vip h4{font-size:1.05rem;font-weight:800}.vip h4 span{color:var(--ouro)}
@@ -292,7 +307,7 @@ label{display:block;font-size:.9rem;font-weight:600;margin:12px 0 5px}
 
   <div class="vip">
     <div class="cr">👑</div>
-    <div style="flex:1"><h4><span>Plano</span> VIP Vitrine</h4><p>Descontos exclusivos e ofertas antes de todo mundo!</p></div>
+    <div style="flex:1"><h4><span>Vitrine</span> VIP</h4><p>Descontos exclusivos e ofertas antes de todo mundo! Só R$ 9,90/mês</p></div>
     <button class="btn-ouro" onclick="abrir('vip')">Seja VIP</button>
   </div>
   <button class="indique" style="width:100%;text-align:left;color:inherit;font-family:inherit" onclick="indicar()">
@@ -312,7 +327,7 @@ label{display:block;font-size:.9rem;font-weight:600;margin:12px 0 5px}
     <div><span class="e">🛍️</span><span>A cada <b>R$ 1</b> gasto nas lojas parceiras</span><strong>+1 ponto</strong></div>
     <div><span class="e">👋</span><span>Ao criar sua conta</span><strong>+50 pontos</strong></div>
     <div><span class="e">🎁</span><span>Quando um amigo indicado se cadastra</span><strong>+100 pontos</strong></div>
-    <div><span class="e">👑</span><span>Membros VIP ganham pontos</span><strong>em dobro</strong></div>
+    <div><span class="e">👑</span><span>Membros Vitrine VIP ganham pontos</span><strong>em dobro</strong></div>
   </div>
   <div class="tit"><h2>🏅 Seu nível</h2></div>
   <div class="niveis" id="niveisBox"></div>
@@ -357,7 +372,7 @@ label{display:block;font-size:.9rem;font-weight:600;margin:12px 0 5px}
     <button onclick="ir('cupons')"><span class="e">❤️</span>Meus cupons e favoritos</button>
     <button onclick="ir('empresas')"><span class="e">🏪</span>Empresas parceiras e planos</button>
     <button onclick="location.href='empresa.html'"><span class="e">🔑</span>Área da Empresa (para lojistas)</button>
-    <button onclick="abrir('vip')"><span class="e">👑</span>Plano VIP</button>
+    <button onclick="abrir('vip')"><span class="e">👑</span>Vitrine VIP</button>
     <button onclick="abrir('cidades')"><span class="e">📍</span>Cidade: <span id="cid" style="margin-left:4px">Castro – PR</span></button>
     <button onclick="letraGrande()"><span class="e">🔠</span>Letra grande</button>
     <button onclick="instalarApp()"><span class="e">📲</span>Baixar o app no celular</button>
@@ -532,8 +547,8 @@ function renderOla(){
 }
 function renderPerfil(){
   const p=store.get("gira_perfil",null);
-  $("#perfilBox").innerHTML=p?`<div style="text-align:center"><div style="font-size:3.2rem">👤</div><h3>${esc(p.nome)}</h3><p>${esc(p.tel)}</p><span class="chip">${p.vip?"👑 Membro VIP":"Membro Vitrine Castro"}</span><span class="chip">${store.get("gira_cupons",[]).length} cupons</span><span class="chip">⭐ ${fmt(pts().saldo)} pontos</span></div>
-   <button class="btn" onclick="abrir('vip')">👑 ${p.vip?"Ver benefícios VIP":"Quero ser VIP"}</button><button class="btn claro" onclick="sair()">Sair da conta</button>`:
+  $("#perfilBox").innerHTML=p?`<div style="text-align:center"><div style="font-size:3.2rem">👤</div><h3>${esc(p.nome)}</h3><p>${esc(p.tel)}</p><span class="chip">${vip()?"👑 Vitrine VIP"+(p.vipAte?" até "+dataCurta(p.vipAte):""):"Membro Vitrine Castro"}</span><span class="chip">${store.get("gira_cupons",[]).length} cupons</span><span class="chip">⭐ ${fmt(pts().saldo)} pontos</span></div>
+   <button class="btn" onclick="abrir('vip')">👑 ${vip()?"Ver meu Vitrine VIP":"Quero ser Vitrine VIP – R$ 9,90"}</button><button class="btn claro" onclick="sair()">Sair da conta</button>`:
    `<h3>Crie sua conta grátis</h3><p>É rapidinho: só seu nome e WhatsApp.</p>
    <form onsubmit="cadastrar(event)"><label for="pNome">Seu nome</label><input class="inp" id="pNome" required autocomplete="name" placeholder="Ex: Maria da Silva"><label for="pTel">Seu WhatsApp</label><input class="inp" id="pTel" required inputmode="tel" autocomplete="tel" placeholder="(42) 9 9999-9999" oninput="mascara(this)"><button class="btn">Criar minha conta</button></form>`;
 }
@@ -647,20 +662,19 @@ function letraGrande(){const on=document.documentElement.classList.toggle("grand
 
 function abrir(tipo,planoSel){
   let h="";
-  if(tipo==="vip")h=`<div style="text-align:center;margin-top:6px"><div style="font-size:3.4rem">👑</div><h3 style="font-size:1.4rem">Plano VIP Vitrine Castro</h3><p style="color:var(--cinza)">Vantagens exclusivas nas melhores empresas de Castro</p></div>
-    <div class="card" style="margin-top:14px;box-shadow:none;background:#f4f7ff"><p style="color:var(--txt);line-height:2;font-size:1rem">✅ Descontos exclusivos para membros<br>✅ Ofertas antes de todo mundo<br>✅ Cupons ilimitados<br>✅ Sorteios todo mês</p></div>
-    <button class="btn verde" onclick="abrirLink(wa('Olá! Quero assinar o Plano VIP do Vitrine Castro.'))">💬 Quero ser VIP</button>`;
+  if(tipo==="vip"){h=telaVip();if(!vip()&&store.get("vc_vip_pedido",null))atualizarVip(false).then(ok=>{if(ok&&$("#modal").classList.contains("on")&&$("#sheet .vip-topo"))telaVipBemVindo()})}
   if(tipo==="parceiro")h=`<h3 style="font-size:1.3rem;margin-top:6px">Seja uma empresa parceira</h3><p style="color:var(--cinza)">Preencha e envie pelo WhatsApp. Retornamos rapidinho!</p>
     <form onsubmit="enviarParceiro(event)"><label for="e1">Nome da empresa</label><input class="inp" id="e1" required><label for="e2">Ramo</label><select class="inp" id="e2">${CATS.map(c=>`<option>${c.nome}</option>`).join("")}<option>Outro</option></select><label for="e3">Responsável</label><input class="inp" id="e3" required><label for="e4">WhatsApp</label><input class="inp" id="e4" inputmode="tel" required oninput="mascara(this)"><label for="e6">Plano</label><select class="inp" id="e6">${PLANOS.map(p=>`<option value="${p.nome}" ${p.id===planoSel?"selected":""}>${p.nome} – ${p.preco}/mês</option>`).join("")}<option value="Ainda não sei">Ainda não sei</option></select><p style="font-size:.85rem;color:var(--cinza);margin-top:6px">⭐ As 20 primeiras lojas ganham 3 meses grátis.</p><label for="e5">Oferta que deseja divulgar</label><input class="inp" id="e5" placeholder="Ex: 20% OFF em toda a loja"><button class="btn verde">💬 Enviar pelo WhatsApp</button></form>`;
   if(tipo==="cidades")h=`<h3 style="margin-top:6px">Escolha sua cidade</h3><div class="menu">${["Castro – PR","Carambeí – PR","Ponta Grossa – PR","Tibagi – PR","Piraí do Sul – PR"].map(c=>`<button onclick="setCidade('${c}')"><span class="e">${c===$("#cid").textContent?"📍":"🏙️"}</span>${c}</button>`).join("")}</div>`;
-  if(tipo==="notifs"){$("#nbadge").style.display="none";h=`<h3 style="margin-top:6px">Avisos</h3><div class="notif"><b>🔥 VS Store: até 40% OFF</b>A liquidação começou! Aproveite.</div><div class="notif"><b>🍕 Pizzaria Castro</b>20% OFF em pizzas grandes. Termina logo!</div><div class="notif"><b>👑 Plano VIP</b>Seja VIP e receba ofertas antes de todo mundo.</div>`}
-  if(tipo==="menu")h=`<h3 style="margin-top:6px">Menu</h3><div class="menu"><button onclick="fechar();ir('inicio')"><span class="e">🏠</span>Início</button><button onclick="fechar();ir('ofertas')"><span class="e">🏷️</span>Todas as ofertas</button><button onclick="fechar();ir('cupons')"><span class="e">🎟️</span>Meus cupons e favoritos</button><button onclick="fechar();ir('pontos')"><span class="e">⭐</span>Meus pontos e brindes</button><button onclick="fechar();ir('empresas')"><span class="e">🏪</span>Empresas parceiras e planos</button><button onclick="abrir('parceiro')"><span class="e">🤝</span>Cadastrar minha empresa</button><button onclick="abrir('vip')"><span class="e">👑</span>Plano VIP</button><button onclick="abrir('ajuda')"><span class="e">❓</span>Como usar o app</button><button onclick="abrir('instalar')"><span class="e">📲</span>Colocar na tela do celular</button><button onclick="ajudaWhats()"><span class="e">💬</span>Falar com o suporte</button></div>`;
+  if(tipo==="notifs"){$("#nbadge").style.display="none";h=`<h3 style="margin-top:6px">Avisos</h3><div class="notif"><b>🔥 VS Store: até 40% OFF</b>A liquidação começou! Aproveite.</div><div class="notif"><b>🍕 Pizzaria Castro</b>20% OFF em pizzas grandes. Termina logo!</div><div class="notif"><b>👑 Vitrine VIP</b>Seja VIP e receba ofertas antes de todo mundo.</div>`}
+  if(tipo==="menu")h=`<h3 style="margin-top:6px">Menu</h3><div class="menu"><button onclick="fechar();ir('inicio')"><span class="e">🏠</span>Início</button><button onclick="fechar();ir('ofertas')"><span class="e">🏷️</span>Todas as ofertas</button><button onclick="fechar();ir('cupons')"><span class="e">🎟️</span>Meus cupons e favoritos</button><button onclick="fechar();ir('pontos')"><span class="e">⭐</span>Meus pontos e brindes</button><button onclick="fechar();ir('empresas')"><span class="e">🏪</span>Empresas parceiras e planos</button><button onclick="abrir('parceiro')"><span class="e">🤝</span>Cadastrar minha empresa</button><button onclick="abrir('vip')"><span class="e">👑</span>Vitrine VIP</button><button onclick="abrir('ajuda')"><span class="e">❓</span>Como usar o app</button><button onclick="abrir('instalar')"><span class="e">📲</span>Colocar na tela do celular</button><button onclick="ajudaWhats()"><span class="e">💬</span>Falar com o suporte</button></div>`;
   if(tipo==="privacidade")h=`<h3 style="font-size:1.3rem;margin-top:6px">🔒 Privacidade e termos</h3>
     <p style="margin-top:10px">O Vitrine Castro respeita a <b>LGPD</b> (Lei Geral de Proteção de Dados).</p>
     <ul class="passos-ajuda" style="margin-top:10px"><li>Seu nome, WhatsApp, cupons, favoritos e pontos ficam <b>salvos neste celular</b>.</li>
      <li>Para contar visualizações e cupons das lojas, o app usa um <b>código aleatório do aparelho</b>, sem nome nem telefone.</li>
      <li>Quando você pede com entrega ou fala no WhatsApp, a conversa é direto com a loja.</li>
      <li>A loja vê apenas números totais e o seu primeiro nome em compras confirmadas.</li>
+     <li>Se você assinar o <b>Vitrine VIP</b>, seu nome e WhatsApp ficam guardados com segurança no nosso sistema para ativar e renovar a assinatura.</li>
      <li>Não vendemos nem compartilhamos seus dados.</li></ul>
     <p style="font-size:.9rem;color:var(--cinza)"><b>Termos:</b> cada oferta tem preço, regras, limite de cupons e validade definidos pela loja. O desconto é dado pela loja no momento da compra. Pontos não valem dinheiro e não podem ser transferidos.</p>
     <button class="btn claro" onclick="apagarMeusDados()">🗑 Apagar meus dados deste celular</button>
@@ -669,8 +683,86 @@ function abrir(tipo,planoSel){
   if(tipo==="instalar")h=telaInstalar();
   $("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ✕</button>`+h;$("#modal").classList.add("on");
 }
+
+/* ===================================================================
+   VITRINE VIP: abre mostrando vantagens e valor. Quem já tem cadastro
+   só toca em OK e aparece o QR Code do Pix para pagar R$ 9,90.
+   O pedido fica no banco; quando o administrador confirma o Pix,
+   o VIP é ativado sozinho neste celular.
+   =================================================================== */
+const VIP_PRECO=9.90,VIP_VANTAGENS=["Descontos exclusivos só para membros","Ofertas antes de todo mundo","Pontos em dobro em toda compra","Cupons ilimitados","Sorteios todo mês"];
+const MODO_DEMO=!(window.CONFIG&&CONFIG.SUPABASE_URL&&CONFIG.SUPABASE_ANON_KEY);
+const dataCurta=d=>d?new Date(d+"T12:00:00").toLocaleDateString("pt-BR"):"";
+function dbc(){if(!window._db&&!MODO_DEMO&&window.supabase)window._db=supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_ANON_KEY);return window._db||null}
+// Pix "copia e cola" (padrão do Banco Central, com CRC16)
+function crc16(s){let c=0xFFFF;for(const b of new TextEncoder().encode(s)){c^=b<<8;for(let i=0;i<8;i++)c=(c&0x8000)?((c<<1)^0x1021)&0xFFFF:(c<<1)&0xFFFF}return c.toString(16).toUpperCase().padStart(4,"0")}
+const tlv=(id,v)=>id+String(v.length).padStart(2,"0")+v;
+const semAcento=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9 ]/g,"").toUpperCase().trim();
+function pixCopiaCola(chave,valor,nome,cidade,txid){
+  const p=tlv("00","01")+tlv("26",tlv("00","br.gov.bcb.pix")+tlv("01",chave))+tlv("52","0000")+tlv("53","986")+tlv("54",valor.toFixed(2))+tlv("58","BR")
+   +tlv("59",semAcento(nome).slice(0,25)||"VITRINE CASTRO")+tlv("60",semAcento(cidade).slice(0,15)||"CASTRO")+tlv("62",tlv("05",txid))+"6304";
+  return p+crc16(p)}
+const chavePix=()=>String((window.CONFIG&&CONFIG.PIX)||"").trim().slice(0,77);
+function telaVip(){const p=store.get("gira_perfil",null),ativo=vip(),ped=store.get("vc_vip_pedido",null),temPed=ped&&ped.txid&&Date.now()-ped.em<864e5;
+  const dias=ativo&&p.vipAte?Math.round((new Date(p.vipAte+"T12:00:00")-new Date(HOJE_ISO+"T12:00:00"))/864e5):null;
+  const topo=`<div class="vip-topo"><div class="cr" aria-hidden="true">👑</div><h3>Vitrine <span>VIP</span></h3><p>Vantagens exclusivas nas melhores empresas de Castro</p>
+    ${ativo?`<div class="vip-ok">✓ Você é Vitrine VIP${p.vipAte?` até ${dataCurta(p.vipAte)}`:""}</div>`:`<div class="vip-preco"><b>R$ 9,90</b><small>/mês</small></div><p class="vip-sub">Sem fidelidade · pague com Pix</p>`}</div>
+   <ul class="vip-lista">${VIP_VANTAGENS.map(v=>`<li><span aria-hidden="true">✅</span>${v}</li>`).join("")}</ul>`;
+  if(ativo)return topo+(dias!==null&&dias<=5?`<p class="ajuda-c">Seu VIP ${dias<=0?"vence hoje":`vence em ${dias} dia${dias>1?"s":""}`}. Renove para não perder as vantagens.</p><button class="btn ouro-g" onclick="vipPagar()">👑 Renovar por R$ 9,90</button>`:"")+`<button class="btn" onclick="fechar()">Aproveitar as ofertas</button>`;
+  if(p)return topo+`<div class="vip-quem"><span>Assinar com o seu cadastro:</span><b>${esc(p.nome)}</b><small>${esc(p.tel||"")}</small></div>
+    <button class="btn ouro-g" onclick="vipPagar()">✓ OK, quero ser VIP</button><p class="ajuda-c">${temPed?"Você já gerou um Pix. Toque em OK para ver o QR Code de novo.":"Ao tocar em OK, aparece o QR Code do Pix para pagar R$ 9,90."}</p>`;
+  return topo+`<form onsubmit="event.preventDefault();vipCadastrar()"><p class="ajuda-c" style="margin-top:4px">Falta só seu cadastro (leva 10 segundos):</p>
+    <label for="vNome">Seu nome</label><input class="inp" id="vNome" required minlength="2" maxlength="80" autocomplete="name" placeholder="Ex: Maria da Silva">
+    <label for="vTel">Seu WhatsApp</label><input class="inp" id="vTel" required inputmode="tel" autocomplete="tel" placeholder="(42) 9 9999-9999" oninput="mascara(this)">
+    <button class="btn ouro-g">✓ OK, gerar o QR Code</button></form>`}
+function vipCadastrar(){const nome=$("#vNome").value.trim(),tel=$("#vTel").value,d=tel.replace(/\D/g,"");
+  if(nome.length<2){toast("Digite seu nome");return}if(d.length<10){toast("Digite seu WhatsApp com DDD");return}
+  store.set("gira_perfil",{...(store.get("gira_perfil",null)||{}),nome,tel});const pt=pts();if(!pt.hist.some(h=>h.d==="Bônus de boas-vindas"))ganhar(BONUS_CADASTRO,"Bônus de boas-vindas");
+  render();vipPagar()}
+async function vipPagar(){const p=store.get("gira_perfil",null);if(!p){abrir("vip");return}
+  $("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ✕</button><div class="vazio"><span class="e">⏳</span>Gerando seu Pix…</div>`;$("#modal").classList.add("on");
+  const ant=store.get("vc_vip_pedido",null),zap=String(p.tel||"").replace(/\D/g,"");let txid=null;
+  if(ant&&ant.txid&&await atualizarVip(false)){telaVipBemVindo();return}   // o Pix já foi confirmado
+  if(ant&&/^VIP[A-Z0-9]{8}$/.test(ant.txid||"")&&Date.now()-ant.em<864e5&&!vip())txid=ant.txid;
+  else if(MODO_DEMO){txid="VIP"+Array.from(crypto.getRandomValues(new Uint8Array(4)),b=>b.toString(16).padStart(2,"0")).join("").toUpperCase();
+    const l=store.get("vc_demo_pedidos_vip",[]);l.unshift({txid,aparelho:APARELHO,nome:p.nome,whatsapp:zap.length>=10?zap:null,valor:VIP_PRECO,criado_em:new Date().toISOString(),pago_em:null,vip_ate:null});store.set("vc_demo_pedidos_vip",l.slice(0,50))}
+  else{const db=dbc();if(db){try{const {data,error}=await db.rpc("pedir_vip",{p_aparelho:APARELHO,p_nome:p.nome,p_whats:zap||null});if(!error&&/^VIP[A-Z0-9]{8}$/.test(data||""))txid=data}catch(e){}}}
+  if(!txid){$("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ✕</button><h3 style="margin-top:8px">Não deu para gerar o Pix agora</h3><p>Verifique a internet e tente de novo, ou fale com a gente.</p>
+    <button class="btn ouro-g" onclick="vipPagar()">Tentar de novo</button><button class="btn verde" onclick="abrirLink(wa('Olá! Quero assinar o Vitrine VIP (R$ 9,90).'))">💬 Assinar pelo WhatsApp</button>`;return}
+  store.set("vc_vip_pedido",{txid,em:ant&&ant.txid===txid?ant.em:Date.now()});mostrarPix(txid)}
+function mostrarPix(txid){const chave=chavePix(),exemplo=!chave;
+  window._pix=pixCopiaCola(chave||"exemplo@vitrinecastro.com.br",VIP_PRECO,(window.CONFIG&&CONFIG.PIX_NOME)||"VITRINE CASTRO",(window.CONFIG&&CONFIG.PIX_CIDADE)||"CASTRO",txid);
+  $("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ✕</button>
+   <div class="vip-topo pq"><h3>Pague com <span>Pix</span></h3><div class="vip-preco"><b>R$ 9,90</b><small> · Vitrine VIP 30 dias</small></div></div>
+   ${exemplo?`<div class="aviso-ex">⚠️ <b>QR Code de EXEMPLO — não pague.</b> O Vitrine ainda não colocou a chave Pix no arquivo config.js.</div>`:""}
+   <div class="pix-qr" id="pixQr" role="img" aria-label="QR Code do Pix de R$ 9,90"></div>
+   <button class="btn" onclick="copiarPix()">📋 Copiar código Pix (copia e cola)</button>
+   <ol class="passos-ajuda"><li>Abra o app do seu banco e toque em <b>Pix → Ler QR Code</b> (ou <b>Pix Copia e Cola</b>).</li><li>Confira o valor de <b>R$ 9,90</b> e pague.</li><li>Volte aqui e toque em <b>Já paguei</b>.</li></ol>
+   <p class="pix-cod">Código do pedido: <b>${txid}</b></p>
+   <button class="btn verde" id="btnPaguei" onclick="vipJaPaguei()">✓ Já paguei</button>
+   <button class="btn claro" onclick="abrirLink(wa('Olá! Paguei o Vitrine VIP (pedido ${txid}). Segue o comprovante.'))">💬 Enviar comprovante pelo WhatsApp</button>
+   <div id="vipMsg"></div>`;
+  $("#sheet").scrollTop=0;const el=$("#pixQr");if(window.QRCode)new QRCode(el,{text:window._pix,width:230,height:230,correctLevel:QRCode.CorrectLevel.M});else el.innerHTML=`<p class="ajuda-c">Use o botão “Copiar código Pix”.</p>`}
+async function copiarPix(){try{await navigator.clipboard.writeText(window._pix);toast("✅ Código Pix copiado! Cole no app do banco.")}
+  catch(e){const t=document.createElement("textarea");t.value=window._pix;document.body.appendChild(t);t.select();try{document.execCommand("copy");toast("✅ Código Pix copiado!")}catch(_){toast("Não deu para copiar. Use o QR Code.")}t.remove()}}
+async function vipStatus(){
+  if(MODO_DEMO){const ate=store.get("vc_demo_pedidos_vip",[]).filter(x=>x.aparelho===APARELHO&&x.vip_ate).map(x=>x.vip_ate).sort().pop()||null;return {ate}}
+  const db=dbc();if(!db)return null;try{const {data,error}=await db.rpc("status_vip",{p_aparelho:APARELHO});if(error)return null;const r=(data||[])[0]||{};return {ate:r.vip_ate||null}}catch(e){return null}}
+async function atualizarVip(avisar){const p=store.get("gira_perfil",null);if(!p)return false;const s=await vipStatus();if(!s)return false;
+  if(s.ate&&s.ate>=HOJE_ISO){const novo=!(p.vip&&p.vipAte===s.ate);if(novo){p.vip=true;p.vipAte=s.ate;store.set("gira_perfil",p);store.set("vc_vip_pedido",null);render();if(avisar)toast("👑 Seu Vitrine VIP está ativo até "+dataCurta(s.ate)+"!")}return true}
+  if(p.vip&&p.vipAte&&p.vipAte<HOJE_ISO){p.vip=false;store.set("gira_perfil",p);render()}return false}
+async function vipJaPaguei(){const b=$("#btnPaguei");if(b){b.disabled=true;b.textContent="Verificando…"}
+  const ok=await atualizarVip(false);const p=store.get("gira_perfil",null);
+  if(ok){telaVipBemVindo();return}
+  if(b){b.disabled=false;b.textContent="✓ Já paguei"}
+  const m=$("#vipMsg");if(m)m.innerHTML=`<div class="vip-espera">⏳ <b>Recebemos seu aviso!</b> Assim que o Pix for confirmado, seu VIP é ativado sozinho neste celular. Se quiser agilizar, mande o comprovante pelo WhatsApp.</div>`}
+function telaVipBemVindo(){const p=store.get("gira_perfil",null)||{};$("#modal").classList.add("on");
+  $("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ✕</button><div class="vip-topo"><div class="cr" aria-hidden="true">🎉</div><h3>Bem-vindo ao Vitrine <span>VIP</span>!</h3><div class="vip-ok">✓ VIP ativo até ${dataCurta(p.vipAte)}</div></div>
+    <ul class="vip-lista">${VIP_VANTAGENS.map(v=>`<li><span aria-hidden="true">✅</span>${v}</li>`).join("")}</ul><button class="btn" onclick="fechar()">Começar a economizar</button>`;$("#sheet").scrollTop=0}
+// ao abrir o app: confere se um VIP pago já foi confirmado (ou se venceu)
+setTimeout(()=>{const p=store.get("gira_perfil",null);if(p&&(store.get("vc_vip_pedido",null)||p.vip))atualizarVip(true)},1500);
 function apagarMeusDados(){if(!confirm("Apagar seus dados, cupons, favoritos e pontos deste celular?"))return;
-  ["gira_perfil","gira_cupons","gira_favs","gira_pontos","vc_entrega","vc_aparelho"].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});fechar();render();toast("Seus dados foram apagados deste celular")}
+  ["gira_perfil","gira_cupons","gira_favs","gira_pontos","vc_entrega","vc_aparelho","vc_vip_pedido"].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});fechar();render();toast("Seus dados foram apagados deste celular")}
 function setCidade(c){$("#cid").textContent=c;fechar();toast("Cidade: "+c)}
 function enviarParceiro(e){e.preventDefault();const v=i=>$("#e"+i).value;
   const m=`Olá! Quero ser parceiro do Vitrine Castro Clube de Desconto.\n\nEmpresa: ${v(1)}\nRamo: ${v(2)}\nResponsável: ${v(3)}\nWhatsApp: ${v(4)}\nPlano: ${v(6)}\nOferta: ${v(5)||"-"}`;
@@ -678,7 +770,7 @@ function enviarParceiro(e){e.preventDefault();const v=i=>$("#e"+i).value;
 function pts(){return store.get("gira_pontos",{saldo:0,total:0,hist:[],brindes:[]})}
 function salvarPts(p){store.set("gira_pontos",p)}
 function nivelDe(total){let n=NIVEIS[0];NIVEIS.forEach(x=>{if(total>=x.min)n=x});return n}
-function vip(){const p=store.get("gira_perfil",null);return !!(p&&p.vip)}
+function vip(){const p=store.get("gira_perfil",null);return !!(p&&p.vip&&(!p.vipAte||p.vipAte>=HOJE_ISO))}
 function fmt(n){return Math.round(n).toLocaleString("pt-BR")}
 function ganhar(qtd,desc){const p=pts();qtd=Math.round(qtd);p.saldo+=qtd;p.total+=qtd;p.hist.unshift({d:desc,v:qtd,em:Date.now()});salvarPts(p);render();toast(`⭐ +${fmt(qtd)} pontos!`)}
 function proxBrinde(saldo){return BRINDES.filter(b=>b.pts>saldo).sort((a,b)=>a.pts-b.pts)[0]}

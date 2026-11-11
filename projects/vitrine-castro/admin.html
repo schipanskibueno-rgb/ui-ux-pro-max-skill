@@ -233,6 +233,7 @@ details.mais-op summary{cursor:pointer;font-weight:700;min-height:44px;display:f
 .pl-n,.pl-v{font-size:.85rem;color:var(--cinza)}.pl-n b,.pl-v b{color:var(--txt)}
 .pl-bar{height:8px;background:#ece3c9;border-radius:99px;overflow:hidden}.pl-bar i{display:block;height:100%;background:linear-gradient(90deg,#2fd36b,#13a049);border-radius:99px}
 .pl-cab{border-left:6px solid #9aa5c4;border-radius:12px;background:#fff;padding:10px 12px;margin:14px 0 8px;box-shadow:0 2px 8px rgba(0,0,0,.05)}.pl-cab b{display:block}.pl-cab small{color:var(--cinza)}
+.ped-vip{border:2px solid #E9C766;background:#fffaf0}
 </style>
 </head>
 <body>
@@ -634,6 +635,28 @@ async function apagarPag(id){if(!confirm("Desfazer este pagamento? Ele sai do ca
   toast("Pagamento desfeito");finVoltar()}
 function finVoltar(){window._fin=null;ADM.detalhe?(window._adm=null,admDetalhe(ADM.detalhe)):telaFinanceiro()}
 
+
+// Pedidos do Vitrine VIP (cliente gerou o QR Code do Pix no app)
+async function dadosPedidosVip(){
+  if(DEMO)return store.get("vc_demo_pedidos_vip",[]).filter(x=>!x.pago_em&&Date.now()-new Date(x.criado_em).getTime()<7*864e5);
+  const {data,error}=await db.from("pedidos_vip").select("txid,nome,whatsapp,valor,criado_em").is("pago_em",null).gte("criado_em",new Date(Date.now()-7*864e5).toISOString()).order("criado_em",{ascending:false}).limit(200);
+  return error?[]:(data||[]).map(x=>({...x,valor:Number(x.valor)||VIP_PRECO}))}
+async function confirmarPedidoVip(txid){if(!/^VIP[A-Z0-9]{8}$/.test(txid))return;if(!confirm("O Pix do pedido "+txid+" caiu na sua conta? O VIP do cliente será ativado na hora."))return;
+  if(DEMO){const l=store.get("vc_demo_pedidos_vip",[]),pd=l.find(x=>x.txid===txid);if(!pd)return;const hoje=hojeISO();
+    const base=[hoje,...l.filter(x=>x.aparelho===pd.aparelho&&x.vip_ate).map(x=>x.vip_ate)].sort().pop(),d=new Date(base+"T12:00:00");d.setDate(d.getDate()+VIP_DIAS);
+    pd.pago_em=new Date().toISOString();pd.vip_ate=d.toLocaleDateString("sv-SE");store.set("vc_demo_pedidos_vip",l);
+    await salvarPag({tipo:"vip",cliente_nome:pd.nome,cliente_whatsapp:pd.whatsapp||null,valor:Number(pd.valor)||VIP_PRECO,referencia:hoje.slice(0,7),forma:"pix",pago_em:hoje,obs:"Pedido "+txid})}
+  else{const {error}=await db.rpc("confirmar_vip",{p_txid:txid,p_forma:"pix"});if(error){toast(traduzErro(error));return}}
+  toast("👑 Pagamento confirmado! VIP ativado.");telaFinanceiro()}
+async function apagarPedidoVip(txid){if(!confirm("Apagar este pedido? Use quando a pessoa não pagou."))return;
+  if(DEMO)store.set("vc_demo_pedidos_vip",store.get("vc_demo_pedidos_vip",[]).filter(x=>x.txid!==txid));
+  else{const {error}=await db.from("pedidos_vip").delete().eq("txid",txid);if(error){toast(traduzErro(error));return}}
+  toast("Pedido apagado");telaFinanceiro()}
+function blocoPedidosVip(){const peds=window._pedVip||[];if(!peds.length)return "";
+  return `<div class="card ped-vip"><h3>⏳ Pedidos aguardando pagamento (${peds.length})</h3>
+   <p class="ajuda">Clientes que tocaram em “OK, quero ser VIP” e geraram o QR Code do Pix. Veja no app do banco se o Pix com o <b>código do pedido</b> caiu e toque em <b>“Pix recebido”</b>: o VIP é ativado sozinho no celular do cliente.</p>
+   ${peds.map(pd=>`<div class="vd-l" style="flex-wrap:wrap"><span>${esc(pd.nome)}<small>${esc(pd.whatsapp||"sem WhatsApp")} · pedido <b>${esc(pd.txid)}</b> · ${dataHora(pd.criado_em)}</small></span><b>${fmtR(pd.valor)}</b>
+    <div class="fin-bt" style="width:100%;margin-top:2px"><button class="mini ou" onclick="confirmarPedidoVip('${esc(pd.txid)}')">✓ Pix recebido</button>${pd.whatsapp?`<a class="mini zap" href="${linkZap(pd.whatsapp,`Olá, ${String(pd.nome).split(" ")[0]}! Aqui é do Vitrine Castro 😊 Vimos que você gerou o Pix do Vitrine VIP (pedido ${pd.txid}). Conseguiu pagar? Qualquer dúvida estamos aqui!`)}" target="_blank" rel="noopener">💬 WhatsApp</a>`:""}<button class="mini" onclick="apagarPedidoVip('${esc(pd.txid)}')">🗑 Não pagou</button></div></div>`).join("")}</div>`}
 function navAdm(a){return `<div class="abas-p nav-adm" role="tablist"><button role="tab" aria-selected="${a==="emp"}" onclick="painelAdmin(false)">🏪 Empresas</button><button role="tab" aria-selected="${a==="fin"}" onclick="telaFinanceiro(${a==="fin"})">💰 Financeiro</button></div>`}
 function statusMens(x,M,P){const pg=P.find(p=>p.tipo==="mensalidade"&&String(p.empresa_id)===String(x.id)&&p.referencia===M);
   if(pg)return {k:"paga",pg,cor:"vd",txt:`✓ Paga em ${dataBR(pg.pago_em)} · ${FORMAS[pg.forma]||esc(pg.forma)}`};
@@ -651,7 +674,7 @@ function assinantes(P){const g={};
 async function telaFinanceiro(recarregar=true){
   ADM.detalhe=null;const box=alvoAdmin();
   if(recarregar||!window._fin||!window._adm){box.innerHTML=navAdm("fin")+`<div class="vazio"><span class="e">⏳</span>Carregando o financeiro…</div>`;
-    try{const [f,a]=await Promise.all([dadosFin(),window._adm?Promise.resolve(window._adm):dadosAdmin()]);window._fin=f;window._adm=a;if(!window._admA)window._admA=analiseAdm(a)}
+    try{const [f,a,pv]=await Promise.all([dadosFin(),window._adm?Promise.resolve(window._adm):dadosAdmin(),dadosPedidosVip().catch(()=>[])]);window._fin=f;window._adm=a;window._pedVip=pv;if(!window._admA)window._admA=analiseAdm(a)}
     catch(err){box.innerHTML=navAdm("fin")+`<div class="aviso">${esc(err.message||traduzErro(err))}</div>`;return}}
   const P=window._fin,emps=window._adm.emps,M=FIN.mes,atual=mesAtual();
   const mesBar=`<div class="mes-nav"><button class="mini" onclick="FIN.mes=somaMes(FIN.mes,-1);telaFinanceiro(false)" aria-label="Mês anterior">‹</button><b>${nomeMes(M).replace(/^./,c=>c.toUpperCase())}</b><button class="mini" onclick="FIN.mes=somaMes(FIN.mes,1);telaFinanceiro(false)" aria-label="Próximo mês" ${M>=somaMes(atual,1)?"disabled":""}>›</button></div>`;
@@ -672,7 +695,7 @@ async function telaFinanceiro(recarregar=true){
     corpo=`<div class="kpis">
       <div class="kpi ouro" style="grid-column:1/-1"><div class="n">${fmtR(tot)}</div><div class="r">💰 Total em caixa em ${MESES[+M.slice(5)-1]}</div><small>${fmtR(soma(mens))} de mensalidades + ${fmtR(soma(vip))} do VIP</small></div>
       <div class="kpi"><div class="n">${fmtR(soma(mens))}</div><div class="r">🏪 Mensalidades</div><small>${mens.length} pagamento${mens.length===1?"":"s"} recebido${mens.length===1?"":"s"}</small></div>
-      <div class="kpi"><div class="n">${fmtR(soma(vip))}</div><div class="r">👑 Plano VIP</div><small>${vip.length} pagamento${vip.length===1?"":"s"} de clientes</small></div>
+      <div class="kpi"><div class="n">${fmtR(soma(vip))}</div><div class="r">👑 Vitrine VIP</div><small>${vip.length} pagamento${vip.length===1?"":"s"} de clientes</small></div>
       <div class="kpi"><div class="n" style="color:${abertas.length?"#b0141a":"inherit"}">${fmtR(valAberto)}</div><div class="r">⏳ Falta receber</div><small>${abertas.length} empresa${abertas.length===1?"":"s"} sem pagar ${MESES[+M.slice(5)-1]}</small></div>
       <div class="kpi"><div class="n">${ativos}</div><div class="r">👑 VIPs ativos</div><small>de ${ass.length} cliente${ass.length===1?"":"s"} que já assinaram</small></div>
      </div>
@@ -688,7 +711,7 @@ async function telaFinanceiro(recarregar=true){
       <div class="graf-leg" style="justify-content:space-around">${porMes.map(x=>`<span>${mesCurto(x.m)}</span>`).join("")}</div>
       <div class="ficha-l">${porMes.slice().reverse().map(x=>`<div class="ln"><span>${nomeMes(x.m)}</span><b>${fmtR(x.a+x.b)}</b></div>`).join("")}</div></div>
      <div class="card" style="margin-top:14px"><h3>🧮 Desde o início</h3><div class="ficha-l">
-      <div class="ln"><span>🏪 Mensalidades</span><b>${fmtR(totMens)}</b></div><div class="ln"><span>👑 Plano VIP</span><b>${fmtR(totVip)}</b></div><div class="ln"><span><b style="color:var(--txt)">Total em caixa</b></span><b>${fmtR(totMens+totVip)}</b></div></div></div>
+      <div class="ln"><span>🏪 Mensalidades</span><b>${fmtR(totMens)}</b></div><div class="ln"><span>👑 Vitrine VIP</span><b>${fmtR(totVip)}</b></div><div class="ln"><span><b style="color:var(--txt)">Total em caixa</b></span><b>${fmtR(totMens+totVip)}</b></div></div></div>
      <div class="card" style="margin-top:14px"><h3>🏪 Quanto cada empresa já pagou</h3>
       ${rankEmp.length?`<div class="ficha-l">${rankEmp.map(e=>`<div class="ln"><span>${e.id&&window._admA&&window._admA.info[e.id]?`<a href="#" onclick="event.preventDefault();admDetalhe('${esc(e.id)}')">${esc(e.nome)}</a>`:esc(e.nome)}<small style="display:block">${e.n} mensalidade${e.n===1?"":"s"}</small></span><b>${fmtR(e.total)}</b></div>`).join("")}</div>`:`<p class="ajuda">Nenhuma mensalidade registrada ainda.</p>`}</div>
      <div class="card" style="margin-top:14px"><h3>👑 Quanto cada cliente VIP já pagou</h3>
@@ -724,18 +747,20 @@ async function telaFinanceiro(recarregar=true){
       <div class="kpi"><div class="n">${ativos.length+venc.length}</div><div class="r">👑 VIPs ativos</div><small>${venc.length} vence${venc.length===1?"":"m"} em até 7 dias</small></div>
       <div class="kpi"><div class="n">${fmtR(soma(vipMes))}</div><div class="r">💰 Recebido em ${MESES[+M.slice(5)-1]}</div><small>${vipMes.length} pagamento${vipMes.length===1?"":"s"} de ${fmtR(VIP_PRECO)}</small></div>
      </div>
-     <button class="btn ouro" style="margin-top:12px" onclick="formVip()">➕ Registrar pagamento VIP</button>
-     <p class="ajuda">Quando um cliente pagar os ${fmtR(VIP_PRECO)}, registre aqui. O VIP vale ${VIP_DIAS} dias a partir do pagamento.</p>
+     ${blocoPedidosVip()}
+     <button class="btn ouro" style="margin-top:12px" onclick="formVip()">➕ Registrar pagamento VIP à mão</button>
+     <p class="ajuda">Use quando o cliente pagar fora do app (dinheiro, por exemplo). Quem paga pelo QR Code aparece em “Pedidos aguardando pagamento”. O VIP vale ${VIP_DIAS} dias.</p>
      <input class="inp" type="search" id="vipBusca" style="margin-top:10px" placeholder="🔎 Buscar cliente por nome ou WhatsApp" value="${esc(ADM.buscaVip||"")}" oninput="ADM.buscaVip=this.value;clearTimeout(window._tv);window._tv=setTimeout(()=>{telaFinanceiro(false);const i=$('#vipBusca');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},350)" aria-label="Buscar cliente VIP">
      <div class="chips" style="margin:10px 0 12px">${[["todas",`Todos (${ass.length})`],["vencendo",`⏰ Vencendo (${venc.length})`],["vencido",`🔴 Vencidos (${vencidos.length})`],["ativo",`✓ Ativos (${ativos.length})`]].map(([k,t])=>`<button type="button" aria-pressed="${FIN.filtro===k}" onclick="FIN.filtro='${k}';telaFinanceiro(false)">${t}</button>`).join("")}</div>
      ${(window._vipLista=lista).length?lista.map((a,k)=>`<div class="card fin-l">
        <div class="fin-top"><div style="min-width:0"><b>${esc(a.nome)}</b><small>${a.whats?esc(a.whats)+" · ":""}${a.pags.length} pagamento${a.pags.length===1?"":"s"} · total ${fmtR(a.total)}</small></div>
         <span class="selo-d ${a.st==="ativo"?"vd":a.st==="vencendo"?"am":"vm"}">${a.st==="vencido"?`🔴 Venceu ${dataBR(a.vence)}`:a.st==="vencendo"?`⏰ Vence ${a.dias===0?"hoje":"em "+a.dias+" dia"+(a.dias>1?"s":"")}`:`✓ VIP até ${dataBR(a.vence)}`}</span></div>
        <details class="hist"><summary>Ver pagamentos</summary>${a.pags.map(p=>`<div class="vd-l"><span>${dataBR(p.pago_em)}<small>${FORMAS[p.forma]||esc(p.forma)}${p.obs?" · "+esc(p.obs):""}</small></span><b>${fmtR(p.valor)}</b><button class="mini" style="min-height:36px" onclick="apagarPag('${esc(p.id)}')" aria-label="Desfazer pagamento">↩️</button></div>`).join("")}</details>
-       <div class="fin-bt"><button class="mini ou" onclick="formVip(${k})">✓ Renovou</button>${a.whats&&a.st!=="ativo"?`<a class="mini zap" href="${linkZap(a.whats,`Olá, ${String(a.nome).split(" ")[0]}! Aqui é do Vitrine Castro 😊 Seu Plano VIP ${a.st==="vencido"?"venceu em "+dataBR(a.vence):"vence em "+dataBR(a.vence)}. Para continuar com os descontos exclusivos e pontos em dobro, é só renovar por ${fmtR(VIP_PRECO)}.${pixTxt()}`)}" target="_blank" rel="noopener">💬 Cobrar renovação</a>`:""}</div></div>`).join("")
+       <div class="fin-bt"><button class="mini ou" onclick="formVip(${k})">✓ Renovou</button>${a.whats&&a.st!=="ativo"?`<a class="mini zap" href="${linkZap(a.whats,`Olá, ${String(a.nome).split(" ")[0]}! Aqui é do Vitrine Castro 😊 Seu Vitrine VIP ${a.st==="vencido"?"venceu em "+dataBR(a.vence):"vence em "+dataBR(a.vence)}. Para continuar com os descontos exclusivos e pontos em dobro, é só renovar por ${fmtR(VIP_PRECO)}.${pixTxt()}`)}" target="_blank" rel="noopener">💬 Cobrar renovação</a>`:""}</div></div>`).join("")
       :`<div class="vazio"><span class="e">👑</span>${ass.length?"Nenhum cliente nesta lista.":"Nenhum cliente VIP ainda. Quando alguém pagar, toque em “Registrar pagamento VIP”."}</div>`}`;
   }
   box.innerHTML=navAdm("fin")+(DEMO?`<div class="aviso">💰 <b>Prévia do financeiro.</b> Os pagamentos e clientes que aparecem são de exemplo e ficam só neste aparelho.</div>`:"")+
+   ((window._pedVip||[]).length&&FIN.aba!=="vip"?`<button class="aviso" style="width:100%;text-align:left;border:0;cursor:pointer;font:inherit" onclick="FIN.aba='vip';FIN.filtro='todas';telaFinanceiro(false)">⏳ <b>${window._pedVip.length} pedido${window._pedVip.length===1?"":"s"} do Vitrine VIP</b> aguardando você confirmar o Pix. Toque para ver.</button>`:"")+
    `<div class="card" style="border:2px solid var(--ouro)"><h2>💰 Financeiro</h2><p class="sub">Mensalidades das empresas e assinaturas VIP dos clientes.</p>${mesBar}</div>${abas}${corpo}`;
 }
 function linhaPag(p,emps){const e=p.tipo==="mensalidade"?limpaNome((emps.find(x=>String(x.id)===String(p.empresa_id))||{}).nome||p.empresa_nome):p.cliente_nome;
@@ -757,7 +782,7 @@ async function gravarMens(id){const x=(window._adm.emps||[]).find(e=>String(e.id
   try{await salvarPag({tipo:"mensalidade",empresa_id:x.id,empresa_nome:limpaNome(x.nome),plano:planoDe(x),valor:v,referencia:ref,forma:$("#fForma").value,pago_em:dt,obs:$("#fObs").value.trim()||null});fechar();toast("✅ Mensalidade registrada");finVoltar()}
   catch(e){erro(e.message);$("#fBtn").disabled=false}}
 function formVip(k){const a=k==null?null:(window._vipLista||[])[k],nome=a?a.nome:"",whats=a?soDig(a.whats):"";
-  abrirSheet(`<h2 style="margin-top:8px">👑 Pagamento do Plano VIP</h2><p class="sub">Registre o cliente que pagou. O VIP vale ${VIP_DIAS} dias a partir da data do pagamento.</p>
+  abrirSheet(`<h2 style="margin-top:8px">👑 Pagamento do Vitrine VIP</h2><p class="sub">Registre o cliente que pagou. O VIP vale ${VIP_DIAS} dias a partir da data do pagamento.</p>
    <form onsubmit="event.preventDefault();gravarVip()">
     <label for="vNome">Nome do cliente</label><input class="inp" id="vNome" required minlength="2" maxlength="80" value="${esc(nome)}" autocomplete="off">
     <label for="vWhats">WhatsApp do cliente</label><input class="inp" id="vWhats" inputmode="tel" maxlength="20" value="${esc(whats)}" placeholder="(42) 9 9999-9999">
