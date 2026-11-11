@@ -1,0 +1,136 @@
+=====================================================================
+  VITRINE CASTRO – COMO DEIXAR O APP NO AR (passo a passo)
+=====================================================================
+
+Você vai mexer em 3 lugares, nesta ordem:
+  PARTE 1 – Supabase (o banco de dados)          -> 1 vez
+  PARTE 2 – config.js (seus dados)               -> 1 vez
+  PARTE 3 – Netlify (onde o site fica no ar)     -> sempre que atualizar
+  PARTE 4 – Teste final antes de divulgar
+
+Arquivos deste pacote:
+  1-SUPABASE/supabase.sql        -> colar no Supabase (Parte 1)
+  2-NETLIFY/vitrine-castro/      -> pasta que vai para o Netlify (Parte 3)
+  2-NETLIFY/vitrine-castro/config.js -> o único arquivo que você preenche (Parte 2)
+
+---------------------------------------------------------------------
+PARTE 1 – SUPABASE
+---------------------------------------------------------------------
+1. Entre em supabase.com e crie a conta (pode entrar com o Google).
+   Ative a verificação em 2 etapas da conta (Account > Security).
+
+2. Clique em "New project":
+   - Name: vitrine-castro
+   - Database Password: crie uma senha forte e GUARDE com você.
+     (Essa senha NUNCA vai no site, nem no config.js, nem no WhatsApp.)
+   - Region: South America (São Paulo)
+   Espere uns 2 minutos até o projeto ficar pronto.
+
+3. Menu da esquerda > SQL Editor > "New query".
+   Abra o arquivo supabase.sql, copie TUDO, cole e clique em "Run".
+   Tem que aparecer "Success. No rows returned".
+   (Pode rodar de novo no futuro sem perder nada: ele só atualiza.)
+
+4. Menu > Authentication > Sign In / Providers > Email: deixe LIGADO.
+   - "Confirm email": ligado = o lojista confirma o e-mail antes de entrar
+     (mais seguro). Atenção: no plano grátis o Supabase manda poucos
+     e-mails por hora. Se muitos lojistas forem se cadastrar no mesmo
+     dia, desligue o "Confirm email" nesse dia ou configure um e-mail
+     próprio (SMTP) depois.
+
+5. Crie o SEU login de administrador:
+   Authentication > Users > "Add user" > "Create new user"
+   - E-mail: o seu
+   - Senha: uma senha forte, diferente das outras
+   - Marque "Auto Confirm User"
+   Depois vá no SQL Editor > New query, cole a linha abaixo trocando
+   pelo seu e-mail, e clique em Run:
+
+   insert into public.admins (user_id) select id from auth.users where email = 'SEU_EMAIL_AQUI';
+
+6. Pegue os 2 dados do site:
+   Project Settings (engrenagem) > API Keys
+   - Project URL  (ex: https://abcdefgh.supabase.co)
+   - a chave PÚBLICA: "publishable" (sb_publishable_...) ou, na aba
+     "Legacy", a "anon public".
+   NUNCA use a "secret" nem a "service_role".
+
+---------------------------------------------------------------------
+PARTE 2 – PREENCHER O config.js
+---------------------------------------------------------------------
+Abra 2-NETLIFY/vitrine-castro/config.js num editor de texto
+(no computador: Bloco de Notas; não use o Word) e preencha:
+
+  SUPABASE_URL:      "https://abcdefgh.supabase.co"
+  SUPABASE_ANON_KEY: "sb_publishable_..."
+  WHATSAPP:          "5542999999999"      (55 + DDD + número, só números)
+  PIX:               "sua chave Pix"
+  PIX_NOME:          "NOME QUE APARECE NO BANCO"
+  PIX_CIDADE:        "CASTRO"
+
+Salve. Esse arquivo é o único que muda de um site para outro.
+Nas próximas atualizações que eu mandar, GUARDE o seu config.js
+preenchido e coloque ele de volta na pasta antes de publicar.
+
+---------------------------------------------------------------------
+PARTE 3 – NETLIFY
+---------------------------------------------------------------------
+1. Entre em app.netlify.com (pode entrar com o Google).
+   Ative a verificação em 2 etapas da conta.
+
+2. Primeira vez: "Add new site" > "Deploy manually" e ARRASTE a pasta
+   2-NETLIFY/vitrine-castro inteira para a área indicada.
+   Já tem o site? Abra o site > "Deploys" e arraste a pasta lá.
+
+3. Site configuration > "Change site name" e escolha o endereço,
+   ex: vitrinecastro  ->  https://vitrinecastro.netlify.app
+   (Domínio próprio, tipo vitrinecastro.com.br, pode ser colocado
+   depois em Domain management.)
+
+4. VOLTE no Supabase: Authentication > URL Configuration
+   - Site URL: https://SEU-ENDERECO.netlify.app
+   - Redirect URLs: adicione
+       https://SEU-ENDERECO.netlify.app/empresa.html
+       https://SEU-ENDERECO.netlify.app/admin.html
+   (Sem isso, o link de "esqueci minha senha" e de confirmação de
+   e-mail não volta para o seu site.)
+
+O arquivo _headers que está na pasta liga as proteções de segurança
+do Netlify. Não apague.
+
+---------------------------------------------------------------------
+PARTE 4 – TESTE FINAL (faça tudo isso pelo celular)
+---------------------------------------------------------------------
+[ ] Abrir o site: aparece a tela preta com o logo e depois o cadastro.
+[ ] Fazer o cadastro com seu nome e WhatsApp.
+[ ] Na coroa (topo) entrar com o login de ADM -> aba Clientes: você aparece.
+[ ] Em "Mais > Cadastrar minha loja": criar uma loja de teste com outro e-mail.
+[ ] No ADM: aprovar a loja de teste.
+[ ] Na Área da Empresa: postar uma oferta com foto.
+[ ] No app: a oferta aparece; pegar o cupom.
+[ ] Na Área da Empresa > Confirmar compra: digitar o código e um valor.
+[ ] No ADM > Empresas: os números aparecem na ficha da loja.
+[ ] Vitrine VIP: tocar em OK, conferir se o QR Code mostra SEU nome no
+    banco e pagar R$ 9,90 para você mesmo.
+[ ] No ADM > Financeiro > Assinantes VIP: tocar em "Pix recebido".
+    No celular, "Já paguei": o VIP ativa.
+[ ] Apagar a loja e a oferta de teste (ou suspender no ADM).
+
+---------------------------------------------------------------------
+SEGURANÇA – NUNCA FAÇA
+---------------------------------------------------------------------
+- Nunca coloque a senha do banco, a "secret" ou a "service_role" no
+  site, no config.js, em print ou no WhatsApp.
+- Nunca dê o seu login de ADM para outra pessoa. Para ajudante, crie
+  outro login e coloque na tabela admins (passo 1.5).
+- Use senhas diferentes para Supabase, Netlify e ADM, com verificação
+  em 2 etapas.
+
+---------------------------------------------------------------------
+BOM SABER
+---------------------------------------------------------------------
+- Plano grátis do Supabase: o projeto "dorme" se ficar 7 dias sem
+  nenhum acesso. Com o app em uso isso não acontece. Quando o app
+  crescer, o plano pago (Pro) evita isso e faz cópia de segurança diária.
+- Quando eu mandar uma atualização que diga "rode o supabase.sql de
+  novo", é só repetir o passo 1.3. Não apaga nenhum dado.

@@ -16,9 +16,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="img/logo-simbolo.png">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha384-3zSEDfvllQohrq0PHL1fOXJuC/jSOO34H46t6UQfobFOmxE5BpjjaIJY5F2/bMnU" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
 <style>
 /* =====================================================================
    VITRINE CASTRO – IDENTIDADE VISUAL
@@ -483,7 +483,7 @@ body.travado{overflow:hidden}
     <span><img class="pal" src="img/logo-palavra.png" alt="" width="393" height="72"><span class="cid">CASTRO</span></span>
    </button>
    <a class="icobtn coroa" href="admin.html" aria-label="Administração" title="Administração" data-ic="crown"></a>
-   <button class="icobtn" onclick="abrir('notifs')" aria-label="Avisos"><span data-ic="bell"></span><span class="badge" id="nbadge">3</span></button>
+   <button class="icobtn" onclick="abrir('notifs')" aria-label="Avisos"><span data-ic="bell"></span><span class="badge" id="nbadge" style="display:none"></span></button>
    <button class="avatar" id="btnConta" onclick="abrirConta()" aria-label="Minha conta"><span id="avIni">V</span></button>
   </div>
   <label class="busca"><span data-ic="search"></span><span class="sr">Buscar ofertas</span>
@@ -583,7 +583,6 @@ body.travado{overflow:hidden}
  <div class="ganhar">
   <div><span class="e">🛍️</span><span>A cada <b>R$ 1</b> gasto nas lojas parceiras</span><strong>+1 ponto</strong></div>
   <div><span class="e">👋</span><span>Ao fazer seu cadastro</span><strong>+50 pontos</strong></div>
-  <div><span class="e">🎁</span><span>Quando um amigo indicado se cadastra</span><strong>+100 pontos</strong></div>
   <div><span class="e">👑</span><span>Membros Vitrine VIP ganham pontos</span><strong>em dobro</strong></div>
  </div>
  <div class="secao"><h2><span data-ic="medal"></span>Seu nível</h2></div>
@@ -846,7 +845,9 @@ function render(){
 }
 function primeiroNome(){const p=store.get("gira_perfil",null);return p&&p.nome?String(p.nome).trim().split(/\s+/)[0]:""}
 function inicial(){const n=primeiroNome();return n?n[0].toUpperCase():"V"}
-function renderTopo(){$("#avIni").textContent=inicial();const n=primeiroNome();$("#olaTopo").textContent=n?`Olá, ${n}`:""}
+function avisosNovos(){const v=store.get("vc_avisos_vistos",[]);return ativas().slice(0,8).filter(o=>!v.includes(o.id)).length}
+function renderAvisos(){const n=avisosNovos(),b=$("#nbadge");if(!b)return;b.textContent=n>9?"9+":n;b.style.display=n?"":"none"}
+function renderTopo(){renderAvisos();$("#avIni").textContent=inicial();const n=primeiroNome();$("#olaTopo").textContent=n?`Olá, ${n}`:""}
 function renderTabs(){$("#tabsCat").innerHTML=[{id:null,nome:"Tudo"},...CATS].map(c=>`<button role="tab" aria-selected="${catSelHome===c.id}" onclick="tabHome(${c.id?`'${c.id}'`:"null"})">${c.nome}</button>`).join("")}
 function tabHome(id){catSelHome=id;renderTabs();renderHome();pintarIcones();observarCards();const b=document.querySelector('#tabsCat [aria-selected="true"]');if(b)b.scrollIntoView({inline:"center",block:"nearest",behavior:"smooth"})}
 function renderHome(){
@@ -866,7 +867,7 @@ function renderHome(){
   $("#destaques").innerHTML=l.filter(o=>o.destaque).map(cardOf).join("")||`<div class="vazio" style="grid-column:1/-1">Em breve, novas ofertas por aqui.</div>`;
   // lojas parceiras (bolinhas)
   const emps={};l.forEach(o=>{(emps[o.emp]=emps[o.emp]||[]).push(o)});
-  $("#lojasHome").innerHTML=Object.values(emps).slice(0,12).map(os=>{const o=os[0];return `<button class="loja-ch" onclick="verOferta('${o.id}')"><span class="av">${o.logo&&/^(https:|data:image\/|img\/)/.test(o.logo)?`<img src="${esc(o.logo)}" alt="">`:imgOf(o)}</span>${esc(o.emp)}</button>`}).join("");
+  $("#lojasHome").innerHTML=(Object.keys(emps).length?"":`<p style="color:var(--txt-2);font-size:.9rem;padding:0 4px">As primeiras lojas parceiras aparecem aqui em breve.</p>`)+Object.values(emps).slice(0,12).map(os=>{const o=os[0];return `<button class="loja-ch" onclick="verOferta('${o.id}')"><span class="av">${o.logo&&/^(https:|data:image\/|img\/)/.test(o.logo)?`<img src="${esc(o.logo)}" alt="">`:imgOf(o)}</span>${esc(o.emp)}</button>`}).join("");
   // ofertas que acabam hoje/amanhã, com relógio
   const rel=l.filter(o=>o.validade&&dias(o)<=1&&restam(o)!==0);
   $("#relampagoBox").innerHTML=rel.length?`<div class="relampago"><div class="cab"><h2>${ic("zap",20)}Acabam logo</h2><div class="relogio" id="relogio" aria-label="Tempo até a meia-noite"></div></div><div class="trilho">${rel.map(cardOf).join("")}</div></div>`:"";
@@ -925,7 +926,7 @@ function renderMais(){
   $("#maisAv").textContent=inicial();$("#maisNome").textContent=p&&p.nome?p.nome:"Visitante";
   $("#maisVip").innerHTML=`${ic("crown",20)}<span>${vipOn?`<b>Vitrine VIP</b> ativo${p.vipAte?" até "+dataCurta(p.vipAte):""}`:`<b>Vitrine VIP</b> · Assine por R$ 9,90/mês`}</span>${ic("chev",18)}`;
   $("#maisPts").innerHTML=`${ic("star",20)}<span><b>${fmt(pt.saldo)} pontos</b> · nível ${nv.nome}</span>${ic("chev",18)}`;
-  const nb=$("#nbadge").style.display==="none"?0:3;
+  const nb=avisosNovos();
   $("#maisLista").innerHTML=
    `<div class="grupo">${itemHTML("home","Início","ir('inicio')")}${itemHTML("tag","Todas as ofertas","filtrarCat(null)")}${itemHTML("store","Lojas parceiras","ir('empresas')")}${itemHTML("help","Como usar o app","abrir('ajuda')")}</div>
     <div class="grupo-tit">Minha atividade</div>
@@ -1085,7 +1086,9 @@ function abrir(tipo,planoSel){
   if(tipo==="parceiro")h=`<h3 style="font-size:1.2rem;margin-top:6px">Fale com o Vitrine pelo WhatsApp</h3><p style="color:var(--txt-2)">Preencha e envie. Respondemos rapidinho!</p>
     <form onsubmit="enviarParceiro(event)"><label for="e1">Nome da empresa</label><input class="inp" id="e1" required><label for="e2">Ramo</label><select class="inp" id="e2">${CATS.map(c=>`<option>${c.nome}</option>`).join("")}<option>Outro</option></select><label for="e3">Responsável</label><input class="inp" id="e3" required><label for="e4">WhatsApp</label><input class="inp" id="e4" inputmode="tel" required oninput="mascara(this)"><label for="e6">Plano</label><select class="inp" id="e6">${PLANOS.map(p=>`<option value="${p.nome}" ${p.id===planoSel?"selected":""}>${p.nome} – ${p.preco}/mês</option>`).join("")}<option value="Ainda não sei">Ainda não sei</option></select><label for="e5">Oferta que deseja divulgar</label><input class="inp" id="e5" placeholder="Ex: 20% OFF em toda a loja"><button class="btn verde">${ic("chat",20)}Enviar pelo WhatsApp</button></form>`;
   if(tipo==="cidades")h=`<h3 style="margin-top:6px">Escolha sua cidade</h3><div class="grupo" style="box-shadow:none;border:1px solid var(--linha);margin-top:10px">${["Castro – PR","Carambeí – PR","Ponta Grossa – PR","Tibagi – PR","Piraí do Sul – PR"].map(c=>`<button class="item" onclick="setCidade('${c}')">${ic("pin",20)}<span class="tx">${c}</span>${c===$("#cid").textContent?ic("check",20):""}</button>`).join("")}</div>`;
-  if(tipo==="notifs"){$("#nbadge").style.display="none";h=`<h3 style="margin-top:6px">Avisos</h3><div class="notif"><b>VS Store: até 40% OFF</b>A liquidação começou! Aproveite.</div><div class="notif"><b>Pizzaria Castro</b>20% OFF em pizzas grandes. Termina logo!</div><div class="notif"><b>Vitrine VIP</b>Seja VIP e receba ofertas antes de todo mundo.</div>`}
+  if(tipo==="notifs"){const l=ativas().slice(0,8);store.set("vc_avisos_vistos",[...new Set([...store.get("vc_avisos_vistos",[]),...l.map(o=>o.id)])].slice(-300));renderAvisos();
+    h=`<h3 style="margin-top:6px">Avisos</h3>${l.length?l.map(o=>`<button class="item" style="padding:0" onclick="verOferta('${o.id}')">${ic("tag",20)}<span class="tx"><b>${esc(o.emp)}: ${o.tag.replace(/<br>/g," ")}</b><small>${esc(o.desc||"")}</small></span><span class="seta">${ic("chev",18)}</span></button>`).join(""):`<p style="color:var(--txt-2);margin-top:8px">Nenhum aviso por enquanto. As ofertas novas aparecem aqui.</p>`}
+     ${vip()?"":`<button class="item" style="padding:0" onclick="abrir('vip')">${ic("crown",20)}<span class="tx"><b>Vitrine VIP</b><small>Descontos exclusivos por R$ 9,90/mês</small></span><span class="seta">${ic("chev",18)}</span></button>`}`}
   if(tipo==="privacidade")h=`<h3 style="font-size:1.2rem;margin-top:6px">Privacidade e termos</h3>
     <p style="margin-top:10px">O Vitrine Castro respeita a <b>LGPD</b> (Lei Geral de Proteção de Dados).</p>
     <ul class="passos-ajuda" style="margin-top:10px"><li>Seus cupons, favoritos e pontos ficam <b>salvos neste celular</b>.</li>
@@ -1321,7 +1324,7 @@ async function carregarDoBanco(){
   try{
     const db=supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_ANON_KEY);window._db=db;
     const {data,error}=await db.from("ofertas").select("*,empresas!inner(*)").eq("ativa",true).eq("empresas.aprovada",true).order("criado_em",{ascending:false});
-    if(error||!data||!data.length)return; // sem ofertas reais ainda: mantém os exemplos
+    if(error||!data||!data.length){render();return} // sem ofertas reais ainda: mostra "em breve"
     const novas=data.map(o=>({id:o.id,emp:o.empresas.nome,sub:o.empresas.ramo,cat:o.categoria,img:o.foto_url||"",emoji:(CATS.find(c=>c.id===o.categoria)||{}).ic||"🏷️",
       tag:esc(o.titulo),s:o.titulo.length>10,desc:o.descricao,regras:o.regras||"Apresente o cupom no caixa.",validade:o.validade||"",economia:Number(o.economia)||0,
       destaque:o.destaque,whats:o.empresas.whatsapp||"",logo:o.empresas.logo_url||"",banner:o.banner,topo:esc(o.banner_topo||""),entrega:o.entrega||"sim",precoDe:Number(o.preco_de)||null,precoPor:Number(o.preco_por)||null,limite:Number(o.limite_cupons)||null,umPorCliente:o.um_por_cliente!==false,dias:o.dias||"",horaIni:o.hora_ini||"",horaFim:o.hora_fim||"",inicia:o.inicia_em||"",end:o.empresas.endereco||"",abre:o.empresas.abre||"",fecha:o.empresas.fecha||"",diasFunc:o.empresas.dias_func||"",insta:o.empresas.instagram||"",usados:0}));
@@ -1347,6 +1350,7 @@ function fecharSplash(){const s=$("#splash");if(!s||s.classList.contains("sai"))
   setTimeout(()=>{s.classList.add("sai");setTimeout(()=>s.remove(),500);
     if(precisaCadastro())mostrarBoasVindas();else if(!store.get("gira_perfil",{}).sync)setTimeout(registrarCliente,800)},180)}
 async function iniciarApp(){
+  if(!MODO_DEMO){OFERTAS.splice(0);BANNERS.splice(0,BANNERS.length,{anuncie:true})}   // site de verdade: só ofertas reais do banco
   pintarIcones();render();reiniciar();splashPasso(35,"Carregando ofertas…");
   const limite=new Promise(r=>setTimeout(r,7000));
   const tarefas=(async()=>{
