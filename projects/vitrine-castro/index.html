@@ -1397,12 +1397,15 @@ if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.
 // ===== OFERTAS DO BANCO DE DADOS (Supabase) =====
 async function carregarDoBanco(){
   if(!window.CONFIG||!CONFIG.SUPABASE_URL){ // modo demonstração: posts feitos na Área da Empresa deste aparelho
-    try{const e=JSON.parse(localStorage.getItem("vc_demo_emp")||"null"),os=JSON.parse(localStorage.getItem("vc_demo_ofertas")||"[]").filter(o=>o.ativa&&/^(data:image\/|https:\/\/|$)/.test(o.foto_url||""));
-      if(e&&os.length){OFERTAS.unshift(...os.map(o=>({id:"d"+String(o.id).replace(/\W/g,""),emp:e.nome,sub:e.ramo,cat:o.categoria,img:o.foto_url||"",emoji:(CATS.find(c=>c.id===o.categoria)||{}).ic||"🏷️",
+    try{const lj=[[JSON.parse(localStorage.getItem("vc_demo_emp")||"null"),JSON.parse(localStorage.getItem("vc_demo_ofertas")||"[]")]]
+        .concat((JSON.parse(localStorage.getItem("vc_demo_lojas")||"[]")||[]).map(x=>[x&&x.emp,(x&&x.ofertas)||[]]));
+     let mudou=false;
+     for(const [e,todas] of lj){const os=(todas||[]).filter(o=>o.ativa&&/^(data:image\/|https:\/\/|$)/.test(o.foto_url||""));
+      if(e&&os.length){mudou=true;OFERTAS.unshift(...os.map(o=>({id:"d"+String(o.id).replace(/\W/g,""),emp:e.nome,sub:e.ramo,cat:o.categoria,img:o.foto_url||"",emoji:(CATS.find(c=>c.id===o.categoria)||{}).ic||"🏷️",
         tag:esc(o.titulo),s:o.titulo.length>10,desc:o.descricao,regras:o.regras||"Apresente o cupom no caixa.",validade:o.validade||"",economia:(Number(o.preco_de)&&Number(o.preco_por))?Number(o.preco_de)-Number(o.preco_por):(Number(o.economia)||0),destaque:true,whats:e.whatsapp||"",entrega:o.entrega||"sim",precoDe:Number(o.preco_de)||null,precoPor:Number(o.preco_por)||null,limite:Number(o.limite_cupons)||null,umPorCliente:o.um_por_cliente!==false,dias:o.dias||"",horaIni:o.hora_ini||"",horaFim:o.hora_fim||"",inicia:o.inicia_em||"",end:e.endereco||"",abre:e.abre||"",fecha:e.fecha||"",diasFunc:e.dias_func||"",insta:e.instagram||"",usados:store.get("gira_cupons",[]).filter(c=>c.id==="d"+String(o.id).replace(/\W/g,"")).length})));
         const bs=os.filter(o=>o.banner&&o.foto_url).map(o=>({of:"d"+String(o.id).replace(/\W/g,""),foto:o.foto_url,logo:/^(data:image\/|https:\/\/)/.test(e.logo_url||"")?e.logo_url:"",emoji:(CATS.find(c=>c.id===o.categoria)||{}).ic||"🏷️",nome:e.nome,sub:e.ramo,topo:esc(o.banner_topo||"OFERTA"),oferta:esc(o.titulo)}));
-        if(bs.length){BANNERS.unshift(...bs);slide=0}
-        render()}}catch(err){}
+        if(bs.length){BANNERS.unshift(...bs);slide=0}}}
+     if(mudou)render()}catch(err){}
     return}
   if(!window.CONFIG||!CONFIG.SUPABASE_URL||!window.supabase)return;
   try{

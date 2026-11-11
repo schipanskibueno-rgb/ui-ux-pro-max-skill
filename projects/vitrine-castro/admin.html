@@ -365,14 +365,19 @@ function exemploDias(id){const e=EX_ADM.find(x=>x.id===id),n=ADM.periodo===0?60:
   (e?e.ofs:[]).forEach(o=>Object.keys(TIPOS).forEach(t=>pesos.forEach((p,i)=>{const q=Math.round((o.n[t]||0)*f*p/soma);if(q)rows.push({oferta_id:o.id,tipo:t,dia:hojeISO(-(n-1-i)),qtd:q,valor:t==="compra"?Math.round(o.n.valor*f*p/soma):0})})));
   return rows}
 
+// Demonstração: a loja aberta na Área da Empresa ("demo") + as outras lojas de teste guardadas
+function lojasDemo(){const l=[],e=store.get("vc_demo_emp",null);if(e)l.push({id:"demo",emp:e,ofertas:store.get("vc_demo_ofertas",[])});
+  store.get("vc_demo_lojas",[]).forEach((x,i)=>{if(x&&x.emp)l.push({id:"demo-a"+i,emp:x.emp,ofertas:x.ofertas||[]})});return l}
+function gravarDemo(id,fn){if(id==="demo"){const e=store.get("vc_demo_emp",{}),o=store.get("vc_demo_ofertas",[]);fn(e,o);store.set("vc_demo_emp",e);store.set("vc_demo_ofertas",o);return}
+  const arq=store.get("vc_demo_lojas",[]),x=arq[+String(id).replace("demo-a","")];if(!x)return;x.ofertas=x.ofertas||[];fn(x.emp,x.ofertas);store.set("vc_demo_lojas",arq)}
 async function dadosAdmin(){
   const P=ADM.periodo,desde=desdePeriodo(),desdeAnt=P===0?null:hojeISO(-(2*P-1));
-  if(DEMO){const emp=store.get("vc_demo_emp",null),ofs=store.get("vc_demo_ofertas",[]),ids=new Set(ofs.map(o=>String(o.id)));
-    const evs=store.get("vc_demo_eventos",[]).filter(ev=>ids.has(String(ev.oferta)));
-    const agreg=(de,ate)=>{const m={};evs.forEach(ev=>{if(ev.dia<de||(ate&&ev.dia>=ate))return;const k=ev.tipo;m[k]=m[k]||{empresa_id:"demo",tipo:ev.tipo,qtd:0,valor:0};m[k].qtd++;m[k].valor+=Number(ev.valor)||0});return Object.values(m)};
+  if(DEMO){const lj=lojasDemo(),dono={};lj.forEach(l=>l.ofertas.forEach(o=>{dono[String(o.id)]=l.id}));
+    const evs=store.get("vc_demo_eventos",[]).filter(ev=>dono[String(ev.oferta)]);
+    const agreg=(de,ate)=>{const m={};evs.forEach(ev=>{if(ev.dia<de||(ate&&ev.dia>=ate))return;const e=dono[String(ev.oferta)],k=e+"|"+ev.tipo;m[k]=m[k]||{empresa_id:e,tipo:ev.tipo,qtd:0,valor:0};m[k].qtd++;m[k].valor+=Number(ev.valor)||0});return Object.values(m)};
     const ex=exemplosAdm(),ant=somaPorEmpresa(desdeAnt?agreg(desdeAnt,desde):[]);
-    return {emps:(emp?[{...emp,id:"demo",nome:emp.nome+" (sua loja de teste)",criado_em:emp.criado_em||new Date().toISOString()}]:[]).concat(ex.emps),
-      ofs:ofs.map(o=>({...o,empresa_id:"demo"})).concat(ex.ofs),met:agreg(desde).concat(ex.met),ant:desdeAnt?{...ex.ant,...ant}:null}}
+    return {emps:lj.map(l=>({...l.emp,id:l.id,nome:l.emp.nome+" (sua loja de teste)",criado_em:l.emp.criado_em||new Date().toISOString()})).concat(ex.emps),
+      ofs:lj.flatMap(l=>l.ofertas.map(o=>({...o,empresa_id:l.id}))).concat(ex.ofs),met:agreg(desde).concat(ex.met),ant:desdeAnt?{...ex.ant,...ant}:null}}
   const cols="id,titulo,descricao,regras,categoria,foto_url,ativa,validade,destaque,banner,banner_topo,empresa_id,criado_em";
   const rpc=d=>db.rpc("metricas_admin",{p_desde:d});
   const [a,b,c,c2]=await Promise.all([db.from("empresas").select("*").order("criado_em",{ascending:false}),
@@ -898,10 +903,10 @@ async function transferirLoja(id){const em=($("#admTrEmail").value||"").trim();i
   if(error){toast(traduzErro(error));return}if(!data||!data.ok){toast((data&&data.motivo)||"Não foi possível passar a loja.");return}
   toast("✅ Loja passada para "+em);admAtualizar()}
 async function admEmpresa(id,campos){if(exemplo(id))return;
-  if(DEMO){const emp=store.get("vc_demo_emp",{});Object.assign(emp,campos);store.set("vc_demo_emp",emp);empresa=emp;toast("✅ Atualizado");admAtualizar();return}
+  if(DEMO){gravarDemo(id,e=>Object.assign(e,campos));empresa=store.get("vc_demo_emp",null);toast("✅ Atualizado");admAtualizar();return}
   const {error}=await db.from("empresas").update(campos).eq("id",id);toast(error?traduzErro(error):"✅ Atualizado");admAtualizar()}
 async function admOferta(id,campos){if(exemplo(id))return;
-  if(DEMO){const l=store.get("vc_demo_ofertas",[]),o=l.find(x=>String(x.id)===String(id));if(o)Object.assign(o,campos);store.set("vc_demo_ofertas",l);ofertas=l;toast("✅ Atualizado");admAtualizar();return}
+  if(DEMO){lojasDemo().forEach(l=>{if(l.ofertas.some(x=>String(x.id)===String(id)))gravarDemo(l.id,(e,os)=>{const o=os.find(x=>String(x.id)===String(id));if(o)Object.assign(o,campos)})});ofertas=store.get("vc_demo_ofertas",[]);toast("✅ Atualizado");admAtualizar();return}
   const {error}=await db.from("ofertas").update(campos).eq("id",id);toast(error?traduzErro(error):"✅ Atualizado");admAtualizar()}
 function admBanner(id,ligar,topo){if(exemplo(id))return;if(!ligar){admOferta(id,{banner:false});return}
   abrirSheet(`<h2 style="margin-top:8px">Colocar no banner do topo</h2><p class="sub">A oferta precisa ter foto. Escreva uma chamada curta que aparece acima do desconto.</p>
