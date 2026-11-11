@@ -122,6 +122,20 @@ main{padding:16px 14px 0}
 .of .tag.s{font-size:.85rem}
 
 /* VIP */
+/* Cadastro na entrada */
+body.travado{overflow:hidden}
+.boasvindas{position:fixed;inset:0;z-index:45;background:#000;overflow-y:auto;display:flex;justify-content:center;padding:calc(20px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom))}
+.boasvindas[hidden]{display:none}
+.bv-in{width:100%;max-width:420px;margin:auto 0;text-align:center;color:#fff;animation:fade .3s}
+.bv-logo{height:92px;width:auto;display:block;margin:0 auto}.bv-palavra{width:180px;height:auto;display:block;margin:8px auto 0}
+.boasvindas h1{font-size:1.55rem;font-weight:800;margin-top:16px;line-height:1.2}
+.bv-sub{opacity:.92;margin-top:6px;line-height:1.45}.bv-sub b{color:#E9C766}
+#bvForm{border:1.5px solid #D4A537;background:#fff;color:var(--txt);border-radius:22px;padding:16px 16px 14px;margin-top:18px;text-align:left;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+#bvForm label:first-child{margin-top:0}
+.bv-ok{display:flex!important;gap:10px;align-items:center;font-weight:500!important;font-size:.92rem!important;cursor:pointer;min-height:44px}.bv-ok input{width:22px;height:22px;accent-color:#C9952A;flex-shrink:0}
+.bv-priv{font-size:.8rem;color:var(--cinza);text-align:center;margin-top:10px;line-height:1.4}.bv-priv button{background:none;border:0;padding:0;font:inherit;color:#1F2B57;text-decoration:underline;cursor:pointer}
+.erro{display:none;background:#fde4e4;color:#a30d12;border-radius:10px;padding:10px 12px;margin-top:10px;font-size:.9rem;font-weight:600}
+
 .vip-topo{text-align:center;margin-top:6px}.vip-topo .cr{font-size:3.4rem;line-height:1}.vip-topo h3{font-size:1.6rem;font-weight:800;margin-top:4px}.vip-topo h3 span{color:#C9952A}
 .vip-topo p{color:var(--cinza)}.vip-topo.pq h3{font-size:1.35rem;margin-top:10px}
 .vip-preco{display:inline-flex;align-items:baseline;gap:4px;margin-top:10px;background:linear-gradient(100deg,#0E1428,#1F2B57);color:#fff;border:1.5px solid #D4A537;border-radius:16px;padding:8px 18px}
@@ -394,6 +408,23 @@ label{display:block;font-size:.9rem;font-weight:600;margin:12px 0 5px}
 
 <div class="modal" id="modal" onclick="if(event.target===this)fechar()" role="dialog" aria-modal="true"><div class="sheet" id="sheet"></div></div>
 <div class="toast" id="toast" role="status"></div>
+<!-- Cadastro na entrada: aparece antes de usar o app -->
+<div class="boasvindas" id="boasvindas" hidden role="dialog" aria-modal="true" aria-labelledby="bvTit">
+ <div class="bv-in">
+  <img src="img/logo-simbolo.png" alt="" class="bv-logo" width="189" height="200">
+  <img src="img/logo-palavra.png" alt="Vitrine Castro" class="bv-palavra" width="393" height="72">
+  <h1 id="bvTit">Bem-vindo ao Vitrine! 👋</h1>
+  <p class="bv-sub">Descontos de verdade nas lojas de Castro. Faça seu cadastro grátis e ganhe <b><span id="bvPts">50</span> pontos</b>.</p>
+  <form id="bvForm" onsubmit="event.preventDefault();cadastroInicial()" novalidate>
+   <label for="bvNome">Seu nome</label><input class="inp" id="bvNome" required minlength="2" maxlength="80" autocomplete="name" autocapitalize="words" placeholder="Ex: Maria da Silva">
+   <label for="bvTel">Seu WhatsApp</label><input class="inp" id="bvTel" required inputmode="tel" autocomplete="tel" placeholder="(42) 9 9999-9999" oninput="mascara(this)">
+   <label class="bv-ok"><input type="checkbox" id="bvOfertas"><span>Quero receber ofertas pelo WhatsApp</span></label>
+   <div class="erro" id="bvErro" role="alert"></div>
+   <button class="btn ouro-g" id="bvBtn">Começar a economizar</button>
+   <p class="bv-priv">Ao continuar, você aceita os <button type="button" onclick="abrir('privacidade')">termos e a política de privacidade</button>. Não vendemos seus dados.</p>
+  </form>
+ </div>
+</div>
 
 <script>
 /* ===== CONFIGURAÇÃO – edite aqui ===== */
@@ -670,14 +701,14 @@ function abrir(tipo,planoSel){
   if(tipo==="menu")h=`<h3 style="margin-top:6px">Menu</h3><div class="menu"><button onclick="fechar();ir('inicio')"><span class="e">🏠</span>Início</button><button onclick="fechar();ir('ofertas')"><span class="e">🏷️</span>Todas as ofertas</button><button onclick="fechar();ir('cupons')"><span class="e">🎟️</span>Meus cupons e favoritos</button><button onclick="fechar();ir('pontos')"><span class="e">⭐</span>Meus pontos e brindes</button><button onclick="fechar();ir('empresas')"><span class="e">🏪</span>Empresas parceiras e planos</button><button onclick="abrir('parceiro')"><span class="e">🤝</span>Cadastrar minha empresa</button><button onclick="abrir('vip')"><span class="e">👑</span>Vitrine VIP</button><button onclick="abrir('ajuda')"><span class="e">❓</span>Como usar o app</button><button onclick="abrir('instalar')"><span class="e">📲</span>Colocar na tela do celular</button><button onclick="ajudaWhats()"><span class="e">💬</span>Falar com o suporte</button></div>`;
   if(tipo==="privacidade")h=`<h3 style="font-size:1.3rem;margin-top:6px">🔒 Privacidade e termos</h3>
     <p style="margin-top:10px">O Vitrine Castro respeita a <b>LGPD</b> (Lei Geral de Proteção de Dados).</p>
-    <ul class="passos-ajuda" style="margin-top:10px"><li>Seu nome, WhatsApp, cupons, favoritos e pontos ficam <b>salvos neste celular</b>.</li>
+    <ul class="passos-ajuda" style="margin-top:10px"><li>Seus cupons, favoritos e pontos ficam <b>salvos neste celular</b>.</li>
      <li>Para contar visualizações e cupons das lojas, o app usa um <b>código aleatório do aparelho</b>, sem nome nem telefone.</li>
      <li>Quando você pede com entrega ou fala no WhatsApp, a conversa é direto com a loja.</li>
      <li>A loja vê apenas números totais e o seu primeiro nome em compras confirmadas.</li>
-     <li>Se você assinar o <b>Vitrine VIP</b>, seu nome e WhatsApp ficam guardados com segurança no nosso sistema para ativar e renovar a assinatura.</li>
+     <li>Seu <b>nome e WhatsApp</b> do cadastro ficam guardados com segurança no sistema do Vitrine Castro, para o seu cadastro, o Vitrine VIP e, só se você marcar, avisos de ofertas pelo WhatsApp.</li>
      <li>Não vendemos nem compartilhamos seus dados.</li></ul>
     <p style="font-size:.9rem;color:var(--cinza)"><b>Termos:</b> cada oferta tem preço, regras, limite de cupons e validade definidos pela loja. O desconto é dado pela loja no momento da compra. Pontos não valem dinheiro e não podem ser transferidos.</p>
-    <button class="btn claro" onclick="apagarMeusDados()">🗑 Apagar meus dados deste celular</button>
+    <button class="btn claro" onclick="apagarMeusDados()">🗑 Apagar meus dados</button>
     <button class="btn verde" onclick="ajudaWhats()">💬 Dúvidas? Fale com a gente</button>`;
   if(tipo==="ajuda")h=`<h3 style="font-size:1.3rem;margin-top:6px">❓ Como usar</h3><ol class="passos-ajuda" style="margin-top:12px"><li><b>Escolha uma oferta</b> na tela Início ou em Ofertas.</li><li>Toque no botão azul <b>Pegar cupom grátis</b>.</li><li>Vá até a loja e <b>mostre a tela do cupom</b> no caixa.</li><li>Seus cupons ficam guardados no botão <b>Cupons</b>, embaixo.</li><li>Toda compra com cupom vale <b>pontos</b>. Junte e troque por brindes no botão <b>Pontos</b>.</li></ol><p style="color:var(--cinza)">Letra pequena? Toque em <b>AA Letra</b> no topo da tela.</p><button class="btn verde" onclick="ajudaWhats()">💬 Ainda com dúvida? Fale com a gente</button>`;
   if(tipo==="instalar")h=telaInstalar();
@@ -717,7 +748,7 @@ function telaVip(){const p=store.get("gira_perfil",null),ativo=vip(),ped=store.g
     <button class="btn ouro-g">✓ OK, gerar o QR Code</button></form>`}
 function vipCadastrar(){const nome=$("#vNome").value.trim(),tel=$("#vTel").value,d=tel.replace(/\D/g,"");
   if(nome.length<2){toast("Digite seu nome");return}if(d.length<10){toast("Digite seu WhatsApp com DDD");return}
-  store.set("gira_perfil",{...(store.get("gira_perfil",null)||{}),nome,tel});const pt=pts();if(!pt.hist.some(h=>h.d==="Bônus de boas-vindas"))ganhar(BONUS_CADASTRO,"Bônus de boas-vindas");
+  store.set("gira_perfil",{...(store.get("gira_perfil",null)||{}),nome,tel,cadastroEm:Date.now()});registrarCliente();const pt=pts();if(!pt.hist.some(h=>h.d==="Bônus de boas-vindas"))ganhar(BONUS_CADASTRO,"Bônus de boas-vindas");
   render();vipPagar()}
 async function vipPagar(){const p=store.get("gira_perfil",null);if(!p){abrir("vip");return}
   $("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ✕</button><div class="vazio"><span class="e">⏳</span>Gerando seu Pix…</div>`;$("#modal").classList.add("on");
@@ -761,8 +792,32 @@ function telaVipBemVindo(){const p=store.get("gira_perfil",null)||{};$("#modal")
     <ul class="vip-lista">${VIP_VANTAGENS.map(v=>`<li><span aria-hidden="true">✅</span>${v}</li>`).join("")}</ul><button class="btn" onclick="fechar()">Começar a economizar</button>`;$("#sheet").scrollTop=0}
 // ao abrir o app: confere se um VIP pago já foi confirmado (ou se venceu)
 setTimeout(()=>{const p=store.get("gira_perfil",null);if(p&&(store.get("vc_vip_pedido",null)||p.vip))atualizarVip(true)},1500);
-function apagarMeusDados(){if(!confirm("Apagar seus dados, cupons, favoritos e pontos deste celular?"))return;
-  ["gira_perfil","gira_cupons","gira_favs","gira_pontos","vc_entrega","vc_aparelho","vc_vip_pedido"].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});fechar();render();toast("Seus dados foram apagados deste celular")}
+
+/* ===================================================================
+   CADASTRO NA ENTRADA: nome e WhatsApp antes de usar o app.
+   Fica neste celular e também no banco (só o administrador vê a lista).
+   =================================================================== */
+const soDigitos=s=>String(s||"").replace(/\D/g,"");
+function precisaCadastro(){const p=store.get("gira_perfil",null);return !(p&&p.nome&&soDigitos(p.tel).length>=10)}
+function mostrarBoasVindas(){const b=$("#boasvindas");if(!b)return;$("#bvPts").textContent=BONUS_CADASTRO;b.hidden=false;document.body.classList.add("travado")}
+async function cadastroInicial(){const nome=$("#bvNome").value.trim().replace(/\s+/g," "),tel=$("#bvTel").value,d=soDigitos(tel),er=$("#bvErro");
+  const erro=(m,el)=>{er.textContent=m;er.style.display="block";if(el)el.focus()};er.style.display="none";
+  if(nome.length<2||!/[A-Za-zÀ-ÿ]{2}/.test(nome))return erro("Digite seu nome.",$("#bvNome"));
+  if(d.length<10||d.length>11||+d.slice(0,2)<11)return erro("Digite seu WhatsApp com DDD. Ex: (42) 9 9999-9999",$("#bvTel"));
+  store.set("gira_perfil",{...(store.get("gira_perfil",null)||{}),nome,tel,ofertas:$("#bvOfertas").checked,cadastroEm:Date.now(),sync:0});
+  registrarCliente();
+  $("#boasvindas").hidden=true;document.body.classList.remove("travado");
+  const p=pts();if(!p.hist.some(h=>h.d==="Bônus de boas-vindas"))ganhar(BONUS_CADASTRO,"Bônus de boas-vindas");
+  render();toast(`Bem-vindo(a), ${nome.split(" ")[0]}! Você ganhou ${BONUS_CADASTRO} pontos 🎉`)}
+async function registrarCliente(){const p=store.get("gira_perfil",null);if(!p)return;const w=soDigitos(p.tel);if(w.length<10)return;
+  if(MODO_DEMO){const l=store.get("vc_demo_clientes",[]).filter(c=>c.aparelho!==APARELHO);
+    l.unshift({aparelho:APARELHO,nome:p.nome,whatsapp:w,aceita_ofertas:!!p.ofertas,criado_em:new Date(p.cadastroEm||Date.now()).toISOString()});store.set("vc_demo_clientes",l.slice(0,300));return}
+  const db=dbc();if(!db)return;
+  try{const {data,error}=await db.rpc("registrar_cliente",{p_aparelho:APARELHO,p_nome:p.nome,p_whats:w,p_ofertas:!!p.ofertas});
+    if(!error&&data){const q=store.get("gira_perfil",null);if(q){q.sync=1;store.set("gira_perfil",q)}}}catch(e){}}
+function apagarMeusDados(){if(!confirm("Apagar seu cadastro, cupons, favoritos e pontos?"))return;
+  if(MODO_DEMO)store.set("vc_demo_clientes",store.get("vc_demo_clientes",[]).filter(c=>c.aparelho!==APARELHO));else if(dbc())dbc().rpc("apagar_cliente",{p_aparelho:APARELHO}).then(()=>{},()=>{});
+  ["gira_perfil","gira_cupons","gira_favs","gira_pontos","vc_entrega","vc_aparelho","vc_vip_pedido"].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});fechar();render();toast("Seus dados foram apagados");mostrarBoasVindas()}
 function setCidade(c){$("#cid").textContent=c;fechar();toast("Cidade: "+c)}
 function enviarParceiro(e){e.preventDefault();const v=i=>$("#e"+i).value;
   const m=`Olá! Quero ser parceiro do Vitrine Castro Clube de Desconto.\n\nEmpresa: ${v(1)}\nRamo: ${v(2)}\nResponsável: ${v(3)}\nWhatsApp: ${v(4)}\nPlano: ${v(6)}\nOferta: ${v(5)||"-"}`;
@@ -813,8 +868,8 @@ function registrarCompra(id){const o=OFERTAS.find(x=>x.id===id),n=nivelDe(pts().
 function valorDe(){return parseFloat(($("#vCompra").value||"0").replace(/\./g,"").replace(",","."))||0}
 function previaPts(m){const v=valorDe();$("#previa").textContent=v>0?`Você vai ganhar ${fmt(v*PONTOS_POR_REAL*m)} pontos${m>1?` (bônus ${m}x)`:""}`:""}
 function confirmarCompra(id){const o=OFERTAS.find(x=>x.id===id),v=valorDe();if(v<=0)return;const m=nivelDe(pts().total).mult*(vip()?2:1);fechar();ganhar(v*PONTOS_POR_REAL*m,"Compra na "+o.emp)}
-function cadastrar(e){e.preventDefault();store.set("gira_perfil",{nome:$("#pNome").value.trim(),tel:$("#pTel").value});const p=pts();if(!p.hist.some(h=>h.d==="Bônus de boas-vindas")){ganhar(BONUS_CADASTRO,"Bônus de boas-vindas")}render();toast(`Bem-vindo(a)! Você ganhou ${BONUS_CADASTRO} pontos 🎉`)}
-function sair(){store.set("gira_perfil",null);render()}
+function cadastrar(e){e.preventDefault();store.set("gira_perfil",{nome:$("#pNome").value.trim(),tel:$("#pTel").value,cadastroEm:Date.now()});registrarCliente();const p=pts();if(!p.hist.some(h=>h.d==="Bônus de boas-vindas")){ganhar(BONUS_CADASTRO,"Bônus de boas-vindas")}render();toast(`Bem-vindo(a)! Você ganhou ${BONUS_CADASTRO} pontos 🎉`)}
+function sair(){store.set("gira_perfil",null);render();mostrarBoasVindas()}
 document.addEventListener("keydown",e=>{if(e.key==="Escape")fechar()});
 
 if(store.get("gira_letra",false)){document.documentElement.classList.add("grande");$("#btnAa").classList.add("on")}
@@ -893,6 +948,7 @@ async function carregarDoBanco(){
 }
 
 render();reiniciar();carregarDoBanco();
+if(precisaCadastro())mostrarBoasVindas();else if(!store.get("gira_perfil",{}).sync)setTimeout(registrarCliente,1200);   // cadastros antigos também vão para a lista
 const h0=location.hash.slice(1);if(["ofertas","empresas","cupons","perfil","pontos"].includes(h0))ir(h0);
 </script>
 </body>

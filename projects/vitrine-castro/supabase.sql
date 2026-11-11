@@ -339,6 +339,49 @@ drop policy if exists "so admin financeiro" on public.pagamentos;
 create policy "so admin financeiro" on public.pagamentos for all to authenticated
   using (public.is_admin()) with check (public.is_admin());
 
+-- ---------- CLIENTES: cadastro feito na entrada do app (nome e WhatsApp) ----------
+-- O app grava pelo celular (sem login). Só o administrador lê a lista.
+create table if not exists public.clientes (
+  aparelho       text primary key check (aparelho ~ '^[a-z0-9]{12,40}$'),
+  nome           text not null check (char_length(nome) between 2 and 80),
+  whatsapp       text not null check (whatsapp ~ '^[0-9]{10,13}$'),
+  aceita_ofertas boolean not null default false,          -- só manda oferta para quem marcou (LGPD)
+  criado_em      timestamptz not null default now(),
+  atualizado_em  timestamptz not null default now()
+);
+create index if not exists clientes_whatsapp on public.clientes (whatsapp);
+create index if not exists clientes_criado on public.clientes (criado_em desc);
+alter table public.clientes enable row level security;
+revoke all on public.clientes from public, anon;
+grant select, delete on public.clientes to authenticated;
+drop policy if exists "so admin clientes" on public.clientes;
+create policy "so admin clientes" on public.clientes for all to authenticated
+  using (public.is_admin()) with check (public.is_admin());
+
+create or replace function public.registrar_cliente(p_aparelho text, p_nome text, p_whats text, p_ofertas boolean default false) returns boolean
+language plpgsql security definer set search_path = public as $$
+declare n text := regexp_replace(btrim(coalesce(p_nome, '')), '\s+', ' ', 'g'); w text := regexp_replace(coalesce(p_whats, ''), '\D', '', 'g');
+begin
+  if p_aparelho is null or p_aparelho !~ '^[a-z0-9]{12,40}$' then return false; end if;
+  if char_length(n) < 2 or char_length(n) > 80 then return false; end if;
+  if w !~ '^[0-9]{10,13}$' then return false; end if;
+  -- limite contra robôs: no máximo 500 cadastros novos por hora no app inteiro
+  if not exists (select 1 from public.clientes where aparelho = p_aparelho)
+     and (select count(*) from public.clientes where criado_em > now() - interval '1 hour') >= 500 then return false; end if;
+  insert into public.clientes (aparelho, nome, whatsapp, aceita_ofertas) values (p_aparelho, n, w, coalesce(p_ofertas, false))
+  on conflict (aparelho) do update set nome = excluded.nome, whatsapp = excluded.whatsapp,
+     aceita_ofertas = excluded.aceita_ofertas, atualizado_em = now();
+  return true;
+end $$;
+
+-- "Apagar meus dados" no app também apaga o cadastro no banco
+create or replace function public.apagar_cliente(p_aparelho text) returns void
+language sql security definer set search_path = public as $$
+  delete from public.clientes where aparelho = p_aparelho and p_aparelho ~ '^[a-z0-9]{12,40}$';
+$$;
+revoke execute on function public.registrar_cliente(text, text, text, boolean), public.apagar_cliente(text) from public, anon;
+grant execute on function public.registrar_cliente(text, text, text, boolean), public.apagar_cliente(text) to anon, authenticated;
+
 -- ---------- VITRINE VIP: pedido com Pix (QR Code) ----------
 -- O cliente gera o pedido no app (sem login). O valor é fixo aqui no banco (R$ 9,90).
 -- Só o administrador vê os pedidos e confirma o Pix; aí o VIP ativa sozinho no celular do cliente.

@@ -216,7 +216,7 @@ details.mais-op summary{cursor:pointer;font-weight:700;min-height:44px;display:f
 .vendas details summary{cursor:pointer;font-weight:700;color:var(--azul2);padding:10px 0;min-height:44px}
 .ficha-l{margin-top:8px}.ficha-l .ln{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid #f0e8d2;font-size:.9rem}
 .ficha-l .ln span{color:var(--cinza)}.ficha-l .ln b{text-align:right;overflow-wrap:anywhere}
-.nav-adm button{font-size:.95rem}
+.nav-adm button{font-size:.9rem;padding:0 6px}
 .mes-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;background:#f6f1e3;border-radius:14px;padding:6px}
 .mes-nav b{font-size:1.02rem}.mes-nav .mini{min-width:48px;font-size:1.3rem}.mes-nav .mini:disabled{opacity:.35}
 .fin-l{padding:14px}.fin-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
@@ -657,7 +657,66 @@ function blocoPedidosVip(){const peds=window._pedVip||[];if(!peds.length)return 
    <p class="ajuda">Clientes que tocaram em “OK, quero ser VIP” e geraram o QR Code do Pix. Veja no app do banco se o Pix com o <b>código do pedido</b> caiu e toque em <b>“Pix recebido”</b>: o VIP é ativado sozinho no celular do cliente.</p>
    ${peds.map(pd=>`<div class="vd-l" style="flex-wrap:wrap"><span>${esc(pd.nome)}<small>${esc(pd.whatsapp||"sem WhatsApp")} · pedido <b>${esc(pd.txid)}</b> · ${dataHora(pd.criado_em)}</small></span><b>${fmtR(pd.valor)}</b>
     <div class="fin-bt" style="width:100%;margin-top:2px"><button class="mini ou" onclick="confirmarPedidoVip('${esc(pd.txid)}')">✓ Pix recebido</button>${pd.whatsapp?`<a class="mini zap" href="${linkZap(pd.whatsapp,`Olá, ${String(pd.nome).split(" ")[0]}! Aqui é do Vitrine Castro 😊 Vimos que você gerou o Pix do Vitrine VIP (pedido ${pd.txid}). Conseguiu pagar? Qualquer dúvida estamos aqui!`)}" target="_blank" rel="noopener">💬 WhatsApp</a>`:""}<button class="mini" onclick="apagarPedidoVip('${esc(pd.txid)}')">🗑 Não pagou</button></div></div>`).join("")}</div>`}
-function navAdm(a){return `<div class="abas-p nav-adm" role="tablist"><button role="tab" aria-selected="${a==="emp"}" onclick="painelAdmin(false)">🏪 Empresas</button><button role="tab" aria-selected="${a==="fin"}" onclick="telaFinanceiro(${a==="fin"})">💰 Financeiro</button></div>`}
+
+/* ===================================================================
+   CLIENTES: quem se cadastrou na entrada do app (nome e WhatsApp)
+   =================================================================== */
+let CLI={busca:"",filtro:"todos",lim:60};
+const fmtTel=t=>{const d=soDig(t);return d.length===11?`(${d.slice(0,2)}) ${d.slice(2,3)} ${d.slice(3,7)}-${d.slice(7)}`:d.length===10?`(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`:d};
+function seedDemoClientes(){if(store.get("vc_demo_clientes_seed",null))return;
+  const ex=[["Ana Paula Souza","42999881001",true,25],["Carlos Eduardo Lima","42999881002",true,40],["Fernanda Ribeiro","42999881003",false,60],["João Pedro Martins","42999881004",true,8],["Mariana Costa","42999881005",false,70],["Lucas Almeida","42999881006",true,3],["Beatriz Rocha","42999881007",false,1],["Rafael Oliveira","42999881008",true,12],["Juliana Mendes","42999881009",true,0],["Pedro Henrique","42999881010",false,5]]
+    .map(([n,w,o,d],i)=>({aparelho:"exemplo"+String(i).padStart(8,"0"),nome:n,whatsapp:w,aceita_ofertas:o,criado_em:new Date(Date.now()-d*864e5-i*3600e3).toISOString()}));
+  store.set("vc_demo_clientes",store.get("vc_demo_clientes",[]).concat(ex));store.set("vc_demo_clientes_seed",1)}
+async function dadosClientes(){
+  if(DEMO){seedDemoClientes();return store.get("vc_demo_clientes",[])}
+  const {data,error}=await db.from("clientes").select("aparelho,nome,whatsapp,aceita_ofertas,criado_em").order("criado_em",{ascending:false}).limit(10000);
+  if(error)throw new Error(/does not exist|relation|schema cache/i.test(error.message)?"Para ver os clientes, rode a atualização do banco (supabase.sql) no Supabase.":traduzErro(error));
+  return data||[]}
+function listaClientes(){const g={};
+  (window._cli||[]).forEach(c=>{const k=soDig(c.whatsapp);if(!k)return;const a=g[k];
+    if(!a)g[k]={nome:c.nome,whatsapp:k,criado_em:c.criado_em,ult:c.criado_em,ofertas:!!c.aceita_ofertas,aparelhos:1};
+    else{a.aparelhos++;if(c.criado_em<a.criado_em)a.criado_em=c.criado_em;if(c.criado_em>a.ult){a.ult=c.criado_em;a.nome=c.nome}a.ofertas=a.ofertas||!!c.aceita_ofertas}});
+  const vip={};assinantes(window._fin||[]).forEach(a=>{const k=soDig(a.whats);if(k)vip[k]=a});
+  return Object.values(g).map(c=>({...c,vip:vip[c.whatsapp]||null})).sort((a,b)=>String(b.criado_em).localeCompare(String(a.criado_em)))}
+async function telaClientes(recarregar=true){
+  ADM.detalhe=null;const box=alvoAdmin();
+  if(recarregar||!window._cli){box.innerHTML=navAdm("cli")+`<div class="vazio"><span class="e">⏳</span>Carregando clientes…</div>`;
+    try{const [c,f]=await Promise.all([dadosClientes(),window._fin?Promise.resolve(window._fin):dadosFin().catch(()=>[])]);window._cli=c;window._fin=f}
+    catch(err){box.innerHTML=navAdm("cli")+`<div class="aviso">${esc(err.message||traduzErro(err))}</div>`;return}}
+  const todos=listaClientes(),sete=new Date(Date.now()-7*864e5).toISOString(),hoje=hojeISO();
+  const novos=todos.filter(c=>c.criado_em>=sete),ofertas=todos.filter(c=>c.ofertas),vips=todos.filter(c=>c.vip&&c.vip.st!=="vencido");
+  const q=CLI.busca.trim().toLowerCase(),qd=soDig(q);
+  const lista=todos.filter(c=>CLI.filtro==="todos"||(CLI.filtro==="novos"&&c.criado_em>=sete)||(CLI.filtro==="ofertas"&&c.ofertas)||(CLI.filtro==="vip"&&c.vip&&c.vip.st!=="vencido")||(CLI.filtro==="naovip"&&!(c.vip&&c.vip.st!=="vencido")))
+    .filter(c=>!q||c.nome.toLowerCase().includes(q)||(qd.length>=3&&c.whatsapp.includes(qd)));
+  const dias=[...Array(14)].map((_,i)=>hojeISO(-(13-i))),porDia=dias.map(d=>todos.filter(c=>new Date(c.criado_em).toLocaleDateString("sv-SE")===d).length),mx=Math.max(1,...porDia);
+  box.innerHTML=navAdm("cli")+(DEMO?`<div class="aviso">👥 <b>Prévia dos clientes.</b> Os nomes são de exemplo. Quem se cadastrar no app deste aparelho também aparece aqui.</div>`:"")+
+   `<div class="card" style="border:2px solid var(--ouro)"><h2>👥 Clientes cadastrados</h2><p class="sub">Pessoas que fizeram o cadastro ao abrir o app.</p>
+    <div class="kpis" style="margin-top:10px">
+     <div class="kpi"><div class="n">${fmtN(todos.length)}</div><div class="r">👥 Clientes</div><small>${fmtN(todos.filter(c=>new Date(c.criado_em).toLocaleDateString("sv-SE")===hoje).length)} hoje</small></div>
+     <div class="kpi"><div class="n">${fmtN(novos.length)}</div><div class="r">🆕 Novos</div><small>nos últimos 7 dias</small></div>
+     <div class="kpi"><div class="n">${fmtN(ofertas.length)}</div><div class="r">📣 Aceitam ofertas</div><small>no WhatsApp (${todos.length?Math.round(ofertas.length/todos.length*100):0}%)</small></div>
+     <div class="kpi"><div class="n">${fmtN(vips.length)}</div><div class="r">👑 Vitrine VIP</div><small>${todos.length?Math.round(vips.length/todos.length*100):0}% dos clientes</small></div>
+    </div></div>
+   <div class="card" style="margin-top:14px"><h3>📈 Cadastros por dia</h3><p class="ajuda">Últimos 14 dias</p>
+    <div class="graf">${dias.map((d,i)=>`<div title="${dataBR(d)}: ${porDia[i]} cadastro${porDia[i]===1?"":"s"}"><i style="height:${porDia[i]/mx*100}%"></i></div>`).join("")}</div>
+    <div class="graf-leg"><span>${dataBR(dias[0]).slice(0,5)}</span><span>hoje</span></div></div>
+   <input class="inp" type="search" id="cliBusca" style="margin-top:14px" placeholder="🔎 Buscar por nome ou WhatsApp" value="${esc(CLI.busca)}" aria-label="Buscar cliente"
+    oninput="CLI.busca=this.value;CLI.lim=60;clearTimeout(window._tc);window._tc=setTimeout(()=>{telaClientes(false);const i=$('#cliBusca');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},350)">
+   <div class="chips" style="margin:10px 0 12px">${[["todos",`Todos (${todos.length})`],["novos",`🆕 Novos (${novos.length})`],["ofertas",`📣 Aceitam ofertas (${ofertas.length})`],["vip",`👑 VIP (${vips.length})`],["naovip","Ainda não são VIP"]].map(([k,t])=>`<button type="button" aria-pressed="${CLI.filtro===k}" onclick="CLI.filtro='${k}';CLI.lim=60;telaClientes(false)">${t}</button>`).join("")}</div>
+   ${lista.length?lista.slice(0,CLI.lim).map(c=>{const ehVip=c.vip&&c.vip.st!=="vencido",pn=String(c.nome).split(" ")[0];
+     return `<div class="card fin-l"><div class="fin-top"><div style="min-width:0"><b>${esc(c.nome)}</b><small>${esc(fmtTel(c.whatsapp))} · cadastro em ${new Date(c.criado_em).toLocaleDateString("pt-BR")}${c.aparelhos>1?` · ${c.aparelhos} aparelhos`:""}</small></div>
+      <span class="selo-d ${ehVip?"vd":"az"}">${ehVip?`👑 VIP até ${dataBR(c.vip.vence)}`:c.vip?"VIP vencido":"Cliente"}</span></div>
+      <p class="ajuda" style="margin-top:4px">${c.ofertas?"📣 Aceita receber ofertas no WhatsApp":"🔕 Não quer receber ofertas"}</p>
+      <div class="fin-bt"><a class="mini zap" href="${linkZap(c.whatsapp,`Olá, ${pn}! Aqui é do Vitrine Castro 😊`)}" target="_blank" rel="noopener">💬 WhatsApp</a>
+       ${c.ofertas&&!ehVip?`<a class="mini ou" style="display:inline-flex;align-items:center;text-decoration:none" href="${linkZap(c.whatsapp,`Olá, ${pn}! Aqui é do Vitrine Castro 😊 Que tal virar Vitrine VIP? Por só ${fmtR(VIP_PRECO)}/mês você ganha descontos exclusivos, ofertas antes de todo mundo e pontos em dobro. É só abrir o app e tocar em “Seja VIP”.`)}" target="_blank" rel="noopener">👑 Oferecer VIP</a>`:""}</div></div>`}).join("")
+     +(lista.length>CLI.lim?`<button class="btn claro" onclick="CLI.lim+=100;telaClientes(false)">Mostrar mais (${lista.length-CLI.lim})</button>`:"")
+    :`<div class="vazio"><span class="e">👥</span>${todos.length?"Nenhum cliente nesta lista.":"Ainda ninguém se cadastrou. Quando alguém abrir o app e fizer o cadastro, aparece aqui."}</div>`}
+   ${todos.length?`<button class="btn claro" style="margin-top:14px" onclick="baixarClientes()">⬇️ Baixar lista de clientes (Excel)</button><p class="ajuda" style="text-align:center">Use a lista com cuidado: só mande ofertas para quem aceitou receber (LGPD).</p>`:""}`}
+function baixarClientes(){const cel=v=>{let s=String(v??"");if(/^[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'};
+  const linhas=[["Nome","WhatsApp","Data do cadastro","Aceita ofertas no WhatsApp","Vitrine VIP"]].concat(listaClientes().map(c=>[c.nome,fmtTel(c.whatsapp),new Date(c.criado_em).toLocaleDateString("pt-BR"),c.ofertas?"Sim":"Não",c.vip?(c.vip.st==="vencido"?"Vencido":"Até "+dataBR(c.vip.vence)):"Não"]));
+  const csv="﻿"+linhas.map(l=>l.map(cel).join(";")).join("\r\n"),a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="vitrine-castro-clientes-"+hojeISO()+".csv";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+function navAdm(a){return `<div class="abas-p nav-adm" role="tablist"><button role="tab" aria-selected="${a==="emp"}" onclick="painelAdmin(false)">🏪 Empresas</button><button role="tab" aria-selected="${a==="cli"}" onclick="telaClientes(${a==="cli"})">👥 Clientes</button><button role="tab" aria-selected="${a==="fin"}" onclick="telaFinanceiro(${a==="fin"})">💰 Financeiro</button></div>`}
 function statusMens(x,M,P){const pg=P.find(p=>p.tipo==="mensalidade"&&String(p.empresa_id)===String(x.id)&&p.referencia===M);
   if(pg)return {k:"paga",pg,cor:"vd",txt:`✓ Paga em ${dataBR(pg.pago_em)} · ${FORMAS[pg.forma]||esc(pg.forma)}`};
   const atual=mesAtual(),atras=M<atual||(M===atual&&Number(hojeISO().slice(8))>DIA_VENC);
