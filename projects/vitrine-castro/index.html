@@ -63,8 +63,8 @@ img{max-width:100%}
 /* leão dourado grande atrás do logo: vai se apagando conforme o app carrega */
 .splash{transition:opacity .8s ease .1s,visibility .8s .1s}
 .sp-marca{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;isolation:isolate}
-.sp-leao{position:absolute;left:50%;top:50%;width:min(118vw,520px);max-width:none;height:auto;transform:translate(-50%,-50%);z-index:0;opacity:.95;
-  filter:drop-shadow(0 0 22px rgba(212,165,55,.35));transition:transform .9s ease;animation:leaoEntra 1s cubic-bezier(.2,.8,.2,1) backwards}
+.sp-leao{position:absolute;left:50%;top:50%;width:min(118vw,520px);max-width:none;height:auto;transform:translate(-50%,-50%);z-index:0;opacity:.28;
+  filter:saturate(.8);transition:transform .9s ease;animation:leaoEntra 1s cubic-bezier(.2,.8,.2,1) backwards}
 .sp-marca::before{content:"";position:absolute;left:50%;top:42%;width:240px;height:240px;transform:translate(-50%,-50%);border-radius:50%;z-index:1;
   background:radial-gradient(circle,rgba(0,0,0,.92) 0,rgba(0,0,0,.65) 45%,rgba(0,0,0,0) 70%)}
 .sp-logo,.sp-pal{position:relative;z-index:2;mix-blend-mode:screen}
@@ -1427,7 +1427,7 @@ function splashPasso(pct,txt){SPL_ALVO=pct;const t=$("#spTxt");if(t&&txt)t.textC
 // a barra enche e o leão se apaga juntos, de forma contínua: nunca mais rápido que 2 s, nem à frente do carregamento real
 (function animarAbertura(){const s=$("#splash");if(!s||s.classList.contains("sai"))return;
   const e=performance.now()-SPLASH_T0,mostra=Math.min(SPL_ALVO,8+e/2000*92),b=$("#spBar"),l=document.querySelector(".sp-leao");
-  if(b)b.style.width=mostra+"%";if(l)l.style.opacity=String(Math.min(1,e/450)*Math.max(.1,.95-mostra/100*.85));
+  if(b)b.style.width=mostra+"%";if(l)l.style.opacity=String(Math.min(1,e/600)*.28*Math.max(0,1-mostra/100));
   requestAnimationFrame(animarAbertura)})();
 function esperarImagens(sel,max){const imgs=[...document.querySelectorAll(sel)].slice(0,max).filter(i=>!i.complete);
   return Promise.all(imgs.map(i=>new Promise(r=>{i.addEventListener("load",r,{once:true});i.addEventListener("error",r,{once:true})})))}
