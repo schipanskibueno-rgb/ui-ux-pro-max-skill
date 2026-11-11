@@ -267,7 +267,7 @@ end $$;
 -- Área da Empresa: confirmar a compra (uma vez só) e registrar o valor vendido
 create or replace function public.confirmar_cupom(p_codigo text, p_valor numeric) returns json
 language plpgsql security definer set search_path = public as $$
-declare emp uuid; c public.cupons;
+declare emp uuid; c public.cupons; ganhos int := 0;
 begin
   select id into emp from public.empresas where dono = auth.uid() and aprovada;
   if emp is null then raise exception 'Só lojas aprovadas podem confirmar compras.'; end if;
@@ -277,7 +277,8 @@ begin
   if c.usado_em is not null then return json_build_object('ok', false, 'motivo', 'Este cupom já foi usado.'); end if;
   update public.cupons set usado_em = now(), valor = round(p_valor, 2) where codigo = c.codigo;
   insert into public.eventos (oferta_id, empresa_id, tipo, aparelho, valor) values (c.oferta_id, emp, 'compra', c.aparelho, round(p_valor, 2));
-  return json_build_object('ok', true);
+  ganhos := public.dar_pontos_compra(c.aparelho, emp, c.codigo, round(p_valor, 2));      -- pontos do cliente (seção PONTOS E BRINDES)
+  return json_build_object('ok', true, 'pontos', ganhos);
 end $$;
 
 -- Área da Empresa: números da PRÓPRIA loja por oferta e por dia
@@ -371,6 +372,8 @@ begin
   insert into public.clientes (aparelho, nome, whatsapp, aceita_ofertas) values (p_aparelho, n, w, coalesce(p_ofertas, false))
   on conflict (aparelho) do update set nome = excluded.nome, whatsapp = excluded.whatsapp,
      aceita_ofertas = excluded.aceita_ofertas, atualizado_em = now();
+  -- bônus de boas-vindas: 50 pontos, uma vez por celular
+  insert into public.pontos (aparelho, tipo, pontos, ref) values (p_aparelho, 'bonus', 50, 'cadastro') on conflict do nothing;
   return true;
 end $$;
 
@@ -502,6 +505,192 @@ create policy "fotos trocar" on storage.objects for update to authenticated
   using (bucket_id = 'fotos' and (storage.foldername(name))[1] = auth.uid()::text);
 create policy "fotos apagar" on storage.objects for delete to authenticated
   using (bucket_id = 'fotos' and (storage.foldername(name))[1] = auth.uid()::text);
+
+-- ---------- PONTOS E BRINDES (pontos gerais do Vitrine) ----------
+-- O cliente só ganha pontos quando a LOJA confirma a compra no painel: 1 ponto por R$ 1
+-- (nível Prata 1,5x, Ouro 2x e Vitrine VIP em dobro). Cada loja cadastra os brindes que
+-- quer dar. O cliente troca os pontos por um brinde de qualquer loja e recebe um código
+-- BR-XXXXXX; a loja do brinde confere o código e confirma a entrega.
+create table if not exists public.pontos (
+  id         bigint generated always as identity primary key,
+  aparelho   text not null check (aparelho ~ '^[a-z0-9]{12,40}$'),
+  empresa_id uuid references public.empresas on delete set null,
+  tipo       text not null check (tipo in ('compra','bonus','resgate','estorno')),
+  pontos     int  not null check (pontos between -1000000 and 1000000),
+  ref        text check (ref is null or char_length(ref) <= 20),   -- código do cupom ou da troca
+  criado_em  timestamptz not null default now()
+);
+create index if not exists pontos_aparelho on public.pontos (aparelho, criado_em desc);
+create unique index if not exists pontos_1_bonus on public.pontos (aparelho) where tipo = 'bonus';
+create unique index if not exists pontos_1_por_cupom on public.pontos (ref) where tipo = 'compra';
+alter table public.pontos enable row level security;
+revoke all on public.pontos from public, anon, authenticated;
+grant select on public.pontos to authenticated;
+drop policy if exists "admin ve pontos" on public.pontos;
+create policy "admin ve pontos" on public.pontos for select to authenticated using (public.is_admin());
+
+create table if not exists public.brindes (
+  id         uuid primary key default gen_random_uuid(),
+  empresa_id uuid not null references public.empresas on delete cascade,
+  nome       text not null check (char_length(nome) between 2 and 60),
+  descricao  text check (descricao is null or char_length(descricao) <= 140),
+  pontos     int  not null check (pontos between 10 and 100000),
+  estoque    int  check (estoque is null or estoque between 0 and 100000),   -- vazio = sem limite
+  ativo      boolean not null default true,
+  criado_em  timestamptz not null default now()
+);
+create index if not exists brindes_empresa on public.brindes (empresa_id);
+alter table public.brindes enable row level security;
+revoke all on public.brindes from public, anon;
+grant select, insert, update, delete on public.brindes to authenticated;
+drop policy if exists "dono gerencia brindes" on public.brindes;
+create policy "dono gerencia brindes" on public.brindes for all to authenticated
+  using (public.is_admin() or exists (select 1 from public.empresas e where e.id = empresa_id and e.dono = auth.uid()))
+  with check (public.is_admin() or exists (select 1 from public.empresas e where e.id = empresa_id and e.dono = auth.uid()));
+-- no máximo 20 brindes por loja
+create or replace function public.limite_brindes() returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if (select count(*) from public.brindes where empresa_id = new.empresa_id) >= 20 then
+    raise exception 'Cada loja pode ter até 20 brindes.';
+  end if;
+  return new;
+end $$;
+drop trigger if exists t_limite_brindes on public.brindes;
+create trigger t_limite_brindes before insert on public.brindes for each row execute function public.limite_brindes();
+
+create table if not exists public.resgates (
+  id           uuid primary key default gen_random_uuid(),
+  codigo       text not null unique check (codigo ~ '^BR-[A-Z0-9]{6}$'),
+  aparelho     text not null check (aparelho ~ '^[a-z0-9]{12,40}$'),
+  brinde_id    uuid references public.brindes on delete set null,
+  empresa_id   uuid references public.empresas on delete set null,
+  brinde_nome  text not null,
+  pontos       int  not null check (pontos > 0),
+  criado_em    timestamptz not null default now(),
+  entregue_em  timestamptz,
+  cancelado_em timestamptz
+);
+create index if not exists resgates_aparelho on public.resgates (aparelho, criado_em desc);
+alter table public.resgates enable row level security;
+revoke all on public.resgates from public, anon, authenticated;
+grant select on public.resgates to authenticated;
+drop policy if exists "loja e admin veem resgates" on public.resgates;
+create policy "loja e admin veem resgates" on public.resgates for select to authenticated
+  using (public.is_admin() or exists (select 1 from public.empresas e where e.id = empresa_id and e.dono = auth.uid()));
+
+-- Uso interno: pontos de uma compra confirmada (chamada por confirmar_cupom)
+create or replace function public.dar_pontos_compra(p_aparelho text, p_empresa uuid, p_ref text, p_valor numeric) returns int
+language plpgsql security definer set search_path = public as $$
+declare total int; mult numeric := 1; ganho int;
+begin
+  if p_aparelho is null or p_aparelho !~ '^[a-z0-9]{12,40}$' or p_valor is null or p_valor <= 0 then return 0; end if;
+  select coalesce(sum(pontos), 0) into total from public.pontos where aparelho = p_aparelho and tipo in ('compra','bonus');
+  mult := case when total >= 1500 then 2 when total >= 500 then 1.5 else 1 end;              -- níveis Ouro e Prata
+  if exists (select 1 from public.pedidos_vip v where v.aparelho = p_aparelho and v.pago_em is not null and v.vip_ate >= current_date) then
+    mult := mult * 2;                                                                        -- Vitrine VIP: em dobro
+  end if;
+  ganho := floor(p_valor * mult)::int;
+  if ganho <= 0 then return 0; end if;
+  insert into public.pontos (aparelho, empresa_id, tipo, pontos, ref) values (p_aparelho, p_empresa, 'compra', ganho, p_ref)
+  on conflict do nothing;                                                                    -- 1 vez por cupom
+  return ganho;
+end $$;
+
+-- App do cliente: saldo, extrato e brindes trocados deste celular
+create or replace function public.meus_pontos(p_aparelho text) returns json
+language sql stable security definer set search_path = public as $$
+  select case when p_aparelho is null or p_aparelho !~ '^[a-z0-9]{12,40}$' then null else json_build_object(
+    'saldo', (select coalesce(sum(pontos), 0) from public.pontos where aparelho = p_aparelho),
+    'total', (select coalesce(sum(pontos), 0) from public.pontos where aparelho = p_aparelho and tipo in ('compra','bonus')),
+    'hist', coalesce((select json_agg(h) from (
+        select p.tipo, p.pontos, p.criado_em, coalesce(e.nome, '') as loja, p.ref
+          from public.pontos p left join public.empresas e on e.id = p.empresa_id
+         where p.aparelho = p_aparelho order by p.criado_em desc limit 30) h), '[]'::json),
+    'resgates', coalesce((select json_agg(r) from (
+        select x.codigo, x.brinde_nome, x.pontos, x.criado_em, x.entregue_em, x.cancelado_em, coalesce(e.nome, '') as loja
+          from public.resgates x left join public.empresas e on e.id = x.empresa_id
+         where x.aparelho = p_aparelho order by x.criado_em desc limit 20) r), '[]'::json)
+  ) end
+$$;
+
+-- App do cliente: brindes das lojas aprovadas
+create or replace function public.listar_brindes() returns table (id uuid, nome text, descricao text, pontos int, loja text, disponivel boolean)
+language sql stable security definer set search_path = public as $$
+  select b.id, b.nome, b.descricao, b.pontos, e.nome, (b.estoque is null or b.estoque > 0)
+    from public.brindes b join public.empresas e on e.id = b.empresa_id
+   where b.ativo and e.aprovada
+   order by b.pontos limit 200
+$$;
+
+-- App do cliente: trocar pontos por um brinde (gera o código BR-XXXXXX)
+create or replace function public.resgatar_brinde(p_aparelho text, p_brinde uuid) returns json
+language plpgsql security definer set search_path = public as $$
+declare b public.brindes; loja text; ok_loja boolean; saldo int; cod text;
+begin
+  if p_aparelho is null or p_aparelho !~ '^[a-z0-9]{12,40}$' then return json_build_object('ok', false, 'motivo', 'Aparelho inválido.'); end if;
+  perform pg_advisory_xact_lock(hashtext('pontos:' || p_aparelho));                         -- uma troca por vez: não gasta o mesmo ponto 2 vezes
+  select * into b from public.brindes where id = p_brinde for update;
+  if not found or not b.ativo then return json_build_object('ok', false, 'motivo', 'Este brinde não está mais disponível.'); end if;
+  select e.nome, e.aprovada into loja, ok_loja from public.empresas e where e.id = b.empresa_id;
+  if not coalesce(ok_loja, false) then return json_build_object('ok', false, 'motivo', 'Este brinde não está mais disponível.'); end if;
+  if b.estoque is not null and b.estoque <= 0 then return json_build_object('ok', false, 'motivo', 'Este brinde esgotou.'); end if;
+  if (select count(*) from public.resgates where aparelho = p_aparelho and criado_em > now() - interval '1 day') >= 10 then
+    return json_build_object('ok', false, 'motivo', 'Limite de 10 trocas por dia.');
+  end if;
+  select coalesce(sum(pontos), 0) into saldo from public.pontos where aparelho = p_aparelho;
+  if saldo < b.pontos then return json_build_object('ok', false, 'motivo', 'Pontos insuficientes.'); end if;
+  loop
+    cod := 'BR-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 6));
+    exit when not exists (select 1 from public.resgates where codigo = cod);
+  end loop;
+  insert into public.resgates (codigo, aparelho, brinde_id, empresa_id, brinde_nome, pontos) values (cod, p_aparelho, b.id, b.empresa_id, b.nome, b.pontos);
+  insert into public.pontos (aparelho, empresa_id, tipo, pontos, ref) values (p_aparelho, b.empresa_id, 'resgate', -b.pontos, cod);
+  if b.estoque is not null then update public.brindes set estoque = estoque - 1 where id = b.id; end if;
+  return json_build_object('ok', true, 'codigo', cod, 'brinde', b.nome, 'loja', loja, 'pontos', b.pontos);
+end $$;
+
+-- Área da Empresa: conferir o código do brinde (só brindes da PRÓPRIA loja)
+create or replace function public.consultar_resgate(p_codigo text) returns json
+language plpgsql security definer set search_path = public as $$
+declare emp uuid; r public.resgates;
+begin
+  select id into emp from public.empresas where dono = auth.uid();
+  if emp is null then raise exception 'Cadastre sua loja primeiro.'; end if;
+  if (select count(*) from public.tentativas where empresa_id = emp and criado_em > now() - interval '10 minutes') >= 60 then
+    raise exception 'Muitas tentativas. Aguarde alguns minutos.';
+  end if;
+  insert into public.tentativas (empresa_id) values (emp);
+  select * into r from public.resgates where codigo = upper(trim(p_codigo)) and empresa_id = emp;
+  if not found then return json_build_object('ok', false); end if;
+  return json_build_object('ok', true, 'brinde', r.brinde_nome, 'pontos', r.pontos, 'criado_em', r.criado_em, 'entregue_em', r.entregue_em, 'cancelado_em', r.cancelado_em);
+end $$;
+
+-- Área da Empresa: entregar o brinde (ou cancelar e devolver os pontos ao cliente)
+create or replace function public.confirmar_resgate(p_codigo text, p_acao text) returns json
+language plpgsql security definer set search_path = public as $$
+declare emp uuid; r public.resgates;
+begin
+  select id into emp from public.empresas where dono = auth.uid() and aprovada;
+  if emp is null then raise exception 'Só lojas aprovadas podem entregar brindes.'; end if;
+  if p_acao not in ('entregar','cancelar') then raise exception 'Ação inválida.'; end if;
+  select * into r from public.resgates where codigo = upper(trim(p_codigo)) and empresa_id = emp for update;
+  if not found then return json_build_object('ok', false, 'motivo', 'Código não encontrado para a sua loja.'); end if;
+  if r.entregue_em is not null then return json_build_object('ok', false, 'motivo', 'Este brinde já foi entregue.'); end if;
+  if r.cancelado_em is not null then return json_build_object('ok', false, 'motivo', 'Esta troca foi cancelada.'); end if;
+  if p_acao = 'entregar' then
+    update public.resgates set entregue_em = now() where id = r.id;
+  else
+    update public.resgates set cancelado_em = now() where id = r.id;
+    insert into public.pontos (aparelho, empresa_id, tipo, pontos, ref) values (r.aparelho, emp, 'estorno', r.pontos, r.codigo);
+    update public.brindes set estoque = estoque + 1 where id = r.brinde_id and estoque is not null;
+  end if;
+  return json_build_object('ok', true);
+end $$;
+
+revoke execute on function public.dar_pontos_compra(text, uuid, text, numeric), public.meus_pontos(text), public.listar_brindes(),
+  public.resgatar_brinde(text, uuid), public.consultar_resgate(text), public.confirmar_resgate(text, text), public.limite_brindes() from public, anon, authenticated;
+grant execute on function public.meus_pontos(text), public.listar_brindes(), public.resgatar_brinde(text, uuid) to anon, authenticated;
+grant execute on function public.consultar_resgate(text), public.confirmar_resgate(text, text) to authenticated;
 
 -- =====================================================================
 -- DEPOIS de criar sua conta na Área da Empresa (empresa.html),

@@ -16,5 +16,10 @@ window.CONFIG = {
   // 3) PIX PARA RECEBER O VITRINE VIP (e citado nas cobranças de mensalidade)
   PIX: "",                 // sua chave Pix: e-mail, CPF/CNPJ (só números), celular "+5542999999999" ou chave aleatória
   PIX_NOME: "",            // nome de quem recebe, igual aparece no banco (ex: "VITRINE CASTRO"), até 25 letras
-  PIX_CIDADE: "CASTRO"     // cidade de quem recebe
+  PIX_CIDADE: "CASTRO",    // cidade de quem recebe
+
+  // 4) RESPONSÁVEL PELO APP (aparece em "Privacidade e termos", exigido pela LGPD)
+  RESPONSAVEL: "",         // nome completo de quem responde pelo Vitrine
+  DOCUMENTO: "",           // CPF ou CNPJ, ex: "CPF 000.000.000-00"
+  EMAIL: ""                // e-mail para dúvidas sobre dados
 };

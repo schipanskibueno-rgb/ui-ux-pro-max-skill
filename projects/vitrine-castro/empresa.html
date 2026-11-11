@@ -230,9 +230,9 @@ header{border-radius:0}
 <div class="toast" id="toast" role="status"></div>
 
 <script>
-const CATS=[["vest","👕 Vestuário"],["alim","🍔 Alimentação"],["est","💆‍♀️ Estética"],["sau","🩺 Saúde"],["barb","💈 Barbearia"],["pet","🐶 Pet"],["acad","🏋️ Academia"],["auto","🚗 Automotivo"]];
-const RAMOS=["Vestuário","Alimentação","Estética","Saúde","Barbearia","Pet","Academia","Automotivo","Outro"];
-const RAMO_CAT={"Vestuário":"vest","Alimentação":"alim","Estética":"est","Saúde":"sau","Barbearia":"barb","Pet":"pet","Academia":"acad","Automotivo":"auto"};
+const CATS=[["vest","👕 Vestuário"],["alim","🍔 Alimentação"],["est","💆‍♀️ Estética"],["sau","🩺 Saúde"],["barb","💈 Barbearia"],["pet","🐶 Pet"],["acad","🏋️ Academia"],["auto","🚗 Automotivo"],["merc","🛒 Mercado"],["const","🧱 Material de construção"]];
+const RAMOS=["Vestuário","Alimentação","Estética","Saúde","Barbearia","Pet","Academia","Automotivo","Mercado","Material de construção","Outro"];
+const RAMO_CAT={"Vestuário":"vest","Alimentação":"alim","Estética":"est","Saúde":"sau","Barbearia":"barb","Pet":"pet","Academia":"acad","Automotivo":"auto","Mercado":"merc","Material de construção":"const"};
 const PLANOS={basico:{nome:"Básico",lim:1},destaque:{nome:"Destaque",lim:3},premium:{nome:"Premium",lim:"ilimitadas"}};
 // Botões prontos para o "Qual é a oferta?" e o "Até quando?"
 const OFERTAS_PRONTAS=["10% OFF","20% OFF","30% OFF","50% OFF","Leve 2, pague 1","Brinde na compra","Frete grátis"];
@@ -255,6 +255,7 @@ function traduzErro(e){const m=(e&&e.message)||String(e);
   if(/at least 6/i.test(m))return"A senha precisa ter pelo menos 6 caracteres.";
   if(/quota|exceeded/i.test(m))return"O espaço do modo demonstração acabou. Apague uma oferta para postar outra.";
   if(/Failed to fetch|NetworkError/i.test(m))return"Sem internet. Tente de novo.";
+  if(/até 20 brindes/i.test(m))return"Cada loja pode ter até 20 brindes.";
   return m}
 
 /* ===== MODO: banco real (Supabase) ou DEMONSTRAÇÃO (fica só neste celular) ===== */
@@ -380,10 +381,10 @@ function telaPainel(){
     <div class="nums"><span><b>${ofertas.length}</b>posts</span><span><b>${ativas}</b>no ar</span>${DEMO?"":`<span><b>${pl.lim}</b>limite</span>`}</div></div></div>
    <button class="btn claro" onclick="editarEmpresa()">✏️ Editar perfil da loja</button></div>
   <button class="postar" onclick="novoPost()"><span class="mais" aria-hidden="true">+</span><span><b>Postar oferta</b><small>Escolha a foto, escreva e publique. Leva 30 segundos.</small></span></button>
-  <div class="abas-p" role="tablist">${[["resultados","📊 Resultados"],["posts","📸 Meus posts"],["confirmar","✅ Confirmar compra"],["plano","💼 Meu plano"]].map(([k,n])=>`<button role="tab" aria-selected="${ABA===k}" onclick="ABA='${k}';telaPainel()">${n}</button>`).join("")}</div>
+  <div class="abas-p" role="tablist">${[["resultados","📊 Resultados"],["posts","📸 Meus posts"],["confirmar","✅ Confirmar compra"],["brindes","🎁 Brindes"],["plano","💼 Meu plano"]].map(([k,n])=>`<button role="tab" aria-selected="${ABA===k}" onclick="ABA='${k}';telaPainel()">${n}</button>`).join("")}</div>
   <div id="abaBox"></div>
   <div id="admBox"></div>`;
-  (({resultados:abaResultados,posts:abaPosts,confirmar:abaConfirmar,plano:abaPlano})[ABA]||abaResultados)();
+  (({resultados:abaResultados,posts:abaPosts,confirmar:abaConfirmar,brindes:abaBrindes,plano:abaPlano})[ABA]||abaResultados)();
 }
 function abaPosts(){
   $("#abaBox").innerHTML=ofertas.length?`<div class="grade">${ofertas.map(o=>{const st=venceu(o)?"Vencida":!o.ativa?"Pausada":"";return `<button onclick="verPost('${esc(o.id)}')" aria-label="${esc(o.titulo)}${st?", "+st:""}">${seguro(o.foto_url)?`<img src="${esc(o.foto_url)}" alt="" loading="lazy">`:"🏷️"}${st?`<span class="st">${st}</span>`:""}<span class="t">${esc(o.titulo)}</span></button>`}).join("")}</div>`
@@ -685,11 +686,11 @@ function marcarPeriodo(){}
 /* ===================================================================
    CONFIRMAR COMPRA: código do cupom (ou foto do QR Code) + valor
    =================================================================== */
-const extrairCodigo=t=>{const m=String(t||"").toUpperCase().match(/VC-[A-Z0-9]{5,8}/);return m?m[0]:""};
+const extrairCodigo=t=>{const m=String(t||"").toUpperCase().match(/(VC|BR)-[A-Z0-9]{5,8}/);return m?m[0]:""};
 function abaConfirmar(){
-  $("#abaBox").innerHTML=empresa.aprovada||DEMO?`<div class="card"><h2>✅ Confirmar compra</h2><p class="sub">Quando o cliente comprar com cupom (na loja ou por entrega), confirme aqui. A venda entra nos seus resultados.</p>
-   <form onsubmit="event.preventDefault();consultarCupom()"><label for="cCod">Código do cupom</label>
-    <div class="linha"><input class="inp" id="cCod" maxlength="12" autocapitalize="characters" autocomplete="off" placeholder="VC-ABC12" style="flex:2;text-transform:uppercase"><button class="btn" style="margin:0;flex:1">Buscar</button></div></form>
+  $("#abaBox").innerHTML=empresa.aprovada||DEMO?`<div class="card"><h2>✅ Confirmar compra</h2><p class="sub">Quando o cliente comprar com cupom (na loja ou por entrega), confirme aqui: a venda entra nos seus resultados e <b>o cliente ganha os pontos</b>. Aqui também você entrega os <b>brindes</b> (código BR-).</p>
+   <form onsubmit="event.preventDefault();consultarCupom()"><label for="cCod">Código do cupom ou do brinde</label>
+    <div class="linha"><input class="inp" id="cCod" maxlength="12" autocapitalize="characters" autocomplete="off" placeholder="VC-ABC12 ou BR-ABC123" style="flex:2;text-transform:uppercase"><button class="btn" style="margin:0;flex:1">Buscar</button></div></form>
    <input type="file" accept="image/*" capture="environment" id="cFoto" class="arquivo" tabindex="-1" onchange="fotoQR(this)">
    <label for="cFoto" class="foto-btn" role="button" tabindex="0">📷 Ou tire foto do QR Code do cliente</label>
    <div id="cRes" aria-live="polite"></div></div>`:`<div class="aviso">⏳ Você poderá confirmar compras assim que a loja for aprovada.</div>`}
@@ -705,7 +706,8 @@ function demoCupom(cod){const cs=store.get("gira_cupons",[]),c=cs.find(x=>String
   const oid=String(c.id).replace(/^d/,""),o=ofertas.find(x=>String(x.id)===oid);if(!o||!/^d/.test(String(c.id)))return null;
   const u=store.get("vc_demo_usados",{})[cod];return {titulo:o.titulo,oferta:oid,usado_em:u?u.em:null,valor:u?u.valor:null}}
 async function consultarCupom(){const cod=extrairCodigo($("#cCod").value),box=$("#cRes");
-  if(!cod){box.innerHTML=`<div class="erro" style="display:block">Digite o código do cupom. Ele começa com VC- (ex.: VC-ABC12).</div>`;return}
+  if(!cod){box.innerHTML=`<div class="erro" style="display:block">Digite o código. Cupom começa com VC- (ex.: VC-ABC12) e brinde com BR- (ex.: BR-ABC123).</div>`;return}
+  if(cod.startsWith("BR-")){consultarResgate(cod);return}
   box.innerHTML=`<p class="sub" style="margin-top:10px">Conferindo…</p>`;
   let r;
   if(DEMO)r=demoCupom(cod);
@@ -720,10 +722,69 @@ async function confirmarCupom(cod){const v=parseFloat(String($("#cValor").value)
   try{
     if(DEMO){const r=demoCupom(cod);if(!r||r.usado_em)throw new Error("Cupom inválido ou já usado.");const us=store.get("vc_demo_usados",{});us[cod]={em:new Date().toISOString(),valor:v};store.set("vc_demo_usados",us);
       const l=store.get("vc_demo_eventos",[]);l.push({oferta:r.oferta,tipo:"compra",dia:hojeISO(),valor:v,em:Date.now()});store.set("vc_demo_eventos",l)}
-    else{const {data,error}=await db.rpc("confirmar_cupom",{p_codigo:cod,p_valor:Math.round(v*100)/100});if(error)throw error;if(!data||!data.ok)throw new Error((data&&data.motivo)||"Não foi possível confirmar.")}
-    $("#cRes").innerHTML=`<div class="res-ok">✅ Compra de ${fmtR(v)} confirmada!<br><span style="font-weight:500">Ela já aparece em Resultados.</span></div>`;$("#cCod").value="";
+    let ganhos=Math.floor(v);
+    if(!DEMO){const {data,error}=await db.rpc("confirmar_cupom",{p_codigo:cod,p_valor:Math.round(v*100)/100});if(error)throw error;if(!data||!data.ok)throw new Error((data&&data.motivo)||"Não foi possível confirmar.");ganhos=Number(data.pontos)||0}
+    $("#cRes").innerHTML=`<div class="res-ok">✅ Compra de ${fmtR(v)} confirmada!<br><span style="font-weight:500">Ela já aparece em Resultados.${ganhos?` O cliente ganhou <b>${ganhos} pontos</b>.`:""}</span></div>`;$("#cCod").value="";
   }catch(err){toast(traduzErro(err));b.disabled=false}}
 
+
+/* ===================================================================
+   BRINDES: a loja escolhe o que dá em troca dos pontos do Vitrine
+   =================================================================== */
+async function carregarBrindes(){
+  if(DEMO)return store.get("vc_demo_brindes",[]);
+  const {data,error}=await db.from("brindes").select("*").eq("empresa_id",empresa.id).order("pontos");
+  if(error)throw new Error(/does not exist|schema cache|relation/i.test(error.message)?"Para usar os brindes, o Vitrine precisa atualizar o banco (supabase.sql).":traduzErro(error));
+  return data||[]}
+async function abaBrindes(){const box=$("#abaBox");box.innerHTML=`<div class="vazio"><span class="e">⏳</span>Carregando brindes…</div>`;
+  let l;try{l=await carregarBrindes()}catch(err){box.innerHTML=`<div class="aviso">${esc(err.message)}</div>`;return}
+  box.innerHTML=`${empresa.aprovada||DEMO?"":`<div class="aviso">⏳ Seus brindes aparecem no app assim que a loja for aprovada.</div>`}
+   <div class="card"><h2>🎁 Meus brindes</h2><p class="sub">Os clientes juntam pontos comprando nas lojas do Vitrine: <b>1 ponto por R$ 1</b>, só em compras confirmadas pelas lojas. Escolha o que a sua loja dá em troca. Quando alguém trocar, mostra um código <b>BR-</b> e você entrega na aba ✅ Confirmar compra.</p>
+    <form onsubmit="event.preventDefault();salvarBrinde()">
+     <label for="bNome">Brinde</label><input class="inp" id="bNome" maxlength="60" required placeholder="Ex: Pizza broto, Corte de cabelo, Café">
+     <div class="linha"><div><label for="bPts">Custa quantos pontos?</label><input class="inp" id="bPts" type="number" inputmode="numeric" min="10" max="100000" step="1" required placeholder="Ex: 300"></div>
+      <div><label for="bEst">Quantidade (opcional)</label><input class="inp" id="bEst" type="number" inputmode="numeric" min="1" max="100000" step="1" placeholder="Sem limite"></div></div>
+     <p class="ajuda">Dica: 300 pontos = cliente que gastou uns R$ 300 nas lojas do Vitrine. Escolha um brinde que valha a visita.</p>
+     <div class="erro" id="bErro"></div><button class="btn ouro" id="bBtn">➕ Cadastrar brinde</button></form></div>
+   ${l.length?l.map(b=>`<div class="card" style="padding:14px;display:flex;gap:10px;align-items:center"><div style="flex:1;min-width:0"><b>${esc(b.nome)}</b><p class="ajuda" style="margin:2px 0 0">${Number(b.pontos)} pontos · ${b.estoque==null?"sem limite":b.estoque+" restante"+(b.estoque==1?"":"s")} · ${b.ativo?"✅ aparece no app":"⏸ pausado"}</p></div>
+      <button class="mini" onclick="brindeAtivo('${esc(b.id)}',${!b.ativo})">${b.ativo?"Pausar":"Ativar"}</button><button class="mini vm" onclick="apagarBrinde('${esc(b.id)}')" aria-label="Apagar ${esc(b.nome)}">🗑</button></div>`).join("")
+    :`<div class="vazio"><span class="e">🎁</span>Nenhum brinde ainda. Cadastre o primeiro acima.</div>`}`}
+async function salvarBrinde(){const nome=$("#bNome").value.trim(),pts=Number($("#bPts").value),estS=$("#bEst").value.trim(),est=estS?Number(estS):null,er=$("#bErro"),b=$("#bBtn");
+  const erro=m=>{er.textContent=m;er.style.display="block"};er.style.display="none";
+  if(nome.length<2)return erro("Escreva o nome do brinde.");
+  if(!Number.isInteger(pts)||pts<10||pts>100000)return erro("Os pontos precisam ser um número inteiro entre 10 e 100.000.");
+  if(est!==null&&(!Number.isInteger(est)||est<1||est>100000))return erro("A quantidade precisa ser um número inteiro (ou deixe vazio).");
+  b.disabled=true;
+  try{if(DEMO){const l=store.get("vc_demo_brindes",[]);if(l.length>=20)throw new Error("Cada loja pode ter até 20 brindes.");l.push({id:"db"+Date.now().toString(36),nome,pontos:pts,estoque:est,ativo:true,loja:empresa.nome});store.set("vc_demo_brindes",l)}
+    else{const {error}=await db.from("brindes").insert({empresa_id:empresa.id,nome,pontos:pts,estoque:est});if(error)throw error}
+    toast("🎁 Brinde cadastrado!");abaBrindes()}catch(err){erro(traduzErro(err));b.disabled=false}}
+async function brindeAtivo(id,ativo){
+  if(DEMO){const l=store.get("vc_demo_brindes",[]),x=l.find(b=>b.id===id);if(x)x.ativo=ativo;store.set("vc_demo_brindes",l)}
+  else{const {error}=await db.from("brindes").update({ativo}).eq("id",id);if(error){toast(traduzErro(error));return}}
+  toast(ativo?"Brinde ativado":"Brinde pausado");abaBrindes()}
+async function apagarBrinde(id){if(!confirm("Apagar este brinde? Trocas já feitas continuam valendo."))return;
+  if(DEMO)store.set("vc_demo_brindes",store.get("vc_demo_brindes",[]).filter(b=>b.id!==id));
+  else{const {error}=await db.from("brindes").delete().eq("id",id);if(error){toast(traduzErro(error));return}}
+  toast("Brinde apagado");abaBrindes()}
+/* entregar o brinde: o cliente mostra o código BR- (ou o QR Code) */
+async function consultarResgate(cod){const box=$("#cRes");let r=null;
+  if(DEMO){const x=store.get("vc_demo_resgates",[]).find(y=>y.codigo===cod&&y.empresa==="demo");if(x)r={brinde:x.brinde_nome,pontos:x.pontos,criado_em:x.criado_em,entregue_em:x.entregue_em,cancelado_em:x.cancelado_em}}
+  else{const {data,error}=await db.rpc("consultar_resgate",{p_codigo:cod});if(error){box.innerHTML=`<div class="erro" style="display:block">${esc(traduzErro(error))}</div>`;return}if(data&&data.ok)r=data}
+  if(!r){box.innerHTML=`<div class="erro" style="display:block">Esse código de brinde não é da sua loja. Confira com o cliente.</div>`;return}
+  if(r.entregue_em){box.innerHTML=`<div class="erro" style="display:block">Esse brinde já foi entregue em ${new Date(r.entregue_em).toLocaleDateString("pt-BR")}.</div>`;return}
+  if(r.cancelado_em){box.innerHTML=`<div class="erro" style="display:block">Essa troca foi cancelada e os pontos voltaram para o cliente.</div>`;return}
+  box.innerHTML=`<div class="card" style="border:2px solid #D4A537;margin-top:12px;box-shadow:none"><p class="sub">Brinde <b>${esc(cod)}</b> ✓ válido</p><h3>🎁 ${esc(r.brinde)}</h3><p class="ajuda">${Number(r.pontos)} pontos · trocado em ${new Date(r.criado_em).toLocaleDateString("pt-BR")}</p>
+   <button class="btn ouro" id="rBtn" onclick="entregarResgate('${esc(cod)}','entregar')">✅ Entregar brinde</button>
+   <button class="btn claro" onclick="entregarResgate('${esc(cod)}','cancelar')">Cancelar e devolver os pontos</button></div>`}
+async function entregarResgate(cod,acao){if(acao==="cancelar"&&!confirm("Cancelar esta troca e devolver os pontos ao cliente?"))return;
+  const b=$("#rBtn");if(b)b.disabled=true;
+  try{if(DEMO){const l=store.get("vc_demo_resgates",[]),x=l.find(y=>y.codigo===cod&&y.empresa==="demo");if(!x||x.entregue_em||x.cancelado_em)throw new Error("Código inválido ou já usado.");
+      x[acao==="entregar"?"entregue_em":"cancelado_em"]=new Date().toISOString();store.set("vc_demo_resgates",l);
+      if(acao==="cancelar"){const p=store.get("gira_pontos",{saldo:0,total:0,hist:[],brindes:[]});p.saldo+=x.pontos;p.hist.unshift({d:"Pontos devolvidos",v:x.pontos,em:Date.now()});store.set("gira_pontos",p);
+        const bl=store.get("vc_demo_brindes",[]),bb=bl.find(z=>z.id===x.brinde_id);if(bb&&bb.estoque!=null){bb.estoque++;store.set("vc_demo_brindes",bl)}}}
+    else{const {data,error}=await db.rpc("confirmar_resgate",{p_codigo:cod,p_acao:acao});if(error)throw error;if(!data||!data.ok)throw new Error((data&&data.motivo)||"Não foi possível concluir.")}
+    $("#cRes").innerHTML=`<div class="res-ok">${acao==="entregar"?"🎁 Brinde entregue!":"Troca cancelada. Os pontos voltaram para o cliente."}</div>`;$("#cCod").value=""}
+  catch(err){toast(traduzErro(err));if(b)b.disabled=false}}
 /* ===================================================================
    MEU PLANO
    =================================================================== */
