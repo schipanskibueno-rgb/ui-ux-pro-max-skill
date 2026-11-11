@@ -59,7 +59,9 @@ textarea.inp{min-height:90px;resize:vertical}
 .previa{margin-top:8px;border-radius:14px;overflow:hidden;background:#efe8d4;aspect-ratio:16/10;display:grid;place-items:center;color:var(--cinza);font-size:.9rem;text-align:center}
 .previa img{width:100%;height:100%;object-fit:cover}
 .foto-btn{display:flex;align-items:center;justify-content:center;gap:8px;border:2px dashed #c9b98a;border-radius:14px;min-height:56px;font-weight:700;color:var(--txt);cursor:pointer;background:#fffaf0;margin-top:8px}
-.foto-btn input,.arquivo{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
+.arquivo{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
+.foto-btn{position:relative;overflow:hidden}
+.foto-btn input[type=file]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0;z-index:1}
 .vazio{text-align:center;color:var(--cinza);padding:24px 8px}
 .vazio .e{font-size:2.6rem;display:block}
 .aviso{background:#fff6dc;border:1.5px solid #e6cf8d;border-radius:14px;padding:12px;font-size:.92rem;margin-bottom:14px}
