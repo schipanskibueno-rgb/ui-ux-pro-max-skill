@@ -142,7 +142,8 @@ main{padding:12px 12px 0}
 .instalar .x{border:0;background:rgba(255,255,255,.1);color:#fff;border-radius:50%;width:40px;height:40px;display:grid;place-items:center;flex-shrink:0}
 
 /* carrossel patrocinado */
-.carrossel{position:relative;border-radius:var(--raio-g);overflow:hidden;aspect-ratio:16/9;background:var(--preto);margin-top:14px;box-shadow:var(--sombra)}
+.carrossel{position:relative;border-radius:var(--raio-g);overflow:hidden;aspect-ratio:16/9;background:var(--preto);margin-top:0;box-shadow:var(--sombra)}
+#homeTudo>.faixa-vip{margin-top:10px}
 .slides{display:flex;height:100%;transition:transform .5s ease}
 @media (prefers-reduced-motion:reduce){.slides{transition:none}}
 .slide{min-width:100%;height:100%;position:relative;border:0;padding:0;background:var(--preto);display:block;text-align:left;color:#fff;overflow:hidden}
@@ -507,12 +508,12 @@ body.travado{overflow:hidden}
 <!-- INÍCIO -->
 <section class="view on" id="v-inicio" aria-label="Início">
  <div id="homeTudo">
+  <div class="carrossel" aria-label="Lojas patrocinadas"><div class="slides" id="slides"></div></div>
+  <div class="ctrl" id="dots"></div>
   <button class="faixa-vip" id="faixaVip" onclick="abrir('vip')"></button>
   <div class="atalhos" id="atalhos" aria-label="Atalhos"></div>
   <button class="pts-mini" id="ptsHome" onclick="ir('pontos')" aria-label="Meus pontos"></button>
   <div class="instalar" id="instalarBox" style="display:none"><img class="ico" src="icons/icon-192.png" alt="" width="48" height="48"><span class="t"><b>Baixe o app Vitrine</b><small>Grátis, na tela do celular</small></span><button class="btn-ouro" onclick="instalarApp()">Baixar</button><button class="x" onclick="esconderInstalar()" aria-label="Agora não" data-ic="close"></button></div>
-  <div class="carrossel" aria-label="Lojas patrocinadas"><div class="slides" id="slides"></div></div>
-  <div class="ctrl" id="dots"></div>
   <div id="relampagoBox"></div>
   <div class="secao"><h2><span data-ic="fire"></span>Ofertas em destaque</h2><button class="link" onclick="filtrarCat(null)">Ver todas<span data-ic="chev"></span></button></div>
   <div class="ofertas" id="destaques"></div>
