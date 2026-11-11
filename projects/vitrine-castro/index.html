@@ -13,396 +13,611 @@
 <link rel="icon" type="image/png" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <title>Vitrine Castro – Clube de Desconto</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@500;700;800&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700;1,800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="img/logo-simbolo.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--azul:#0E1428;--azul2:#1F2B57;--azul3:#F6EDD3;--ouro:#D4A537;--verm:#d9141a;--verde:#13a049;--txt:#0b1a45;--cinza:#4a5578}
-html{font-size:16px}html.grande{font-size:19px}
+/* =====================================================================
+   VITRINE CASTRO – IDENTIDADE VISUAL
+   Marca: preto + dourado (do logo). Conteúdo: fundo claro, cartões brancos.
+   Ação principal: dourado com texto preto. Desconto/sucesso: verde.
+   Urgência: vermelho/laranja. Links: azul Vitrine. Fonte única: Inter.
+   ===================================================================== */
+:root{
+  --preto:#000000;--preto-2:#141418;--preto-3:#23232B;
+  --ouro:#D4A537;--ouro-2:#F2CC63;--ouro-claro:#FFF4D6;--ouro-txt:#8A6510;
+  --azul:#2350C8;--verde:#00A650;--verde-claro:#E6F7EE;--verm:#E0312B;--laranja:#F26B21;
+  --fundo:#F0F0F2;--card:#FFFFFF;--linha:#E7E7EA;--txt:#1A1A1A;--txt-2:#5F6068;--txt-3:#8A8B92;
+  --raio:12px;--raio-g:16px;--sombra:0 1px 2px rgba(0,0,0,.06),0 1px 6px rgba(0,0,0,.05);
+  --nav-h:64px;
+  /* nomes antigos usados por telas internas */
+  --cinza:var(--txt-2);--azul2:var(--azul);--azul3:var(--ouro-claro)
+}
+html{font-size:16px;-webkit-text-size-adjust:100%}html.grande{font-size:19px}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{background:#e9e3d3;font-family:Poppins,system-ui,sans-serif;color:var(--txt);line-height:1.4}
-button{font-family:inherit;cursor:pointer}
+html,body{background:#DCDCE0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--txt);line-height:1.4}
+button,input,select{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer}
+img{max-width:100%}
 :focus-visible{outline:3px solid var(--ouro);outline-offset:2px}
-.app{max-width:480px;margin:0 auto;min-height:100vh;background:#FAF6EC;position:relative;padding-bottom:calc(6rem + env(safe-area-inset-bottom));box-shadow:0 0 40px rgba(0,0,0,.15)}
+.ic{display:block;flex-shrink:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.app{max-width:480px;margin:0 auto;min-height:100vh;min-height:100dvh;background:var(--fundo);position:relative;padding-bottom:calc(var(--nav-h) + 16px + env(safe-area-inset-bottom));box-shadow:0 0 40px rgba(0,0,0,.12)}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-/* HEADER */
-header{background:#000;padding:calc(12px + env(safe-area-inset-top)) 16px 18px;border-radius:0 0 24px 24px;position:relative;overflow:hidden}
-.top{display:flex;align-items:center;gap:8px}
-.marca .simbolo{height:64px;width:auto;flex-shrink:0;display:block}.marca .palavra{width:142px;max-width:100%;height:auto;display:block}
-.icobtn.coroa{min-width:40px;font-size:1.15rem;text-decoration:none}.icobtn.on{background:#D4A537;color:#0E1428}.icobtn{background:rgba(255,255,255,.08);border:0;color:#fff;min-width:48px;height:48px;border-radius:14px;display:grid;place-items:center;position:relative}
-.badge{position:absolute;top:2px;right:2px;background:var(--verm);color:#fff;font-size:12px;font-weight:700;border-radius:50%;width:20px;height:20px;display:grid;place-items:center;border:2px solid #fff}
-.marca{flex:1;display:flex;align-items:center;gap:10px;min-width:0}.marca svg{flex-shrink:0}.marca .wm{display:flex;flex-direction:column;line-height:1}.marca .v{font-family:Montserrat,sans-serif;font-weight:800;font-size:1.6rem;letter-spacing:-.5px;color:#fff}.marca .c{font-family:Montserrat,sans-serif;font-weight:700;font-size:.66rem;letter-spacing:4.5px;color:#D4A537;margin-top:3px}.marca .cd{font-family:Montserrat,sans-serif;font-size:.58rem;letter-spacing:2.5px;color:#E8D9A8;margin-top:3px}.logo{flex:1;min-width:0;max-width:260px;display:block;margin:0 auto;-webkit-mask-image:radial-gradient(ellipse 60% 62% at 50% 50%,#000 70%,transparent 100%);mask-image:radial-gradient(ellipse 60% 62% at 50% 50%,#000 70%,transparent 100%)}
-.slogan{text-align:center;color:#F3E3B5;font-style:italic;font-weight:500;font-size:.9rem;margin-top:8px}
-.linha2{display:flex;gap:8px;margin-top:12px}
-.pill{background:rgba(255,255,255,.1);border:1.5px solid rgba(212,165,55,.6);color:#fff;border-radius:30px;padding:0 14px;min-height:44px;display:flex;align-items:center;gap:6px;font-weight:600;font-size:.9rem}
-.pill.aa{margin-left:auto;font-weight:800}
-.pill.aa.on{background:var(--ouro);color:#0E1428;border-color:var(--ouro)}
-.campo{margin-top:16px;background:#fff;border-radius:30px;display:flex;align-items:center;padding:0 16px;gap:10px;min-height:52px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
-.campo input{border:0;outline:0;flex:1;font-family:inherit;font-size:1rem;color:var(--txt);min-width:0;background:none}
-.campo input::placeholder{color:#6a7699}
-.limpar{border:0;background:#eef2fb;border-radius:50%;width:32px;height:32px;font-size:18px;display:none}
+/* ---------- TELA DE CARREGAMENTO ---------- */
+.splash{position:fixed;inset:0;z-index:90;background:var(--preto);display:grid;place-items:center;transition:opacity .45s ease,visibility .45s}
+.splash.sai{opacity:0;visibility:hidden}
+.sp-in{display:flex;flex-direction:column;align-items:center;gap:10px;padding:24px}
+.sp-logo{width:132px;height:auto;animation:pulsa 1.6s ease-in-out infinite}
+.sp-pal{width:210px;height:auto;margin-top:2px}
+.sp-castro{font-weight:700;letter-spacing:.55em;font-size:.8rem;color:var(--ouro);margin-left:.55em}
+.sp-bar{width:180px;height:3px;border-radius:3px;background:rgba(212,165,55,.18);overflow:hidden;margin-top:26px}
+.sp-bar i{display:block;height:100%;width:8%;background:linear-gradient(90deg,var(--ouro),var(--ouro-2));border-radius:3px;transition:width .5s ease}
+.sp-txt{color:#B9B9C2;font-size:.82rem;margin-top:4px;min-height:1.2em}
+@keyframes pulsa{0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 rgba(212,165,55,0))}50%{transform:scale(1.04);filter:drop-shadow(0 0 18px rgba(212,165,55,.35))}}
+@media (prefers-reduced-motion:reduce){.sp-logo{animation:none}.splash{transition:none}}
 
-main{padding:16px 14px 0}
-.view{display:none}.view.on{display:block;animation:fade .25s}
-@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+/* ---------- TOPO ---------- */
+.topo{background:var(--preto);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 16px 0;position:relative}
+.t0{display:flex;align-items:center;gap:8px;min-height:48px}
+.marca{display:flex;align-items:center;gap:8px;min-width:0;flex:1;text-decoration:none;background:none;border:0;padding:0}
+.marca .sim{height:40px;width:auto;flex-shrink:0}
+.marca .pal{height:20px;width:auto;max-width:120px}
+.marca .cid{display:block;font-size:.55rem;letter-spacing:.42em;color:var(--ouro);font-weight:700;margin-top:3px}
+.icobtn{width:44px;height:44px;border-radius:50%;border:0;background:transparent;color:#fff;display:grid;place-items:center;position:relative;flex-shrink:0;text-decoration:none}
+.icobtn:hover{background:rgba(255,255,255,.08)}
+.icobtn.coroa{color:var(--ouro)}
+.badge{position:absolute;top:4px;right:3px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--verm);color:#fff;font-size:.68rem;font-weight:700;display:grid;place-items:center;border:2px solid var(--preto)}
+.avatar{width:38px;height:38px;border-radius:50%;background:#fff;color:var(--preto);border:2px solid var(--ouro);display:grid;place-items:center;font-weight:700;font-size:1rem;flex-shrink:0;padding:0}
+.avatar.g{width:72px;height:72px;font-size:1.8rem;border-width:3px}
+.busca{display:flex;align-items:center;gap:8px;background:#fff;color:var(--txt);border-radius:999px;min-height:46px;padding:0 6px 0 14px;margin-top:10px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.busca .ic{color:var(--txt-3)}
+.busca input{flex:1;min-width:0;border:0;outline:0;background:none;font-size:1rem}
+.busca input::placeholder{color:var(--txt-3)}
+.busca input::-webkit-search-cancel-button{display:none}
+.limpar{border:0;background:var(--fundo);border-radius:50%;width:34px;height:34px;display:none;place-items:center;color:var(--txt-2)}
+.t2{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+.local{display:flex;align-items:center;gap:6px;background:none;border:0;color:#fff;font-size:.88rem;min-height:40px;padding:0;text-align:left}
+.local .ic{color:var(--ouro)}
+.ola-topo{font-size:.82rem;color:#C9C9D1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin:4px -16px 0;padding:0 10px}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex-shrink:0;background:none;border:0;color:#D6D6DC;font-size:.95rem;font-weight:500;padding:10px 10px 12px;position:relative;min-height:44px}
+.tabs button[aria-selected="true"]{color:#fff;font-weight:700}
+.tabs button[aria-selected="true"]::after{content:"";position:absolute;left:10px;right:10px;bottom:0;height:3px;border-radius:3px 3px 0 0;background:var(--ouro)}
+.topo-sub{display:flex;align-items:center;gap:6px;min-height:56px;padding-bottom:8px}
+.topo-sub h1{flex:1;font-size:1.12rem;font-weight:600;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topo[data-modo="sub"] .topo-home{display:none}
+.topo[data-modo="home"] .topo-sub{display:none}
+.topo[data-modo="nada"]{display:none}
 
-/* SAUDAÇÃO / ECONOMIA */
-.ola{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border-radius:18px;padding:12px 14px;box-shadow:0 3px 12px rgba(10,42,138,.08);margin-bottom:14px}
-.ola b{font-size:1.05rem;display:block}.ola small{color:var(--cinza);font-size:.85rem}
-.eco{text-align:right;font-size:.75rem;color:var(--cinza)}.eco strong{display:block;color:var(--verde);font-size:1.15rem}
+/* ---------- ESTRUTURA ---------- */
+main{padding:12px 12px 0}
+.view{display:none}.view.on{display:block;animation:fade .22s ease}
+@media (prefers-reduced-motion:reduce){.view.on{animation:none}}
+.secao{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:20px 4px 10px}
+.secao h2{font-size:1.1rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.secao h2 .ic{color:var(--ouro-txt)}
+.link{background:none;border:0;color:var(--azul);font-weight:600;font-size:.92rem;min-height:40px;padding:0 4px;display:flex;align-items:center;gap:2px;text-decoration:none;white-space:nowrap}
+.card{background:var(--card);border-radius:var(--raio-g);padding:16px;box-shadow:var(--sombra);margin-bottom:12px}
+.card h3{font-size:1.05rem;font-weight:700;margin-bottom:4px}.card p{font-size:.93rem;color:var(--txt-2)}
 
-/* CARROSSEL */
-.carrossel{position:relative;border-radius:20px;overflow:hidden;border:2px solid #D4A537;box-shadow:0 8px 22px rgba(14,20,40,.3);aspect-ratio:16/10;background:#0E1428}
+/* faixa Vitrine VIP (como a faixa de assinatura dos grandes apps) */
+.faixa-vip{width:100%;display:flex;align-items:center;gap:10px;background:linear-gradient(100deg,var(--preto) 0%,var(--preto-3) 100%);color:#fff;border:1.5px solid var(--ouro);border-radius:999px;padding:0 14px;min-height:50px;text-align:left}
+.faixa-vip .ic{color:var(--ouro)}
+.faixa-vip b{color:var(--ouro);font-weight:800;white-space:nowrap}
+.faixa-vip span{flex:1;min-width:0;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* atalhos com ícones */
+.atalhos{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin:14px -12px 0;padding:2px 12px 4px}
+.atalhos::-webkit-scrollbar{display:none}
+.atalho{flex:0 0 78px;display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;padding:4px 0;text-decoration:none;color:var(--txt);position:relative}
+.atalho .bola{width:60px;height:60px;border-radius:50%;background:var(--card);display:grid;place-items:center;box-shadow:var(--sombra);color:var(--preto);position:relative}
+.atalho .bola.ouro{background:var(--preto);color:var(--ouro)}
+.atalho .rot{font-size:.78rem;text-align:center;line-height:1.15}
+.atalho .tg{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);font-size:.58rem;font-weight:800;letter-spacing:.03em;color:#fff;background:var(--azul);border-radius:999px;padding:2px 7px;white-space:nowrap}
+.atalho .tg.verde{background:var(--verde)}.atalho .tg.ouro{background:var(--ouro);color:var(--preto)}
+
+/* cartão de pontos da tela inicial */
+.pts-mini{width:100%;display:block;margin-top:14px;background:var(--card);border:0;border-radius:var(--raio-g);padding:12px 14px;text-align:left;box-shadow:var(--sombra)}
+.pts-mini .r1{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.85rem;color:var(--txt-2)}
+.pts-mini .r1 b{color:var(--txt);font-size:.98rem}
+.pts-mini .r1 .ec{color:var(--verde);font-weight:700;white-space:nowrap}
+.pts-mini .r2{display:flex;align-items:center;gap:8px;margin-top:6px}
+.pts-mini .pn{font-size:1.3rem;font-weight:800}.pts-mini .pn small{font-size:.8rem;font-weight:500;color:var(--txt-2)}
+.pts-mini .vp{margin-left:auto;font-weight:600;color:var(--azul);font-size:.88rem;white-space:nowrap}
+.pts-mini .mt{font-size:.8rem;color:var(--txt-2)}
+.barra{height:8px;border-radius:8px;background:#ECECEF;overflow:hidden;margin:8px 0 4px}
+.barra i{display:block;height:100%;background:linear-gradient(90deg,var(--ouro),var(--ouro-2));border-radius:8px;transition:width .6s}
+.barra.escura{background:rgba(255,255,255,.16)}
+
+/* instalar */
+.instalar{display:flex;align-items:center;gap:12px;background:var(--preto);border:1px solid var(--ouro);border-radius:var(--raio-g);padding:10px 10px 10px 12px;margin-top:12px;color:#fff}
+.instalar .ico{width:48px;height:48px;border-radius:12px;flex-shrink:0}
+.instalar .t{flex:1;min-width:0}.instalar b{display:block;font-size:.95rem}.instalar small{color:#C9C9D1;font-size:.78rem}
+.instalar .x{border:0;background:rgba(255,255,255,.1);color:#fff;border-radius:50%;width:40px;height:40px;display:grid;place-items:center;flex-shrink:0}
+
+/* carrossel patrocinado */
+.carrossel{position:relative;border-radius:var(--raio-g);overflow:hidden;aspect-ratio:16/9;background:var(--preto);margin-top:14px;box-shadow:var(--sombra)}
 .slides{display:flex;height:100%;transition:transform .5s ease}
-.slide{min-width:100%;height:100%;position:relative;border:0;padding:0;background:#0E1428;display:block;text-align:left;color:#fff;overflow:hidden}
+@media (prefers-reduced-motion:reduce){.slides{transition:none}}
+.slide{min-width:100%;height:100%;position:relative;border:0;padding:0;background:var(--preto);display:block;text-align:left;color:#fff;overflow:hidden}
 .slide .foto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.slide .ov{position:absolute;inset:0;background:linear-gradient(90deg,rgba(14,20,40,.95) 0%,rgba(14,20,40,.75) 48%,rgba(14,20,40,.05) 100%)}
-.slide .tx{position:absolute;left:16px;top:14px;bottom:14px;width:64%;display:flex;flex-direction:column;justify-content:space-between}
-.slide .pat{align-self:flex-start;background:rgba(212,165,55,.18);border:1px solid #D4A537;color:#F3E3B5;font-size:.66rem;font-weight:700;letter-spacing:1.5px;border-radius:20px;padding:3px 9px}
+.slide .ov{position:absolute;inset:0;background:linear-gradient(90deg,rgba(11,11,15,.94) 0%,rgba(11,11,15,.7) 50%,rgba(11,11,15,0) 100%)}
+.slide .tx{position:absolute;left:16px;top:14px;bottom:14px;width:62%;display:flex;flex-direction:column;justify-content:space-between}
+.slide .pat{align-self:flex-start;font-size:.62rem;font-weight:700;letter-spacing:.12em;color:var(--ouro-2);border:1px solid rgba(212,165,55,.6);border-radius:999px;padding:3px 8px}
 .slide .lg{display:flex;align-items:center;gap:8px}
-.slide .lg .av{width:40px;height:40px;border-radius:50%;overflow:hidden;border:2px solid #D4A537;background:#1F2B57;display:grid;place-items:center;font-size:1.3rem;flex-shrink:0}
+.slide .lg .av{width:34px;height:34px;border-radius:50%;overflow:hidden;border:2px solid var(--ouro);background:var(--preto-3);display:grid;place-items:center;font-size:1.1rem;flex-shrink:0}
 .slide .lg .av img{width:100%;height:100%;object-fit:cover}
-.slide .nm{font-weight:800;font-size:1.05rem;line-height:1.1}
-.slide .sb{font-size:.75rem;color:#E8D9A8}
-.slide .oft{font-family:Montserrat,sans-serif;font-weight:800;font-size:clamp(1.5rem,7.6vw,2.2rem);line-height:1;color:#E9C766;text-shadow:0 2px 6px rgba(0,0,0,.4)}
-.slide .oft small{display:block;font-size:.42em;color:#F3E3B5;letter-spacing:1px;margin-bottom:2px}
-.slide .cta{align-self:flex-start;background:linear-gradient(#E9C766,#C9952A);color:#0E1428;font-weight:800;font-size:.85rem;border-radius:30px;padding:8px 14px}
-.slide .grande{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:4.2rem;opacity:.9}
-.ptsmini{width:100%;margin-top:14px;background:#fff;border:1.5px solid #efe2bd;border-radius:18px;padding:12px 14px;text-align:left;font-family:inherit;color:inherit;box-shadow:0 3px 12px rgba(14,20,40,.07);display:block}
-.ptsmini .r1{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.85rem;color:var(--cinza)}
-.ptsmini .r1 b{color:var(--txt);font-size:1rem}
-.ptsmini .r1 .ec{color:var(--verde);font-weight:700;white-space:nowrap}
-.ptsmini .r2{display:flex;align-items:center;gap:8px;margin-top:6px}
-.ptsmini .pn{font-size:1.35rem;font-weight:800;color:var(--txt)}
-.ptsmini .pn small{font-size:.8rem;font-weight:600;color:var(--cinza)}
-.ptsmini .vp{margin-left:auto;font-weight:700;color:#7A6531;font-size:.9rem;white-space:nowrap}
-.ptsmini .barra{height:8px;margin:8px 0 4px}
-.ptsmini .mt{font-size:.82rem;color:var(--cinza)}
-.ctrl{display:flex;align-items:center;justify-content:center;gap:4px;margin-top:6px}
-.ctrl button{border:0;background:none;width:44px;height:36px;display:grid;place-items:center}
-.ctrl button i{width:10px;height:10px;border-radius:50%;background:#b9c6e6;display:block;transition:.2s}
-.ctrl button.on i{background:var(--ouro);width:26px;border-radius:6px}
+.slide .nm{font-weight:700;font-size:.98rem;line-height:1.15}
+.slide .sb{font-size:.72rem;color:#D8D8DE}
+.slide .oft{font-weight:800;font-size:clamp(1.35rem,6.6vw,1.9rem);line-height:1;color:var(--ouro-2)}
+.slide .oft small{display:block;font-size:.42em;color:#EDE3C6;letter-spacing:.06em;margin-bottom:3px;font-weight:700}
+.slide .cta{align-self:flex-start;background:var(--ouro);color:var(--preto);font-weight:700;font-size:.8rem;border-radius:999px;padding:7px 14px}
+.slide .grande{position:absolute;right:16px;top:50%;transform:translateY(-50%);color:var(--ouro)}
+.ctrl{display:flex;align-items:center;justify-content:center;gap:2px;margin-top:2px}
+.ctrl button{border:0;background:none;width:28px;height:28px;display:grid;place-items:center}
+.ctrl button i{width:7px;height:7px;border-radius:50%;background:#BDBDC4;display:block;transition:.2s}
+.ctrl button.on i{background:var(--preto);width:18px;border-radius:4px}
 
-/* COMO FUNCIONA */
-.como{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
-.passo{background:#fff;border-radius:16px;padding:10px 6px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.06);position:relative}
-.como.mini{margin:14px 0 4px;gap:6px}.como.mini .passo{background:#FAF6EC;box-shadow:none;border:1.5px solid #efe2bd;padding:10px 4px 8px}.como.mini .passo .e{font-size:1.5rem}.como.mini .passo b{font-size:.78rem}
-.passo .n{position:absolute;top:6px;left:8px;background:var(--azul);color:#fff;width:20px;height:20px;border-radius:50%;font-size:.7rem;font-weight:700;display:grid;place-items:center}
-.passo .e{font-size:1.8rem}
-.passo b{display:block;font-size:.8rem;line-height:1.2;margin-top:2px}
+/* ofertas relâmpago */
+.relampago{background:var(--preto);border-radius:var(--raio-g);padding:12px;margin-top:16px;color:#fff}
+.relampago .cab{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 2px 10px}
+.relampago h2{font-size:1.05rem;font-weight:800;color:var(--ouro);display:flex;align-items:center;gap:6px}
+.relogio{display:flex;gap:3px;font-variant-numeric:tabular-nums;font-weight:700;font-size:.85rem}
+.relogio span{background:#fff;color:var(--preto);border-radius:4px;padding:2px 5px;min-width:26px;text-align:center}
+.trilho{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:0 12px 2px;scroll-snap-type:x mandatory}
+.trilho::-webkit-scrollbar{display:none}
+.trilho .of{flex:0 0 46%;scroll-snap-align:start}
 
-/* TÍTULOS */
-.tit{display:flex;align-items:center;justify-content:space-between;margin:22px 2px 10px;gap:8px}
-.tit h2{font-size:1.2rem;font-style:italic;font-weight:800;display:flex;align-items:center;gap:8px}
-.vertodas{color:var(--azul);font-weight:700;font-size:.95rem;background:var(--azul3);border:0;border-radius:30px;padding:0 14px;min-height:40px;white-space:nowrap}
+/* ---------- CARTÃO DE OFERTA ---------- */
+.ofertas{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.of{background:var(--card);border-radius:var(--raio);overflow:hidden;box-shadow:var(--sombra);display:flex;flex-direction:column;position:relative;cursor:pointer;color:var(--txt);text-align:left;transition:box-shadow .15s ease}
+.of:hover{box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.of-im{aspect-ratio:1/1;background:linear-gradient(145deg,#26262E,#0B0B0F);display:grid;place-items:center;font-size:3rem;position:relative;overflow:hidden}
+.of-im img{width:100%;height:100%;object-fit:cover}
+.fav{position:absolute;top:8px;right:8px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.96);border:0;display:grid;place-items:center;color:var(--txt-2);box-shadow:0 1px 4px rgba(0,0,0,.18);z-index:2}
+.fav.on{color:var(--verm)}.fav.on svg{fill:currentColor}
+.selo{position:absolute;left:0;bottom:10px;font-size:.66rem;font-weight:800;letter-spacing:.02em;color:#fff;background:var(--laranja);padding:4px 8px 4px 10px;border-radius:0 4px 4px 0;text-transform:uppercase}
+.selo.urg{background:var(--verm)}.selo.fim{background:#55565E}.selo.ouro{background:var(--ouro);color:var(--preto)}
+.of-bd{padding:10px 10px 12px;display:flex;flex-direction:column;gap:4px;flex:1}
+.of-loja{font-size:.72rem;color:var(--txt-3);font-weight:600;text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.of-tit{font-size:.88rem;line-height:1.3;color:#333;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.6em}
+.of-de{font-size:.78rem;color:var(--txt-3)}
+.of-por{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.preco{font-size:1.35rem;font-weight:500;line-height:1.1;letter-spacing:-.01em}
+.preco sup{font-size:.55em;vertical-align:.7em;margin-left:1px}
+.pct{color:var(--verde);font-weight:600;font-size:.82rem}
+.of-tag{font-size:1.2rem;font-weight:800;color:var(--verde);line-height:1.15}
+.of-tag.s{font-size:1rem}
+.of-ex{display:flex;flex-wrap:wrap;gap:4px;margin-top:auto;padding-top:4px}
+.mini-tag{display:inline-flex;align-items:center;gap:4px;font-size:.72rem;font-weight:600;border-radius:4px;padding:3px 6px;background:var(--verde-claro);color:#007A3B}
+.mini-tag.cinza{background:#F1F1F3;color:var(--txt-2)}
+.mini-tag.verm{background:#FDEBEA;color:#B42318}
+.mini-tag .ic{width:14px;height:14px}
 
-/* CATEGORIAS */
-.cats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.cat{border-radius:16px;overflow:hidden;border:2px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.12);aspect-ratio:232/200;position:relative;padding:0;background:#071f6b;transition:transform .15s}
-.cat img{width:100%;height:100%;object-fit:cover;object-position:bottom;display:block}
-.cat:active{transform:scale(.97)}
-.mais-cats{display:flex;gap:8px;overflow-x:auto;padding:10px 2px 4px;scrollbar-width:none}
-.mais-cats::-webkit-scrollbar{display:none}
-.chipcat{flex-shrink:0;background:#fff;border:1.5px solid #d4ddf2;border-radius:30px;padding:0 14px;min-height:44px;font-size:.9rem;font-weight:600;color:var(--txt);display:flex;align-items:center;gap:6px}
-.chipcat.on{background:var(--azul);color:var(--ouro);border-color:var(--azul)}
+/* ---------- LOJAS ---------- */
+.lojas-trilho{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:0 12px 4px}
+.lojas-trilho::-webkit-scrollbar{display:none}
+.loja-ch{flex:0 0 72px;display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;font-size:.74rem;text-align:center;line-height:1.15;color:var(--txt)}
+.loja-ch .av{width:64px;height:64px;border-radius:50%;overflow:hidden;background:var(--preto-2);display:grid;place-items:center;font-size:1.6rem;border:2px solid var(--ouro);box-shadow:var(--sombra)}
+.loja-ch .av img{width:100%;height:100%;object-fit:cover}
+.emp{display:flex;gap:12px;align-items:center;background:var(--card);border-radius:var(--raio);padding:10px 12px;margin-bottom:8px;box-shadow:var(--sombra);width:100%;border:0;text-align:left;min-height:76px}
+.emp .av{width:56px;height:56px;border-radius:12px;overflow:hidden;flex-shrink:0;background:var(--preto-2);display:grid;place-items:center;font-size:1.5rem}
+.emp .av img{width:100%;height:100%;object-fit:cover}
+.emp .tx{flex:1;min-width:0}
+.emp b{display:block;font-size:.98rem}.emp small{color:var(--txt-2);font-size:.82rem;display:block}
+.emp .pil{display:inline-block;margin-top:4px;color:var(--verde);font-weight:700;font-size:.82rem}
+.emp .ic{color:var(--txt-3)}
 
-/* OFERTAS */
-.ofertas{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.of{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 3px 12px rgba(0,0,0,.08);display:flex;flex-direction:column;position:relative;border:0;padding:0;text-align:left;color:inherit}
-.of .im{aspect-ratio:16/10;overflow:hidden;background:linear-gradient(135deg,#1F2B57,#0E1428);display:grid;place-items:center;font-size:2.6rem;position:relative}
-.of .im img{width:100%;height:100%;object-fit:cover}
-.fav{position:absolute;top:6px;right:6px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.95);border:0;display:grid;place-items:center;font-size:1.25rem;box-shadow:0 2px 6px rgba(0,0,0,.2);z-index:2}
-.prazo{position:absolute;left:6px;bottom:6px;background:rgba(11,26,69,.85);color:#fff;font-size:.7rem;font-weight:600;border-radius:20px;padding:3px 9px}
-.prazo.urg{background:var(--verm)}
-.of .info{padding:8px 10px 0;flex:1}
-.of b{font-size:1rem;display:block;line-height:1.2}
-.of small{font-size:.8rem;color:var(--cinza);display:block;margin-top:2px}
-.of .tag{margin:8px 10px 10px;background:linear-gradient(#E9C766,#C9952A);color:#0E1428;font-weight:800;border-radius:10px;padding:8px 4px;font-size:1.15rem;line-height:1.1;text-align:center}
-.of .tag.s{font-size:.85rem}
+/* ---------- CATEGORIAS (lista à esquerda, conteúdo à direita) ---------- */
+.cat-wrap{display:flex;margin:-12px -12px 0;min-height:calc(100vh - 140px)}
+.cat-lista{width:112px;flex-shrink:0;background:#F7F7F8;border-right:1px solid var(--linha)}
+.cat-lista button{width:100%;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 6px;font-size:.78rem;color:var(--txt-2);border-bottom:1px solid var(--linha);position:relative;line-height:1.15;text-align:center}
+.cat-lista button .ic{color:var(--txt-3)}
+.cat-lista button[aria-selected="true"]{background:var(--card);color:var(--txt);font-weight:700}
+.cat-lista button[aria-selected="true"] .ic{color:var(--ouro-txt)}
+.cat-lista button[aria-selected="true"]::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--ouro)}
+.cat-cont{flex:1;min-width:0;padding:12px;background:var(--card)}
+.cat-capa{border-radius:var(--raio);overflow:hidden;position:relative;aspect-ratio:16/9;background:var(--preto);display:grid;place-items:center;color:var(--ouro)}
+.cat-capa img{width:100%;height:100%;object-fit:cover}
+.cat-cont h2{font-size:1.05rem;margin:12px 0 2px}
+.cat-cont .sub{font-size:.82rem;color:var(--txt-2)}
+.cat-cont .ofertas{gap:8px;margin-top:10px}
+.cat-cont .of-tit{-webkit-line-clamp:2}
 
-/* VIP */
-/* Cadastro na entrada */
+/* ---------- FILTROS ---------- */
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 0 6px}
+.chips::-webkit-scrollbar{display:none}
+.chipcat{flex-shrink:0;background:var(--card);border:1px solid var(--linha);border-radius:999px;padding:0 14px;min-height:38px;font-size:.86rem;font-weight:500;display:flex;align-items:center;gap:6px;color:var(--txt)}
+.chipcat.on{background:var(--preto);color:#fff;border-color:var(--preto)}
+.barra-filtro{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 2px 10px}
+.barra-filtro h2{font-size:1rem;font-weight:700}
+.barra-filtro select{border:1px solid var(--linha);background:var(--card);border-radius:8px;min-height:38px;padding:0 8px;font-size:.85rem}
+.segmento{display:flex;background:#E4E4E8;border-radius:10px;padding:3px;margin-bottom:12px}
+.segmento button{flex:1;border:0;background:none;border-radius:8px;min-height:40px;font-weight:600;font-size:.9rem;color:var(--txt-2)}
+.segmento button[aria-selected="true"]{background:var(--card);color:var(--txt);box-shadow:var(--sombra)}
+
+/* ---------- MAIS / MEU PERFIL (listas com ícones) ---------- */
+.cab-preto{background:var(--preto);color:#fff;margin:-12px -12px 12px;padding:calc(16px + env(safe-area-inset-top)) 16px 16px}
+.cab-preto .linha-top{display:flex;align-items:center;gap:6px;min-height:44px}
+.cab-preto .linha-top h1{flex:1;text-align:center;font-size:1.1rem;font-weight:600}
+.perfil-l{display:flex;align-items:center;gap:12px;background:none;border:0;color:#fff;text-align:left;width:100%;min-height:60px}
+.perfil-l b{display:block;font-size:1.15rem}
+.perfil-l small{display:flex;align-items:center;gap:2px;color:#D6D6DC;font-size:.88rem}
+.pilula{width:100%;display:flex;align-items:center;gap:10px;border-radius:999px;padding:0 14px;min-height:48px;margin-top:10px;text-align:left;font-size:.9rem;border:0}
+.pilula span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pilula.vipp{background:linear-gradient(100deg,#1D1D24,#2C2C35);color:#fff;border:1.5px solid var(--ouro)}
+.pilula.vipp .ic,.pilula.vipp b{color:var(--ouro)}
+.pilula.ptsp{background:var(--ouro-claro);color:var(--preto)}
+.pilula.ptsp .ic{color:var(--ouro-txt)}
+.grupo{background:var(--card);border-radius:var(--raio-g);box-shadow:var(--sombra);margin-bottom:12px;overflow:hidden}
+.grupo-tit{font-size:.82rem;font-weight:600;color:var(--txt-3);margin:16px 6px 8px;text-transform:uppercase;letter-spacing:.04em}
+.item{display:flex;align-items:center;gap:14px;width:100%;min-height:56px;padding:0 14px;border:0;background:none;text-align:left;border-bottom:1px solid var(--linha);color:var(--txt);text-decoration:none;font-size:.98rem}
+.item:last-child{border-bottom:0}
+.item:hover{background:#FAFAFB}
+.item>.ic{color:var(--txt)}
+.item .tx{flex:1;min-width:0}
+.item .tx small{display:block;color:var(--txt-3);font-size:.8rem}
+.item .seta{color:var(--txt-3)}
+.tag-item{font-size:.66rem;font-weight:800;border-radius:999px;padding:3px 8px;background:var(--azul);color:#fff;white-space:nowrap}
+.tag-item.verde{background:var(--verde)}.tag-item.ouro{background:var(--ouro);color:var(--preto)}.tag-item.verm{background:var(--verm)}
+.cont{min-width:22px;height:22px;border-radius:11px;background:var(--verm);color:#fff;font-size:.75rem;font-weight:700;display:grid;place-items:center;padding:0 6px}
+.chave{width:46px;height:28px;border-radius:14px;background:#D0D0D6;position:relative;flex-shrink:0;transition:background .2s}
+.chave::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .2s}
+.chave.on{background:var(--verde)}.chave.on::after{left:21px}
+.perfil-topo{text-align:center;padding:8px 0 6px}
+.perfil-topo .avatar{margin:0 auto}
+.perfil-topo h2{font-size:1.3rem;margin-top:10px}
+.perfil-topo p{color:#D6D6DC;font-size:.92rem}
+.status-vip{display:inline-flex;align-items:center;gap:6px;margin-top:10px;border-radius:999px;padding:6px 12px;font-size:.82rem;font-weight:700;background:rgba(212,165,55,.16);color:var(--ouro-2);border:1px solid rgba(212,165,55,.5)}
+
+/* ---------- PARA EMPRESAS ---------- */
+.hero-emp{background:var(--preto);color:#fff;border-radius:var(--raio-g);padding:20px 18px;margin-bottom:12px;position:relative;overflow:hidden}
+.hero-emp .eyebrow{font-size:.7rem;letter-spacing:.14em;font-weight:700;color:var(--ouro)}
+.hero-emp h2{font-size:1.45rem;line-height:1.2;margin:6px 0 8px}
+.hero-emp p{color:#D6D6DC;font-size:.92rem}
+.hero-emp ul{list-style:none;margin:12px 0 4px;display:grid;gap:6px}
+.hero-emp li{display:flex;gap:8px;align-items:flex-start;font-size:.92rem}
+.hero-emp li .ic{color:var(--ouro);margin-top:1px}
+.fundador{background:var(--ouro-claro);border:1px solid #EBD9A3;border-radius:var(--raio-g);padding:14px 16px;margin-bottom:12px}
+.fundador .t{font-size:.68rem;letter-spacing:.14em;font-weight:800;color:var(--ouro-txt)}
+.fundador h3{font-size:1.2rem;margin:2px 0}
+.fundador p{color:#5A4A1C;font-size:.9rem}
+.plano{background:var(--card);border-radius:var(--raio-g);padding:16px;margin-bottom:12px;box-shadow:var(--sombra);border:1.5px solid var(--linha);position:relative}
+.plano.dest{border-color:var(--ouro);box-shadow:0 4px 18px rgba(212,165,55,.22)}
+.plano .selo-p{position:absolute;top:-10px;left:16px;background:var(--ouro);color:var(--preto);font-size:.66rem;font-weight:800;letter-spacing:.06em;border-radius:999px;padding:3px 10px}
+.plano h3{font-size:1.05rem;font-weight:700}
+.plano .valor{font-size:1.7rem;font-weight:800;line-height:1.1;margin-top:4px}
+.plano .valor small{font-size:.85rem;color:var(--txt-2);font-weight:500}
+.plano ul{list-style:none;margin:10px 0 0;display:grid;gap:4px}
+.plano li{display:flex;gap:8px;font-size:.9rem;align-items:flex-start}
+.plano li .ic{color:var(--verde);margin-top:1px}
+
+/* ---------- PONTOS ---------- */
+.ptscard{background:linear-gradient(120deg,var(--preto),var(--preto-3));border:1px solid var(--ouro);border-radius:var(--raio-g);padding:16px;color:#fff;margin-bottom:12px}
+.ptscard .lin{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ptscard .num{font-size:2rem;font-weight:800;color:var(--ouro-2);line-height:1}
+.ptscard .num small{font-size:.85rem;color:#E8DDBA;font-weight:500;margin-left:4px}
+.ptscard .meta{font-size:.84rem;color:#D9D3BF}
+.nivel{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 10px;font-size:.78rem;font-weight:700}
+.nivel.bronze{background:#F1D9C1;color:#5A3414}.nivel.prata{background:#E6E9EF;color:#2C3446}.nivel.ouro{background:var(--ouro);color:var(--preto)}
+.brindes{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.brinde{background:var(--card);border-radius:var(--raio);padding:12px;box-shadow:var(--sombra);display:flex;flex-direction:column;gap:3px;text-align:center}
+.brinde .e{font-size:2.2rem;line-height:1.1}
+.brinde b{font-size:.95rem;line-height:1.2}.brinde small{font-size:.78rem;color:var(--txt-2)}
+.brinde .cust{font-weight:700;color:var(--ouro-txt);font-size:.95rem;margin-top:2px}
+.brinde .btn{min-height:42px;font-size:.9rem;margin-top:auto}
+.brinde .btn:disabled{background:#EFEFF1;color:var(--txt-3);cursor:default;box-shadow:none}
+.ganhar{background:var(--card);border-radius:var(--raio-g);box-shadow:var(--sombra);overflow:hidden}
+.ganhar div{display:flex;align-items:center;gap:12px;padding:12px 14px;font-size:.92rem;border-bottom:1px solid var(--linha)}
+.ganhar div:last-child{border:0}
+.ganhar .e{font-size:1.4rem}.ganhar strong{margin-left:auto;color:var(--verde);white-space:nowrap}
+.hist{background:var(--card);border-radius:var(--raio-g);padding:2px 14px;box-shadow:var(--sombra)}
+.hist div{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--linha);font-size:.9rem}
+.hist div:last-child{border:0}.hist small{color:var(--txt-3);display:block;font-size:.76rem}
+.hist .mais{color:var(--verde);font-weight:700;white-space:nowrap}.hist .menos{color:var(--verm);font-weight:700;white-space:nowrap}
+.niveis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.niveis div{background:var(--card);border-radius:var(--raio);padding:10px 6px;text-align:center;font-size:.78rem;box-shadow:var(--sombra);border:2px solid transparent}
+.niveis div.on{border-color:var(--ouro)}
+.niveis b{display:block;font-size:.92rem}
+.demo{background:var(--ouro-claro);border:1px dashed var(--ouro);border-radius:10px;padding:10px 12px;font-size:.85rem;color:#5C4A1C;margin-top:12px}
+
+/* ---------- CUPONS ---------- */
+.cupom{display:flex;background:var(--card);border-radius:var(--raio);overflow:hidden;margin-bottom:10px;box-shadow:var(--sombra);width:100%;border:0;text-align:left;padding:0;min-height:92px}
+.cupom .l{background:var(--preto);color:var(--ouro-2);padding:12px 8px;font-weight:800;font-size:1rem;display:grid;place-items:center;width:96px;flex-shrink:0;text-align:center;position:relative}
+.cupom .l::after{content:"";position:absolute;right:-1px;top:8px;bottom:8px;border-right:2px dashed #fff}
+.cupom .r{padding:12px;flex:1;font-size:.88rem;min-width:0}
+.cupom .r b{font-size:.98rem}
+.cupom code{font-weight:800;letter-spacing:.06em;font-size:.95rem;font-family:ui-monospace,Menlo,monospace}
+.cupom .ver{display:inline-flex;align-items:center;gap:2px;margin-top:6px;color:var(--azul);font-weight:600;font-size:.85rem}
+
+/* ---------- BOTÕES E CAMPOS ---------- */
+label{display:block;font-size:.88rem;font-weight:600;margin:12px 0 6px}
+.inp{width:100%;border:1.5px solid #CFCFD6;border-radius:10px;padding:0 14px;min-height:50px;font-size:1rem;outline:0;background:#fff;color:var(--txt);transition:border-color .15s}
+.inp:focus{border-color:var(--preto);box-shadow:0 0 0 3px rgba(212,165,55,.25)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:10px;background:var(--preto);color:#fff;border:0;border-radius:10px;min-height:52px;font-weight:600;font-size:1rem;text-decoration:none;transition:filter .15s,transform .1s}
+.btn:active{transform:scale(.99)}
+.btn:hover{filter:brightness(1.08)}
+.btn.ouro-g,.btn.ouro{background:var(--ouro);color:var(--preto);font-weight:700}
+.btn.verde{background:var(--verde);color:#fff}
+.btn.claro{background:#EEEEF1;color:var(--txt)}
+.btn.contorno{background:transparent;color:var(--txt);border:1.5px solid #CFCFD6}
+.btn.entrega{background:#fff;color:var(--txt);border:1.5px solid var(--preto)}
+.btn:disabled{opacity:.55;cursor:default}
+.btn-ouro{background:var(--ouro);color:var(--preto);border:0;border-radius:999px;padding:0 16px;min-height:40px;font-weight:700;font-size:.88rem;white-space:nowrap}
+.vazio{text-align:center;color:var(--txt-2);padding:32px 12px;font-size:.95rem;background:var(--card);border-radius:var(--raio-g);box-shadow:var(--sombra)}
+.vazio .e{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:var(--fundo);margin:0 auto 10px;color:var(--txt-3)}
+.vazio .btn{max-width:260px;margin:12px auto 0}
+
+/* ---------- JANELA DE BAIXO (detalhes) ---------- */
+.modal{position:fixed;inset:0;background:rgba(10,10,14,.55);display:none;align-items:flex-end;justify-content:center;z-index:50}
+.modal.on{display:flex;animation:fade .2s}
+.sheet{background:#fff;width:100%;max-width:480px;border-radius:18px 18px 0 0;padding:8px 16px calc(22px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto;position:relative}
+.sheet::before{content:"";display:block;width:40px;height:4px;border-radius:2px;background:#D5D5DA;margin:2px auto 6px}
+.fechar{display:flex;align-items:center;gap:4px;margin-left:auto;background:#F1F1F3;border:0;border-radius:999px;padding:0 14px;min-height:40px;font-weight:600;font-size:.88rem;color:var(--txt)}
+.toast{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top));transform:translateX(-50%);background:var(--preto);color:#fff;padding:12px 18px;border-radius:10px;font-size:.92rem;opacity:0;transition:.3s;z-index:95;pointer-events:none;max-width:calc(100% - 32px);text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.25);border-left:3px solid var(--ouro)}
+.toast.on{opacity:1}
+.chip{display:inline-flex;align-items:center;gap:5px;background:#F1F1F3;color:var(--txt-2);font-size:.78rem;font-weight:600;border-radius:6px;padding:5px 9px;margin:0 4px 6px 0}
+.chip .ic{width:15px;height:15px}
+.chip.ent{background:var(--verde-claro);color:#007A3B}
+.chip.urg{background:#FDEBEA;color:#B42318}
+.notif{padding:12px 0;border-bottom:1px solid var(--linha);font-size:.93rem}.notif b{display:block}
+.menu button{display:flex;align-items:center;gap:12px;width:100%;padding:0 4px;min-height:54px;border:0;border-bottom:1px solid var(--linha);background:none;color:var(--txt);font-weight:500;font-size:.98rem;text-align:left}
+.menu button .e{font-size:1.2rem;width:28px;text-align:center}
+.passos-ajuda li{margin:0 0 10px 20px;font-size:.98rem}
+
+/* detalhes da oferta */
+.po-img{margin:4px -16px 0;aspect-ratio:16/10;max-height:240px;background:linear-gradient(145deg,#26262E,#0B0B0F);display:grid;place-items:center;font-size:4rem;position:relative;overflow:hidden}
+.po-img img{width:100%;height:100%;object-fit:cover}
+.po-loja{display:flex;align-items:center;gap:10px;margin-top:14px}
+.po-loja .av{width:40px;height:40px;border-radius:50%;overflow:hidden;background:var(--preto-2);display:grid;place-items:center;font-size:1.2rem;border:2px solid var(--ouro);flex-shrink:0}
+.po-loja .av img{width:100%;height:100%;object-fit:cover}
+.po-loja b{display:block;font-size:.95rem}.po-loja small{color:var(--txt-2);font-size:.8rem}
+.po-tit{font-size:1.15rem;font-weight:500;line-height:1.35;margin-top:12px;color:#222}
+.po-de{color:var(--txt-3);font-size:.9rem;margin-top:10px}
+.po-preco{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.po-preco .preco{font-size:2rem}
+.po-preco .pct{font-size:1rem}
+.po-eco{color:var(--verde);font-weight:600;font-size:.9rem;margin-top:2px}
+.po-tag{display:inline-block;font-size:1.6rem;font-weight:800;color:var(--verde);margin-top:10px}
+.po-chips{margin-top:12px}
+.acoes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.acoes button,.acoes a{display:flex;flex-direction:column;align-items:center;gap:4px;border:0;background:#F5F5F7;border-radius:10px;min-height:64px;justify-content:center;font-size:.78rem;font-weight:600;color:var(--txt);text-decoration:none}
+.acoes .on{color:var(--verm)}.acoes .on svg{fill:currentColor}
+.passos{counter-reset:p;list-style:none;margin:8px 0 0;display:grid;gap:8px}
+.passos li{display:flex;align-items:center;gap:10px;font-size:.9rem;counter-increment:p}
+.passos li::before{content:counter(p);width:24px;height:24px;border-radius:50%;background:var(--preto);color:var(--ouro-2);font-size:.75rem;font-weight:700;display:grid;place-items:center;flex-shrink:0}
+.passos li.feito::before{content:"✓";background:var(--verde);color:#fff}
+.box{background:#F7F7F8;border-radius:var(--raio);padding:12px 14px;margin-top:14px}
+.box h4{font-size:.92rem;margin-bottom:4px}
+.box p{font-size:.88rem;color:var(--txt-2)}
+.codigo{border:2px dashed var(--ouro);border-radius:var(--raio);padding:14px;text-align:center;margin:14px 0 4px;background:var(--ouro-claro)}
+.codigo .c{font-size:1.6rem;font-weight:800;letter-spacing:.12em;font-family:ui-monospace,Menlo,monospace}
+.qr{display:grid;place-items:center;margin:8px auto;background:#fff;padding:10px;border-radius:10px;width:max-content}
+.lojabox{background:#F7F7F8;border-radius:var(--raio);padding:12px 14px;margin-top:14px}
+.lojabox .st{font-weight:600;font-size:.88rem;margin-top:2px}.lojabox .st.ab{color:var(--verde)}.lojabox .st.fe{color:#B54708}
+.lojabtns{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.lojabtns a,.lojabtns button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:58px;border-radius:10px;background:#fff;border:1px solid var(--linha);font-weight:600;font-size:.78rem;color:var(--txt);text-decoration:none}
+.entrega-info{background:var(--verde-claro);border-radius:10px;padding:10px 12px;font-size:.88rem;color:#05603A;margin-top:8px}
+.precobox{background:var(--verde-claro);border-radius:10px;padding:10px 12px;margin:-4px 0 12px}
+
+/* ---------- MENU DE BAIXO ---------- */
+nav.menu-baixo{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;display:flex;padding:4px 4px calc(4px + env(safe-area-inset-bottom));border-top:1px solid var(--linha);z-index:20;min-height:var(--nav-h)}
+nav.menu-baixo button{flex:1;background:none;border:0;font-size:.72rem;font-weight:500;color:var(--txt-2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 0;position:relative;min-height:56px}
+nav.menu-baixo .ico-w{width:56px;height:30px;border-radius:15px;display:grid;place-items:center;transition:background .2s}
+nav.menu-baixo button.on{color:var(--preto);font-weight:700}
+nav.menu-baixo button.on .ico-w{background:var(--ouro-claro);color:var(--ouro-txt)}
+nav.menu-baixo .pt{position:absolute;top:2px;left:calc(50% + 6px);min-width:18px;height:18px;padding:0 4px;background:var(--verm);color:#fff;font-size:.66rem;font-weight:700;border-radius:9px;display:grid;place-items:center;border:2px solid #fff}
+
+/* ---------- VITRINE VIP E PIX ---------- */
+.vip-topo{text-align:center;margin-top:4px}.vip-topo .cr{display:grid;place-items:center;width:72px;height:72px;border-radius:50%;background:var(--preto);color:var(--ouro);margin:0 auto;font-size:2.2rem}
+.vip-topo h3{font-size:1.5rem;font-weight:800;margin-top:10px}.vip-topo h3 span{color:var(--ouro-txt)}
+.vip-topo p{color:var(--txt-2)}.vip-topo.pq h3{font-size:1.3rem;margin-top:8px}
+.vip-preco{display:inline-flex;align-items:baseline;gap:4px;margin-top:12px;background:var(--preto);color:#fff;border:1.5px solid var(--ouro);border-radius:12px;padding:8px 18px}
+.vip-preco b{font-size:1.9rem;color:var(--ouro-2)}.vip-preco small{font-size:.88rem;opacity:.9}
+.vip-sub{font-size:.85rem;margin-top:6px}
+.vip-ok{display:inline-block;margin-top:10px;background:var(--verde-claro);color:#05603A;font-weight:700;border-radius:999px;padding:8px 16px}
+.vip-lista{list-style:none;margin:14px 0 4px;background:#F7F7F8;border-radius:var(--raio);padding:10px 14px}.vip-lista li{display:flex;gap:8px;padding:6px 0;font-size:.98rem}
+.vip-quem{margin-top:12px;border:1.5px solid var(--ouro);background:var(--ouro-claro);border-radius:var(--raio);padding:12px;text-align:center}.vip-quem span{display:block;font-size:.84rem;color:var(--txt-2)}.vip-quem b{display:block;font-size:1.08rem}.vip-quem small{color:var(--txt-2)}
+.ajuda-c{text-align:center;font-size:.84rem;color:var(--txt-2);margin-top:8px}
+.pix-qr{display:grid;place-items:center;background:#fff;border:1px solid var(--linha);border-radius:var(--raio-g);padding:14px;margin:14px auto 0;width:fit-content}.pix-qr img,.pix-qr canvas{display:block}
+.pix-cod{text-align:center;margin-top:10px;font-size:.88rem;color:var(--txt-2)}.pix-cod b{color:var(--txt);letter-spacing:.05em}
+.aviso-ex{background:#FFF4D6;color:#6B4E00;border-radius:10px;padding:10px 12px;margin-top:12px;font-size:.86rem}
+.vip-espera{background:#EEF3FF;border-radius:10px;padding:12px;margin-top:12px;font-size:.9rem}
+
+/* ---------- CADASTRO NA ENTRADA ---------- */
 body.travado{overflow:hidden}
-.boasvindas{position:fixed;inset:0;z-index:45;background:#000;overflow-y:auto;display:flex;justify-content:center;padding:calc(20px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom))}
+.boasvindas{position:fixed;inset:0;z-index:45;background:var(--preto);overflow-y:auto;display:flex;justify-content:center;padding:calc(20px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom))}
 .boasvindas[hidden]{display:none}
 .bv-in{width:100%;max-width:420px;margin:auto 0;text-align:center;color:#fff;animation:fade .3s}
-.bv-logo{height:92px;width:auto;display:block;margin:0 auto}.bv-palavra{width:180px;height:auto;display:block;margin:8px auto 0}
-.boasvindas h1{font-size:1.55rem;font-weight:800;margin-top:16px;line-height:1.2}
-.bv-sub{opacity:.92;margin-top:6px;line-height:1.45}.bv-sub b{color:#E9C766}
-#bvForm{border:1.5px solid #D4A537;background:#fff;color:var(--txt);border-radius:22px;padding:16px 16px 14px;margin-top:18px;text-align:left;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.bv-logo{height:88px;width:auto;display:block;margin:0 auto}.bv-palavra{width:170px;height:auto;display:block;margin:8px auto 0}
+.boasvindas h1{font-size:1.45rem;font-weight:800;margin-top:16px;line-height:1.2}
+.bv-sub{color:#D6D6DC;margin-top:6px;line-height:1.45}.bv-sub b{color:var(--ouro-2)}
+#bvForm{background:#fff;color:var(--txt);border-radius:var(--raio-g);padding:16px 16px 14px;margin-top:18px;text-align:left}
 #bvForm label:first-child{margin-top:0}
-.bv-ok{display:flex!important;gap:10px;align-items:center;font-weight:500!important;font-size:.92rem!important;cursor:pointer;min-height:44px}.bv-ok input{width:22px;height:22px;accent-color:#C9952A;flex-shrink:0}
-.bv-priv{font-size:.8rem;color:var(--cinza);text-align:center;margin-top:10px;line-height:1.4}.bv-priv button{background:none;border:0;padding:0;font:inherit;color:#1F2B57;text-decoration:underline;cursor:pointer}
-.erro{display:none;background:#fde4e4;color:#a30d12;border-radius:10px;padding:10px 12px;margin-top:10px;font-size:.9rem;font-weight:600}
+.bv-ok{display:flex!important;gap:10px;align-items:center;font-weight:500!important;font-size:.92rem!important;cursor:pointer;min-height:44px}.bv-ok input{width:22px;height:22px;accent-color:var(--ouro);flex-shrink:0}
+.bv-priv{font-size:.8rem;color:var(--txt-2);text-align:center;margin-top:10px;line-height:1.4}.bv-priv button{background:none;border:0;padding:0;font:inherit;color:var(--azul);text-decoration:underline}
+.bv-loja{display:flex;align-items:center;justify-content:center;gap:6px;color:var(--ouro-2);font-size:.9rem;font-weight:600;margin-top:16px;text-decoration:none;min-height:44px}
+.erro{display:none;background:#FDEBEA;color:#B42318;border-radius:10px;padding:10px 12px;margin-top:10px;font-size:.9rem;font-weight:600}
 
-.vip-topo{text-align:center;margin-top:6px}.vip-topo .cr{font-size:3.4rem;line-height:1}.vip-topo h3{font-size:1.6rem;font-weight:800;margin-top:4px}.vip-topo h3 span{color:#C9952A}
-.vip-topo p{color:var(--cinza)}.vip-topo.pq h3{font-size:1.35rem;margin-top:10px}
-.vip-preco{display:inline-flex;align-items:baseline;gap:4px;margin-top:10px;background:linear-gradient(100deg,#0E1428,#1F2B57);color:#fff;border:1.5px solid #D4A537;border-radius:16px;padding:8px 18px}
-.vip-preco b{font-size:2rem;color:#E9C766;font-family:Montserrat,Poppins,sans-serif}.vip-preco small{font-size:.9rem;opacity:.9}
-.vip-sub{font-size:.85rem;margin-top:6px}
-.vip-ok{display:inline-block;margin-top:10px;background:#dff5e7;color:#0d6b31;font-weight:800;border-radius:999px;padding:8px 16px}
-.vip-lista{list-style:none;margin:14px 0 4px;background:#f4f7ff;border-radius:16px;padding:12px 14px}.vip-lista li{display:flex;gap:8px;padding:6px 0;font-size:1rem;color:var(--txt)}
-.vip-quem{margin-top:12px;border:2px solid #E9C766;background:#fffaf0;border-radius:14px;padding:12px;text-align:center}.vip-quem span{display:block;font-size:.85rem;color:var(--cinza)}.vip-quem b{display:block;font-size:1.1rem}.vip-quem small{color:var(--cinza)}
-.btn.ouro-g{background:linear-gradient(#ffe066,#f5b400);color:#1b1b1b;font-weight:800}
-.ajuda-c{text-align:center;font-size:.85rem;color:var(--cinza);margin-top:8px}
-.pix-qr{display:grid;place-items:center;background:#fff;border:2px solid #e6dcc0;border-radius:18px;padding:16px;margin:14px auto 0;width:fit-content}.pix-qr img,.pix-qr canvas{display:block}
-.pix-cod{text-align:center;margin-top:10px;font-size:.9rem;color:var(--cinza)}.pix-cod b{color:var(--txt);letter-spacing:.5px}
-.aviso-ex{background:#fff3cd;color:#6b4e00;border-radius:12px;padding:10px 12px;margin-top:12px;font-size:.88rem}
-.vip-espera{background:#eef3ff;border-radius:12px;padding:12px;margin-top:12px;font-size:.92rem}
-
-.vip{margin-top:18px;background:linear-gradient(100deg,#0E1428,#1F2B57);border:1.5px solid #D4A537;border-radius:18px;padding:14px;display:flex;align-items:center;gap:10px;color:#fff;box-shadow:0 6px 16px rgba(7,31,107,.3)}
-.vip .cr{font-size:2.2rem}
-.vip h4{font-size:1.05rem;font-weight:800}.vip h4 span{color:var(--ouro)}
-.vip p{font-size:.8rem;opacity:.95;line-height:1.3}
-.btn-ouro{background:linear-gradient(#ffe066,#f5b400);color:#1b1b1b;border:0;border-radius:30px;padding:0 16px;min-height:46px;font-weight:800;font-size:.95rem;white-space:nowrap;box-shadow:0 3px 0 #b07f00}
-
-/* INDIQUE */
-.indique{margin-top:12px;background:#fff;border:2px dashed #9bb4ee;border-radius:18px;padding:14px;display:flex;align-items:center;gap:12px}
-.indique .e{font-size:2rem}.indique b{font-size:1rem;display:block}.indique small{font-size:.82rem;color:var(--cinza)}
-
-/* PONTOS */
-.ptscard{background:linear-gradient(120deg,#0E1428,#1F2B57);border:1.5px solid #D4A537;border-radius:20px;padding:14px 16px;color:#fff;margin-bottom:14px;width:100%;text-align:left;font-family:inherit;display:block}
-.ptscard .lin{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.ptscard .num{font-size:1.9rem;font-weight:800;color:#F3E3B5;line-height:1}
-.ptscard .num small{font-size:.85rem;color:#E8D9A8;font-weight:600;margin-left:4px}
-.nivel{display:inline-flex;align-items:center;gap:5px;border-radius:30px;padding:4px 12px;font-size:.8rem;font-weight:800}
-.nivel.bronze{background:#E9C9A8;color:#5a3414}.nivel.prata{background:#E3E7EE;color:#2c3446}.nivel.ouro{background:#D4A537;color:#0E1428}
-.barra{height:12px;border-radius:10px;background:rgba(255,255,255,.18);overflow:hidden;margin:10px 0 6px}
-.barra i{display:block;height:100%;background:linear-gradient(90deg,#E9C766,#D4A537);border-radius:10px;transition:width .6s}
-.barra.clara{background:#efe7cf}
-.ptscard .meta{font-size:.85rem;color:#E8D9A8}
-.ptscard .ver{display:inline-block;margin-top:8px;font-weight:700;color:#D4A537;font-size:.95rem}
-.brindes{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.brinde{background:#fff;border-radius:16px;padding:12px;box-shadow:0 3px 12px rgba(0,0,0,.07);display:flex;flex-direction:column;gap:4px;text-align:center}
-.brinde .e{font-size:2.4rem;line-height:1.1}
-.brinde b{font-size:.98rem;line-height:1.2}.brinde small{font-size:.8rem;color:var(--cinza)}
-.brinde .cust{font-weight:800;color:#7A6531;font-size:1rem;margin-top:2px}
-.brinde .btn{min-height:46px;font-size:.95rem;margin-top:auto}
-.brinde .btn:disabled{background:#eee7d6;color:#6b6250;cursor:default}
-.ganhar{display:flex;flex-direction:column;gap:8px}
-.ganhar div{background:#fff;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;font-size:.95rem;box-shadow:0 2px 8px rgba(0,0,0,.05)}
-.ganhar .e{font-size:1.6rem}.ganhar strong{margin-left:auto;color:var(--verde);white-space:nowrap}
-.hist{background:#fff;border-radius:16px;padding:4px 14px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
-.hist div{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid #f1ebda;font-size:.92rem}
-.hist div:last-child{border:0}.hist small{color:var(--cinza);display:block;font-size:.78rem}
-.hist .mais{color:var(--verde);font-weight:800;white-space:nowrap}.hist .menos{color:var(--verm);font-weight:800;white-space:nowrap}
-.niveis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.niveis div{background:#fff;border-radius:14px;padding:10px 6px;text-align:center;font-size:.8rem;box-shadow:0 2px 8px rgba(0,0,0,.05);border:2px solid transparent}
-.niveis div.on{border-color:#D4A537}
-.niveis b{display:block;font-size:.95rem}
-.demo{background:#fff6dc;border:1.5px dashed #D4A537;border-radius:12px;padding:10px 12px;font-size:.85rem;color:#5c4a1c;margin-top:12px}
-
-/* PLANOS */
-.fundador{background:linear-gradient(120deg,#0E1428,#1F2B57);border:1.5px solid #D4A537;border-radius:20px;padding:16px;color:#fff;margin-bottom:12px}
-.fundador .t{font-size:.75rem;letter-spacing:3px;font-weight:700;color:#D4A537}
-.fundador h3{font-family:"Playfair Display",serif;font-size:1.7rem;margin:4px 0}
-.fundador p{color:#E8D9A8;font-size:.92rem}
-.plano{background:#fff;border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 3px 12px rgba(0,0,0,.07);border:2px solid #efe6cc;position:relative}
-.plano.dest{border-color:#D4A537}
-.plano .selo{position:absolute;top:-11px;right:14px;background:#D4A537;color:#0E1428;font-size:.72rem;font-weight:800;letter-spacing:1px;border-radius:20px;padding:3px 10px}
-.plano h3{font-size:1.15rem}
-.plano .preco{font-family:"Playfair Display",serif;font-size:1.9rem;font-weight:700;color:#7A6531;line-height:1.1}
-.plano .preco small{font-family:Poppins,sans-serif;font-size:.85rem;color:var(--cinza);font-weight:500}
-.plano ul{list-style:none;margin:8px 0 0}.plano li{font-size:.93rem;padding:3px 0}
-.plano li:before{content:"✓ ";color:var(--verde);font-weight:800}
-
-/* INSTALAR */
-.instalar{display:flex;align-items:center;gap:12px;background:#000;border:1.5px solid #D4A537;border-radius:18px;padding:12px;margin-top:12px;color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.25)}
-.instalar .ico{width:56px;height:56px;border-radius:14px;flex-shrink:0;box-shadow:0 0 0 1.5px rgba(212,165,55,.6)}
-.instalar .t{flex:1;min-width:0}.instalar b{display:block;font-size:1rem}.instalar small{color:#E8D9A8;font-size:.8rem}
-.instalar .btn-ouro{min-height:44px;padding:0 14px}
-.instalar .x{border:0;background:rgba(255,255,255,.12);color:#fff;border-radius:50%;width:44px;height:44px;font-size:.9rem;flex-shrink:0}
+/* ---------- BAIXAR O APP ---------- */
 .inst-simples{text-align:center;padding-top:6px}
-.inst-simples img{border-radius:18px;box-shadow:0 4px 14px rgba(0,0,0,.35)}
-.inst-simples h3{font-size:1.35rem;margin:10px 0 6px}
-.inst-simples .frase{font-size:1.2rem;line-height:1.5;margin:6px 4px 4px}
-.ic-inline{display:inline-flex;vertical-align:middle;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;background:#eef4ff;color:#007aff;border:1.5px solid #c9dafc}
-.inst-prev{display:flex;flex-direction:column;align-items:center;gap:6px;margin:14px auto 6px;padding:16px;border-radius:18px;background:linear-gradient(160deg,#1F2B57,#0E1428);color:#fff;width:150px}
-.inst-prev img{width:72px;height:72px;border-radius:17px;box-shadow:0 4px 14px rgba(0,0,0,.5)}
-.inst-prev span{font-size:.8rem}
-.passos-inst{list-style:none;margin:14px 0 0;counter-reset:p}
-.passos-inst li{display:flex;align-items:center;gap:12px;background:#FAF6EC;border:1.5px solid #efe2bd;border-radius:14px;padding:10px 12px;margin-bottom:8px;font-size:1rem;counter-increment:p}
-.passos-inst li:before{content:counter(p);background:#0E1428;color:#fff;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:.85rem;font-weight:700;flex-shrink:0}
-.passos-inst .ic{width:38px;height:38px;border-radius:10px;background:#fff;border:1.5px solid #d4ddf2;display:grid;place-items:center;flex-shrink:0;color:#007aff}
-.seta-baixo{position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:70;font-size:2.4rem;animation:quica 1s infinite;pointer-events:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
-.seta-cima{position:fixed;right:14px;top:calc(4px + env(safe-area-inset-top));z-index:70;font-size:2.4rem;animation:quica 1s infinite;pointer-events:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
-@keyframes quica{0%,100%{translate:0 0}50%{translate:0 8px}}
-.seta-cima{animation-name:quica2}@keyframes quica2{0%,100%{translate:0 0}50%{translate:0 -8px}}
+.inst-simples img{border-radius:18px;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.inst-simples h3{font-size:1.3rem;margin:10px 0 6px}
+.inst-simples .frase{font-size:1.15rem;line-height:1.5;margin:6px 4px 4px}
+.ic-inline{display:inline-flex;vertical-align:middle;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;background:#EEF4FF;color:#007AFF;border:1px solid #C9DAFC}
+.inst-prev{display:flex;flex-direction:column;align-items:center;gap:6px;margin:14px auto 6px;padding:16px;border-radius:18px;background:var(--preto);color:#fff;width:150px}
+.inst-prev img{width:72px;height:72px;border-radius:17px}
+.seta-baixo{position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:70;font-size:2.4rem;animation:quica 1s infinite;pointer-events:none}
+.seta-cima{position:fixed;right:14px;top:calc(4px + env(safe-area-inset-top));z-index:70;font-size:2.4rem;animation:quica2 1s infinite;pointer-events:none}
+@keyframes quica{0%,100%{translate:0 0}50%{translate:0 8px}}@keyframes quica2{0%,100%{translate:0 0}50%{translate:0 -8px}}
 @media (prefers-reduced-motion:reduce){.seta-baixo,.seta-cima{animation:none}}
-.linkbox{display:flex;gap:8px;align-items:center;background:#f4f7ff;border-radius:12px;padding:8px 8px 8px 12px;margin-top:10px;font-size:.85rem;word-break:break-all}
+.linkbox{display:flex;gap:8px;align-items:center;background:#F7F7F8;border-radius:10px;padding:8px 8px 8px 12px;margin-top:10px;font-size:.85rem;word-break:break-all}
 
-/* NAV */
-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;display:flex;justify-content:space-around;padding:6px 6px calc(6px + env(safe-area-inset-bottom));border-radius:20px 20px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,.12);z-index:10}
-nav button{flex:1;background:none;border:0;font-size:.78rem;font-weight:600;color:var(--txt);display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0;min-height:60px;border-radius:14px;position:relative}
-nav button.on{background:#0E1428;color:#D4A537}
-nav .pt{position:absolute;top:2px;right:calc(50% - 22px);min-width:20px;height:20px;padding:0 5px;background:var(--verm);color:#fff;font-size:11px;font-weight:700;border-radius:10px;display:grid;place-items:center;border:2px solid #fff}
-
-/* GENÉRICOS */
-.card{background:#fff;border-radius:18px;padding:16px;box-shadow:0 3px 12px rgba(0,0,0,.07);margin-bottom:12px}
-.card h3{font-size:1.15rem;margin-bottom:6px}.card p{font-size:.95rem;color:var(--cinza)}
-label{display:block;font-size:.9rem;font-weight:600;margin:12px 0 5px}
-.inp{width:100%;border:2px solid #c8d4ef;border-radius:12px;padding:0 14px;min-height:50px;font-family:inherit;font-size:1rem;outline:0;background:#fff;color:var(--txt)}
-.inp:focus{border-color:var(--azul2)}
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:12px;background:linear-gradient(#26346a,#0E1428);color:#fff;border:0;border-radius:14px;min-height:54px;font-weight:700;font-size:1.05rem;text-decoration:none}
-.btn.verde{background:linear-gradient(#2fd36b,#13a049)}
-.btn.claro{background:#eef2fb;color:var(--txt)}
-.emp{display:flex;gap:12px;align-items:center;background:#fff;border-radius:16px;padding:10px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.06);width:100%;border:0;text-align:left;color:inherit;min-height:76px}
-.emp .av{width:58px;height:58px;border-radius:12px;overflow:hidden;flex-shrink:0;background:linear-gradient(135deg,#1F2B57,#0E1428);display:grid;place-items:center;font-size:1.6rem}
-.emp .av img{width:100%;height:100%;object-fit:cover}
-.emp b{display:block;font-size:1rem}.emp small{color:var(--cinza);font-size:.85rem}
-.emp .pil{margin-left:auto;background:var(--ouro);color:#0E1428;font-weight:700;font-size:.85rem;border-radius:20px;padding:5px 10px;white-space:nowrap}
-.cupom{display:flex;background:#fff;border-radius:16px;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.07);width:100%;border:0;text-align:left;color:inherit;padding:0}
-.cupom .l{background:linear-gradient(#E9C766,#C9952A);color:#0E1428;padding:14px 10px;font-weight:800;font-size:1.1rem;display:grid;place-items:center;min-width:92px;border-right:3px dashed #fff;text-align:center}
-.cupom .r{padding:12px;flex:1;font-size:.9rem}.cupom code{font-weight:800;color:var(--azul);letter-spacing:1px;font-size:1rem}
-.cupom .ver{display:inline-block;margin-top:6px;color:#7A6531;font-weight:700}
-.vazio{text-align:center;color:var(--cinza);padding:36px 10px;font-size:1rem}
-.vazio .e{font-size:3rem;display:block;margin-bottom:8px}
-.modal{position:fixed;inset:0;background:rgba(5,15,50,.6);display:none;align-items:flex-end;justify-content:center;z-index:50}
-.modal.on{display:flex;animation:fade .2s}
-.sheet{background:#fff;width:100%;max-width:480px;border-radius:24px 24px 0 0;padding:16px 18px calc(22px + env(safe-area-inset-bottom));max-height:90vh;overflow:auto}
-.fechar{display:flex;align-items:center;gap:6px;margin-left:auto;background:#eef2fb;border:0;border-radius:30px;padding:0 16px;min-height:44px;font-weight:700;font-size:.95rem;color:var(--txt)}
-.codigo{border:3px dashed var(--ouro);border-radius:16px;padding:14px;text-align:center;margin:12px 0 4px;background:var(--azul3)}
-.codigo .c{font-size:1.7rem;font-weight:800;letter-spacing:3px;color:var(--azul)}
-.qr{display:grid;place-items:center;margin:8px auto;background:#fff;padding:10px;border-radius:12px;width:max-content}
-.chip{display:inline-block;background:var(--azul3);color:#5c4a1c;font-size:.8rem;font-weight:700;border-radius:20px;padding:4px 12px;margin:2px}
-.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translateX(-50%);background:#0b1a45;color:#fff;padding:12px 18px;border-radius:30px;font-size:.95rem;opacity:0;transition:.3s;z-index:60;pointer-events:none;white-space:nowrap}
-.toast.on{opacity:1}
-.notif{padding:12px 0;border-bottom:1px solid #eef2fb;font-size:.95rem}.notif b{display:block}
-.menu button{display:flex;align-items:center;gap:12px;width:100%;padding:0 6px;min-height:56px;border:0;border-bottom:1px solid #eef2fb;background:none;color:var(--txt);font-weight:600;font-size:1rem;text-align:left}
-.menu button .e{font-size:1.3rem;width:30px;text-align:center}
-.btn.entrega{background:linear-gradient(#ea580c,#c2410c);color:#fff}
-.chip.ent{background:#ffedd5;color:#9a3412}
-.entrega-info{background:#fff7ed;border:1.5px solid #fdba74;border-radius:14px;padding:10px 12px;font-size:.9rem;color:#7c2d12;margin-top:8px}
-.of .pr{font-size:.78rem;color:var(--cinza);margin-top:2px}.of .pr b{color:var(--verde);font-size:.92rem}
-.restam{position:absolute;left:6px;top:6px;background:#d9141a;color:#fff;font-size:.7rem;font-weight:800;border-radius:20px;padding:3px 9px}
-.restam.fim{background:#4a5578}
-.precobox{background:#f2fbf5;border:1.5px solid #bfe8cd;border-radius:12px;padding:10px 12px;margin:-4px 0 12px;font-size:1rem}
-.precobox s{color:var(--cinza)}.precobox b{color:var(--verde);font-size:1.25rem}
-.lojabox{background:#FAF6EC;border:1.5px solid #efe2bd;border-radius:14px;padding:12px;margin-top:14px}
-.lojabox .st{font-weight:700;font-size:.9rem}.lojabox .st.ab{color:var(--verde)}.lojabox .st.fe{color:#b45309}
-.lojabtns{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
-.lojabtns a,.lojabtns button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:56px;border-radius:12px;background:#fff;border:1.5px solid #efe2bd;font-weight:700;font-size:.8rem;color:var(--txt);text-decoration:none;cursor:pointer}
-.lojabtns span{font-size:1.2rem}
-.passos-ajuda li{margin:0 0 10px 20px;font-size:1rem}
+@media (min-width:520px){html,body{background:#D7D7DC}}
 </style>
 </head>
 <body>
+<!-- TELA DE CARREGAMENTO: fica até o app terminar de carregar as ofertas -->
+<div class="splash" id="splash" role="status" aria-live="polite" aria-label="Carregando o Vitrine Castro">
+ <div class="sp-in">
+  <img class="sp-logo" src="img/logo-simbolo.png" alt="" width="189" height="200">
+  <img class="sp-pal" src="img/logo-palavra.png" alt="Vitrine" width="393" height="72">
+  <div class="sp-castro">CASTRO</div>
+  <div class="sp-bar" aria-hidden="true"><i id="spBar"></i></div>
+  <p class="sp-txt" id="spTxt">Carregando ofertas…</p>
+ </div>
+</div>
+
 <div class="app">
-<header>
-  <div class="top">
-    <div class="marca" role="img" aria-label="Vitrine Castro"><img class="simbolo" src="img/logo-simbolo.png" alt="" width="189" height="200"><span class="wm"><img class="palavra" src="img/logo-palavra.png" alt="" width="393" height="72"><span class="c">CASTRO</span></span></div>
-    <button class="icobtn" id="btnAa" onclick="letraGrande()" aria-label="Aumentar o tamanho da letra"><span style="font-weight:800;font-size:.95rem">A<span style="font-size:1.35em">A</span></span></button>
-    <button class="icobtn" onclick="abrir('notifs')" aria-label="Avisos"><svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22zm7-6V11a7 7 0 0 0-5.5-6.84V3.5a1.5 1.5 0 0 0-3 0v.66A7 7 0 0 0 5 11v5l-2 2v1h18v-1z"/></svg><span class="badge" id="nbadge">3</span></button>
-    <a class="icobtn coroa" href="admin.html" aria-label="Área do administrador" title="Administração">👑</a>
+<header class="topo" id="topo" data-modo="home">
+ <div class="topo-home">
+  <div class="t0">
+   <button class="marca" onclick="ir('inicio')" aria-label="Vitrine Castro – início">
+    <img class="sim" src="img/logo-simbolo.png" alt="" width="189" height="200">
+    <span><img class="pal" src="img/logo-palavra.png" alt="" width="393" height="72"><span class="cid">CASTRO</span></span>
+   </button>
+   <a class="icobtn coroa" href="admin.html" aria-label="Administração" title="Administração" data-ic="crown"></a>
+   <button class="icobtn" onclick="abrir('notifs')" aria-label="Avisos"><span data-ic="bell"></span><span class="badge" id="nbadge">3</span></button>
+   <button class="avatar" id="btnConta" onclick="abrirConta()" aria-label="Minha conta"><span id="avIni">V</span></button>
   </div>
-  <div class="campo">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0b1a45" stroke-width="2.6"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-    <input id="q" type="search" placeholder="Buscar ofertas em Castro" aria-label="Buscar ofertas" oninput="buscar(this.value)">
-    <button class="limpar" id="limparBusca" onclick="limparBusca()" aria-label="Limpar busca">×</button>
+  <label class="busca"><span data-ic="search"></span><span class="sr">Buscar ofertas</span>
+   <input id="q" type="search" placeholder="Buscar ofertas e lojas em Castro" autocomplete="off" oninput="buscar(this.value)">
+   <button class="limpar" id="limparBusca" type="button" onclick="limparBusca()" aria-label="Limpar busca" data-ic="close"></button>
+  </label>
+  <div class="t2">
+   <button class="local" onclick="abrir('cidades')" aria-label="Trocar de cidade"><span data-ic="pin"></span><span id="cid">Castro – PR</span><span data-ic="chev"></span></button>
+   <span class="ola-topo" id="olaTopo"></span>
   </div>
+  <div class="tabs" id="tabsCat" role="tablist" aria-label="Categorias"></div>
+ </div>
+ <div class="topo-sub">
+  <button class="icobtn" onclick="voltar()" aria-label="Voltar" data-ic="back"></button>
+  <h1 id="subTit">Vitrine</h1>
+  <button class="icobtn" onclick="focarBusca()" aria-label="Buscar" data-ic="search"></button>
+ </div>
 </header>
 
 <main>
 <!-- INÍCIO -->
-<section class="view on" id="v-inicio">
-
+<section class="view on" id="v-inicio" aria-label="Início">
+ <div id="homeTudo">
+  <button class="faixa-vip" id="faixaVip" onclick="abrir('vip')"></button>
+  <div class="atalhos" id="atalhos" aria-label="Atalhos"></div>
+  <button class="pts-mini" id="ptsHome" onclick="ir('pontos')" aria-label="Meus pontos"></button>
+  <div class="instalar" id="instalarBox" style="display:none"><img class="ico" src="icons/icon-192.png" alt="" width="48" height="48"><span class="t"><b>Baixe o app Vitrine</b><small>Grátis, na tela do celular</small></span><button class="btn-ouro" onclick="instalarApp()">Baixar</button><button class="x" onclick="esconderInstalar()" aria-label="Agora não" data-ic="close"></button></div>
   <div class="carrossel" aria-label="Lojas patrocinadas"><div class="slides" id="slides"></div></div>
   <div class="ctrl" id="dots"></div>
-  <button class="ptsmini" id="ptsHome" onclick="ir('pontos')" aria-label="Meus pontos"></button>
-  <div class="instalar" id="instalarBox" style="display:none"><img class="ico" src="icons/icon-192.png" alt="" width="56" height="56"><span class="t"><b>Baixe o app</b><small>Grátis, direto na tela do celular</small></span><button class="btn-ouro" onclick="instalarApp()">Baixar</button><button class="x" onclick="esconderInstalar()" aria-label="Agora não">✕</button></div>
-
-  <div class="tit"><h2>📂 Categorias</h2></div>
-  <div class="cats" id="cats"></div>
-  <div class="mais-cats" id="maisCats"></div>
-
-  <div class="tit"><h2>🔥 Ofertas em destaque</h2><button class="vertodas" onclick="filtrarCat(null)">Ver todas ›</button></div>
+  <div id="relampagoBox"></div>
+  <div class="secao"><h2><span data-ic="fire"></span>Ofertas em destaque</h2><button class="link" onclick="filtrarCat(null)">Ver todas<span data-ic="chev"></span></button></div>
   <div class="ofertas" id="destaques"></div>
-
-  <div class="vip">
-    <div class="cr">👑</div>
-    <div style="flex:1"><h4><span>Vitrine</span> VIP</h4><p>Descontos exclusivos e ofertas antes de todo mundo! Só R$ 9,90/mês</p></div>
-    <button class="btn-ouro" onclick="abrir('vip')">Seja VIP</button>
+  <div class="secao"><h2><span data-ic="store"></span>Lojas parceiras</h2><button class="link" onclick="ir('empresas')">Ver todas<span data-ic="chev"></span></button></div>
+  <div class="lojas-trilho" id="lojasHome"></div>
+  <div class="secao"><h2><span data-ic="briefcase"></span>Tem uma loja em Castro?</h2></div>
+  <div class="card" style="display:flex;gap:12px;align-items:center">
+   <div style="flex:1"><h3>Anuncie no Vitrine</h3><p>Poste ofertas em 1 minuto e veja quantos clientes chegaram pelo app.</p></div>
+   <button class="btn-ouro" onclick="ir('negocios')">Ver planos</button>
   </div>
-  <button class="indique" style="width:100%;text-align:left;color:inherit;font-family:inherit" onclick="indicar()">
-    <span class="e">🎁</span><span><b>Indique para um amigo</b><small>Mande o Vitrine Castro no WhatsApp de quem você gosta</small></span>
-  </button>
-  <div style="height:16px"></div>
+  <button class="item card" style="padding:0 14px" onclick="indicar()"><span data-ic="gift"></span><span class="tx"><b>Indique para um amigo</b><small>Mande o Vitrine no WhatsApp de quem você gosta</small></span><span class="seta" data-ic="chev"></span></button>
+ </div>
+ <div id="homeCatBox" hidden>
+  <div class="secao" style="margin-top:6px"><h2 id="homeCatTit"></h2><button class="link" onclick="ir('categorias')">Categorias<span data-ic="chev"></span></button></div>
+  <div class="ofertas" id="homeCatOf"></div>
+ </div>
 </section>
 
-<!-- PONTOS -->
-<section class="view" id="v-pontos">
-  <div class="ptscard" id="ptsTopo" style="cursor:default"></div>
-  <div class="tit" style="margin-top:6px"><h2>🎁 Troque por brindes</h2></div>
-  <div class="brindes" id="listaBrindes"></div>
-  <div id="meusBrindesBox"></div>
-  <div class="tit"><h2>⭐ Como ganhar pontos</h2></div>
-  <div class="ganhar">
-    <div><span class="e">🛍️</span><span>A cada <b>R$ 1</b> gasto nas lojas parceiras</span><strong>+1 ponto</strong></div>
-    <div><span class="e">👋</span><span>Ao criar sua conta</span><strong>+50 pontos</strong></div>
-    <div><span class="e">🎁</span><span>Quando um amigo indicado se cadastra</span><strong>+100 pontos</strong></div>
-    <div><span class="e">👑</span><span>Membros Vitrine VIP ganham pontos</span><strong>em dobro</strong></div>
-  </div>
-  <div class="tit"><h2>🏅 Seu nível</h2></div>
-  <div class="niveis" id="niveisBox"></div>
-  <div class="tit"><h2>🧾 Extrato de pontos</h2></div>
-  <div class="hist" id="histBox"></div>
-  <div style="height:10px"></div>
+<!-- CATEGORIAS -->
+<section class="view" id="v-categorias" aria-label="Categorias">
+ <div class="cat-wrap"><div class="cat-lista" id="catLista" role="tablist" aria-label="Categorias"></div><div class="cat-cont" id="catCont"></div></div>
 </section>
 
 <!-- OFERTAS -->
-<section class="view" id="v-ofertas">
-  <div class="mais-cats" id="filtroCats" style="padding-top:0"></div>
-  <div class="tit" style="margin-top:8px"><h2 id="tOfertas">Todas as ofertas</h2><button class="vertodas" onclick="ir('empresas')">🏪 Empresas</button></div>
-  <div class="ofertas" id="todas"></div>
+<section class="view" id="v-ofertas" aria-label="Ofertas">
+ <div class="chips" id="filtroCats"></div>
+ <div class="barra-filtro"><h2 id="tOfertas">Todas as ofertas</h2>
+  <label class="sr" for="ordem">Ordenar</label><select id="ordem" onchange="ORDEM=this.value;renderTodas(window._ultimaBusca)"><option value="rec">Mais recentes</option><option value="desc">Maior desconto</option><option value="fim">Terminam antes</option></select></div>
+ <div class="ofertas" id="todas"></div>
 </section>
 
-<!-- EMPRESAS -->
-<section class="view" id="v-empresas">
-  <div class="card" style="background:linear-gradient(100deg,#0E1428,#1F2B57);color:#fff">
-    <h3>🏪 Tem uma empresa em Castro?</h3>
-    <p style="color:#dfe7ff">Divulgue suas ofertas no Vitrine Castro e atraia novos clientes todos os dias.</p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><a class="btn-ouro" style="display:inline-flex;align-items:center;text-decoration:none" href="empresa.html">Quero ser parceiro ›</a><a class="btn-ouro" style="display:inline-flex;align-items:center;text-decoration:none;background:#fff;box-shadow:none" href="empresa.html">🔑 Área da Empresa</a></div>
-  </div>
-  <div class="tit" style="margin-top:6px"><h2>💼 Planos para empresas</h2></div>
-  <div class="fundador"><div class="t">PARCEIRO FUNDADOR</div><h3>3 meses grátis</h3><p>Para as 20 primeiras lojas. Ganha o selo de Parceiro Fundador e destaque no lançamento.</p></div>
-  <div id="planosBox"></div>
-  <div class="tit"><h2>Empresas parceiras</h2></div>
-  <div id="listaEmp"></div>
+<!-- LOJAS -->
+<section class="view" id="v-empresas" aria-label="Lojas parceiras">
+ <div id="listaEmp"></div>
+ <button class="btn contorno" onclick="ir('negocios')">É lojista? Anuncie sua loja</button>
 </section>
 
-<!-- CUPONS -->
-<section class="view" id="v-cupons">
-  <div class="tit" style="margin-top:4px"><h2>🎟️ Meus cupons</h2></div>
-  <div id="meusCupons"></div>
-  <div class="tit"><h2>❤️ Favoritos</h2></div>
-  <div class="ofertas" id="favoritos"></div>
+<!-- PARA EMPRESAS -->
+<section class="view" id="v-negocios" aria-label="Para empresas">
+ <div class="hero-emp">
+  <div class="eyebrow">PARA EMPRESAS</div>
+  <h2>Venda mais para Castro inteira</h2>
+  <p>Sua loja aparece no app que a cidade usa para economizar.</p>
+  <ul><li><span data-ic="check"></span>Poste uma oferta em 1 minuto, como no Instagram</li><li><span data-ic="check"></span>Veja quantas pessoas viram, pegaram cupom e compraram</li><li><span data-ic="check"></span>Clientes pedem com entrega direto no seu WhatsApp</li></ul>
+  <a class="btn ouro" href="empresa.html#participar" onclick="planoDesejado('basico')"><span data-ic="store"></span>Cadastrar minha loja</a>
+  <a class="btn contorno" style="color:#fff;border-color:rgba(255,255,255,.4)" href="empresa.html#entrar"><span data-ic="key"></span>Já sou parceiro: entrar</a>
+ </div>
+ <div class="fundador"><div class="t">PARCEIRO FUNDADOR</div><h3>3 meses grátis</h3><p>Para as 20 primeiras lojas, com selo de Parceiro Fundador e destaque no lançamento.</p></div>
+ <div class="secao"><h2><span data-ic="tag"></span>Planos para lojas</h2></div>
+ <div id="planosBox"></div>
+ <button class="btn claro" onclick="abrir('parceiro')"><span data-ic="chat"></span>Prefiro falar pelo WhatsApp</button>
 </section>
 
-<!-- PERFIL -->
-<section class="view" id="v-perfil">
-  <div class="card" id="perfilBox"></div>
-  <div class="card menu" style="padding:4px 12px">
-    <button onclick="ir('cupons')"><span class="e">❤️</span>Meus cupons e favoritos</button>
-    <button onclick="ir('empresas')"><span class="e">🏪</span>Empresas parceiras e planos</button>
-    <button onclick="location.href='empresa.html'"><span class="e">🔑</span>Área da Empresa (para lojistas)</button>
-    <button onclick="abrir('vip')"><span class="e">👑</span>Vitrine VIP</button>
-    <button onclick="abrir('cidades')"><span class="e">📍</span>Cidade: <span id="cid" style="margin-left:4px">Castro – PR</span></button>
-    <button onclick="letraGrande()"><span class="e">🔠</span>Letra grande</button>
-    <button onclick="instalarApp()"><span class="e">📲</span>Baixar o app no celular</button>
-    <button onclick="abrir('ajuda')"><span class="e">❓</span>Como usar o app</button>
-    <button onclick="abrir('privacidade')" style="border-bottom:0"><span class="e">🔒</span>Privacidade e termos</button>
-  </div>
-  <button class="btn verde" onclick="ajudaWhats()">💬 Falar com o suporte</button>
+<!-- CUPONS E FAVORITOS -->
+<section class="view" id="v-cupons" aria-label="Meus cupons">
+ <div class="segmento" role="tablist"><button role="tab" id="segCup" aria-selected="true" onclick="segCupons('c')">Cupons</button><button role="tab" id="segFav" aria-selected="false" onclick="segCupons('f')">Favoritos</button></div>
+ <div id="meusCupons"></div>
+ <div class="ofertas" id="favoritos" hidden></div>
+</section>
+
+<!-- PONTOS -->
+<section class="view" id="v-pontos" aria-label="Meus pontos">
+ <div class="ptscard" id="ptsTopo"></div>
+ <div class="secao" style="margin-top:6px"><h2><span data-ic="gift"></span>Troque por brindes</h2></div>
+ <div class="brindes" id="listaBrindes"></div>
+ <div id="meusBrindesBox"></div>
+ <div class="secao"><h2><span data-ic="star"></span>Como ganhar pontos</h2></div>
+ <div class="ganhar">
+  <div><span class="e">🛍️</span><span>A cada <b>R$ 1</b> gasto nas lojas parceiras</span><strong>+1 ponto</strong></div>
+  <div><span class="e">👋</span><span>Ao fazer seu cadastro</span><strong>+50 pontos</strong></div>
+  <div><span class="e">🎁</span><span>Quando um amigo indicado se cadastra</span><strong>+100 pontos</strong></div>
+  <div><span class="e">👑</span><span>Membros Vitrine VIP ganham pontos</span><strong>em dobro</strong></div>
+ </div>
+ <div class="secao"><h2><span data-ic="medal"></span>Seu nível</h2></div>
+ <div class="niveis" id="niveisBox"></div>
+ <div class="secao"><h2><span data-ic="history"></span>Extrato de pontos</h2></div>
+ <div class="hist" id="histBox"></div>
+</section>
+
+<!-- MAIS -->
+<section class="view" id="v-mais" aria-label="Mais opções">
+ <div class="cab-preto">
+  <button class="perfil-l" onclick="ir('perfil')"><span class="avatar" id="maisAv" style="width:56px;height:56px;font-size:1.4rem">V</span><span><b id="maisNome">Visitante</b><small>Meu perfil<span data-ic="chev"></span></small></span></button>
+  <button class="pilula vipp" id="maisVip" onclick="abrir('vip')"></button>
+  <button class="pilula ptsp" id="maisPts" onclick="ir('pontos')"></button>
+ </div>
+ <div id="maisLista"></div>
+</section>
+
+<!-- MEU PERFIL -->
+<section class="view" id="v-perfil" aria-label="Meu perfil">
+ <div class="cab-preto">
+  <div class="linha-top"><button class="icobtn" onclick="voltar()" aria-label="Voltar" data-ic="back"></button><h1>Meu perfil</h1><span style="width:44px"></span></div>
+  <div class="perfil-topo" id="perfilTopo"></div>
+ </div>
+ <div id="perfilBox"></div>
 </section>
 </main>
 
-<nav aria-label="Menu principal">
-  <button data-v="inicio" class="on" onclick="ir('inicio')"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 2 11h3v9h5v-6h4v6h5v-9h3z"/></svg>Início</button>
-  <button data-v="ofertas" onclick="ir('ofertas')"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Ofertas</button>
-  <button data-v="pontos" onclick="ir('pontos')"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M2 9h20M12 9v12M12 9c-2-4-7-5-7-2s5 2 7 2c2 0 7 1 7-2s-5-2-7 2"/></svg>Pontos</button>
-  <button data-v="cupons" onclick="ir('cupons')"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 7a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v3a2 2 0 0 0 0 4v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a2 2 0 0 0 0-4z"/><path d="M14 6v12" stroke-dasharray="2 2"/></svg><span class="pt" id="ptCupom" style="display:none"></span>Cupons</button>
-  <button data-v="perfil" onclick="ir('perfil')"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>Perfil</button>
+<nav class="menu-baixo" aria-label="Menu principal">
+ <button data-v="inicio" class="on" onclick="ir('inicio')"><span class="ico-w" data-ic="home"></span>Início</button>
+ <button data-v="categorias" onclick="ir('categorias')"><span class="ico-w" data-ic="grid"></span>Categorias</button>
+ <button data-v="cupons" onclick="ir('cupons')"><span class="ico-w" data-ic="ticket"></span><span class="pt" id="ptCupom" style="display:none"></span>Cupons</button>
+ <button data-v="pontos" onclick="ir('pontos')"><span class="ico-w" data-ic="star"></span>Pontos</button>
+ <button data-v="mais" onclick="ir('mais')"><span class="ico-w" data-ic="menu"></span>Mais</button>
 </nav>
 </div>
 
@@ -420,9 +635,10 @@ label{display:block;font-size:.9rem;font-weight:600;margin:12px 0 5px}
    <label for="bvTel">Seu WhatsApp</label><input class="inp" id="bvTel" required inputmode="tel" autocomplete="tel" placeholder="(42) 9 9999-9999" oninput="mascara(this)">
    <label class="bv-ok"><input type="checkbox" id="bvOfertas"><span>Quero receber ofertas pelo WhatsApp</span></label>
    <div class="erro" id="bvErro" role="alert"></div>
-   <button class="btn ouro-g" id="bvBtn">Começar a economizar</button>
+   <button class="btn ouro" id="bvBtn">Começar a economizar</button>
    <p class="bv-priv">Ao continuar, você aceita os <button type="button" onclick="abrir('privacidade')">termos e a política de privacidade</button>. Não vendemos seus dados.</p>
   </form>
+  <a class="bv-loja" href="empresa.html#participar"><span data-ic="store"></span>É lojista? Cadastre sua loja</a>
  </div>
 </div>
 
@@ -440,16 +656,17 @@ const CATS = [
   {id:"auto", nome:"Automotivo", ic:"🚗"}
 ];
 // validade: "AAAA-MM-DD" | economia: valor médio economizado (R$) para o contador
+const dataMais=n=>{const d=new Date();d.setDate(d.getDate()+n);return d.toLocaleDateString("sv-SE")}; // exemplos sempre com datas atuais
 const OFERTAS = [
-  {id:"1", emp:"VS Store", sub:"Moda e Confecção", cat:"vest", img:"img/of1.jpg", tag:"30% OFF", desc:"30% de desconto em peças selecionadas da nova coleção.", regras:"Válido para compras à vista. Não cumulativo.", validade:"2026-11-30", economia:45, destaque:true},
-  {id:"2", emp:"Pizzaria Castro", sub:"Pizzas e Lanches", cat:"alim", img:"img/of2.jpg", tag:"20% OFF", desc:"20% de desconto em pizzas grandes, de segunda a quinta.", regras:"Válido no salão e delivery.", validade:"2026-11-10", economia:12, destaque:true},
-  {id:"3", emp:"VS Estética", sub:"Estética e Bem-estar", cat:"est", img:"img/of3.jpg", tag:"2 áreas grátis", s:true, desc:"Pacote de 10 sessões de depilação a laser com 2 áreas grátis.", regras:"Mediante agendamento.", validade:"2026-12-15", economia:120, destaque:true},
-  {id:"4", emp:"Farmácia Saúde+", sub:"Medicamentos e Perfumaria", cat:"sau", img:"img/of4.jpg", tag:"15% OFF", desc:"15% de desconto em perfumaria e dermocosméticos.", regras:"Exceto medicamentos controlados.", validade:"2026-11-25", economia:15, destaque:true},
-  {id:"5", emp:"VS Store", sub:"Liquidação", cat:"vest", img:"img/of1.jpg", tag:"Até 40% OFF", s:true, desc:"Liquidação com até 40% de desconto em toda a loja.", regras:"Enquanto durarem os estoques.", validade:"2026-11-20", economia:60},
-  {id:"6", emp:"Burger da Praça", sub:"Hamburgueria", cat:"alim", emoji:"🍔", tag:"Combo R$ 29", s:true, desc:"Combo burger + fritas + refri por R$ 29,90.", regras:"Válido todos os dias após 18h.", validade:"2026-12-31", economia:10},
-  {id:"7", emp:"Studio Bella", sub:"Salão de Beleza", cat:"est", emoji:"💇‍♀️", tag:"25% OFF", desc:"25% de desconto em escova e hidratação.", regras:"De terça a quinta.", validade:"2026-12-05", economia:20},
-  {id:"8", entrega:"retirada", emp:"Clínica Vida", sub:"Consultas e Exames", cat:"sau", emoji:"🩺", tag:"20% OFF", desc:"20% de desconto em consultas particulares.", regras:"Apresente o cupom na recepção.", validade:"2026-12-31", economia:40},
-  {id:"9", emp:"Barbearia Exemplo", sub:"Corte e Barba", cat:"barb", emoji:"💈", tag:"Barba grátis", s:true, desc:"Corte + barba pelo preço do corte.", regras:"Agende pelo WhatsApp da barbearia.", validade:"2026-12-20", economia:25}
+  {id:"1", emp:"VS Store", sub:"Moda e Confecção", cat:"vest", img:"img/of1.jpg", tag:"30% OFF", desc:"30% de desconto em peças selecionadas da nova coleção.", regras:"Válido para compras à vista. Não cumulativo.", validade:dataMais(20), economia:45, destaque:true},
+  {id:"2", emp:"Pizzaria Castro", sub:"Pizzas e Lanches", cat:"alim", img:"img/of2.jpg", tag:"20% OFF", desc:"20% de desconto em pizzas grandes, de segunda a quinta.", regras:"Válido no salão e delivery.", validade:dataMais(0), economia:12, destaque:true},
+  {id:"3", emp:"VS Estética", sub:"Estética e Bem-estar", cat:"est", img:"img/of3.jpg", tag:"2 áreas grátis", s:true, desc:"Pacote de 10 sessões de depilação a laser com 2 áreas grátis.", regras:"Mediante agendamento.", validade:dataMais(35), economia:120, destaque:true},
+  {id:"4", emp:"Farmácia Saúde+", sub:"Medicamentos e Perfumaria", cat:"sau", img:"img/of4.jpg", tag:"15% OFF", desc:"15% de desconto em perfumaria e dermocosméticos.", regras:"Exceto medicamentos controlados.", validade:dataMais(15), economia:15, destaque:true},
+  {id:"5", emp:"VS Store", sub:"Liquidação", cat:"vest", img:"img/of1.jpg", tag:"Até 40% OFF", s:true, desc:"Liquidação com até 40% de desconto em toda a loja.", regras:"Enquanto durarem os estoques.", validade:dataMais(9), economia:60},
+  {id:"6", emp:"Burger da Praça", sub:"Hamburgueria", cat:"alim", emoji:"🍔", destaque:true, precoDe:42, precoPor:29.9, tag:"Combo R$ 29", s:true, desc:"Combo burger + fritas + refri por R$ 29,90.", regras:"Válido todos os dias após 18h.", validade:dataMais(1), economia:10},
+  {id:"7", emp:"Studio Bella", sub:"Salão de Beleza", cat:"est", emoji:"💇‍♀️", precoDe:80, precoPor:60, destaque:true, tag:"25% OFF", desc:"25% de desconto em escova e hidratação.", regras:"De terça a quinta.", validade:dataMais(25), economia:20},
+  {id:"8", entrega:"retirada", emp:"Clínica Vida", sub:"Consultas e Exames", cat:"sau", emoji:"🩺", tag:"20% OFF", desc:"20% de desconto em consultas particulares.", regras:"Apresente o cupom na recepção.", validade:dataMais(40), economia:40},
+  {id:"9", emp:"Barbearia Exemplo", sub:"Corte e Barba", cat:"barb", emoji:"💈", tag:"Barba grátis", s:true, desc:"Corte + barba pelo preço do corte.", regras:"Agende pelo WhatsApp da barbearia.", validade:dataMais(30), economia:25}
 ];
 // ===== PONTOS E BRINDES =====
 const PONTOS_POR_REAL = 1;      // 1 ponto a cada R$ 1
@@ -516,7 +733,7 @@ function situacaoLoja(o){if(!o.abre||!o.fecha)return null;const n=new Date(),d=n
   if(abreHoje&&m<a)return {aberto:false,txt:"🔴 Fechado · abre hoje às "+hh(o.abre)};
   let k=1;if(dias.length)while(k<7&&!dias.includes((d+k)%7))k++;
   return {aberto:false,txt:"🔴 Fechado agora · abre "+(k===1?"amanhã":DIAS_SEM[(d+k)%7].toLowerCase())+" às "+hh(o.abre)}}
-function prazoTxt(o){if(!o.validade)return"";const d=dias(o);return d===0?"Termina hoje!":d===1?"Termina amanhã":d<=5?`Termina em ${d} dias`:"Até "+new Date(o.validade+"T00:00:00").toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})}
+function prazoTxt(o){if(!o.validade)return"";const d=dias(o);return d<0?"Encerrada":d===0?"Termina hoje!":d===1?"Termina amanhã":d<=5?`Termina em ${d} dias`:"Até "+new Date(o.validade+"T00:00:00").toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})}
 function favs(){return store.get("gira_favs",[])}
 function imgOf(o){return o.img?`<img src="${o.img}" alt="" loading="lazy">`:`<span aria-hidden="true">${o.emoji||"🏷️"}</span>`}
 /* ===== NÚMEROS PARA O EMPRESÁRIO: aparições, visualizações, cliques, cupons, entregas =====
@@ -535,71 +752,249 @@ let _obs=null;
 function observarCards(){if(!("IntersectionObserver" in window))return;
   if(!_obs)_obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){registrarEvento(e.target.dataset.of,"aparicao");_obs.unobserve(e.target)}}),{threshold:.6});
   document.querySelectorAll(".of[data-of]").forEach(el=>_obs.observe(el))}
-function cardOf(o){const f=favs().includes(o.id),d=o.validade?dias(o):99,r=restam(o);
-  return `<div class="of" data-of="${esc(o.id)}" role="button" tabindex="0" onclick="verOferta('${o.id}')" onkeydown="if(event.key==='Enter')verOferta('${o.id}')" aria-label="${esc(o.emp)}, ${esc(o.tag.replace(/<br>/g,' '))}">
-  <div class="im">${imgOf(o)}<button class="fav" onclick="event.stopPropagation();favoritar('${o.id}')" aria-label="${f?"Remover dos":"Salvar nos"} favoritos">${f?"❤️":"🤍"}</button>${o.validade?`<span class="prazo ${d<=3?"urg":""}">${prazoTxt(o)}</span>`:""}${r===0?`<span class="restam fim">Esgotado</span>`:r!==null&&r<=20?`<span class="restam">🔥 Restam ${r}</span>`:""}</div>
-  <div class="info"><b>${esc(o.emp)}</b><small>${esc(o.sub)}</small>${o.precoDe&&o.precoPor?`<div class="pr"><s>${brl(o.precoDe)}</s> <b>${brl(o.precoPor)}</b></div>`:""}</div><div class="tag ${o.s?"s":""}">${o.tag}</div></div>`}
+/* ===================================================================
+   ÍCONES (traço fino, um só estilo em todo o app)
+   =================================================================== */
+const IC={
+ home:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h5v-6h4v6h5V9.5"/>',
+ grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14v7M14 17.5h7"/>',
+ ticket:'<path d="M2 9a3 3 0 0 0 0 6v3a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-3a3 3 0 0 0 0-6V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/><path d="M13 5v2M13 11v2M13 17v2"/>',
+ star:'<path d="m12 2.5 2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5-4.8-4.6 6.6-.9z"/>',
+ menu:'<path d="M4 6h16M4 12h10M4 18h10M18 15v6M15 18h6"/>',
+ bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+ search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+ pin:'<path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/>',
+ heart:'<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7z"/>',
+ crown:'<path d="M11.6 3.3a.5.5 0 0 1 .8 0l3 4.6 4.7-3.5a.5.5 0 0 1 .8.5L18.8 17H5.2L3.1 4.9a.5.5 0 0 1 .8-.5l4.7 3.5z"/><path d="M5 21h14"/>',
+ store:'<path d="M3 9 4.5 4h15L21 9"/><path d="M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0"/><path d="M5 12v9h14v-9"/><path d="M10 21v-5h4v5"/>',
+ tag:'<path d="M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4z"/><circle cx="7.5" cy="7.5" r="1.3"/>',
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+ gift:'<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/>',
+ briefcase:'<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2M2 13h20"/>',
+ help:'<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/>',
+ shield:'<path d="M20 13c0 5-3.5 7.5-7.7 9a1 1 0 0 1-.6 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.2-2.7a1.2 1.2 0 0 1 1.6 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z"/>',
+ download:'<path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/>',
+ chat:'<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22z"/>',
+ share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/>',
+ truck:'<path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.6a1 1 0 0 0-.2-.6l-3.5-4.4A1 1 0 0 0 17.5 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/>',
+ clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+ zap:'<path d="M13 2 3 14h9l-1 8 10-12h-9z"/>',
+ fire:'<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.4-.5-2-1-3-1.1-2.1-.2-4 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.2.4-2.3 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+ chev:'<path d="m9 18 6-6-6-6"/>',
+ back:'<path d="M19 12H5M12 19l-7-7 7-7"/>',
+ close:'<path d="M18 6 6 18M6 6l12 12"/>',
+ logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
+ text:'<path d="M4 7V4h16v3M9 20h6M12 4v16"/>',
+ phone:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/>',
+ map:'<path d="M14.1 6.3 9.9 4.2a2 2 0 0 0-1.8 0L3.6 6.4A1 1 0 0 0 3 7.3v12.1a1 1 0 0 0 1.4.9l3.7-1.8a2 2 0 0 1 1.8 0l4.2 2.1a2 2 0 0 0 1.8 0l4.5-2.2a1 1 0 0 0 .6-.9V5.4a1 1 0 0 0-1.4-.9l-3.7 1.8a2 2 0 0 1-1.8 0z"/><path d="M15 6v15M9 3v15"/>',
+ insta:'<rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/>',
+ trash:'<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>',
+ edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4z"/>',
+ key:'<circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6M15.5 7.5l3 3L22 7l-3-3"/>',
+ megafone:'<path d="m3 11 18-5v12L3 14z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>',
+ copy:'<rect x="8" y="8" width="14" height="14" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+ check:'<path d="M20 6 9 17l-5-5"/>',
+ history:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5M12 7v5l4 2"/>',
+ medal:'<circle cx="12" cy="15" r="6"/><path d="M8.2 10.3 5 3h5l2 4 2-4h5l-3.2 7.3M12 12.5v5M10 14l2-1.5"/>',
+ calendar:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+ users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/>',
+ percent:'<path d="M19 5 5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
+ // categorias
+ vest:'<path d="M20.4 3.5 16 2a4 4 0 0 1-8 0L3.6 3.5a2 2 0 0 0-1.3 2.2l.6 3.5a1 1 0 0 0 1 .8H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.2a1 1 0 0 0 1-.8l.6-3.5a2 2 0 0 0-1.3-2.2z"/>',
+ alim:'<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>',
+ est:'<path d="M9.9 15.5a2 2 0 0 0-1.4-1.4l-6.1-1.6a.5.5 0 0 1 0-1l6.1-1.6a2 2 0 0 0 1.4-1.4l1.6-6.1a.5.5 0 0 1 1 0l1.6 6.1a2 2 0 0 0 1.4 1.4l6.1 1.6a.5.5 0 0 1 0 1l-6.1 1.6a2 2 0 0 0-1.4 1.4l-1.6 6.1a.5.5 0 0 1-1 0z"/>',
+ sau:'<path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7z"/><path d="M3.2 12H9l.5-1 2 4.5 2-7 1.5 3.5h5.3"/>',
+ barb:'<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/>',
+ pet:'<circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.8 1.2 3.5 3.5 0 0 0-3.4-2.2A3.5 3.5 0 0 1 4 10.8 5 5 0 0 1 9 10z"/>',
+ acad:'<path d="M6 7v10M18 7v10M3 9v6M21 9v6M6 12h12"/>',
+ auto:'<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9L18.4 10.5 16 6.6A2 2 0 0 0 14.3 6H7.7a2 2 0 0 0-1.7 1L3.4 11l-.9.6c-.3.2-.5.6-.5 1V16c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M9 17h6"/>'
+};
+function ic(n,t=22,extra=""){return `<svg class="ic" width="${t}" height="${t}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${IC[n]||IC.tag}</svg>`}
+function pintarIcones(raiz=document){raiz.querySelectorAll("[data-ic]").forEach(el=>{if(el.dataset.feito)return;el.dataset.feito=1;const t=el.classList.contains("ico-w")?24:el.closest(".secao,.link,.t2")?18:22;el.insertAdjacentHTML("afterbegin",ic(el.dataset.ic,t))})}
+const icCat=id=>IC[id]?id:"tag";
 
+/* ===================================================================
+   CARTÃO DE OFERTA (padrão de loja on-line: foto, loja, título, preço)
+   =================================================================== */
+let catSelHome=null,ORDEM="rec",CAT_RAIL=null,pilha=[];
+function centavos(v){const [i,c]=Number(v).toFixed(2).split(".");return `R$ ${Number(i).toLocaleString("pt-BR")}<sup>${c}</sup>`}
+function pctOf(o){if(o.precoDe&&o.precoPor&&o.precoPor<o.precoDe)return Math.round((1-o.precoPor/o.precoDe)*100);const m=/(\d{1,2})\s*%/.exec(tagTexto(o));return m?+m[1]:0}
+function seloOf(o){const d=o.validade?dias(o):99,r=restam(o);
+  if(d<0)return `<span class="selo fim">Encerrada</span>`;
+  if(r===0)return `<span class="selo fim">Esgotado</span>`;
+  if(d===0)return `<span class="selo urg">Termina hoje</span>`;
+  if(r!==null&&r<=20)return `<span class="selo">Restam ${r}</span>`;
+  if(d<=3)return `<span class="selo urg">${d===1?"Termina amanhã":"Termina em "+d+" dias"}</span>`;
+  if(o.destaque)return `<span class="selo ouro">Destaque</span>`;return ""}
+function cardOf(o){const f=favs().includes(o.id),tit=o.desc||tagTexto(o);
+  return `<div class="of" data-of="${esc(o.id)}" role="button" tabindex="0" onclick="verOferta('${o.id}')" onkeydown="if(event.key==='Enter')verOferta('${o.id}')" aria-label="${esc(o.emp)}: ${esc(tagTexto(o))}">
+  <div class="of-im">${imgOf(o)}<button class="fav ${f?"on":""}" onclick="event.stopPropagation();favoritar('${o.id}')" aria-label="${f?"Remover dos":"Salvar nos"} favoritos">${ic("heart",20)}</button>${seloOf(o)}</div>
+  <div class="of-bd"><span class="of-loja">${esc(o.emp)}</span><p class="of-tit">${esc(tit)}</p>
+   ${o.precoDe&&o.precoPor?`<div class="of-de"><s>${brl(o.precoDe)}</s></div><div class="of-por"><span class="preco">${centavos(o.precoPor)}</span><span class="pct">${pctOf(o)}% OFF</span></div>`:`<div class="of-tag ${o.s?"s":""}">${o.tag.replace(/<br>/g," ")}</div>`}
+   <div class="of-ex">${o.entrega==="retirada"?`<span class="mini-tag cinza">${ic("store",14)}Retirar na loja</span>`:`<span class="mini-tag">${ic("truck",14)}Faz entrega</span>`}${o.validade&&dias(o)>3?`<span class="mini-tag cinza">${ic("clock",14)}${prazoTxt(o)}</span>`:""}</div></div></div>`}
+
+/* ===================================================================
+   RENDERIZAÇÃO DAS TELAS
+   =================================================================== */
 function render(){
   $("#slides").innerHTML=BANNERS.map((b,i)=>b.anuncie?
-   `<button class="slide" style="background:linear-gradient(120deg,#0E1428,#1F2B57)" onclick="clicBanner(${i})" aria-label="Anuncie sua loja aqui"><span class="grande" aria-hidden="true">👑</span><div class="tx"><span class="pat">ESPAÇO PATROCINADO</span><div><div class="nm" style="font-size:1.25rem">Sua loja aqui!</div><div class="sb">Apareça para toda Castro no topo do app</div></div><span class="cta">Quero anunciar ›</span></div></button>`:
-   `<button class="slide" onclick="clicBanner(${i})" aria-label="${esc(b.nome)}: ${esc(b.oferta)}. Patrocinado"><img class="foto" src="${b.foto}" alt=""><span class="ov"></span><div class="tx"><span class="pat">⭐ PATROCINADO</span><div class="lg"><span class="av">${b.logo?`<img src="${b.logo}" alt="">`:b.emoji}</span><div><div class="nm">${esc(b.nome)}</div><div class="sb">${esc(b.sub)}</div></div></div><div class="oft"><small>${b.topo}</small>${b.oferta}</div><span class="cta">Ver oferta ›</span></div></button>`).join("");
-  $("#dots").innerHTML=BANNERS.map((_,i)=>`<button class="${i===0?"on":""}" onclick="irSlide(${i})" aria-label="Destaque ${i+1}"><i></i></button>`).join("");
-  $("#cats").innerHTML=CATS.filter(c=>c.img).map(c=>`<button class="cat" onclick="filtrarCat('${c.id}')" aria-label="${c.nome}"><img src="${c.img}" alt=""></button>`).join("");
-  $("#maisCats").innerHTML=CATS.filter(c=>!c.img).map(c=>`<button class="chipcat" onclick="filtrarCat('${c.id}')">${c.ic} ${c.nome}</button>`).join("");
-  $("#destaques").innerHTML=ativas().filter(o=>o.destaque).map(cardOf).join("");
-  renderTodas();renderEmp();renderCupons();renderPerfil();renderOla();renderPontos();renderPlanos();
-  observarCards();
+   `<button class="slide" onclick="clicBanner(${i})" aria-label="Anuncie sua loja aqui"><span class="grande" aria-hidden="true">${ic("crown",88)}</span><div class="tx"><span class="pat">ESPAÇO PATROCINADO</span><div><div class="nm" style="font-size:1.2rem">Sua loja aqui!</div><div class="sb">Apareça para toda Castro no topo do app</div></div><span class="cta">Quero anunciar ›</span></div></button>`:
+   `<button class="slide" onclick="clicBanner(${i})" aria-label="${esc(b.nome)}: ${esc(b.oferta)}. Patrocinado"><img class="foto" src="${b.foto}" alt=""><span class="ov"></span><div class="tx"><span class="pat">PATROCINADO</span><div class="lg"><span class="av">${b.logo?`<img src="${b.logo}" alt="">`:b.emoji}</span><div><div class="nm">${esc(b.nome)}</div><div class="sb">${esc(b.sub)}</div></div></div><div class="oft"><small>${b.topo}</small>${b.oferta}</div><span class="cta">Ver oferta ›</span></div></button>`).join("");
+  $("#dots").innerHTML=BANNERS.map((_,i)=>`<button class="${i===slide?"on":""}" onclick="irSlide(${i})" aria-label="Destaque ${i+1}"><i></i></button>`).join("");
+  renderTopo();renderTabs();renderHome();renderTodas(window._ultimaBusca);renderEmp();renderCupons();renderPontos();renderPlanos();renderCategorias();renderMais();renderPerfil();
+  pintarIcones();observarCards();
 }
-function renderFiltro(){$("#filtroCats").innerHTML=`<button class="chipcat ${!catSel?"on":""}" onclick="filtrarCat(null)">✨ Todas</button>`+CATS.map(c=>`<button class="chipcat ${catSel===c.id?"on":""}" onclick="filtrarCat('${c.id}')">${c.ic} ${c.nome}</button>`).join("")}
+function primeiroNome(){const p=store.get("gira_perfil",null);return p&&p.nome?String(p.nome).trim().split(/\s+/)[0]:""}
+function inicial(){const n=primeiroNome();return n?n[0].toUpperCase():"V"}
+function renderTopo(){$("#avIni").textContent=inicial();const n=primeiroNome();$("#olaTopo").textContent=n?`Olá, ${n}`:""}
+function renderTabs(){$("#tabsCat").innerHTML=[{id:null,nome:"Tudo"},...CATS].map(c=>`<button role="tab" aria-selected="${catSelHome===c.id}" onclick="tabHome(${c.id?`'${c.id}'`:"null"})">${c.nome}</button>`).join("")}
+function tabHome(id){catSelHome=id;renderTabs();renderHome();pintarIcones();observarCards();const b=document.querySelector('#tabsCat [aria-selected="true"]');if(b)b.scrollIntoView({inline:"center",block:"nearest",behavior:"smooth"})}
+function renderHome(){
+  const vipOn=vip(),p=store.get("gira_perfil",null);
+  $("#faixaVip").innerHTML=`${ic("crown",22)}<b>Vitrine VIP</b><span>${vipOn?"Você é VIP"+(p&&p.vipAte?" até "+dataCurta(p.vipAte):""):"Assine por R$ 9,90/mês"}</span>${ic("chev",18)}`;
+  const ncup=store.get("gira_cupons",[]).length,at=[
+    ["ofertas","tag","Ofertas","filtrarCat(null)","",""],
+    ["cupons","ticket","Cupons","ir('cupons')",ncup?String(ncup):"","verde"],
+    ["lojas","store","Lojas","ir('empresas')","",""],
+    ["vip","crown","Vitrine VIP","abrir('vip')",vipOn?"ATIVO":"R$ 9,90","ouro"],
+    ["pontos","star","Pontos","ir('pontos')","",""],
+    ["emp","briefcase","Para empresas","ir('negocios')","NOVO",""],
+    ["ind","gift","Indique","indicar()","",""],
+    ...(instalado()?[]:[["app","download","Baixar app","instalarApp()","GRÁTIS","verde"]])];
+  $("#atalhos").innerHTML=at.map(([k,i,r,f,t,c])=>`<button class="atalho" onclick="${f}" aria-label="${r}"><span class="bola ${k==="vip"?"ouro":""}">${ic(i,26)}${t?`<span class="tg ${c}">${t}</span>`:""}</span><span class="rot">${r}</span></button>`).join("");
+  const l=ativas();
+  $("#destaques").innerHTML=l.filter(o=>o.destaque).map(cardOf).join("")||`<div class="vazio" style="grid-column:1/-1">Em breve, novas ofertas por aqui.</div>`;
+  // lojas parceiras (bolinhas)
+  const emps={};l.forEach(o=>{(emps[o.emp]=emps[o.emp]||[]).push(o)});
+  $("#lojasHome").innerHTML=Object.values(emps).slice(0,12).map(os=>{const o=os[0];return `<button class="loja-ch" onclick="verOferta('${o.id}')"><span class="av">${o.logo&&/^(https:|data:image\/|img\/)/.test(o.logo)?`<img src="${esc(o.logo)}" alt="">`:imgOf(o)}</span>${esc(o.emp)}</button>`}).join("");
+  // ofertas que acabam hoje/amanhã, com relógio
+  const rel=l.filter(o=>o.validade&&dias(o)<=1&&restam(o)!==0);
+  $("#relampagoBox").innerHTML=rel.length?`<div class="relampago"><div class="cab"><h2>${ic("zap",20)}Acabam logo</h2><div class="relogio" id="relogio" aria-label="Tempo até a meia-noite"></div></div><div class="trilho">${rel.map(cardOf).join("")}</div></div>`:"";
+  tickRelogio();
+  // aba de categoria no topo
+  const temCat=!!catSelHome;$("#homeTudo").hidden=temCat;$("#homeCatBox").hidden=!temCat;
+  if(temCat){const c=CATS.find(x=>x.id===catSelHome)||{nome:""},lc=l.filter(o=>o.cat===catSelHome);
+    $("#homeCatTit").innerHTML=`${ic(icCat(catSelHome),20)}${esc(c.nome)}`;
+    $("#homeCatOf").innerHTML=lc.length?lc.map(cardOf).join(""):`<div class="vazio" style="grid-column:1/-1"><span class="e">${ic(icCat(catSelHome),28)}</span>Ainda não há ofertas em ${esc(c.nome)}.<br>Volte logo!</div>`}
+}
+let _rel=null;function tickRelogio(){clearInterval(_rel);const el=$("#relogio");if(!el)return;const f=()=>{const n=new Date(),m=new Date(n);m.setHours(24,0,0,0);let s=Math.max(0,Math.floor((m-n)/1000));const h=Math.floor(s/3600),mi=Math.floor(s%3600/60),se=s%60;el.innerHTML=[h,mi,se].map(x=>`<span>${String(x).padStart(2,"0")}</span>`).join(":")};f();_rel=setInterval(()=>{if(!document.body.contains(el)){clearInterval(_rel);return}f()},1000)}
+function ordenar(l){const c=[...l];if(ORDEM==="desc")c.sort((a,b)=>pctOf(b)-pctOf(a));if(ORDEM==="fim")c.sort((a,b)=>(a.validade||"9999").localeCompare(b.validade||"9999"));return c}
+function renderFiltro(){$("#filtroCats").innerHTML=`<button class="chipcat ${!catSel?"on":""}" onclick="filtrarCat(null)">Todas</button>`+CATS.map(c=>`<button class="chipcat ${catSel===c.id?"on":""}" onclick="filtrarCat('${c.id}')">${ic(icCat(c.id),16)}${c.nome}</button>`).join("")}
 function renderTodas(lista){
   renderFiltro();
-  const l=lista||ativas().filter(o=>!catSel||o.cat===catSel);
-  $("#todas").innerHTML=l.length?l.map(cardOf).join(""):`<div class="vazio" style="grid-column:1/-1"><span class="e">😕</span>Nenhuma oferta encontrada aqui ainda.<br><button class="btn claro" onclick="filtrarCat(null)">Ver todas as ofertas</button></div>`;
-  $("#tOfertas").textContent=lista?`Resultados (${l.length})`:catSel?CATS.find(c=>c.id===catSel).ic+" "+CATS.find(c=>c.id===catSel).nome:"Todas as ofertas";
+  const l=ordenar(lista||ativas().filter(o=>!catSel||o.cat===catSel));
+  $("#todas").innerHTML=l.length?l.map(cardOf).join(""):`<div class="vazio" style="grid-column:1/-1"><span class="e">${ic("search",28)}</span>Nenhuma oferta encontrada.<br><button class="btn claro" onclick="limparBusca();filtrarCat(null)">Ver todas as ofertas</button></div>`;
+  const c=CATS.find(x=>x.id===catSel);
+  $("#tOfertas").textContent=lista?`${l.length} resultado${l.length===1?"":"s"}`:c?`${c.nome} (${l.length})`:`Todas as ofertas (${l.length})`;
 }
 function renderEmp(){
   const emps={};ativas().forEach(o=>{(emps[o.emp]=emps[o.emp]||[]).push(o)});
-  $("#listaEmp").innerHTML=Object.values(emps).map(os=>{const o=os[0];return `<button class="emp" onclick="verOferta('${o.id}')"><div class="av">${imgOf(o)}</div><div><b>${esc(o.emp)}</b><small>${esc(o.sub)} · ${os.length} oferta${os.length>1?"s":""}</small></div><span class="pil">${o.tag.replace(/<br>/g," ")}</span></button>`}).join("");
+  $("#listaEmp").innerHTML=Object.values(emps).map(os=>{const o=os[0];return `<button class="emp" onclick="verOferta('${o.id}')"><span class="av">${imgOf(o)}</span><span class="tx"><b>${esc(o.emp)}</b><small>${esc(o.sub)} · ${os.length} oferta${os.length>1?"s":""}</small><span class="pil">${o.tag.replace(/<br>/g," ")}</span></span>${ic("chev",20)}</button>`}).join("")||`<div class="vazio">Nenhuma loja ainda.</div>`;
 }
+function segCupons(k){$("#segCup").setAttribute("aria-selected",k==="c");$("#segFav").setAttribute("aria-selected",k==="f");$("#meusCupons").hidden=k!=="c";$("#favoritos").hidden=k!=="f"}
 function renderCupons(){
   const c=store.get("gira_cupons",[]).filter(x=>OFERTAS.some(o=>o.id===x.id));
   const pt=$("#ptCupom");pt.style.display=c.length?"":"none";pt.textContent=c.length;
-  $("#meusCupons").innerHTML=c.length?c.map(x=>{const o=OFERTAS.find(y=>y.id===x.id);return `<button class="cupom" onclick="verOferta('${o.id}')"><div class="l">${o.tag.replace(/<br>/g," ")}</div><div class="r"><b>${esc(o.emp)}</b><br>Código: <code>${x.cod}</code><br><span class="ver">${x.entrega?"🛵 Pedido de entrega enviado":"Toque para mostrar na loja ›"}</span></div></button>`}).join(""):
-   `<div class="vazio"><span class="e">🎟️</span>Você ainda não pegou nenhum cupom.<br>Escolha uma oferta e toque em <b>Pegar cupom</b>.<button class="btn" onclick="ir('ofertas')">Ver ofertas</button></div>`;
+  $("#segCup").textContent=`Cupons (${c.length})`;
+  $("#meusCupons").innerHTML=c.length?c.map(x=>{const o=OFERTAS.find(y=>y.id===x.id);return `<button class="cupom" onclick="verOferta('${o.id}')"><div class="l">${o.tag.replace(/<br>/g," ")}</div><div class="r"><b>${esc(o.emp)}</b><br>Código: <code>${x.cod}</code><br><span class="ver">${x.entrega?"Pedido de entrega enviado":"Mostrar na loja"}${ic("chev",16)}</span></div></button>`}).join(""):
+   `<div class="vazio"><span class="e">${ic("ticket",28)}</span>Você ainda não pegou nenhum cupom.<br>Escolha uma oferta e toque em <b>Pegar cupom</b>.<button class="btn ouro" onclick="filtrarCat(null)">Ver ofertas</button></div>`;
   const f=ativas().filter(o=>favs().includes(o.id));
-  $("#favoritos").innerHTML=f.length?f.map(cardOf).join(""):`<div class="vazio" style="grid-column:1/-1;padding:16px">Toque no 🤍 de uma oferta para guardar aqui.</div>`;
+  $("#segFav").textContent=`Favoritos (${f.length})`;
+  $("#favoritos").innerHTML=f.length?f.map(cardOf).join(""):`<div class="vazio" style="grid-column:1/-1"><span class="e">${ic("heart",28)}</span>Toque no coração de uma oferta para guardar aqui.</div>`;
 }
 function renderOla(){
-  const p=store.get("gira_perfil",null);
-  window._ola=p?`Olá, ${esc(p.nome.split(" ")[0])}! 👋`:"Olá! 👋";
+  const n=primeiroNome();window._ola=n?`Olá, ${esc(n)}!`:"Olá!";
   const tot=store.get("gira_cupons",[]).reduce((s,x)=>s+((OFERTAS.find(o=>o.id===x.id)||{}).economia||0),0);
   window._eco=tot.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 }
+/* categorias: lista à esquerda, ofertas e lojas à direita */
+function renderCategorias(){
+  const l=ativas(),comOf=CATS.filter(c=>l.some(o=>o.cat===c.id));if(!CAT_RAIL)CAT_RAIL=(comOf[0]||CATS[0]).id;
+  $("#catLista").innerHTML=CATS.map(c=>`<button role="tab" aria-selected="${CAT_RAIL===c.id}" onclick="CAT_RAIL='${c.id}';renderCategorias();pintarIcones();observarCards()">${ic(icCat(c.id),24)}${c.nome}</button>`).join("");
+  const c=CATS.find(x=>x.id===CAT_RAIL)||CATS[0],lc=l.filter(o=>o.cat===c.id),lojas=[...new Set(lc.map(o=>o.emp))];
+  $("#catCont").innerHTML=`<div class="cat-capa">${c.img?`<img src="${c.img}" alt="">`:ic(icCat(c.id),56)}</div>
+   <h2>${esc(c.nome)}</h2><p class="sub">${lc.length} oferta${lc.length===1?"":"s"} · ${lojas.length} loja${lojas.length===1?"":"s"}</p>
+   ${lc.length?`<div class="ofertas">${lc.map(cardOf).join("")}</div><button class="btn contorno" onclick="filtrarCat('${c.id}')">Ver em lista completa</button>`:`<div class="vazio" style="box-shadow:none;margin-top:10px"><span class="e">${ic(icCat(c.id),28)}</span>Ainda não há ofertas aqui.<br>Tem uma loja de ${esc(c.nome)}?<button class="btn ouro" onclick="ir('negocios')">Anuncie no Vitrine</button></div>`}`}
+/* "Mais": menu completo, com ícones que explicam sozinhos */
+function itemHTML(i,t,f,{sub="",tag="",tagc="",cont=0,chave=null,href=""}={}){
+  const fim=chave!==null?`<span class="chave ${chave?"on":""}" aria-hidden="true"></span>`:`${tag?`<span class="tag-item ${tagc}">${tag}</span>`:""}${cont?`<span class="cont">${cont}</span>`:""}<span class="seta">${ic("chev",18)}</span>`;
+  const attrs=chave!==null?` role="switch" aria-checked="${!!chave}"`:"";
+  return href?`<a class="item" href="${href}">${ic(i,22)}<span class="tx">${t}${sub?`<small>${sub}</small>`:""}</span>${fim}</a>`:`<button class="item" onclick="${f}"${attrs}>${ic(i,22)}<span class="tx">${t}${sub?`<small>${sub}</small>`:""}</span>${fim}</button>`}
+function renderMais(){
+  const p=store.get("gira_perfil",null),n=primeiroNome(),pt=pts(),nv=nivelDe(pt.total),vipOn=vip(),ncup=store.get("gira_cupons",[]).length,nfav=ativas().filter(o=>favs().includes(o.id)).length;
+  $("#maisAv").textContent=inicial();$("#maisNome").textContent=p&&p.nome?p.nome:"Visitante";
+  $("#maisVip").innerHTML=`${ic("crown",20)}<span>${vipOn?`<b>Vitrine VIP</b> ativo${p.vipAte?" até "+dataCurta(p.vipAte):""}`:`<b>Vitrine VIP</b> · Assine por R$ 9,90/mês`}</span>${ic("chev",18)}`;
+  $("#maisPts").innerHTML=`${ic("star",20)}<span><b>${fmt(pt.saldo)} pontos</b> · nível ${nv.nome}</span>${ic("chev",18)}`;
+  const nb=$("#nbadge").style.display==="none"?0:3;
+  $("#maisLista").innerHTML=
+   `<div class="grupo">${itemHTML("home","Início","ir('inicio')")}${itemHTML("tag","Todas as ofertas","filtrarCat(null)")}${itemHTML("store","Lojas parceiras","ir('empresas')")}${itemHTML("help","Como usar o app","abrir('ajuda')")}</div>
+    <div class="grupo-tit">Minha atividade</div>
+    <div class="grupo">${itemHTML("ticket","Meus cupons","ir('cupons');segCupons('c')",{cont:ncup})}${itemHTML("heart","Favoritos","ir('cupons');segCupons('f')",{cont:0,sub:nfav?nfav+" salvo"+(nfav>1?"s":""):""})}${itemHTML("gift","Pontos e brindes","ir('pontos')",{sub:fmt(pt.saldo)+" pontos"})}${itemHTML("bell","Notificações","abrir('notifs')",{cont:nb})}</div>
+    <div class="grupo-tit">Minha conta</div>
+    <div class="grupo">${itemHTML("user","Meu perfil","ir('perfil')",{sub:p?esc(p.nome):"Faça seu cadastro"})}${itemHTML("crown","Vitrine VIP","abrir('vip')",{tag:vipOn?"ATIVO":"R$ 9,90",tagc:vipOn?"verde":"ouro"})}</div>
+    <div class="grupo-tit">Para empresas</div>
+    <div class="grupo">${itemHTML("store","Cadastrar minha loja","",{href:"empresa.html#participar",tag:"GRÁTIS 3 MESES",tagc:"verde"})}${itemHTML("briefcase","Planos para lojas","ir('negocios')",{sub:"A partir de R$ 49,90/mês"})}${itemHTML("key","Entrar na Área da Empresa","",{href:"empresa.html#entrar",sub:"Postar ofertas e ver resultados"})}</div>
+    <div class="grupo-tit">Configurações e ajuda</div>
+    <div class="grupo">${itemHTML("pin","Cidade","abrir('cidades')",{sub:esc($("#cid").textContent)})}${itemHTML("text","Letra grande","letraGrande()",{chave:document.documentElement.classList.contains("grande")})}${instalado()?"":itemHTML("download","Baixar o app","instalarApp()")}${itemHTML("gift","Indicar para um amigo","indicar()")}${itemHTML("shield","Privacidade e termos","abrir('privacidade')")}${itemHTML("chat","Fale com a gente","ajudaWhats()")}${itemHTML("crown","Administração","",{href:"admin.html",sub:"Só para o administrador do Vitrine"})}</div>`}
+/* "Meu perfil": dados de pessoa física, VIP, comunicações e privacidade */
 function renderPerfil(){
-  const p=store.get("gira_perfil",null);
-  $("#perfilBox").innerHTML=p?`<div style="text-align:center"><div style="font-size:3.2rem">👤</div><h3>${esc(p.nome)}</h3><p>${esc(p.tel)}</p><span class="chip">${vip()?"👑 Vitrine VIP"+(p.vipAte?" até "+dataCurta(p.vipAte):""):"Membro Vitrine Castro"}</span><span class="chip">${store.get("gira_cupons",[]).length} cupons</span><span class="chip">⭐ ${fmt(pts().saldo)} pontos</span></div>
-   <button class="btn" onclick="abrir('vip')">👑 ${vip()?"Ver meu Vitrine VIP":"Quero ser Vitrine VIP – R$ 9,90"}</button><button class="btn claro" onclick="sair()">Sair da conta</button>`:
-   `<h3>Crie sua conta grátis</h3><p>É rapidinho: só seu nome e WhatsApp.</p>
-   <form onsubmit="cadastrar(event)"><label for="pNome">Seu nome</label><input class="inp" id="pNome" required autocomplete="name" placeholder="Ex: Maria da Silva"><label for="pTel">Seu WhatsApp</label><input class="inp" id="pTel" required inputmode="tel" autocomplete="tel" placeholder="(42) 9 9999-9999" oninput="mascara(this)"><button class="btn">Criar minha conta</button></form>`;
-}
+  const p=store.get("gira_perfil",null),vipOn=vip(),pt=pts();
+  $("#perfilTopo").innerHTML=`<span class="avatar g">${inicial()}</span><h2>${p?esc(p.nome):"Visitante"}</h2><p>${p?esc(p.tel||""):"Sem cadastro"}</p>${vipOn?`<span class="status-vip">${ic("crown",16)}Vitrine VIP${p.vipAte?" até "+dataCurta(p.vipAte):""}</span>`:""}`;
+  $("#perfilBox").innerHTML=p?
+   `<div class="grupo">${itemHTML("edit","Informações do perfil","editarPerfil()",{sub:"Nome e WhatsApp"})}${itemHTML("crown","Vitrine VIP","abrir('vip')",{sub:vipOn?"Ativo"+(p.vipAte?" até "+dataCurta(p.vipAte):""):"Assine por R$ 9,90/mês",tag:vipOn?"ATIVO":"",tagc:"verde"})}${itemHTML("star","Meus pontos","ir('pontos')",{sub:fmt(pt.saldo)+" pontos"})}${itemHTML("ticket","Meus cupons","ir('cupons');segCupons('c')")}</div>
+    <div class="grupo-tit">Privacidade</div>
+    <div class="grupo">${itemHTML("megafone","Receber ofertas no WhatsApp","alternarOfertas()",{chave:!!p.ofertas})}${itemHTML("shield","Privacidade e termos","abrir('privacidade')")}${itemHTML("trash","Apagar meus dados","apagarMeusDados()")}</div>
+    <div class="grupo">${itemHTML("logout","Sair da conta","sair()")}</div>`:
+   `<div class="vazio"><span class="e">${ic("user",28)}</span>Você ainda não tem cadastro.<button class="btn ouro" onclick="mostrarBoasVindas()">Fazer meu cadastro</button></div>`}
+function editarPerfil(){const p=store.get("gira_perfil",null)||{};
+  abrirSheet(`<h3 style="font-size:1.2rem;margin-top:6px">Informações do perfil</h3><p style="color:var(--txt-2)">Seus dados ficam seguros e só o Vitrine Castro vê.</p>
+   <form onsubmit="event.preventDefault();salvarPerfil()"><label for="ePNome">Nome</label><input class="inp" id="ePNome" required minlength="2" maxlength="80" autocomplete="name" value="${esc(p.nome||"")}">
+   <label for="ePTel">WhatsApp</label><input class="inp" id="ePTel" required inputmode="tel" autocomplete="tel" value="${esc(p.tel||"")}" oninput="mascara(this)">
+   <div class="erro" id="ePErro" role="alert"></div><button class="btn ouro">Salvar</button></form>`)}
+function salvarPerfil(){const nome=$("#ePNome").value.trim().replace(/\s+/g," "),tel=$("#ePTel").value,d=soDigitos(tel),er=$("#ePErro");
+  if(nome.length<2){er.textContent="Digite seu nome.";er.style.display="block";return}if(d.length<10||d.length>11){er.textContent="Digite o WhatsApp com DDD.";er.style.display="block";return}
+  store.set("gira_perfil",{...(store.get("gira_perfil",null)||{}),nome,tel});registrarCliente();fechar();render();toast("✅ Perfil atualizado")}
+function alternarOfertas(){const p=store.get("gira_perfil",null);if(!p)return;p.ofertas=!p.ofertas;store.set("gira_perfil",p);registrarCliente();renderPerfil();toast(p.ofertas?"Você vai receber ofertas no WhatsApp":"Você não vai receber ofertas no WhatsApp")}
+/* janela da conta (toque na bolinha com a inicial, no topo) */
+function abrirConta(){const p=store.get("gira_perfil",null),vipOn=vip();
+  abrirSheet(`<div style="display:flex;align-items:center;gap:14px;margin:8px 0 6px"><span class="avatar g" style="width:60px;height:60px;font-size:1.5rem">${inicial()}</span><div><b style="font-size:1.2rem;display:block">${p?esc(p.nome):"Visitante"}</b><span style="color:var(--txt-2)">${p?esc(p.tel||""):"Faça seu cadastro e ganhe pontos"}</span></div></div>
+   <div class="grupo" style="box-shadow:none;border:1px solid var(--linha);margin-top:10px">${p?itemHTML("user","Meu perfil","fechar();ir('perfil')"):itemHTML("user","Fazer meu cadastro","fechar();mostrarBoasVindas()")}${itemHTML("crown",vipOn?"Meu Vitrine VIP":"Assinar o Vitrine VIP","abrir('vip')",{tag:vipOn?"ATIVO":"R$ 9,90",tagc:vipOn?"verde":"ouro"})}${itemHTML("ticket","Meus cupons","fechar();ir('cupons');segCupons('c')")}${itemHTML("store","Sou lojista","",{href:"empresa.html"})}</div>`)}
+function abrirSheet(h){$("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ${ic("close",16)}</button>`+h;$("#modal").classList.add("on");$("#sheet").scrollTop=0;pintarIcones($("#sheet"))}
+function planoDesejado(id){store.set("vc_plano_desejado",id)}
 function mascara(i){let v=i.value.replace(/\D/g,"").slice(0,11);i.value=v.length>6?`(${v.slice(0,2)}) ${v.slice(2,3)} ${v.slice(3,7)}-${v.slice(7)}`:v.length>2?`(${v.slice(0,2)}) ${v.slice(2)}`:v}
 
-function ir(v){
+/* ===================================================================
+   NAVEGAÇÃO ENTRE TELAS
+   =================================================================== */
+const TITULOS={categorias:"Categorias",ofertas:"Ofertas",empresas:"Lojas parceiras",negocios:"Para empresas",cupons:"Meus cupons",pontos:"Pontos e brindes"};
+const NAV_DE={inicio:"inicio",ofertas:"inicio",categorias:"categorias",cupons:"cupons",pontos:"pontos",mais:"mais",perfil:"mais",empresas:"mais",negocios:"mais"};
+let VIEW="inicio";
+function ir(v,{voltando=false}={}){
+  if(!document.getElementById("v-"+v))v="inicio";
+  if(!voltando&&v!==VIEW)pilha.push(VIEW);if(pilha.length>20)pilha.shift();
+  VIEW=v;
   document.querySelectorAll(".view").forEach(e=>e.classList.toggle("on",e.id==="v-"+v));
-  document.querySelectorAll("nav button").forEach(b=>{const on=b.dataset.v===v;b.classList.toggle("on",on);on?b.setAttribute("aria-current","page"):b.removeAttribute("aria-current")});
+  document.querySelectorAll("nav.menu-baixo button").forEach(b=>{const on=b.dataset.v===NAV_DE[v];b.classList.toggle("on",on);on?b.setAttribute("aria-current","page"):b.removeAttribute("aria-current")});
+  $("#topo").dataset.modo=v==="inicio"?"home":(v==="mais"||v==="perfil")?"nada":"sub";
+  $("#subTit").textContent=TITULOS[v]||"Vitrine";
   if(v==="ofertas"&&!$("#q").value)renderTodas();
-  window.scrollTo({top:0,behavior:"smooth"});
+  if(v==="mais")renderMais();if(v==="perfil")renderPerfil();
+  pintarIcones();observarCards();
+  window.scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
   try{history.replaceState(null,"",v==="inicio"?location.pathname:"#"+v)}catch(e){}
 }
-function filtrarCat(id){catSel=id;$("#q").value="";$("#limparBusca").style.display="none";ir("ofertas");renderTodas()}
+function voltar(){const v=pilha.pop();ir(v||"inicio",{voltando:true})}
+function focarBusca(){ir("inicio");setTimeout(()=>{const q=$("#q");q.focus();q.scrollIntoView({block:"center"})},60)}
+function filtrarCat(id){catSel=id;$("#q").value="";$("#limparBusca").style.display="none";window._ultimaBusca=null;ir("ofertas");renderTodas();pintarIcones();observarCards()}
 function buscar(t){
-  $("#limparBusca").style.display=t?"block":"none";
+  $("#limparBusca").style.display=t?"grid":"none";
   const n=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
   t=n(t.trim());catSel=null;
-  if(!t){renderTodas();return}
-  renderTodas(ativas().filter(o=>n(o.emp+" "+o.sub+" "+o.desc+" "+o.tag+" "+(CATS.find(c=>c.id===o.cat)||{}).nome).includes(t)));
-  if(!$("#v-ofertas").classList.contains("on")){document.querySelectorAll(".view").forEach(e=>e.classList.toggle("on",e.id==="v-ofertas"));document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.v==="ofertas"))}
+  if(!t){window._ultimaBusca=null;renderTodas();if(VIEW==="ofertas")observarCards();return}
+  window._ultimaBusca=ativas().filter(o=>n(o.emp+" "+o.sub+" "+o.desc+" "+tagTexto(o)+" "+(CATS.find(c=>c.id===o.cat)||{}).nome).includes(t));
+  renderTodas(window._ultimaBusca);
+  if(VIEW!=="ofertas"){document.querySelectorAll(".view").forEach(e=>e.classList.toggle("on",e.id==="v-ofertas"));if(VIEW!=="ofertas")pilha.push(VIEW);VIEW="ofertas";document.querySelectorAll("nav.menu-baixo button").forEach(b=>b.classList.toggle("on",b.dataset.v==="inicio"))}
+  observarCards();
 }
 function limparBusca(){$("#q").value="";buscar("");$("#q").focus()}
 
@@ -611,33 +1006,26 @@ function clicBanner(i){const b=BANNERS[i];b.anuncie?location.href="empresa.html"
 function favoritar(id){let f=favs();const tem=f.includes(id);f=tem?f.filter(x=>x!==id):[...f,id];store.set("gira_favs",f);toast(tem?"Removido dos favoritos":"Salvo nos favoritos ❤️");render()}
 
 function verOferta(id){
-  const o=OFERTAS.find(x=>x.id===id), c=store.get("gira_cupons",[]).find(x=>x.id===id);registrarEvento(id,"visualizacao");
+  const o=OFERTAS.find(x=>x.id===id);if(!o)return;const c=store.get("gira_cupons",[]).find(x=>x.id===id);registrarEvento(id,"visualizacao");
   const r=restam(o),rg=regraTexto(o),sit=situacaoLoja(o),zap=String(o.whats||"").replace(/\D/g,""),insta=String(o.insta||"").replace(/[^A-Za-z0-9._]/g,"");
   const mapa=o.end?"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(o.emp+", "+o.end+", Castro - PR"):"";
-  const cat=CATS.find(k=>k.id===o.cat)||{ic:"🏷️",nome:"Oferta"}, f=favs().includes(o.id);
-  $("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ✕</button>
-   <div style="border-radius:16px;overflow:hidden;height:150px;margin:10px 0 12px;background:linear-gradient(135deg,#1F2B57,#0E1428);display:grid;place-items:center;font-size:4rem">${o.img?`<img src="${o.img}" alt="" style="width:100%;height:100%;object-fit:cover">`:o.emoji}</div>
-   <span class="chip">${cat.ic} ${cat.nome}</span>${o.validade?`<span class="chip" style="${dias(o)<=3?"background:#ffe1e1;color:#b00":""}">⏰ ${prazoTxt(o)}</span>`:""}<span class="chip ent">${o.entrega==="retirada"?"🏪 Só na loja":"🛵 Faz entrega"}</span>${rg?`<span class="chip">📅 Vale ${esc(rg)}</span>`:""}${r!==null?`<span class="chip" style="${r<=20?"background:#ffe1e1;color:#b00":""}">${r===0?"Esgotado":"🎟️ Restam "+r+" de "+o.limite}</span>`:""}${o.umPorCliente?`<span class="chip">👤 1 por pessoa</span>`:""}
-   <h3 style="font-size:1.4rem;margin-top:8px">${esc(o.emp)}</h3><p style="color:var(--cinza)">${esc(o.sub)}</p>
-   <div style="margin:12px 0;background:linear-gradient(#E9C766,#C9952A);color:#0E1428;font-weight:800;border-radius:12px;padding:10px;text-align:center;font-size:1.5rem">${o.tag.replace(/<br>/g," · ")}</div>
-   ${o.precoDe&&o.precoPor?`<div class="precobox">De <s>${brl(o.precoDe)}</s> por <b>${brl(o.precoPor)}</b><br><small>Você economiza <b style="font-size:1rem">${brl(o.precoDe-o.precoPor)}</b></small></div>`:""}
-   <p style="font-size:1.05rem">${esc(o.desc)}</p><p style="font-size:.9rem;color:var(--cinza);margin-top:6px">📋 ${esc(o.regras)}</p>
-   <div style="font-weight:800;font-size:1rem;margin-top:14px">💡 Como usar ${c?"seu cupom":"esta oferta"}</div>
-   <div class="como mini">
-    <div class="passo" style="${c?"opacity:.55":""}"><span class="n">1</span><div class="e">🎟️</div><b>${c?"Cupom pego ✓":"Toque em Pegar cupom"}</b></div>
-    <div class="passo"><span class="n">2</span><div class="e">${o.entrega==="retirada"?"🏪":"🛵"}</div><b>${o.entrega==="retirada"?"Mostre o código no caixa":"Mostre no caixa ou peça com entrega"}</b></div>
-    <div class="passo"><span class="n">3</span><div class="e">⭐</div><b>Ganhe pontos na compra</b></div>
-   </div>
-   ${c?`<div class="codigo"><div style="font-size:.9rem;font-weight:700">Mostre esta tela no caixa</div><div class="qr" id="qr"></div><div class="c">${c.cod}</div></div>
-     <button class="btn" onclick="copiar('${c.cod}')">📋 Copiar código</button><button class="btn" style="background:linear-gradient(#E9C766,#C9952A);color:#0E1428" onclick="registrarCompra('${o.id}')">⭐ Fiz a compra: ganhar pontos</button>`:
-     r===0?`<button class="btn" disabled style="min-height:60px;font-size:1.15rem;opacity:.6">Cupons esgotados</button>`:`<button class="btn" style="min-height:60px;font-size:1.15rem" onclick="pegar('${o.id}')">🎟️ Pegar cupom grátis</button>`}
-   ${o.entrega==="retirada"?"":`<button class="btn entrega" onclick="pedirEntrega('${o.id}')">🛵 Pedir com entrega</button>${c&&c.entrega?`<div class="entrega-info">✅ Pedido de entrega enviado em ${new Date(c.entrega).toLocaleDateString("pt-BR")}. Combine com a loja pelo WhatsApp.</div>`:""}`}
-   <button class="btn claro" onclick="favoritar('${o.id}');verOferta('${o.id}')">${f?"❤️ Salvo nos favoritos":"🤍 Salvar nos favoritos"}</button>
-   <button class="btn verde" onclick="falarLoja('${o.id}')">💬 Falar ${o.whats?"com a loja":"no WhatsApp"}</button>
-   <button class="btn claro" onclick="compartilhar('${o.id}')">📤 Mandar para um amigo</button>
-   ${o.end||sit||zap||insta?`<div class="lojabox"><b>🏪 ${esc(o.emp)}</b>${sit?`<div class="st ${sit.aberto?"ab":"fe"}">${esc(sit.txt)}</div>`:""}${o.end?`<div style="font-size:.9rem;color:var(--cinza)">📍 ${esc(o.end)}</div>`:""}
-    <div class="lojabtns">${zap?`<a href="tel:+${zap.length<=11?"55"+zap:zap}"><span>📞</span>Ligar</a>`:""}${mapa?`<a href="${mapa}" target="_blank" rel="noopener"><span>🗺️</span>Como chegar</a>`:""}${insta?`<a href="https://instagram.com/${insta}" target="_blank" rel="noopener"><span>📸</span>Instagram</a>`:""}</div></div>`:""}`;
-  $("#modal").classList.add("on");
+  const cat=CATS.find(k=>k.id===o.cat)||{nome:"Oferta"},f=favs().includes(o.id),d=o.validade?dias(o):99;
+  $("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ${ic("close",16)}</button>
+   <div class="po-img">${o.img?`<img src="${o.img}" alt="">`:`<span aria-hidden="true">${o.emoji||"🏷️"}</span>`}${seloOf(o)}</div>
+   <div class="po-loja"><span class="av">${o.logo&&/^(https:|data:image\/|img\/)/.test(o.logo)?`<img src="${esc(o.logo)}" alt="">`:`<span style="color:var(--ouro)">${ic("store",20)}</span>`}</span><div><b>${esc(o.emp)}</b><small>${esc(o.sub)}</small></div></div>
+   <h2 class="po-tit">${esc(o.desc||tagTexto(o))}</h2>
+   ${o.precoDe&&o.precoPor?`<div class="po-de"><s>${brl(o.precoDe)}</s></div><div class="po-preco"><span class="preco">${centavos(o.precoPor)}</span><span class="pct">${pctOf(o)}% OFF</span></div><div class="po-eco">Você economiza ${brl(o.precoDe-o.precoPor)}</div>`:`<div class="po-tag">${o.tag.replace(/<br>/g," · ")}</div>`}
+   <div class="po-chips"><span class="chip">${ic(icCat(o.cat),15)}${esc(cat.nome)}</span>${o.validade?`<span class="chip ${d<=3?"urg":""}">${ic("clock",15)}${prazoTxt(o)}</span>`:""}<span class="chip ent">${o.entrega==="retirada"?ic("store",15)+"Só na loja":ic("truck",15)+"Faz entrega"}</span>${rg?`<span class="chip">${ic("calendar",15)}Vale ${esc(rg)}</span>`:""}${r!==null?`<span class="chip ${r<=20?"urg":""}">${ic("ticket",15)}${r===0?"Esgotado":"Restam "+r+" de "+o.limite}</span>`:""}${o.umPorCliente?`<span class="chip">${ic("user",15)}1 por pessoa</span>`:""}</div>
+   ${c?`<div class="codigo"><div style="font-size:.88rem;font-weight:600">Mostre esta tela no caixa</div><div class="qr" id="qr"></div><div class="c">${c.cod}</div></div>
+     <button class="btn contorno" onclick="copiar('${c.cod}')">${ic("copy",20)}Copiar código</button><button class="btn ouro" onclick="registrarCompra('${o.id}')">${ic("star",20)}Fiz a compra: ganhar pontos</button>`:
+     r===0?`<button class="btn" disabled>Cupons esgotados</button>`:`<button class="btn ouro" style="min-height:56px;font-size:1.05rem" onclick="pegar('${o.id}')">${ic("ticket",22)}Pegar cupom grátis</button>`}
+   ${o.entrega==="retirada"?"":`<button class="btn entrega" onclick="pedirEntrega('${o.id}')">${ic("truck",20)}Pedir com entrega</button>${c&&c.entrega?`<div class="entrega-info">✅ Pedido de entrega enviado em ${new Date(c.entrega).toLocaleDateString("pt-BR")}. Combine com a loja pelo WhatsApp.</div>`:""}`}
+   <div class="acoes"><button class="${f?"on":""}" onclick="favoritar('${o.id}');verOferta('${o.id}')" aria-pressed="${f}">${ic("heart",22)}${f?"Salvo":"Salvar"}</button><button onclick="falarLoja('${o.id}')">${ic("chat",22)}WhatsApp</button><button onclick="compartilhar('${o.id}')">${ic("share",22)}Compartilhar</button></div>
+   <div class="box"><h4>Como usar ${c?"seu cupom":"esta oferta"}</h4><ol class="passos"><li class="${c?"feito":""}">${c?"Cupom guardado":"Toque em Pegar cupom grátis"}</li><li>${o.entrega==="retirada"?"Mostre o código no caixa":"Mostre no caixa ou peça com entrega"}</li><li>Ganhe pontos na compra</li></ol></div>
+   <div class="box"><h4>Regras</h4><p>${esc(o.regras)}</p></div>
+   ${o.end||sit||zap||insta?`<div class="lojabox"><b>${esc(o.emp)}</b>${sit?`<div class="st ${sit.aberto?"ab":"fe"}">${esc(sit.txt)}</div>`:""}${o.end?`<div style="font-size:.88rem;color:var(--txt-2);display:flex;gap:4px;margin-top:2px">${ic("pin",16)}${esc(o.end)}</div>`:""}
+    <div class="lojabtns">${zap?`<a href="tel:+${zap.length<=11?"55"+zap:zap}">${ic("phone",20)}Ligar</a>`:""}${mapa?`<a href="${mapa}" target="_blank" rel="noopener">${ic("map",20)}Como chegar</a>`:""}${insta?`<a href="https://instagram.com/${insta}" target="_blank" rel="noopener">${ic("insta",20)}Instagram</a>`:""}</div></div>`:""}`;
+  $("#modal").classList.add("on");$("#sheet").scrollTop=0;
   if(c){const el=$("#qr");if(window.QRCode)new QRCode(el,{text:"VC|"+c.cod+"|"+o.emp,width:150,height:150,correctLevel:QRCode.CorrectLevel.M});else el.remove()}
 }
 function pegar(id){
@@ -689,17 +1077,16 @@ function indicar(){abrirLink("https://wa.me/?text="+encodeURIComponent(`Conhece 
 function ajudaWhats(){abrirLink(wa("Olá! Preciso de ajuda com o app Vitrine Castro."))}
 function copiar(t){try{navigator.clipboard.writeText(t).then(()=>toast("Código copiado!"),()=>toast("Código: "+t))}catch(e){toast("Código: "+t)}}
 function fechar(){$("#modal").classList.remove("on");$("#sheet").style.paddingBottom="";document.querySelectorAll(".seta-baixo,.seta-cima").forEach(e=>e.remove())}
-function letraGrande(){const on=document.documentElement.classList.toggle("grande");$("#btnAa").classList.toggle("on",on);store.set("gira_letra",on);toast(on?"Letra grande ligada":"Letra normal")}
+function letraGrande(){const on=document.documentElement.classList.toggle("grande");store.set("gira_letra",on);toast(on?"Letra grande ligada":"Letra normal");if(VIEW==="mais")renderMais()}
 
 function abrir(tipo,planoSel){
   let h="";
   if(tipo==="vip"){h=telaVip();if(!vip()&&store.get("vc_vip_pedido",null))atualizarVip(false).then(ok=>{if(ok&&$("#modal").classList.contains("on")&&$("#sheet .vip-topo"))telaVipBemVindo()})}
-  if(tipo==="parceiro")h=`<h3 style="font-size:1.3rem;margin-top:6px">Seja uma empresa parceira</h3><p style="color:var(--cinza)">Preencha e envie pelo WhatsApp. Retornamos rapidinho!</p>
-    <form onsubmit="enviarParceiro(event)"><label for="e1">Nome da empresa</label><input class="inp" id="e1" required><label for="e2">Ramo</label><select class="inp" id="e2">${CATS.map(c=>`<option>${c.nome}</option>`).join("")}<option>Outro</option></select><label for="e3">Responsável</label><input class="inp" id="e3" required><label for="e4">WhatsApp</label><input class="inp" id="e4" inputmode="tel" required oninput="mascara(this)"><label for="e6">Plano</label><select class="inp" id="e6">${PLANOS.map(p=>`<option value="${p.nome}" ${p.id===planoSel?"selected":""}>${p.nome} – ${p.preco}/mês</option>`).join("")}<option value="Ainda não sei">Ainda não sei</option></select><p style="font-size:.85rem;color:var(--cinza);margin-top:6px">⭐ As 20 primeiras lojas ganham 3 meses grátis.</p><label for="e5">Oferta que deseja divulgar</label><input class="inp" id="e5" placeholder="Ex: 20% OFF em toda a loja"><button class="btn verde">💬 Enviar pelo WhatsApp</button></form>`;
-  if(tipo==="cidades")h=`<h3 style="margin-top:6px">Escolha sua cidade</h3><div class="menu">${["Castro – PR","Carambeí – PR","Ponta Grossa – PR","Tibagi – PR","Piraí do Sul – PR"].map(c=>`<button onclick="setCidade('${c}')"><span class="e">${c===$("#cid").textContent?"📍":"🏙️"}</span>${c}</button>`).join("")}</div>`;
-  if(tipo==="notifs"){$("#nbadge").style.display="none";h=`<h3 style="margin-top:6px">Avisos</h3><div class="notif"><b>🔥 VS Store: até 40% OFF</b>A liquidação começou! Aproveite.</div><div class="notif"><b>🍕 Pizzaria Castro</b>20% OFF em pizzas grandes. Termina logo!</div><div class="notif"><b>👑 Vitrine VIP</b>Seja VIP e receba ofertas antes de todo mundo.</div>`}
-  if(tipo==="menu")h=`<h3 style="margin-top:6px">Menu</h3><div class="menu"><button onclick="fechar();ir('inicio')"><span class="e">🏠</span>Início</button><button onclick="fechar();ir('ofertas')"><span class="e">🏷️</span>Todas as ofertas</button><button onclick="fechar();ir('cupons')"><span class="e">🎟️</span>Meus cupons e favoritos</button><button onclick="fechar();ir('pontos')"><span class="e">⭐</span>Meus pontos e brindes</button><button onclick="fechar();ir('empresas')"><span class="e">🏪</span>Empresas parceiras e planos</button><button onclick="abrir('parceiro')"><span class="e">🤝</span>Cadastrar minha empresa</button><button onclick="abrir('vip')"><span class="e">👑</span>Vitrine VIP</button><button onclick="abrir('ajuda')"><span class="e">❓</span>Como usar o app</button><button onclick="abrir('instalar')"><span class="e">📲</span>Colocar na tela do celular</button><button onclick="ajudaWhats()"><span class="e">💬</span>Falar com o suporte</button></div>`;
-  if(tipo==="privacidade")h=`<h3 style="font-size:1.3rem;margin-top:6px">🔒 Privacidade e termos</h3>
+  if(tipo==="parceiro")h=`<h3 style="font-size:1.2rem;margin-top:6px">Fale com o Vitrine pelo WhatsApp</h3><p style="color:var(--txt-2)">Preencha e envie. Respondemos rapidinho!</p>
+    <form onsubmit="enviarParceiro(event)"><label for="e1">Nome da empresa</label><input class="inp" id="e1" required><label for="e2">Ramo</label><select class="inp" id="e2">${CATS.map(c=>`<option>${c.nome}</option>`).join("")}<option>Outro</option></select><label for="e3">Responsável</label><input class="inp" id="e3" required><label for="e4">WhatsApp</label><input class="inp" id="e4" inputmode="tel" required oninput="mascara(this)"><label for="e6">Plano</label><select class="inp" id="e6">${PLANOS.map(p=>`<option value="${p.nome}" ${p.id===planoSel?"selected":""}>${p.nome} – ${p.preco}/mês</option>`).join("")}<option value="Ainda não sei">Ainda não sei</option></select><label for="e5">Oferta que deseja divulgar</label><input class="inp" id="e5" placeholder="Ex: 20% OFF em toda a loja"><button class="btn verde">${ic("chat",20)}Enviar pelo WhatsApp</button></form>`;
+  if(tipo==="cidades")h=`<h3 style="margin-top:6px">Escolha sua cidade</h3><div class="grupo" style="box-shadow:none;border:1px solid var(--linha);margin-top:10px">${["Castro – PR","Carambeí – PR","Ponta Grossa – PR","Tibagi – PR","Piraí do Sul – PR"].map(c=>`<button class="item" onclick="setCidade('${c}')">${ic("pin",20)}<span class="tx">${c}</span>${c===$("#cid").textContent?ic("check",20):""}</button>`).join("")}</div>`;
+  if(tipo==="notifs"){$("#nbadge").style.display="none";h=`<h3 style="margin-top:6px">Avisos</h3><div class="notif"><b>VS Store: até 40% OFF</b>A liquidação começou! Aproveite.</div><div class="notif"><b>Pizzaria Castro</b>20% OFF em pizzas grandes. Termina logo!</div><div class="notif"><b>Vitrine VIP</b>Seja VIP e receba ofertas antes de todo mundo.</div>`}
+  if(tipo==="privacidade")h=`<h3 style="font-size:1.2rem;margin-top:6px">Privacidade e termos</h3>
     <p style="margin-top:10px">O Vitrine Castro respeita a <b>LGPD</b> (Lei Geral de Proteção de Dados).</p>
     <ul class="passos-ajuda" style="margin-top:10px"><li>Seus cupons, favoritos e pontos ficam <b>salvos neste celular</b>.</li>
      <li>Para contar visualizações e cupons das lojas, o app usa um <b>código aleatório do aparelho</b>, sem nome nem telefone.</li>
@@ -707,12 +1094,12 @@ function abrir(tipo,planoSel){
      <li>A loja vê apenas números totais e o seu primeiro nome em compras confirmadas.</li>
      <li>Seu <b>nome e WhatsApp</b> do cadastro ficam guardados com segurança no sistema do Vitrine Castro, para o seu cadastro, o Vitrine VIP e, só se você marcar, avisos de ofertas pelo WhatsApp.</li>
      <li>Não vendemos nem compartilhamos seus dados.</li></ul>
-    <p style="font-size:.9rem;color:var(--cinza)"><b>Termos:</b> cada oferta tem preço, regras, limite de cupons e validade definidos pela loja. O desconto é dado pela loja no momento da compra. Pontos não valem dinheiro e não podem ser transferidos.</p>
-    <button class="btn claro" onclick="apagarMeusDados()">🗑 Apagar meus dados</button>
-    <button class="btn verde" onclick="ajudaWhats()">💬 Dúvidas? Fale com a gente</button>`;
-  if(tipo==="ajuda")h=`<h3 style="font-size:1.3rem;margin-top:6px">❓ Como usar</h3><ol class="passos-ajuda" style="margin-top:12px"><li><b>Escolha uma oferta</b> na tela Início ou em Ofertas.</li><li>Toque no botão azul <b>Pegar cupom grátis</b>.</li><li>Vá até a loja e <b>mostre a tela do cupom</b> no caixa.</li><li>Seus cupons ficam guardados no botão <b>Cupons</b>, embaixo.</li><li>Toda compra com cupom vale <b>pontos</b>. Junte e troque por brindes no botão <b>Pontos</b>.</li></ol><p style="color:var(--cinza)">Letra pequena? Toque em <b>AA Letra</b> no topo da tela.</p><button class="btn verde" onclick="ajudaWhats()">💬 Ainda com dúvida? Fale com a gente</button>`;
+    <p style="font-size:.88rem;color:var(--txt-2)"><b>Termos:</b> cada oferta tem preço, regras, limite de cupons e validade definidos pela loja. O desconto é dado pela loja no momento da compra. Pontos não valem dinheiro e não podem ser transferidos.</p>
+    <button class="btn claro" onclick="apagarMeusDados()">${ic("trash",20)}Apagar meus dados</button>
+    <button class="btn verde" onclick="ajudaWhats()">${ic("chat",20)}Dúvidas? Fale com a gente</button>`;
+  if(tipo==="ajuda")h=`<h3 style="font-size:1.2rem;margin-top:6px">Como usar o Vitrine</h3><ol class="passos" style="margin-top:12px"><li>Escolha uma oferta no Início ou em Categorias</li><li>Toque em <b>Pegar cupom grátis</b></li><li>Mostre o cupom no caixa ou peça com entrega</li><li>Seus cupons ficam no botão <b>Cupons</b>, lá embaixo</li><li>Toda compra com cupom vale <b>pontos</b> para trocar por brindes</li></ol><p style="color:var(--txt-2);margin-top:12px">Letra pequena? Em <b>Mais → Letra grande</b>.</p><button class="btn verde" onclick="ajudaWhats()">${ic("chat",20)}Ainda com dúvida? Fale com a gente</button>`;
   if(tipo==="instalar")h=telaInstalar();
-  $("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ✕</button>`+h;$("#modal").classList.add("on");
+  $("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ${ic("close",16)}</button>`+h;$("#modal").classList.add("on");$("#sheet").scrollTop=0;
 }
 
 /* ===================================================================
@@ -829,22 +1216,23 @@ function vip(){const p=store.get("gira_perfil",null);return !!(p&&p.vip&&(!p.vip
 function fmt(n){return Math.round(n).toLocaleString("pt-BR")}
 function ganhar(qtd,desc){const p=pts();qtd=Math.round(qtd);p.saldo+=qtd;p.total+=qtd;p.hist.unshift({d:desc,v:qtd,em:Date.now()});salvarPts(p);render();toast(`⭐ +${fmt(qtd)} pontos!`)}
 function proxBrinde(saldo){return BRINDES.filter(b=>b.pts>saldo).sort((a,b)=>a.pts-b.pts)[0]}
-function renderPlanos(){$("#planosBox").innerHTML=PLANOS.map(p=>`<div class="plano ${p.dest?"dest":""}">${p.dest?'<span class="selo">MAIS ESCOLHIDO</span>':""}<h3>${p.nome}</h3><div class="preco">${p.preco}<small> /mês</small></div><ul>${p.itens.map(i=>`<li>${i}</li>`).join("")}</ul><button class="btn ${p.dest?"":"claro"}" onclick="abrir('parceiro','${p.id}')">Quero o plano ${p.nome}</button></div>`).join("")}
+function renderPlanos(){$("#planosBox").innerHTML=PLANOS.map(p=>`<div class="plano ${p.dest?"dest":""}">${p.dest?'<span class="selo-p">MAIS ESCOLHIDO</span>':""}<h3>${p.nome}</h3><div class="valor">${p.preco}<small> /mês</small></div><ul>${p.itens.map(i=>`<li>${ic("check",18)}${i}</li>`).join("")}</ul><a class="btn ${p.dest?"ouro":"contorno"}" href="empresa.html#participar" onclick="planoDesejado('${p.id}')">Quero o plano ${p.nome}</a></div>`).join("")}
 function renderPontos(){
+  renderOla();
   const p=pts(),n=nivelDe(p.total),pb=proxBrinde(p.saldo),pode=BRINDES.filter(b=>b.pts<=p.saldo).length;
   const pct=pb?Math.min(100,p.saldo/pb.pts*100):100;
-  $("#ptsHome").innerHTML=`<div class="r1"><b>${window._ola||"Olá! 👋"}</b><span>Economizou <span class="ec">${window._eco||"R$ 0,00"}</span></span></div>
-   <div class="r2"><span class="pn">⭐ ${fmt(p.saldo)} <small>pontos</small></span><span class="nivel ${n.id}">${n.ic} ${n.nome}</span><span class="vp">Prêmios ›</span></div>
-   <div class="barra clara" role="progressbar" aria-valuenow="${Math.round(pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
+  $("#ptsHome").innerHTML=`<div class="r1"><b>${window._ola||"Olá!"}</b><span>Economizou <span class="ec">${window._eco||"R$ 0,00"}</span></span></div>
+   <div class="r2"><span class="pn">${fmt(p.saldo)} <small>pontos</small></span><span class="nivel ${n.id}">${n.ic} ${n.nome}</span><span class="vp">Ver prêmios ›</span></div>
+   <div class="barra" role="progressbar" aria-valuenow="${Math.round(pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
    <div class="mt">${pode?`🎉 Você já pode trocar por ${pode} brinde${pode>1?"s":""}!`:pb?`Faltam <b>${fmt(pb.pts-p.saldo)} pontos</b> para: ${pb.e} ${pb.nome}`:"Você pode trocar por qualquer brinde!"}</div>`;
   const nx=NIVEIS.find(x=>x.min>p.total);
   $("#ptsTopo").innerHTML=`<div class="lin"><div><div class="meta">Seu saldo</div><div class="num">${fmt(p.saldo)}<small>pontos</small></div></div><span class="nivel ${n.id}">${n.ic} ${n.nome}</span></div>
-   ${nx?`<div class="barra"><i style="width:${Math.min(100,(p.total-n.min)/(nx.min-n.min)*100)}%"></i></div><div class="meta">Faltam ${fmt(nx.min-p.total)} pontos para o nível ${nx.ic} ${nx.nome} (${nx.txt})</div>`:`<div class="meta" style="margin-top:8px">Você está no nível máximo! ${n.txt} 🎉</div>`}
-   ${vip()?`<div class="meta" style="margin-top:6px">👑 VIP: seus pontos valem em dobro</div>`:""}`;
+   ${nx?`<div class="barra escura"><i style="width:${Math.min(100,(p.total-n.min)/(nx.min-n.min)*100)}%"></i></div><div class="meta">Faltam ${fmt(nx.min-p.total)} pontos para o nível ${nx.ic} ${nx.nome} (${nx.txt})</div>`:`<div class="meta" style="margin-top:8px">Você está no nível máximo! ${n.txt} 🎉</div>`}
+   ${vip()?`<div class="meta" style="margin-top:6px">👑 Vitrine VIP: seus pontos valem em dobro</div>`:""}`;
   $("#listaBrindes").innerHTML=BRINDES.map(b=>{const ok=p.saldo>=b.pts;return `<div class="brinde"><div class="e" aria-hidden="true">${b.e}</div><b>${b.nome}</b><small>${b.emp}</small><div class="cust">${fmt(b.pts)} pontos</div>
-    ${ok?`<button class="btn" onclick="trocar('${b.id}')">Trocar</button>`:`<button class="btn" disabled>Faltam ${fmt(b.pts-p.saldo)}</button>`}</div>`}).join("");
-  $("#meusBrindesBox").innerHTML=p.brindes.length?`<div class="tit"><h2>🎟️ Meus brindes</h2></div>`+p.brindes.map((x,i)=>{const b=BRINDES.find(y=>y.id===x.id)||{};return `<button class="cupom" onclick="verBrinde(${i})"><div class="l">${b.e||"🎁"}</div><div class="r"><b>${b.nome}</b><br>${b.emp}<br>Código: <code>${x.cod}</code><br><span class="ver">Toque para mostrar na loja ›</span></div></button>`}).join(""):"";
-  $("#niveisBox").innerHTML=NIVEIS.map(x=>`<div class="${x.id===n.id?"on":""}"><span style="font-size:1.6rem">${x.ic}</span><b>${x.nome}</b>${x.min?`a partir de ${fmt(x.min)} pts`:"ao entrar"}<br><span style="color:#7A6531;font-weight:700">${x.txt}</span></div>`).join("");
+    ${ok?`<button class="btn ouro" onclick="trocar('${b.id}')">Trocar</button>`:`<button class="btn" disabled>Faltam ${fmt(b.pts-p.saldo)}</button>`}</div>`}).join("");
+  $("#meusBrindesBox").innerHTML=p.brindes.length?`<div class="secao"><h2>${ic("ticket",18)}Meus brindes</h2></div>`+p.brindes.map((x,i)=>{const b=BRINDES.find(y=>y.id===x.id)||{};return `<button class="cupom" onclick="verBrinde(${i})"><div class="l">${b.e||"🎁"}</div><div class="r"><b>${b.nome}</b><br>${b.emp}<br>Código: <code>${x.cod}</code><br><span class="ver">Mostrar na loja${ic("chev",16)}</span></div></button>`}).join(""):"";
+  $("#niveisBox").innerHTML=NIVEIS.map(x=>`<div class="${x.id===n.id?"on":""}"><span style="font-size:1.5rem">${x.ic}</span><b>${x.nome}</b>${x.min?`a partir de ${fmt(x.min)} pts`:"ao entrar"}<br><span style="color:var(--ouro-txt);font-weight:600">${x.txt}</span></div>`).join("");
   $("#histBox").innerHTML=p.hist.length?p.hist.slice(0,30).map(h=>`<div><span>${esc(h.d)}<small>${new Date(h.em).toLocaleDateString("pt-BR")}</small></span><span class="${h.v>=0?"mais":"menos"}">${h.v>=0?"+":""}${fmt(h.v)}</span></div>`).join(""):`<div><span>Seus pontos vão aparecer aqui.</span></div>`;
 }
 function trocar(id){const b=BRINDES.find(x=>x.id===id),p=pts();
@@ -872,7 +1260,7 @@ function cadastrar(e){e.preventDefault();store.set("gira_perfil",{nome:$("#pNome
 function sair(){store.set("gira_perfil",null);render();mostrarBoasVindas()}
 document.addEventListener("keydown",e=>{if(e.key==="Escape")fechar()});
 
-if(store.get("gira_letra",false)){document.documentElement.classList.add("grande");$("#btnAa").classList.add("on")}
+if(store.get("gira_letra",false))document.documentElement.classList.add("grande");
 // ===== INSTALAR APP (PWA) =====
 let promptInstalar=null;
 const UA=navigator.userAgent;
@@ -947,9 +1335,30 @@ async function carregarDoBanco(){
   }catch(e){console.warn("Banco indisponível, usando ofertas de exemplo",e)}
 }
 
-render();reiniciar();carregarDoBanco();
-if(precisaCadastro())mostrarBoasVindas();else if(!store.get("gira_perfil",{}).sync)setTimeout(registrarCliente,1200);   // cadastros antigos também vão para a lista
-const h0=location.hash.slice(1);if(["ofertas","empresas","cupons","perfil","pontos"].includes(h0))ir(h0);
+/* ===================================================================
+   TELA DE CARREGAMENTO: aparece até as ofertas, fotos e atualizações
+   estarem prontas (mínimo ~1,2 s, máximo 7 s se a internet estiver lenta)
+   =================================================================== */
+const SPLASH_T0=performance.now();
+function splashPasso(pct,txt){const b=$("#spBar"),t=$("#spTxt");if(b)b.style.width=pct+"%";if(t&&txt)t.textContent=txt}
+function esperarImagens(sel,max){const imgs=[...document.querySelectorAll(sel)].slice(0,max).filter(i=>!i.complete);
+  return Promise.all(imgs.map(i=>new Promise(r=>{i.addEventListener("load",r,{once:true});i.addEventListener("error",r,{once:true})})))}
+function fecharSplash(){const s=$("#splash");if(!s||s.classList.contains("sai"))return;splashPasso(100,"Pronto!");
+  setTimeout(()=>{s.classList.add("sai");setTimeout(()=>s.remove(),500);
+    if(precisaCadastro())mostrarBoasVindas();else if(!store.get("gira_perfil",{}).sync)setTimeout(registrarCliente,800)},180)}
+async function iniciarApp(){
+  pintarIcones();render();reiniciar();splashPasso(35,"Carregando ofertas…");
+  const limite=new Promise(r=>setTimeout(r,7000));
+  const tarefas=(async()=>{
+    await carregarDoBanco().catch(()=>{});splashPasso(70,"Buscando as novidades de hoje…");
+    await Promise.race([Promise.all([document.fonts?document.fonts.ready:0,esperarImagens("#slides img,#destaques img,.marca img",8)]),new Promise(r=>setTimeout(r,3500))]);
+    splashPasso(92,"Quase pronto…");
+  })();
+  await Promise.race([tarefas,limite]);
+  const falta=Math.max(0,1200-(performance.now()-SPLASH_T0));setTimeout(fecharSplash,falta);
+  const h0=location.hash.slice(1);if(["ofertas","empresas","cupons","perfil","pontos","categorias","mais","negocios"].includes(h0))ir(h0);
+}
+iniciarApp();
 </script>
 </body>
 </html>

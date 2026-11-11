@@ -7,7 +7,7 @@
 <title>Área da Empresa – Vitrine Castro</title>
 <link rel="icon" type="image/png" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -207,6 +207,12 @@ details.mais-op summary{cursor:pointer;font-weight:700;min-height:44px;display:f
 .sucesso .ok{width:84px;height:84px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;font-size:2.6rem;background:linear-gradient(#E9C766,#C9952A);animation:pop .5s cubic-bezier(.16,1,.3,1)}
 @keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.sucesso .ok{animation:none}}
+
+/* ===== Identidade Vitrine (mesma fonte e cores do app do cliente) ===== */
+:root{--txt:#1A1A1A;--cinza:#5F6068;--verde:#00A650;--verm:#E0312B;--creme:#F0F0F2}
+body,button,input,select,textarea,header .v,header .c,.kpi .n,.termo .t b,.lp-plano .preco,.lp-plano .preco small{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{background:#DCDCE0}
+header{border-radius:0}
 </style>
 </head>
 <body>
