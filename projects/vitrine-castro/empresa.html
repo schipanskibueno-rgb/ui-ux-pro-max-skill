@@ -84,6 +84,10 @@ textarea.inp{min-height:90px;resize:vertical}
 .demo-aviso{background:#000;color:#F3E3B5;border-radius:14px;padding:10px 14px;font-size:.85rem;margin-bottom:14px}
 .demo-aviso b{color:#D4A537}
 .perfil-loja{display:flex;align-items:center;gap:14px}
+.troca-loja{display:flex;align-items:center;gap:8px;background:#111;color:#fff;border-radius:14px;padding:8px 10px;margin-bottom:12px}
+.troca-loja .rot{font-size:.78rem;color:#D4A537;font-weight:700;white-space:nowrap}
+.troca-loja select{flex:1;min-width:0;min-height:44px;border-radius:10px;border:1.5px solid #D4A537;background:#1b1b1b;color:#fff;font:inherit;font-weight:700;padding:0 10px}
+.troca-loja button{min-height:44px;border:0;border-radius:10px;background:#D4A537;color:#000;font:inherit;font-weight:800;padding:0 12px;white-space:nowrap;cursor:pointer}
 .perfil-loja .logo{width:76px;height:76px;border-radius:50%;box-shadow:0 0 0 3px #fff,0 0 0 5px #D4A537}
 .nums{display:flex;gap:18px;margin-top:6px;font-size:.85rem;color:var(--cinza)}.nums b{display:block;color:var(--txt);font-size:1.1rem}
 .grade{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;border-radius:14px;overflow:hidden}
@@ -264,7 +268,7 @@ function traduzErro(e){const m=(e&&e.message)||String(e);
 /* ===== MODO: banco real (Supabase) ou DEMONSTRAÇÃO (fica só neste celular) ===== */
 const DEMO=!(window.CONFIG&&CONFIG.SUPABASE_URL&&CONFIG.SUPABASE_ANON_KEY);
 const db=DEMO?null:supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_ANON_KEY);
-let user=null,empresa=null,ofertas=[],admin=false;
+let user=null,empresa=null,ofertas=[],admin=false,lojas=[];
 
 // ===== LOGIN =====
 function telaLogin(modo="entrar"){
@@ -293,24 +297,44 @@ async function entrar(ev,modo){ev.preventDefault();const email=$("#lEmail").valu
 }
 async function esqueci(){const email=($("#lEmail").value||"").trim();if(!email){$("#lErro").textContent="Digite seu e-mail acima primeiro.";$("#lErro").style.display="block";return}
   const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.href.split("#")[0]});toast(error?traduzErro(error):"Enviamos um link para criar uma nova senha.")}
-async function sair(){if(DEMO){if(!confirm("Apagar a loja e as ofertas de demonstração deste celular?"))return;localStorage.removeItem("vc_demo_emp");localStorage.removeItem("vc_demo_ofertas");empresa=null;ofertas=[];telaCadastroEmpresa();return}
+async function sair(){if(DEMO){if(!confirm("Apagar a loja e as ofertas de demonstração deste celular?"))return;localStorage.removeItem("vc_demo_emp");localStorage.removeItem("vc_demo_ofertas");localStorage.removeItem("vc_demo_lojas");empresa=null;ofertas=[];telaCadastroEmpresa();return}
   await db.auth.signOut();user=null;empresa=null;telaLogin()}
 
 function telaSouAdmin(){$("#main").innerHTML=`<div class="card" style="text-align:center"><div style="font-size:3rem" aria-hidden="true">👑</div><h2>Você é o administrador</h2>
   <p class="sub">A administração fica em uma página separada, na coroa 👑 do topo do app.</p><a class="btn ouro" href="admin.html">Abrir a Administração</a>
-  <button class="btn claro" onclick="telaCadastroEmpresa()">🏪 Cadastrar uma loja minha também</button></div>`}
+  <button class="btn claro" onclick="novaLoja()">🏪 Cadastrar uma loja</button></div>`}
 // ===== INÍCIO =====
 async function iniciar(){
-  if(DEMO){empresa=store.get("vc_demo_emp",null);$("#btnSair").classList.toggle("escondido",!empresa);$("#btnSair").textContent="Recomeçar";
-    if(!empresa){location.hash==="#participar"?telaCadastroEmpresa():telaBoasVindas();return}await carregarOfertas();telaPainel();return}
+  if(DEMO){empresa=store.get("vc_demo_emp",null);lojas=store.get("vc_demo_lojas",[]).map(x=>x.emp);$("#btnSair").classList.toggle("escondido",!empresa);$("#btnSair").textContent="Recomeçar";
+    if(location.hash==="#nova"){history.replaceState(null,"",location.pathname);novaLoja();return}
+    if(!empresa){if(lojas.length){voltarLojas();return}location.hash==="#participar"?telaCadastroEmpresa():telaBoasVindas();return}await carregarOfertas();telaPainel();return}
   const {data:{session}}=await db.auth.getSession();
   if(!session){location.hash==="#entrar"?telaLogin("entrar"):location.hash==="#participar"?telaLogin("criar"):telaBoasVindas();return}
   user=session.user;$("#btnSair").classList.remove("escondido");
-  const [{data:emp},{data:adm}]=await Promise.all([db.from("empresas").select("*").eq("dono",user.id).maybeSingle(),db.from("admins").select("user_id").eq("user_id",user.id).maybeSingle()]);
-  empresa=emp;admin=!!adm;
+  const [{data:emps},{data:adm}]=await Promise.all([db.from("empresas").select("*").eq("dono",user.id).order("criado_em"),db.from("admins").select("user_id").eq("user_id",user.id).maybeSingle()]);
+  lojas=emps||[];admin=!!adm;const atual=store.get("vc_loja_atual","");
+  empresa=lojas.find(l=>l.id===atual)||lojas[0]||null;
+  if(admin&&location.hash==="#nova"){history.replaceState(null,"",location.pathname);novaLoja();return}
   if(!empresa){admin?telaSouAdmin():telaCadastroEmpresa();return}
+  store.set("vc_loja_atual",empresa.id);
   await carregarOfertas();telaPainel();
 }
+// ===== VÁRIAS LOJAS (ADM) =====
+function multiLoja(){return DEMO||admin}
+function barraLojas(){if(!multiLoja())return"";
+  const ops=DEMO?[`<option value="atual" selected>${esc(empresa.nome)}</option>`,...lojas.map((l,i)=>`<option value="${i}">${esc(l.nome)}</option>`)]
+    :lojas.map(l=>`<option value="${esc(l.id)}" ${l.id===empresa.id?"selected":""}>${esc(l.nome)}${l.aprovada?"":" (em análise)"}</option>`);
+  return `<div class="troca-loja"><span class="rot">Loja</span><select aria-label="Escolher a loja" onchange="trocarLoja(this.value)">${ops.join("")}</select><button onclick="novaLoja()">➕ Nova loja</button></div>`}
+async function trocarLoja(v){ABA="resultados";
+  if(DEMO){if(v==="atual")return;const arq=store.get("vc_demo_lojas",[]),i=+v,esc_=arq[i];if(!esc_)return;
+    arq.splice(i,1,{emp:store.get("vc_demo_emp",null),ofertas:store.get("vc_demo_ofertas",[])});store.set("vc_demo_lojas",arq);
+    store.set("vc_demo_emp",esc_.emp);store.set("vc_demo_ofertas",esc_.ofertas||[]);await iniciar();return}
+  const l=lojas.find(x=>x.id===v);if(!l)return;empresa=l;store.set("vc_loja_atual",l.id);await carregarOfertas();telaPainel();window.scrollTo(0,0)}
+function novaLoja(){
+  if(DEMO){const e=store.get("vc_demo_emp",null);if(e){const arq=store.get("vc_demo_lojas",[]);arq.push({emp:e,ofertas:store.get("vc_demo_ofertas",[])});store.set("vc_demo_lojas",arq);lojas=arq.map(x=>x.emp)}
+    localStorage.removeItem("vc_demo_emp");localStorage.removeItem("vc_demo_ofertas")}
+  empresa=null;ofertas=[];ABA="resultados";telaCadastroEmpresa();window.scrollTo(0,0)}
+function voltarLojas(){if(DEMO){const arq=store.get("vc_demo_lojas",[]),u=arq.pop();if(u){store.set("vc_demo_lojas",arq);store.set("vc_demo_emp",u.emp);store.set("vc_demo_ofertas",u.ofertas||[])}}iniciar()}
 async function carregarOfertas(){
   if(DEMO){ofertas=store.get("vc_demo_ofertas",[]);return}
   const {data,error}=await db.from("ofertas").select("*").eq("empresa_id",empresa.id).order("criado_em",{ascending:false});if(error)toast(traduzErro(error));ofertas=data||[]}
@@ -347,7 +371,10 @@ function formEmpresa(e={}){return `
   <label class="foto-btn">📷 Escolher logo<input type="file" accept="image/*" id="eLogo" onchange="mostrarPrevia(this,'#eLogoPrev')"></label>
   <div class="erro" id="eErro"></div>`}
 function telaCadastroEmpresa(){const plano=store.get("vc_plano_desejado","basico");
-  $("#main").innerHTML=`${DEMO?avisoDemo():""}${progresso(2)}${planoEscolhidoHTML()}<div class="card"><h2>🏪 Dados da sua loja</h2><p class="sub">${DEMO?"":"Passo 2 de 3. "}Leva 1 minuto. É assim que os clientes vão ver sua loja.</p>
+  const outra=multiLoja()&&lojas.length>0;
+  $("#main").innerHTML=`${DEMO?avisoDemo():""}${outra?`<button class="btn claro" style="margin-bottom:12px" onclick="voltarLojas()">← Voltar para as minhas lojas</button>`:""}
+  ${admin&&!DEMO?`<div class="aviso">👑 <b>Cadastro pelo ADM:</b> esta loja fica separada das outras, já entra <b>aprovada</b> e com o plano que você marcar abaixo.</div>`:outra?`<div class="aviso">🏪 <b>Nova loja:</b> ela fica separada das outras. Para voltar a uma loja, use o seletor "Loja" no painel.</div>`:""}
+  ${outra?"":progresso(2)}${planoEscolhidoHTML()}<div class="card"><h2>🏪 Dados ${outra||admin?"da loja":"da sua loja"}</h2><p class="sub">${DEMO?"":"Passo 2 de 3. "}Leva 1 minuto. É assim que os clientes vão ver sua loja.</p>
   <form onsubmit="salvarEmpresa(event)">${formEmpresa()}
    <label style="margin-top:16px">Qual plano você quer?</label>
    ${PLANOS_VENDA.map(p=>`<label class="opc-plano"><input type="radio" name="ePlano" value="${p.id}" ${p.id===plano?"checked":""} onchange="trocouPlano(this.value)"><span>${p.nome} – ${p.preco}/mês<small>🎁 3 meses grátis · ${p.resumo}</small></span></label>`).join("")}
@@ -361,10 +388,11 @@ async function salvarEmpresa(ev){ev.preventDefault();const b=$("#eBtn");b.disabl
       abre:$("#eAbre").value||null,fecha:$("#eFecha").value||null,dias_func:diasLidos("eDias"),instagram:($("#eInsta").value||"").replace(/[^A-Za-z0-9._]/g,"").slice(0,40)||null};
     const f=$("#eLogo").files[0];if(f)dados.logo_url=await enviarFoto(await prepararFoto(f,{larg:400,prop:1}));
     if(DEMO){empresa={...(empresa||{id:"demo",aprovada:true,plano:"premium"}),...dados};store.set("vc_demo_emp",empresa)}
-    else{const gravar=d=>(empresa?db.from("empresas").update(d).eq("id",empresa.id):db.from("empresas").insert(d)).select().single();
+    else{if(primeiro&&admin){dados.plano=planoEsc||"basico";dados.aprovada=true}
+      const gravar=d=>(empresa?db.from("empresas").update(d).eq("id",empresa.id):db.from("empresas").insert(d)).select().single();
       let r=await gravar(dados);
       if(r.error&&/abre|fecha|dias_func|instagram|schema cache/i.test(r.error.message||"")){const {abre,fecha,dias_func,instagram,...base}=dados;r=await gravar(base);if(!r.error)toast("Loja salva. Para guardar horário e Instagram, rode a atualização do banco (supabase.sql).")}
-      if(r.error)throw r.error;empresa=r.data}
+      if(r.error)throw r.error;empresa=r.data;store.set("vc_loja_atual",empresa.id)}
     fechar();if(primeiro){telaSucessoCadastro();return}toast("✅ Dados salvos!");await iniciar();
   }catch(e){$("#eErro").textContent=traduzErro(e);$("#eErro").style.display="block"}finally{b.disabled=false}
 }
@@ -377,7 +405,7 @@ let ABA="resultados";
 function telaPainel(){
   const pl=PLANOS[empresa.plano]||PLANOS.basico,ativas=ofertas.filter(o=>o.ativa&&!venceu(o)).length;
   const whatsAdm=((window.CONFIG&&CONFIG.WHATSAPP)||"").replace(/\D/g,"");
-  $("#main").innerHTML=`${DEMO?avisoDemo():""}
+  $("#main").innerHTML=`${DEMO?avisoDemo():""}${barraLojas()}
   ${empresa.aprovada?"":`<div class="aviso">⏳ <b>Sua loja está em análise.</b> Você já pode postar; as ofertas aparecem no app assim que a loja for aprovada.${whatsAdm?` <a href="https://wa.me/${whatsAdm}?text=${encodeURIComponent("Olá! Cadastrei a loja "+empresa.nome+" na Área da Empresa do Vitrine Castro.")}" target="_blank" rel="noopener">Avisar pelo WhatsApp</a>`:""}</div>`}
   <div class="card"><div class="perfil-loja"><div class="logo">${seguro(empresa.logo_url)?`<img src="${esc(empresa.logo_url)}" alt="">`:"🏪"}</div>
    <div style="flex:1;min-width:0"><h2 style="margin:0">${esc(empresa.nome)}</h2><span class="status ${empresa.aprovada?"ok":"pend"}">${empresa.aprovada?"✓ Aprovada":"Em análise"}</span>${DEMO?"":` <span class="status pausa">Plano ${pl.nome}</span>`}
@@ -651,7 +679,7 @@ async function carregarMetricas(desde){
     store.get("vc_demo_eventos",[]).forEach(ev=>{if(!ids.has(String(ev.oferta))||ev.dia<desde)return;const k=ev.oferta+"|"+ev.tipo+"|"+ev.dia;
       m[k]=m[k]||{oferta_id:String(ev.oferta),tipo:ev.tipo,dia:ev.dia,qtd:0,valor:0};m[k].qtd++;m[k].valor+=Number(ev.valor)||0});
     return Object.values(m)}
-  const {data,error}=await db.rpc("metricas_empresa",{p_desde:desde});
+  const {data,error}=await db.rpc("metricas_empresa",{p_desde:desde,p_empresa:empresa.id});
   if(error){console.warn(error);throw new Error("Não foi possível carregar os números. Rode a atualização do banco (supabase.sql).")}
   return (data||[]).map(r=>({...r,oferta_id:String(r.oferta_id),qtd:Number(r.qtd)||0,valor:Number(r.valor)||0}));
 }
@@ -718,7 +746,7 @@ async function consultarCupom(){const cod=extrairCodigo($("#cCod").value),box=$(
   box.innerHTML=`<p class="sub" style="margin-top:10px">Conferindo…</p>`;
   let r;
   if(DEMO)r=demoCupom(cod);
-  else{const {data,error}=await db.rpc("consultar_cupom",{p_codigo:cod});if(error){box.innerHTML=`<div class="erro" style="display:block">${esc(traduzErro(error))}</div>`;return}r=data&&data.ok?data:null}
+  else{const {data,error}=await db.rpc("consultar_cupom",{p_codigo:cod,p_empresa:empresa.id});if(error){box.innerHTML=`<div class="erro" style="display:block">${esc(traduzErro(error))}</div>`;return}r=data&&data.ok?data:null}
   if(!r){box.innerHTML=`<div class="erro" style="display:block">Esse código não é de uma oferta da sua loja. Confira com o cliente.</div>`;return}
   if(r.usado_em){box.innerHTML=`<div class="erro" style="display:block">Esse cupom já foi usado em ${new Date(r.usado_em).toLocaleDateString("pt-BR")}${r.valor?" (compra de "+fmtR(r.valor)+")":""}.</div>`;return}
   box.innerHTML=`<div class="card" style="border:2px solid #D4A537;margin-top:12px;box-shadow:none"><p class="sub">Cupom <b>${esc(cod)}</b> ✓ válido</p><h3>${esc(r.titulo)}</h3>
@@ -730,7 +758,7 @@ async function confirmarCupom(cod){const v=parseFloat(String($("#cValor").value)
     if(DEMO){const r=demoCupom(cod);if(!r||r.usado_em)throw new Error("Cupom inválido ou já usado.");const us=store.get("vc_demo_usados",{});us[cod]={em:new Date().toISOString(),valor:v};store.set("vc_demo_usados",us);
       const l=store.get("vc_demo_eventos",[]);l.push({oferta:r.oferta,tipo:"compra",dia:hojeISO(),valor:v,em:Date.now()});store.set("vc_demo_eventos",l)}
     let ganhos=Math.floor(v);
-    if(!DEMO){const {data,error}=await db.rpc("confirmar_cupom",{p_codigo:cod,p_valor:Math.round(v*100)/100});if(error)throw error;if(!data||!data.ok)throw new Error((data&&data.motivo)||"Não foi possível confirmar.");ganhos=Number(data.pontos)||0}
+    if(!DEMO){const {data,error}=await db.rpc("confirmar_cupom",{p_codigo:cod,p_valor:Math.round(v*100)/100,p_empresa:empresa.id});if(error)throw error;if(!data||!data.ok)throw new Error((data&&data.motivo)||"Não foi possível confirmar.");ganhos=Number(data.pontos)||0}
     $("#cRes").innerHTML=`<div class="res-ok">✅ Compra de ${fmtR(v)} confirmada!<br><span style="font-weight:500">Ela já aparece em Resultados.${ganhos?` O cliente ganhou <b>${ganhos} pontos</b>.`:""}</span></div>`;$("#cCod").value="";
   }catch(err){toast(traduzErro(err));b.disabled=false}}
 
@@ -776,7 +804,7 @@ async function apagarBrinde(id){if(!confirm("Apagar este brinde? Trocas já feit
 /* entregar o brinde: o cliente mostra o código BR- (ou o QR Code) */
 async function consultarResgate(cod){const box=$("#cRes");let r=null;
   if(DEMO){const x=store.get("vc_demo_resgates",[]).find(y=>y.codigo===cod&&y.empresa==="demo");if(x)r={brinde:x.brinde_nome,pontos:x.pontos,criado_em:x.criado_em,entregue_em:x.entregue_em,cancelado_em:x.cancelado_em}}
-  else{const {data,error}=await db.rpc("consultar_resgate",{p_codigo:cod});if(error){box.innerHTML=`<div class="erro" style="display:block">${esc(traduzErro(error))}</div>`;return}if(data&&data.ok)r=data}
+  else{const {data,error}=await db.rpc("consultar_resgate",{p_codigo:cod,p_empresa:empresa.id});if(error){box.innerHTML=`<div class="erro" style="display:block">${esc(traduzErro(error))}</div>`;return}if(data&&data.ok)r=data}
   if(!r){box.innerHTML=`<div class="erro" style="display:block">Esse código de brinde não é da sua loja. Confira com o cliente.</div>`;return}
   if(r.entregue_em){box.innerHTML=`<div class="erro" style="display:block">Esse brinde já foi entregue em ${new Date(r.entregue_em).toLocaleDateString("pt-BR")}.</div>`;return}
   if(r.cancelado_em){box.innerHTML=`<div class="erro" style="display:block">Essa troca foi cancelada e os pontos voltaram para o cliente.</div>`;return}
@@ -789,7 +817,7 @@ async function entregarResgate(cod,acao){if(acao==="cancelar"&&!confirm("Cancela
       x[acao==="entregar"?"entregue_em":"cancelado_em"]=new Date().toISOString();store.set("vc_demo_resgates",l);
       if(acao==="cancelar"){const p=store.get("gira_pontos",{saldo:0,total:0,hist:[],brindes:[]});p.saldo+=x.pontos;p.hist.unshift({d:"Pontos devolvidos",v:x.pontos,em:Date.now()});store.set("gira_pontos",p);
         const bl=store.get("vc_demo_brindes",[]),bb=bl.find(z=>z.id===x.brinde_id);if(bb&&bb.estoque!=null){bb.estoque++;store.set("vc_demo_brindes",bl)}}}
-    else{const {data,error}=await db.rpc("confirmar_resgate",{p_codigo:cod,p_acao:acao});if(error)throw error;if(!data||!data.ok)throw new Error((data&&data.motivo)||"Não foi possível concluir.")}
+    else{const {data,error}=await db.rpc("confirmar_resgate",{p_codigo:cod,p_acao:acao,p_empresa:empresa.id});if(error)throw error;if(!data||!data.ok)throw new Error((data&&data.motivo)||"Não foi possível concluir.")}
     $("#cRes").innerHTML=`<div class="res-ok">${acao==="entregar"?"🎁 Brinde entregue!":"Troca cancelada. Os pontos voltaram para o cliente."}</div>`;$("#cCod").value=""}
   catch(err){toast(traduzErro(err));if(b)b.disabled=false}}
 /* ===================================================================
@@ -797,7 +825,7 @@ async function entregarResgate(cod,acao){if(acao==="cancelar"&&!confirm("Cancela
    =================================================================== */
 async function minhasMensalidades(){const box=$("#mensBox");if(!box)return;
   let l=[];if(DEMO)l=store.get("vc_demo_pagamentos",[]).filter(p=>p.tipo==="mensalidade"&&p.empresa_id==="demo").sort((a,b)=>String(b.referencia).localeCompare(String(a.referencia)));
-  else{const {data,error}=await db.rpc("minhas_mensalidades");if(error){box.innerHTML="";return}l=data||[]}
+  else{const {data,error}=await db.rpc("minhas_mensalidades",{p_empresa:empresa.id});if(error){box.innerHTML="";return}l=data||[]}
   const mes=hojeISO().slice(0,7),M=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"],nm=r=>M[+String(r).slice(5)-1]+"/"+String(r).slice(0,4);
   const pago=l.find(p=>p.referencia===mes);
   box.innerHTML=`<div class="card"><h3>💳 Minhas mensalidades</h3>

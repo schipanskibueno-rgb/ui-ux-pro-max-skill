@@ -463,6 +463,7 @@ async function painelAdmin(recarregar=true){
    </div>
 
    <h2 style="margin:16px 0 8px">Empresas cadastradas (${tot.lojas})</h2>
+   <a class="btn ouro" href="empresa.html#nova" style="margin-bottom:10px;text-decoration:none;display:flex;align-items:center;justify-content:center">➕ Cadastrar empresa</a>
    <input class="inp" type="search" placeholder="🔎 Buscar por nome, ramo ou WhatsApp" value="${esc(ADM.busca)}" oninput="ADM.busca=this.value;clearTimeout(window._tb);window._tb=setTimeout(()=>painelAdmin(false),350)" id="admBusca" aria-label="Buscar empresa">
    <div class="chips" style="margin:10px 0 8px">${[["todas","Todas"],["ajuda",`⚠️ Precisam de ajuda (${ajuda.length})`],["analise",`⏳ Em análise (${tot.analise})`],["vd","🟢 Vendendo bem"],["basico","Básico"],["destaque","Destaque"],["premium","Premium"]].map(([k,n])=>`<button type="button" aria-pressed="${ADM.filtro===k}" onclick="ADM.filtro='${k}';painelAdmin(false)">${n}</button>`).join("")}</div>
    <label for="admOrdem" style="margin:4px 0 6px">Ordenar por</label>
@@ -564,7 +565,14 @@ async function admDetalhe(id){
      ${x.aprovada?`<button class="mini" onclick="admEmpresa('${esc(x.id)}',{aprovada:false})">⏸ Suspender loja</button>`:`<button class="mini ou" onclick="admEmpresa('${esc(x.id)}',{aprovada:true})">✓ Aprovar loja</button>`}
      <select class="mini" aria-label="Plano de ${esc(x.nome)}" onchange="admEmpresa('${esc(x.id)}',{plano:this.value})">${Object.entries(PLANOS).map(([k,v])=>`<option value="${k}" ${k===x.plano?"selected":""}>Plano ${v.nome}</option>`).join("")}</select>
      ${zap?`<a class="mini" style="display:inline-flex;align-items:center;text-decoration:none;background:#dff5e7;color:#0d6b31" href="${zapUrl("Olá! Aqui é do Vitrine Castro, sobre a loja "+x.nome.replace(/ \((exemplo|sua loja de teste)\)$/,"")+".")}" target="_blank" rel="noopener">💬 Chamar no WhatsApp</a>`:""}
-    </div></div>
+    </div>
+    ${!DEMO&&user&&x.dono===user.id?`<div style="margin-top:14px;border-top:1px solid #eee;padding-top:12px">
+     <p style="margin:0 0 8px;font-size:.9rem">👑 <b>Loja cadastrada por você.</b> Você posta as ofertas e confirma as compras dela pela Área da Empresa.</p>
+     <button class="mini ou" onclick="gerenciarLoja('${esc(x.id)}')">🏪 Gerenciar esta loja (ofertas, cupons, brindes)</button>
+     <label for="admTrEmail" style="margin:12px 0 4px;display:block;font-weight:600;font-size:.9rem">Passar a loja para o dono</label>
+     <p style="margin:0 0 6px;font-size:.82rem;color:#666">O dono cria uma conta na Área da Empresa (só e-mail e senha, sem cadastrar loja). Coloque o e-mail dele aqui: a loja, as ofertas e o histórico passam para ele.</p>
+     <div style="display:flex;gap:6px"><input class="inp" id="admTrEmail" type="email" placeholder="email@dono.com" autocomplete="off" style="min-height:44px"><button class="mini az" onclick="transferirLoja('${esc(x.id)}')">Passar</button></div>
+    </div>`:""}</div>
    <button class="btn claro" style="margin-top:14px" onclick="painelAdmin(false)">← Voltar para a lista de empresas</button>`;
 }
 const dataHora=t=>new Date(t).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"});
@@ -883,6 +891,12 @@ function admAtualizar(){window._adm=null;ADM.detalhe?admDetalhe(ADM.detalhe):pai
 
 // ações do administrador (no modo demonstração mudam só a loja de teste deste celular)
 const exemplo=id=>/^ex\d/.test(String(id))&&(toast("Esta é uma loja de exemplo, só para demonstração"),true);
+function gerenciarLoja(id){store.set("vc_loja_atual",id);location.href="empresa.html"}
+async function transferirLoja(id){const em=($("#admTrEmail").value||"").trim();if(!/^\S+@\S+\.\S+$/.test(em)){toast("Digite o e-mail da conta do dono.");return}
+  if(!confirm("Passar esta loja para "+em+"? Depois disso só o dono (e você, pela Administração) mexe nela."))return;
+  const {data,error}=await db.rpc("transferir_empresa",{p_empresa:id,p_email:em});
+  if(error){toast(traduzErro(error));return}if(!data||!data.ok){toast((data&&data.motivo)||"Não foi possível passar a loja.");return}
+  toast("✅ Loja passada para "+em);admAtualizar()}
 async function admEmpresa(id,campos){if(exemplo(id))return;
   if(DEMO){const emp=store.get("vc_demo_emp",{});Object.assign(emp,campos);store.set("vc_demo_emp",emp);empresa=emp;toast("✅ Atualizado");admAtualizar();return}
   const {error}=await db.from("empresas").update(campos).eq("id",id);toast(error?traduzErro(error):"✅ Atualizado");admAtualizar()}

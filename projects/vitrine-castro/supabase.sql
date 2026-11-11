@@ -29,7 +29,10 @@ create table if not exists public.empresas (
   aprovada   boolean not null default false,
   criado_em  timestamptz not null default now()
 );
-create unique index if not exists empresas_um_por_dono on public.empresas(dono);
+-- Cada lojista tem 1 loja. O ADM pode cadastrar várias (ficam marcadas como pelo_adm).
+alter table public.empresas add column if not exists pelo_adm boolean not null default false;
+drop index if exists public.empresas_um_por_dono;
+create unique index empresas_um_por_dono on public.empresas(dono) where not pelo_adm;
 
 -- Só você (admin) pode aprovar e mudar o plano
 create or replace function public.protege_empresa() returns trigger
@@ -37,16 +40,32 @@ language plpgsql security definer set search_path = public as $$
 begin
   if not public.is_admin() then
     if tg_op = 'INSERT' then
-      new.aprovada := false; new.plano := 'basico'; new.dono := auth.uid();
+      new.aprovada := false; new.plano := 'basico'; new.dono := auth.uid(); new.pelo_adm := false;
     else
-      new.aprovada := old.aprovada; new.plano := old.plano; new.dono := old.dono;
+      new.aprovada := old.aprovada; new.plano := old.plano; new.dono := old.dono; new.pelo_adm := old.pelo_adm;
     end if;
+  elsif tg_op = 'INSERT' and new.dono = auth.uid() then
+    new.pelo_adm := true;   -- loja cadastrada pelo ADM: ele pode ter quantas quiser
   end if;
   return new;
 end $$;
 drop trigger if exists t_protege_empresa on public.empresas;
 create trigger t_protege_empresa before insert or update on public.empresas
   for each row execute function public.protege_empresa();
+
+-- Qual loja a pessoa logada está usando agora (o ADM escolhe entre as dele; lojista tem 1 só)
+create or replace function public.loja_do_usuario(p_empresa uuid, p_aprovada boolean default false) returns uuid
+language plpgsql stable security definer set search_path = public as $$
+declare emp uuid;
+begin
+  select e.id into emp from public.empresas e
+   where (e.dono = auth.uid() or (p_empresa is not null and public.is_admin()))
+     and (p_empresa is null or e.id = p_empresa)
+     and (not p_aprovada or e.aprovada)
+   order by e.pelo_adm, e.criado_em limit 1;
+  return emp;
+end $$;
+revoke execute on function public.loja_do_usuario(uuid, boolean) from public, anon, authenticated;
 
 alter table public.empresas enable row level security;
 drop policy if exists "empresas ver"     on public.empresas;
@@ -248,11 +267,12 @@ revoke execute on function public.cupons_usados(uuid[]) from public;
 grant execute on function public.cupons_usados(uuid[]) to anon, authenticated;
 
 -- Área da Empresa: conferir um código (só cupons das ofertas da PRÓPRIA loja; 60 consultas a cada 10 min)
-create or replace function public.consultar_cupom(p_codigo text) returns json
+drop function if exists public.consultar_cupom(text);
+create or replace function public.consultar_cupom(p_codigo text, p_empresa uuid default null) returns json
 language plpgsql security definer set search_path = public as $$
 declare emp uuid; c public.cupons; tit text;
 begin
-  select id into emp from public.empresas where dono = auth.uid();
+  emp := public.loja_do_usuario(p_empresa);
   if emp is null then raise exception 'Cadastre sua loja primeiro.'; end if;
   if (select count(*) from public.tentativas where empresa_id = emp and criado_em > now() - interval '10 minutes') >= 60 then
     raise exception 'Muitas tentativas. Aguarde alguns minutos.';
@@ -265,11 +285,12 @@ begin
 end $$;
 
 -- Área da Empresa: confirmar a compra (uma vez só) e registrar o valor vendido
-create or replace function public.confirmar_cupom(p_codigo text, p_valor numeric) returns json
+drop function if exists public.confirmar_cupom(text, numeric);
+create or replace function public.confirmar_cupom(p_codigo text, p_valor numeric, p_empresa uuid default null) returns json
 language plpgsql security definer set search_path = public as $$
 declare emp uuid; c public.cupons; ganhos int := 0;
 begin
-  select id into emp from public.empresas where dono = auth.uid() and aprovada;
+  emp := public.loja_do_usuario(p_empresa, true);
   if emp is null then raise exception 'Só lojas aprovadas podem confirmar compras.'; end if;
   if p_valor is null or p_valor <= 0 or p_valor > 50000 then raise exception 'Valor da compra inválido.'; end if;
   select * into c from public.cupons where codigo = upper(trim(p_codigo)) and empresa_id = emp for update;  -- trava contra confirmar 2 vezes
@@ -282,11 +303,12 @@ begin
 end $$;
 
 -- Área da Empresa: números da PRÓPRIA loja por oferta e por dia
-create or replace function public.metricas_empresa(p_desde date) returns table (oferta_id uuid, tipo text, dia date, qtd bigint, valor numeric)
+drop function if exists public.metricas_empresa(date);
+create or replace function public.metricas_empresa(p_desde date, p_empresa uuid default null) returns table (oferta_id uuid, tipo text, dia date, qtd bigint, valor numeric)
 language sql stable security definer set search_path = public as $$
   select ev.oferta_id, ev.tipo, ev.dia, count(*), coalesce(sum(ev.valor), 0)
     from public.eventos ev join public.empresas e on e.id = ev.empresa_id
-   where e.dono = auth.uid() and ev.dia >= p_desde
+   where e.id = public.loja_do_usuario(p_empresa) and ev.dia >= p_desde
    group by ev.oferta_id, ev.tipo, ev.dia
 $$;
 
@@ -462,15 +484,16 @@ grant execute on function public.pedir_vip(text, text, text), public.status_vip(
 grant execute on function public.confirmar_vip(text, text) to authenticated;
 
 -- A empresa vê só as PRÓPRIAS mensalidades (sem observações internas do administrador)
-create or replace function public.minhas_mensalidades() returns table (referencia text, valor numeric, forma text, pago_em date)
+drop function if exists public.minhas_mensalidades();
+create or replace function public.minhas_mensalidades(p_empresa uuid default null) returns table (referencia text, valor numeric, forma text, pago_em date)
 language sql stable security definer set search_path = public as $$
   select p.referencia, p.valor, p.forma, p.pago_em
     from public.pagamentos p join public.empresas e on e.id = p.empresa_id
-   where p.tipo = 'mensalidade' and e.dono = auth.uid()
+   where p.tipo = 'mensalidade' and e.id = public.loja_do_usuario(p_empresa)
    order by p.referencia desc limit 24
 $$;
-revoke execute on function public.minhas_mensalidades() from public, anon;
-grant execute on function public.minhas_mensalidades() to authenticated;
+revoke execute on function public.minhas_mensalidades(uuid) from public, anon;
+grant execute on function public.minhas_mensalidades(uuid) to authenticated;
 
 -- Administrador: vendas (cupons) de UMA loja, para a ficha da empresa
 create or replace function public.vendas_admin_empresa(p_empresa uuid, p_desde date)
@@ -487,9 +510,9 @@ revoke execute on function public.vendas_admin_empresa(uuid, date) from public, 
 grant execute on function public.vendas_admin_empresa(uuid, date) to authenticated;
 
 revoke execute on function public.registrar_evento(uuid,text,text), public.emitir_cupom(uuid,text),
-  public.consultar_cupom(text), public.confirmar_cupom(text,numeric), public.metricas_empresa(date) from public, anon;
+  public.consultar_cupom(text,uuid), public.confirmar_cupom(text,numeric,uuid), public.metricas_empresa(date,uuid) from public, anon;
 grant execute on function public.registrar_evento(uuid,text,text), public.emitir_cupom(uuid,text) to anon, authenticated;
-grant execute on function public.consultar_cupom(text), public.confirmar_cupom(text,numeric), public.metricas_empresa(date) to authenticated;
+grant execute on function public.consultar_cupom(text,uuid), public.confirmar_cupom(text,numeric,uuid), public.metricas_empresa(date,uuid) to authenticated;
 
 -- ---------- FOTOS (Storage) ----------
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
@@ -650,11 +673,12 @@ begin
 end $$;
 
 -- Área da Empresa: conferir o código do brinde (só brindes da PRÓPRIA loja)
-create or replace function public.consultar_resgate(p_codigo text) returns json
+drop function if exists public.consultar_resgate(text);
+create or replace function public.consultar_resgate(p_codigo text, p_empresa uuid default null) returns json
 language plpgsql security definer set search_path = public as $$
 declare emp uuid; r public.resgates;
 begin
-  select id into emp from public.empresas where dono = auth.uid();
+  emp := public.loja_do_usuario(p_empresa);
   if emp is null then raise exception 'Cadastre sua loja primeiro.'; end if;
   if (select count(*) from public.tentativas where empresa_id = emp and criado_em > now() - interval '10 minutes') >= 60 then
     raise exception 'Muitas tentativas. Aguarde alguns minutos.';
@@ -666,11 +690,12 @@ begin
 end $$;
 
 -- Área da Empresa: entregar o brinde (ou cancelar e devolver os pontos ao cliente)
-create or replace function public.confirmar_resgate(p_codigo text, p_acao text) returns json
+drop function if exists public.confirmar_resgate(text, text);
+create or replace function public.confirmar_resgate(p_codigo text, p_acao text, p_empresa uuid default null) returns json
 language plpgsql security definer set search_path = public as $$
 declare emp uuid; r public.resgates;
 begin
-  select id into emp from public.empresas where dono = auth.uid() and aprovada;
+  emp := public.loja_do_usuario(p_empresa, true);
   if emp is null then raise exception 'Só lojas aprovadas podem entregar brindes.'; end if;
   if p_acao not in ('entregar','cancelar') then raise exception 'Ação inválida.'; end if;
   select * into r from public.resgates where codigo = upper(trim(p_codigo)) and empresa_id = emp for update;
@@ -688,11 +713,32 @@ begin
 end $$;
 
 revoke execute on function public.dar_pontos_compra(text, uuid, text, numeric), public.meus_pontos(text), public.listar_brindes(),
-  public.resgatar_brinde(text, uuid), public.consultar_resgate(text), public.confirmar_resgate(text, text), public.limite_brindes() from public, anon, authenticated;
+  public.resgatar_brinde(text, uuid), public.consultar_resgate(text,uuid), public.confirmar_resgate(text,text,uuid), public.limite_brindes() from public, anon, authenticated;
 grant execute on function public.meus_pontos(text), public.listar_brindes(), public.resgatar_brinde(text, uuid) to anon, authenticated;
-grant execute on function public.consultar_resgate(text), public.confirmar_resgate(text, text) to authenticated;
+grant execute on function public.consultar_resgate(text,uuid), public.confirmar_resgate(text,text,uuid) to authenticated;
 
 -- =====================================================================
+-- =====================================================================
+--  VÁRIAS LOJAS DO ADM: passar uma loja cadastrada pelo ADM para o lojista
+--  (o lojista cria a conta na Área da Empresa; o ADM informa o e-mail dele)
+-- =====================================================================
+create or replace function public.transferir_empresa(p_empresa uuid, p_email text) returns json
+language plpgsql security definer set search_path = public as $$
+declare u uuid;
+begin
+  if not public.is_admin() then raise exception 'Só o administrador pode passar lojas.'; end if;
+  select id into u from auth.users where lower(email) = lower(trim(p_email)) limit 1;
+  if u is null then return json_build_object('ok', false, 'motivo', 'Nenhuma conta com esse e-mail. Peça para a loja criar a conta na Área da Empresa primeiro.'); end if;
+  if exists (select 1 from public.empresas where dono = u and not pelo_adm and id <> p_empresa) then
+    return json_build_object('ok', false, 'motivo', 'Essa conta já tem uma loja cadastrada.');
+  end if;
+  update public.empresas set dono = u, pelo_adm = false where id = p_empresa;
+  if not found then return json_build_object('ok', false, 'motivo', 'Loja não encontrada.'); end if;
+  return json_build_object('ok', true);
+end $$;
+revoke execute on function public.transferir_empresa(uuid, text) from public, anon;
+grant execute on function public.transferir_empresa(uuid, text) to authenticated;
+
 -- DEPOIS de criar sua conta na Área da Empresa (empresa.html),
 -- rode só a linha abaixo (com o SEU e-mail) para virar administrador:
 --
