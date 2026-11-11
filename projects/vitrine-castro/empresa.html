@@ -213,6 +213,7 @@ details.mais-op summary{cursor:pointer;font-weight:700;min-height:44px;display:f
 body,button,input,select,textarea,header .v,header .c,.kpi .n,.termo .t b,.lp-plano .preco,.lp-plano .preco small{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 body{background:#DCDCE0}
 header{border-radius:0}
+.plano-esc{background:#E6F7EE;color:#05603A;border:1px solid #A6E3C2;border-radius:12px;padding:11px 14px;margin:0 0 12px;font-size:.95rem;line-height:1.4}
 </style>
 </head>
 <body>
@@ -266,7 +267,7 @@ let user=null,empresa=null,ofertas=[],admin=false;
 // ===== LOGIN =====
 function telaLogin(modo="entrar"){
   $("#btnSair").classList.add("escondido");
-  $("#main").innerHTML=`${modo==="criar"?progresso(1):""}<div class="card">
+  $("#main").innerHTML=`${modo==="criar"?progresso(1)+planoEscolhidoHTML():""}<div class="card">
    <h2>${modo==="criar"?"Crie sua conta de empresa":"Bem-vindo, lojista! 👋"}</h2><p class="sub">${modo==="criar"?"Passo 1 de 3: e-mail e senha para entrar na sua área.":"Entre para postar suas promoções e ver seus resultados."}</p>
    <div class="abas" style="margin-top:14px"><button class="${modo==="entrar"?"on":""}" onclick="telaLogin('entrar')">Entrar</button><button class="${modo==="criar"?"on":""}" onclick="telaLogin('criar')">Criar conta</button></div>
    <form onsubmit="entrar(event,'${modo}')">
@@ -344,10 +345,10 @@ function formEmpresa(e={}){return `
   <label class="foto-btn">📷 Escolher logo<input type="file" accept="image/*" id="eLogo" onchange="mostrarPrevia(this,'#eLogoPrev')"></label>
   <div class="erro" id="eErro"></div>`}
 function telaCadastroEmpresa(){const plano=store.get("vc_plano_desejado","basico");
-  $("#main").innerHTML=`${DEMO?avisoDemo():""}${progresso(2)}<div class="card"><h2>🏪 Dados da sua loja</h2><p class="sub">${DEMO?"":"Passo 2 de 3. "}Leva 1 minuto. É assim que os clientes vão ver sua loja.</p>
+  $("#main").innerHTML=`${DEMO?avisoDemo():""}${progresso(2)}${planoEscolhidoHTML()}<div class="card"><h2>🏪 Dados da sua loja</h2><p class="sub">${DEMO?"":"Passo 2 de 3. "}Leva 1 minuto. É assim que os clientes vão ver sua loja.</p>
   <form onsubmit="salvarEmpresa(event)">${formEmpresa()}
    <label style="margin-top:16px">Qual plano você quer?</label>
-   ${PLANOS_VENDA.map(p=>`<label class="opc-plano"><input type="radio" name="ePlano" value="${p.id}" ${p.id===plano?"checked":""}><span>${p.nome} – ${p.preco}/mês<small>${p.resumo}</small></span></label>`).join("")}
+   ${PLANOS_VENDA.map(p=>`<label class="opc-plano"><input type="radio" name="ePlano" value="${p.id}" ${p.id===plano?"checked":""} onchange="trocouPlano(this.value)"><span>${p.nome} – ${p.preco}/mês<small>🎁 3 meses grátis · ${p.resumo}</small></span></label>`).join("")}
    <p class="ajuda">🎁 As 20 primeiras lojas ganham 3 meses grátis. O plano é ativado depois que combinarmos pelo WhatsApp.</p>
    <label class="opc-plano" style="margin-top:12px"><input type="checkbox" id="eTermos" required><span>Li e aceito os <a href="#" onclick="event.preventDefault();termosEmpresa()">termos para empresas</a><small>As ofertas são reais, o desconto é dado na loja e eu confirmo as compras feitas com cupom.</small></span></label>
    <button class="btn ouro" id="eBtn">Concluir cadastro</button></form></div><div id="admBox"></div>`}
@@ -571,6 +572,10 @@ const PLANOS_VENDA=[
   {id:"basico",nome:"Básico",preco:"R$ 49,90",resumo:"1 oferta no ar por vez",itens:["1 oferta no ar por vez","Página da sua loja no app","Pedidos com entrega pelo WhatsApp","Painel com visualizações e vendas"]},
   {id:"destaque",nome:"Destaque",preco:"R$ 99,90",resumo:"3 ofertas no ar + destaque na tela inicial",itens:["3 ofertas no ar ao mesmo tempo","Aparece em “Ofertas em destaque”","Painel com visualizações e vendas","Relatório de vendas pelo app"],dest:true},
   {id:"premium",nome:"Premium",preco:"R$ 199,90",resumo:"ofertas ilimitadas + banner do topo",itens:["Ofertas ilimitadas","Banner grande no topo do app","Aviso no celular dos clientes","Relatório completo"]}];
+// plano escolhido no app (tela "Escolha seu plano"): mostra no topo do cadastro
+function planoEscolhidoHTML(){const p=PLANOS_VENDA.find(x=>x.id===store.get("vc_plano_desejado","basico"))||PLANOS_VENDA[0];
+  return `<div class="plano-esc" id="planoEsc">🎁 Plano escolhido: <b>${p.nome}</b> · <b>3 meses grátis</b>, depois ${p.preco}/mês</div>`}
+function trocouPlano(id){store.set("vc_plano_desejado",id);const e=$("#planoEsc");if(e)e.outerHTML=planoEscolhidoHTML()}
 function progresso(n){const p=DEMO?["Sua loja","Pronto"]:["Conta","Sua loja","Pronto"],at=DEMO?n-1:n;
   return `<div class="prog" aria-label="Passo ${at} de ${p.length}">${p.map((t,i)=>`<div class="${i<at?"on":""}">${t}</div>`).join("")}</div>`}
 function irCadastro(plano){if(plano)store.set("vc_plano_desejado",plano);window.scrollTo(0,0);DEMO?telaCadastroEmpresa():telaLogin("criar")}

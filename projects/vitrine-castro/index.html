@@ -178,7 +178,7 @@ main{padding:12px 12px 0}
 .trilho .of{flex:0 0 46%;scroll-snap-align:start}
 
 /* chamada para empresas na tela inicial: uma frase só, "aqui" em amarelo */
-.chamada-emp{display:flex;align-items:center;gap:10px;width:100%;min-height:54px;margin:22px 0 12px;padding:0 14px;border-radius:999px;text-decoration:none;color:#fff;
+.chamada-emp{display:flex;align-items:center;gap:10px;width:100%;font:inherit;text-align:left;cursor:pointer;min-height:54px;margin:22px 0 12px;padding:0 14px;border-radius:999px;text-decoration:none;color:#fff;
   background:linear-gradient(100deg,#000 0%,#1c1c22 100%);border:1.5px solid var(--ouro);box-shadow:0 4px 14px rgba(0,0,0,.15);transition:transform .15s ease}
 .chamada-emp:active{transform:scale(.99)}
 .ce-ic{color:var(--ouro);display:grid;place-items:center}
@@ -311,6 +311,15 @@ main{padding:12px 12px 0}
 .plano li{display:flex;gap:8px;font-size:.9rem;align-items:flex-start}
 .plano li .ic{color:var(--verde);margin-top:1px}
 
+.planos-topo{background:var(--preto);color:#fff;border-radius:var(--raio-g);padding:18px 16px;margin-bottom:14px;border:1.5px solid var(--ouro)}
+.pt-selo{display:inline-block;background:var(--verde);color:#fff;font-size:.7rem;font-weight:800;letter-spacing:.04em;border-radius:999px;padding:5px 11px}
+.planos-topo h2{font-size:1.4rem;margin:10px 0 4px;line-height:1.2}
+.planos-topo p{color:#D6D6DC;font-size:.92rem}
+a.plano{display:block;text-decoration:none;color:var(--txt);transition:transform .12s ease,box-shadow .12s ease}
+a.plano:active{transform:scale(.99)}
+.plano .gratis{position:absolute;top:14px;right:14px;background:var(--verde);color:#fff;font-size:.68rem;font-weight:800;border-radius:999px;padding:4px 10px}
+.plano .depois-tx{font-size:.85rem;color:#007A3B;font-weight:700;margin-top:6px}
+.planos-nota{font-size:.84rem;color:var(--txt-2);margin:2px 4px 6px;line-height:1.4}
 /* ---------- PONTOS ---------- */
 .ptscard{background:linear-gradient(120deg,var(--preto),var(--preto-3));border:1px solid var(--ouro);border-radius:var(--raio-g);padding:16px;color:#fff;margin-bottom:12px}
 .ptscard .lin{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -530,9 +539,9 @@ body.travado{overflow:hidden}
   <div class="ofertas" id="destaques"></div>
   <div class="secao"><h2><span data-ic="store"></span>Lojas parceiras</h2><button class="link" onclick="ir('empresas')">Ver todas<span data-ic="chev"></span></button></div>
   <div class="lojas-trilho" id="lojasHome"></div>
-  <a class="chamada-emp" href="empresa.html#participar" onclick="planoDesejado('basico')" aria-label="Empresário, publique aqui: cadastre sua empresa e publique ofertas">
+  <button class="chamada-emp" onclick="ir('negocios')" aria-label="Empresário, publique aqui: escolha seu plano com 3 meses grátis">
    <span class="ce-ic" data-ic="store"></span><span class="ce-frase">Empresário, publique <b>aqui</b></span><span class="ce-seta" data-ic="chev"></span>
-  </a>
+  </button>
   <button class="faixa-vip" id="faixaVip" onclick="abrir('vip')"></button>
   <button class="item card" style="padding:0 14px" onclick="indicar()"><span data-ic="gift"></span><span class="tx"><b>Indique para um amigo</b><small>Mande o Vitrine no WhatsApp de quem você gosta</small></span><span class="seta" data-ic="chev"></span></button>
  </div>
@@ -562,19 +571,20 @@ body.travado{overflow:hidden}
 </section>
 
 <!-- PARA EMPRESAS -->
-<section class="view" id="v-negocios" aria-label="Para empresas">
- <div class="hero-emp">
-  <div class="eyebrow">PARA EMPRESAS</div>
-  <h2>Venda mais para Castro inteira</h2>
-  <p>Sua loja aparece no app que a cidade usa para economizar.</p>
-  <ul><li><span data-ic="check"></span>Poste uma oferta em 1 minuto, como no Instagram</li><li><span data-ic="check"></span>Veja quantas pessoas viram, pegaram cupom e compraram</li><li><span data-ic="check"></span>Clientes pedem com entrega direto no seu WhatsApp</li></ul>
-  <a class="btn ouro" href="empresa.html#participar" onclick="planoDesejado('basico')"><span data-ic="store"></span>Cadastrar minha loja</a>
-  <a class="btn contorno" style="color:#fff;border-color:rgba(255,255,255,.4)" href="empresa.html#entrar"><span data-ic="key"></span>Já sou parceiro: entrar</a>
+<section class="view" id="v-negocios" aria-label="Escolha o plano da sua loja">
+ <div class="planos-topo">
+  <span class="pt-selo">🎁 3 MESES GRÁTIS EM QUALQUER PLANO</span>
+  <h2>Escolha o plano da sua loja</h2>
+  <p>Toque no plano que você quer. Em seguida você faz o cadastro da empresa e já publica sua primeira oferta.</p>
  </div>
- <div class="fundador"><div class="t">PARCEIRO FUNDADOR</div><h3>3 meses grátis</h3><p>Para as 20 primeiras lojas, com selo de Parceiro Fundador e destaque no lançamento.</p></div>
- <div class="secao"><h2><span data-ic="tag"></span>Planos para lojas</h2></div>
  <div id="planosBox"></div>
- <button class="btn claro" onclick="abrir('parceiro')"><span data-ic="chat"></span>Prefiro falar pelo WhatsApp</button>
+ <p class="planos-nota">Os 3 meses grátis valem para as 20 primeiras lojas (Parceiro Fundador). Depois, a mensalidade vence todo dia 10. Sem comissão sobre as vendas e sem fidelidade.</p>
+ <a class="btn contorno" href="empresa.html#entrar"><span data-ic="key"></span>Já tenho cadastro: entrar</a>
+ <button class="btn claro" onclick="abrir('parceiro')"><span data-ic="chat"></span>Tirar dúvidas pelo WhatsApp</button>
+ <div class="hero-emp" style="margin-top:16px">
+  <div class="eyebrow">POR QUE ANUNCIAR NO VITRINE</div>
+  <ul><li><span data-ic="check"></span>Poste uma oferta em 1 minuto, como no Instagram</li><li><span data-ic="check"></span>Veja quantas pessoas viram, pegaram cupom e compraram</li><li><span data-ic="check"></span>Clientes pedem com entrega direto no seu WhatsApp</li><li><span data-ic="check"></span>Clientes ganham pontos comprando na sua loja</li></ul>
+ </div>
 </section>
 
 <!-- CUPONS E FAVORITOS -->
@@ -949,7 +959,7 @@ function renderMais(){
     <div class="grupo-tit">Minha conta</div>
     <div class="grupo">${itemHTML("user","Meu perfil","ir('perfil')",{sub:p?esc(p.nome):"Faça seu cadastro"})}${itemHTML("crown","Vitrine VIP","abrir('vip')",{tag:vipOn?"ATIVO":"R$ 9,90",tagc:vipOn?"verde":"ouro"})}</div>
     <div class="grupo-tit">Para empresas</div>
-    <div class="grupo">${itemHTML("store","Cadastrar minha loja","",{href:"empresa.html#participar",tag:"GRÁTIS 3 MESES",tagc:"verde"})}${itemHTML("briefcase","Planos para lojas","ir('negocios')",{sub:"A partir de R$ 49,90/mês"})}${itemHTML("key","Entrar na Área da Empresa","",{href:"empresa.html#entrar",sub:"Postar ofertas e ver resultados"})}</div>
+    <div class="grupo">${itemHTML("store","Cadastrar minha loja","ir('negocios')",{tag:"3 MESES GRÁTIS",tagc:"verde"})}${itemHTML("briefcase","Planos para lojas","ir('negocios')",{sub:"A partir de R$ 49,90/mês"})}${itemHTML("key","Entrar na Área da Empresa","",{href:"empresa.html#entrar",sub:"Postar ofertas e ver resultados"})}</div>
     <div class="grupo-tit">Configurações e ajuda</div>
     <div class="grupo">${itemHTML("pin","Cidade","abrir('cidades')",{sub:esc($("#cid").textContent)})}${itemHTML("text","Letra grande","letraGrande()",{chave:document.documentElement.classList.contains("grande")})}${instalado()?"":itemHTML("download","Baixar o app","instalarApp()")}${itemHTML("gift","Indicar para um amigo","indicar()")}${itemHTML("shield","Privacidade e termos","abrir('privacidade')")}${itemHTML("chat","Fale com a gente","ajudaWhats()")}${itemHTML("crown","Administração","",{href:"admin.html",sub:"Só para o administrador do Vitrine"})}</div>`}
 /* "Meu perfil": dados de pessoa física, VIP, comunicações e privacidade */
@@ -982,7 +992,7 @@ function mascara(i){let v=i.value.replace(/\D/g,"").slice(0,11);i.value=v.length
 /* ===================================================================
    NAVEGAÇÃO ENTRE TELAS
    =================================================================== */
-const TITULOS={categorias:"Categorias",ofertas:"Ofertas",empresas:"Lojas parceiras",negocios:"Para empresas",cupons:"Meus cupons",pontos:"Pontos e brindes"};
+const TITULOS={categorias:"Categorias",ofertas:"Ofertas",empresas:"Lojas parceiras",negocios:"Escolha seu plano",cupons:"Meus cupons",pontos:"Pontos e brindes"};
 const NAV_DE={inicio:"inicio",ofertas:"inicio",categorias:"categorias",cupons:"cupons",pontos:"pontos",mais:"mais",perfil:"mais",empresas:"mais",negocios:"mais"};
 let VIEW="inicio";
 function ir(v,{voltando=false}={}){
@@ -1258,7 +1268,10 @@ function ganharLocal(qtd,desc){const p=store.get("gira_pontos",{saldo:0,total:0,
 // no site de verdade, quem dá os pontos é o banco (bônus de cadastro e compras confirmadas pela loja)
 function ganhar(qtd,desc){if(MODO_DEMO){ganharLocal(qtd,desc);return}toast(`⭐ +${fmt(Math.round(qtd))} pontos!`);setTimeout(carregarPontos,1500)}
 function proxBrinde(saldo){return brindesLista().filter(b=>b.pts>saldo).sort((a,b)=>a.pts-b.pts)[0]}
-function renderPlanos(){$("#planosBox").innerHTML=PLANOS.map(p=>`<div class="plano ${p.dest?"dest":""}">${p.dest?'<span class="selo-p">MAIS ESCOLHIDO</span>':""}<h3>${p.nome}</h3><div class="valor">${p.preco}<small> /mês</small></div><ul>${p.itens.map(i=>`<li>${ic("check",18)}${i}</li>`).join("")}</ul><a class="btn ${p.dest?"ouro":"contorno"}" href="empresa.html#participar" onclick="planoDesejado('${p.id}')">Quero o plano ${p.nome}</a></div>`).join("")}
+function renderPlanos(){$("#planosBox").innerHTML=PLANOS.map(p=>`<a class="plano ${p.dest?"dest":""}" href="empresa.html#participar" onclick="planoDesejado('${p.id}')" aria-label="Escolher o plano ${p.nome}: 3 meses grátis, depois ${p.preco} por mês">
+   ${p.dest?'<span class="selo-p">MAIS ESCOLHIDO</span>':""}<span class="gratis">3 MESES GRÁTIS</span>
+   <h3>${p.nome}</h3><div class="depois-tx">🎁 3 meses grátis, depois:</div><div class="valor">${p.preco}<small> /mês</small></div>
+   <ul>${p.itens.map(i=>`<li>${ic("check",18)}${i}</li>`).join("")}</ul><span class="btn ${p.dest?"ouro":"contorno"}">Escolher o plano ${p.nome}</span></a>`).join("")}
 function renderPontos(){
   renderOla();
   const p=pts(),n=nivelDe(p.total),pb=proxBrinde(p.saldo),BL=brindesLista(),pode=BL.filter(b=>b.pts<=p.saldo&&b.ok!==false).length;
