@@ -284,7 +284,9 @@ function traduzErro(e){const m=(e&&e.message)||String(e);
   if(/already registered/i.test(m))return"Este e-mail já tem conta. Use a aba Entrar.";
   if(/Email not confirmed/i.test(m))return"Confirme seu e-mail: abra a mensagem que enviamos e clique no link.";
   if(/at least 6/i.test(m))return"A senha precisa ter pelo menos 6 caracteres.";
-  if(/quota|exceeded/i.test(m))return"O espaço do modo demonstração acabou. Apague uma oferta para postar outra.";
+  if(/rate limit|too many/i.test(m))return"Muitos cadastros em pouco tempo: o sistema de e-mails do Supabase está no limite. Aguarde 1 hora e tente de novo, ou peça ao administrador para desligar a confirmação por e-mail.";
+  if(/security purposes|after \d+ seconds/i.test(m))return"Aguarde 1 minuto antes de tentar de novo.";
+  if(/QuotaExceeded|quota/i.test(m)||(DEMO&&/exceeded/i.test(m)))return"O espaço do modo demonstração acabou. Apague uma oferta para postar outra.";
   if(/Failed to fetch|NetworkError/i.test(m))return"Sem internet. Tente de novo.";
   if(/row-level security|permission denied/i.test(m))return"Sem permissão. Entre com o login do administrador.";
   return m}
