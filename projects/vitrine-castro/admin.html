@@ -571,6 +571,7 @@ async function admDetalhe(id){
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
      ${x.aprovada?`<button class="mini" onclick="admEmpresa('${esc(x.id)}',{aprovada:false})">⏸ Suspender loja</button>`:`<button class="mini ou" onclick="admEmpresa('${esc(x.id)}',{aprovada:true})">✓ Aprovar loja</button>`}
      <select class="mini" aria-label="Plano de ${esc(x.nome)}" onchange="admEmpresa('${esc(x.id)}',{plano:this.value})">${Object.entries(PLANOS).map(([k,v])=>`<option value="${k}" ${k===x.plano?"selected":""}>Plano ${v.nome}</option>`).join("")}</select>
+     <button class="mini vm" onclick="excluirEmpresa('${esc(x.id)}')">🗑 Excluir empresa</button>
      ${zap?`<a class="mini" style="display:inline-flex;align-items:center;text-decoration:none;background:#dff5e7;color:#0d6b31" href="${zapUrl("Olá! Aqui é do Vitrine Castro, sobre a loja "+x.nome.replace(/ \((exemplo|sua loja de teste)\)$/,"")+".")}" target="_blank" rel="noopener">💬 Chamar no WhatsApp</a>`:""}
     </div>
     ${!DEMO&&user&&x.dono===user.id?`<div style="margin-top:14px;border-top:1px solid #eee;padding-top:12px">
@@ -898,6 +899,14 @@ function admAtualizar(){window._adm=null;ADM.detalhe?admDetalhe(ADM.detalhe):pai
 
 // ações do administrador (no modo demonstração mudam só a loja de teste deste celular)
 const exemplo=id=>/^ex\d/.test(String(id))&&(toast("Esta é uma loja de exemplo, só para demonstração"),true);
+async function excluirEmpresa(id){if(exemplo(id))return;
+  const x=((window._adm&&window._adm.emps)||[]).find(e=>String(e.id)===String(id)),nome=x?x.nome.replace(/ \((exemplo|sua loja de teste)\)$/,""):"esta empresa";
+  if(!confirm("Excluir "+nome+"?\n\nApaga a loja, as ofertas, os cupons, os brindes e os números dela. Os pagamentos continuam no Financeiro.\n\nNão dá para desfazer."))return;
+  if(prompt("Para confirmar, digite EXCLUIR")?.trim().toUpperCase()!=="EXCLUIR"){toast("Exclusão cancelada.");return}
+  if(DEMO){if(id==="demo"){localStorage.removeItem("vc_demo_emp");localStorage.removeItem("vc_demo_ofertas");const arq=store.get("vc_demo_lojas",[]),u=arq.pop();if(u){store.set("vc_demo_lojas",arq);store.set("vc_demo_emp",u.emp);store.set("vc_demo_ofertas",u.ofertas||[])}}
+    else{const arq=store.get("vc_demo_lojas",[]);arq.splice(+String(id).replace("demo-a",""),1);store.set("vc_demo_lojas",arq)}}
+  else{const {error}=await db.from("empresas").delete().eq("id",id);if(error){toast(traduzErro(error));return}}
+  toast("🗑 "+nome+" foi excluída.");ADM.detalhe=null;window._adm=null;painelAdmin()}
 function gerenciarLoja(id){store.set("vc_loja_atual",id);location.href="empresa.html"}
 async function transferirLoja(id){const em=($("#admTrEmail").value||"").trim();if(!/^\S+@\S+\.\S+$/.test(em)){toast("Digite o e-mail da conta do dono.");return}
   if(!confirm("Passar esta loja para "+em+"? Depois disso só o dono (e você, pela Administração) mexe nela."))return;
