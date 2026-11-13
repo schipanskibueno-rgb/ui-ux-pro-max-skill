@@ -263,6 +263,8 @@ function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clea
 function fechar(){$("#modal").classList.remove("on");document.body.style.overflow=""}
 function abrirSheet(h){$("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ✕</button>`+h;$("#modal").classList.add("on");document.body.style.overflow="hidden";$("#sheet").scrollTop=0}
 function traduzErro(e){const m=(e&&e.message)||String(e);
+  if(/empresas_um_por_dono/i.test(m))return"Este login já tem uma loja. Para o ADM cadastrar várias lojas, o banco precisa da atualização: rode o supabase.sql novo no Supabase (SQL Editor › New query › Run).";
+  if(/schema cache|Could not find the (function|table)|column .* does not exist|relation .* does not exist/i.test(m))return"O banco de dados está desatualizado. Rode o supabase.sql novo no Supabase (SQL Editor › New query › colar tudo › Run) e tente de novo.";
   if(/Invalid login/i.test(m))return"E-mail ou senha incorretos.";
   if(/already registered/i.test(m))return"Este e-mail já tem conta. Use a aba Entrar.";
   if(/Email not confirmed/i.test(m))return"Confirme seu e-mail: abra a mensagem que enviamos e clique no link.";
