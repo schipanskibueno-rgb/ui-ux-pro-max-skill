@@ -500,6 +500,86 @@ body.travado{overflow:hidden}
 .linkbox{display:flex;gap:8px;align-items:center;background:#F7F7F8;border-radius:10px;padding:8px 8px 8px 12px;margin-top:10px;font-size:.85rem;word-break:break-all}
 
 @media (min-width:520px){html,body{background:#D7D7DC}}
+/* ===== VITRINE MERCADO ===== */
+.chamada-merc{display:flex;align-items:center;gap:12px;width:100%;font:inherit;text-align:left;cursor:pointer;min-height:64px;margin:4px 0 14px;padding:10px 14px;border-radius:var(--raio-g);border:1.5px solid var(--ouro);background:radial-gradient(130% 160% at 0% 0%,#2b2210 0%,#000 60%);color:#fff}
+.chamada-merc .cm-ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,var(--ouro-2),var(--ouro));color:#000;flex-shrink:0}
+.chamada-merc .cm-tx{flex:1;min-width:0}.chamada-merc .cm-tx b{display:block;font-size:1rem;color:var(--ouro-2)}.chamada-merc .cm-tx small{display:block;font-size:.82rem;color:#ddd}
+.chamada-merc .cm-tag{font-size:.66rem;font-weight:800;background:var(--verde);color:#fff;border-radius:999px;padding:3px 7px}
+.chamada-merc>.ic:last-child{color:var(--ouro)}
+.merc-cab{background:radial-gradient(130% 150% at 0% 0%,#2b2210 0%,#000 58%);color:#fff;border-radius:var(--raio-g);padding:14px;margin:12px 0;border:1px solid rgba(212,165,55,.5)}
+.mc-marca{display:flex;align-items:center;gap:12px}
+.mc-ic{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--ouro-2),var(--ouro));color:#000;flex-shrink:0;box-shadow:0 4px 14px rgba(212,165,55,.35)}
+.mc-marca b{display:block;font-size:1.35rem;letter-spacing:.08em;line-height:1}
+.mc-marca strong{display:block;font-size:1.05rem;letter-spacing:.22em;color:var(--ouro-2);line-height:1.3}
+.merc-cab p{margin:8px 0;color:#ddd;font-size:.86rem;line-height:1.35}
+.mc-chips{display:flex;flex-wrap:wrap;gap:6px}
+.mc-chips span{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:700;background:rgba(255,255,255,.07);border:1px solid rgba(212,165,55,.45);color:var(--ouro-2);padding:5px 9px;border-radius:999px}
+.merc-top{display:flex;align-items:center;gap:12px;background:linear-gradient(100deg,var(--ouro-2),var(--ouro));color:#000;border-radius:var(--raio-g);padding:12px 14px;margin-bottom:12px;box-shadow:0 4px 14px rgba(212,165,55,.3)}
+.merc-top .ic{flex-shrink:0}.merc-top div{flex:1;min-width:0}.merc-top small{display:block;font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.merc-top b{display:block;font-size:1.02rem;line-height:1.2}.merc-top em{display:block;font-style:normal;font-size:.8rem}
+.merc-top strong{font-size:1.25rem;white-space:nowrap}
+.merc-seg{display:flex;background:#e6e6ea;border-radius:12px;padding:4px;gap:4px;margin-bottom:12px}
+.merc-seg button{flex:1;min-height:44px;border:0;border-radius:9px;background:none;font:inherit;font-weight:700;font-size:.86rem;color:var(--txt-2);cursor:pointer}
+.merc-seg button[aria-pressed=true]{background:#000;color:var(--ouro-2)}
+.mt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--raio-g);background:var(--card);box-shadow:var(--sombra);max-width:100%;outline:0}
+.mt-wrap:focus-visible{box-shadow:0 0 0 3px var(--ouro)}
+.mt{border-collapse:separate;border-spacing:0;font-size:.85rem;min-width:100%}
+.mt th,.mt td{padding:8px 6px;text-align:center;border-bottom:1px solid var(--linha);white-space:nowrap}
+.mt thead th{background:#fff;vertical-align:bottom;min-width:86px;font-weight:600}
+.mt thead th b{display:block;font-size:.74rem;white-space:normal;line-height:1.15;max-width:92px;margin:0 auto}
+.mt thead th small{display:block;color:var(--txt-3);font-size:.7rem;font-weight:500}
+.mt-emo{display:block;font-size:1.7rem;line-height:1.25}
+.mt-foto{display:block;width:64px;height:64px;object-fit:contain;margin:0 auto 4px;background:#fff;border-radius:8px}
+.mp-foto{width:52px;height:52px;object-fit:contain;flex-shrink:0;background:#fff;border-radius:8px}
+.ms-foto{width:30px;height:30px;object-fit:contain;flex-shrink:0;background:#fff;border-radius:6px}
+.mlogo{display:grid;place-items:center;width:112px;height:40px;padding:3px;background:#fff;border-radius:8px;border:1px solid var(--linha);overflow:hidden;flex-shrink:0}
+.mlogo img{max-width:100%;max-height:100%;object-fit:contain}
+.mt tbody th button.comlogo{flex-direction:column;align-items:flex-start;gap:3px;padding:6px 0}.mt tbody th button.comlogo .nm{font-size:.68rem;color:var(--txt-2);font-weight:600}
+.mm-card .mlogo{width:88px;height:50px}.ms-cab .mlogo{width:120px;height:64px}
+.mt tbody th{position:sticky;left:0;z-index:1;background:#fff;text-align:left;padding:2px 6px;min-width:124px;max-width:142px;box-shadow:3px 0 6px rgba(0,0,0,.07)}
+.mt .mt-canto{position:sticky;left:0;z-index:2;background:#000;color:var(--ouro-2);text-align:left;font-size:.74rem;letter-spacing:.05em;vertical-align:middle}
+.mt tbody th button{display:flex;align-items:center;gap:7px;border:0;background:none;font:inherit;font-weight:700;font-size:.8rem;text-align:left;white-space:normal;line-height:1.15;cursor:pointer;color:var(--txt);padding:4px 0;min-height:48px;width:100%}
+.mt-logo{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;background:#000;color:var(--ouro-2);font-size:.74rem;font-weight:800;overflow:hidden;border:1.5px solid var(--ouro)}
+.mt-logo img{width:100%;height:100%;object-fit:cover}
+.mt td{font-weight:700;font-variant-numeric:tabular-nums}
+.mt td.min{background:linear-gradient(180deg,var(--ouro-2),var(--ouro));color:#000;box-shadow:inset 0 0 0 2px #fff;border-radius:10px}
+.mt td.min .ic{display:block;margin:0 auto -1px}
+.mt td.velho{color:var(--txt-3);font-weight:500}.mt td small{display:block;font-size:.62rem;font-weight:600}
+.mt td.falta{color:#c4c4ca}
+.mt .mt-tot{background:#111;color:#fff;min-width:96px}.mt thead .mt-tot{background:#000;color:var(--ouro-2);vertical-align:middle}
+.mt td.mt-tot.min{background:linear-gradient(180deg,var(--ouro-2),var(--ouro));color:#000}
+.mt-dica{text-align:center;font-size:.78rem;color:var(--txt-3);margin:8px 0 14px;display:flex;align-items:center;justify-content:center;gap:6px}
+.mp-card{background:var(--card);border-radius:var(--raio-g);box-shadow:var(--sombra);padding:12px 14px;margin-bottom:10px}
+.mp-cab{display:flex;align-items:center;gap:10px;margin-bottom:6px}.mp-cab .mt-emo{font-size:1.9rem}
+.mp-cab b{display:block;font-size:.98rem}.mp-cab small{color:var(--txt-3);font-size:.8rem}
+.mp-lin{display:flex;align-items:center;gap:8px;padding:8px 6px;border-top:1px solid var(--linha);font-size:.9rem}
+.mp-lin span{flex:1;min-width:0}.mp-lin b{font-variant-numeric:tabular-nums}
+.mp-lin.min{background:linear-gradient(100deg,var(--ouro-2),var(--ouro));border-radius:10px;border-top-color:transparent;font-weight:700}
+.mp-lin .pos{flex:0 0 22px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:#eee;font-size:.72rem;font-weight:800;flex-shrink:0}.mp-lin.min .pos{background:#000;color:var(--ouro-2)}
+.mp-eco{margin:8px 0 0;font-size:.8rem;color:#0d6b31;font-weight:700}
+.mm-card{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:var(--txt);background:var(--card);border:0;border-radius:var(--raio-g);box-shadow:var(--sombra);padding:12px 14px;margin-bottom:10px;cursor:pointer;min-height:72px}
+.mm-card .mt-logo{width:48px;height:48px;font-size:1rem}.mm-card .tx{flex:1;min-width:0}.mm-card .tx b{display:block;font-size:.98rem}
+.mm-card .tx small{display:block;font-size:.78rem;color:var(--txt-3)}.mm-card .ok{color:#0d6b31}.mm-card .pend{color:#a35b00}
+.mm-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}.mm-tags span{font-size:.7rem;font-weight:800;border-radius:999px;padding:3px 8px;background:#fff1d0;color:#7a5a00}
+.mm-tags span.cesta{background:#000;color:var(--ouro-2)}
+.merc-leg{background:var(--card);border-radius:var(--raio-g);padding:12px 14px;margin:14px 0;font-size:.82rem;color:var(--txt-2);line-height:1.45;box-shadow:var(--sombra)}
+.merc-leg p{margin:0 0 6px;display:flex;gap:6px;align-items:flex-start}.merc-leg .ic{flex-shrink:0;color:var(--ouro)}
+.merc-acoes{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 18px}.merc-acoes button,.merc-acoes a{flex:1;min-width:140px;min-height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:6px;font:inherit;font-weight:700;font-size:.88rem;text-decoration:none;cursor:pointer}
+.merc-acoes .zap{background:#25D366;color:#073b1c;border:0}.merc-acoes .part{background:#000;color:var(--ouro-2);border:1.5px solid var(--ouro)}
+.merc-vazio{text-align:center;background:var(--card);border-radius:var(--raio-g);padding:24px 16px;box-shadow:var(--sombra);color:var(--txt-2)}
+.merc-vazio .e{font-size:2.4rem;display:block}
+.pm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:8px 0 14px}
+.pm{background:#fff;border:1.5px solid #f0e2b6;border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.pm .ft{aspect-ratio:4/3;background:#fff8e6;display:grid;place-items:center;font-size:2.6rem;position:relative}.pm .ft img{width:100%;height:100%;object-fit:cover}
+.pm .off{position:absolute;top:6px;left:6px;background:var(--verm);color:#fff;font-size:.7rem;font-weight:800;border-radius:6px;padding:2px 6px}
+.pm .tx{padding:8px}.pm .tx b{display:block;font-size:.84rem;line-height:1.2}.pm .tx small{display:block;color:var(--txt-3);font-size:.72rem}
+.pm .tx s{color:var(--txt-3);font-size:.74rem}.pm .tx strong{display:block;color:#0d6b31;font-size:1.05rem}
+.ms-cab{display:flex;align-items:center;gap:12px;margin:6px 0 10px}.ms-cab .mt-logo{width:58px;height:58px;font-size:1.1rem}
+.ms-cab h2{margin:0;font-size:1.2rem}.ms-cab p{margin:2px 0 0;font-size:.82rem;color:var(--txt-3)}
+.ms-lista{border-radius:12px;overflow:hidden;border:1px solid var(--linha);margin-bottom:12px}
+.ms-lista div{display:flex;align-items:center;gap:8px;padding:9px 10px;border-top:1px solid var(--linha);font-size:.88rem}.ms-lista div:first-child{border-top:0}
+.ms-lista span{flex:1;min-width:0}.ms-lista b{font-variant-numeric:tabular-nums}.ms-lista .min{background:#fff6dc}.ms-lista .min b{color:#7a5a00}
+.ms-h{font-size:1rem;margin:14px 0 6px;display:flex;align-items:center;gap:6px}
 </style>
 </head>
 <body>
@@ -554,6 +634,7 @@ body.travado{overflow:hidden}
   <div class="ctrl" id="dots"></div>
   <div class="instalar" id="instalarBox" style="display:none"><img class="ico" src="icons/icon-192.png" alt="" width="48" height="48"><span class="t"><b>Baixe o Vitrine no seu celular</b><small>Grátis, direto na tela</small></span><button class="btn-ouro" onclick="instalarApp()">Baixar</button><button class="x" onclick="esconderInstalar()" aria-label="Agora não" data-ic="close"></button></div>
   <div class="atalhos" id="atalhos" aria-label="Atalhos"></div>
+  <button class="chamada-merc" onclick="ir('mercado')" aria-label="Vitrine Mercado: compare os preços dos supermercados de Castro"><span class="cm-ic" data-ic="merc"></span><span class="cm-tx"><b>Vitrine Mercado</b><small>Compare os preços dos supermercados de Castro</small></span><span class="cm-tag">NOVO</span><span data-ic="chev"></span></button>
   <button class="pts-mini" id="ptsHome" onclick="ir('pontos')" aria-label="Meus pontos"></button>
   <div id="relampagoBox"></div>
   <div class="secao"><h2><span data-ic="fire"></span>Ofertas em destaque</h2><button class="link" onclick="filtrarCat(null)">Ver todas<span data-ic="chev"></span></button></div>
@@ -634,6 +715,10 @@ body.travado{overflow:hidden}
 </section>
 
 <!-- MAIS -->
+<section class="view" id="v-mercado" aria-label="Vitrine Mercado">
+ <div id="mercBox"></div>
+</section>
+
 <section class="view" id="v-mais" aria-label="Mais opções">
  <div class="cab-preto">
   <button class="perfil-l" onclick="ir('perfil')"><span class="avatar" id="maisAv" style="width:56px;height:56px;font-size:1.4rem">V</span><span><b id="maisNome">Visitante</b><small>Meu perfil<span data-ic="chev"></span></small></span></button>
@@ -901,6 +986,7 @@ function renderHome(){
   $("#faixaVip").innerHTML=`${ic("crown",22)}<b>Vitrine VIP</b><span>${vipOn?"Você é VIP"+(p&&p.vipAte?" até "+dataCurta(p.vipAte):""):"Seja cliente VIP por R$ 9,90/mês"}</span>${ic("chev",18)}`;
   const ncup=store.get("gira_cupons",[]).length,at=[
     ["ofertas","tag","Ofertas","filtrarCat(null)","",""],
+    ["merc","merc","Mercado","ir('mercado')","PREÇOS","ouro"],
     ["cupons","ticket","Cupons","ir('cupons')",ncup?String(ncup):"","verde"],
     ["lojas","store","Lojas","ir('empresas')","",""],
     ["vip","crown","Vitrine VIP","abrir('vip')",vipOn?"ATIVO":"R$ 9,90","ouro"],
@@ -974,7 +1060,7 @@ function renderMais(){
   $("#maisPts").innerHTML=`${ic("star",20)}<span><b>${fmt(pt.saldo)} pontos</b> · nível ${nv.nome}</span>${ic("chev",18)}`;
   const nb=avisosNovos();
   $("#maisLista").innerHTML=
-   `<div class="grupo">${itemHTML("home","Início","ir('inicio')")}${itemHTML("tag","Todas as ofertas","filtrarCat(null)")}${itemHTML("store","Lojas parceiras","ir('empresas')")}${itemHTML("help","Como usar o app","abrir('ajuda')")}</div>
+   `<div class="grupo">${itemHTML("home","Início","ir('inicio')")}${itemHTML("tag","Todas as ofertas","filtrarCat(null)")}${itemHTML("store","Lojas parceiras","ir('empresas')")}${itemHTML("merc","Vitrine Mercado","ir('mercado')",{sub:"Compare os preços dos supermercados"})}${itemHTML("help","Como usar o app","abrir('ajuda')")}</div>
     <div class="grupo-tit">Minha atividade</div>
     <div class="grupo">${itemHTML("ticket","Meus cupons","ir('cupons');segCupons('c')",{cont:ncup})}${itemHTML("heart","Favoritos","ir('cupons');segCupons('f')",{cont:0,sub:nfav?nfav+" salvo"+(nfav>1?"s":""):""})}${itemHTML("gift","Pontos e brindes","ir('pontos')",{sub:fmt(pt.saldo)+" pontos"})}${itemHTML("bell","Notificações","abrir('notifs')",{cont:nb})}</div>
     <div class="grupo-tit">Minha conta</div>
@@ -1013,8 +1099,8 @@ function mascara(i){let v=i.value.replace(/\D/g,"").slice(0,11);i.value=v.length
 /* ===================================================================
    NAVEGAÇÃO ENTRE TELAS
    =================================================================== */
-const TITULOS={categorias:"Categorias",ofertas:"Ofertas",empresas:"Lojas parceiras",negocios:"Escolha seu plano",cupons:"Meus cupons",pontos:"Pontos e brindes"};
-const NAV_DE={inicio:"inicio",ofertas:"inicio",categorias:"categorias",cupons:"cupons",pontos:"pontos",mais:"mais",perfil:"mais",empresas:"mais",negocios:"mais"};
+const TITULOS={mercado:"Vitrine Mercado",categorias:"Categorias",ofertas:"Ofertas",empresas:"Lojas parceiras",negocios:"Escolha seu plano",cupons:"Meus cupons",pontos:"Pontos e brindes"};
+const NAV_DE={inicio:"inicio",mercado:"inicio",ofertas:"inicio",categorias:"categorias",cupons:"cupons",pontos:"pontos",mais:"mais",perfil:"mais",empresas:"mais",negocios:"mais"};
 let VIEW="inicio";
 function ir(v,{voltando=false}={}){
   if(!document.getElementById("v-"+v))v="inicio";
@@ -1025,7 +1111,7 @@ function ir(v,{voltando=false}={}){
   $("#topo").dataset.modo=v==="inicio"?"home":(v==="mais"||v==="perfil")?"nada":"sub";
   $("#subTit").textContent=TITULOS[v]||"Vitrine";
   if(v==="ofertas"&&!$("#q").value)renderTodas();
-  if(v==="mais")renderMais();if(v==="perfil")renderPerfil();
+  if(v==="mais")renderMais();if(v==="perfil")renderPerfil();if(v==="mercado")renderMercado();
   pintarIcones();observarCards();
   window.scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
   try{history.replaceState(null,"",v==="inicio"?location.pathname:"#"+v)}catch(e){}
@@ -1394,6 +1480,108 @@ if(ehCelular&&!instalado())mostrarInstalar();
 if(/^#?instalar$/.test(location.hash)&&!instalado())setTimeout(instalarApp,600);
 if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});
 
+// ===== VITRINE MERCADO: comparação semanal de preços dos supermercados =====
+const MERC_PROD_DEMO=[["p1","Coca-Cola","2 litros","🥤",9.99,"img/produtos/coca-cola.jpg"],["p2","Toddy","400 g","🍫",8.9,"img/produtos/toddy.jpg"],["p3","Sabão em pó OMO","1,6 kg","🧺",22.9,"img/produtos/omo.jpg"],
+  ["p4","Bombril","8 unidades","🧽",3.99,"img/produtos/bombril.jpg"],["p5","Detergente Ypê","500 ml","🧴",2.49,"img/produtos/ype.jpg"],["p6","Açúcar União","5 kg","🍬",18.9,"img/produtos/acucar-uniao.jpg"],["p7","Feijão Tio Danga","1 kg","🫘",7.49,""]];
+let MERC=null,MERC_T=0,MERC_MODO="tabela";
+function isoDia(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function segundaDe(d=new Date()){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x}
+function semanaISO(off=0){const x=segundaDe();x.setDate(x.getDate()+off*7);return isoDia(x)}
+function ddmm(iso){const p=String(iso||"").slice(0,10).split("-");return p.length===3?p[2]+"/"+p[1]:""}
+function faixaSemana(){const s=segundaDe(),f=new Date(s);f.setDate(f.getDate()+6);return "Semana de "+ddmm(isoDia(s))+" a "+ddmm(isoDia(f))}
+function mercImg(u){return /^(data:image\/|https:\/\/)/.test(u||"")||/^img\/produtos\/[a-z0-9-]+\.(png|jpg|webp)$/.test(u||"")?u:""}
+function prodVis(p,cls="mt-foto"){const u=mercImg(p.foto_url);return u?`<img class="${cls}" src="${esc(u)}" alt="" loading="lazy">`:`<span class="mt-emo" aria-hidden="true">${esc(p.emoji||"🛒")}</span>`}
+function mercMarca(m){const u=mercImg(m.logo_url);return u?`<span class="mlogo"><img src="${esc(u)}" alt="Logo ${esc(m.nome)}" loading="lazy"></span>`:mercLogo(m)}
+function mercLogo(m){const u=mercImg(m.logo_url);return `<span class="mt-logo">${u?`<img src="${esc(u)}" alt="" loading="lazy">`:esc((m.nome||"?").replace(/[^A-Za-zÀ-ú0-9 ]/g,"").split(" ").filter(Boolean).slice(0,2).map(w=>w[0]).join("").toUpperCase()||"M")}</span>`}
+function mercProdutosDemo(){return store.get("vc_demo_merc_produtos",null)||MERC_PROD_DEMO.map(([id,nome,detalhe,emoji,,foto_url],i)=>({id,nome,detalhe,emoji,foto_url,ordem:i+1,ativo:true}))}
+// Demonstração: mercados FICTÍCIOS (nunca nomes de mercados reais) + lojas do ramo Mercado criadas neste aparelho
+function mercDemo(){
+  const produtos=mercProdutosDemo().filter(p=>p.ativo!==false),sem=semanaISO(),ant=semanaISO(-1),mercados=[],precos=[],promos=[];
+  const base=id=>((MERC_PROD_DEMO.find(x=>x[0]===id)||[])[4])||10;
+  const PROMO=[["Banana prata","kg","🍌",4.99,6.99],["Carne moída","kg","🥩",29.9,36.9],["Pão francês","kg","🥖",13.9,16.9],["Tomate","kg","🍅",5.49,7.99],["Iogurte morango","1 litro","🥛",6.99,9.49],["Queijo muçarela","kg","🧀",39.9,47.9],["Frango inteiro","kg","🍗",11.9,14.9]];
+  [["Mercado Bom Preço",1.00],["Supermercado Central",1.05],["Mercado da Vila",0.97],["Super Econômico",1.02],["Mercado Família",0.99]].forEach(([nome,f],i)=>{
+    const id="ex"+i;mercados.push({id,nome:nome+" (exemplo)",endereco:"Endereço de exemplo – Castro, PR",exemplo:true});
+    produtos.forEach((p,j)=>{if(i===3&&j===2)return;const v=Math.round(base(p.id)*f*(1+(((i*7+j*3)%9)-4)/100)*100)/100;
+      precos.push({empresa_id:id,produto_id:p.id,semana:(i===4&&j%4===1)?ant:sem,preco:v,atualizado_em:sem+"T09:00:00"})});
+    [0,1,2].forEach(k=>{const [n,d,e,v,de]=PROMO[(i*2+k)%PROMO.length];promos.push({id:id+"p"+k,empresa_id:id,nome:n,detalhe:d,emoji:e,preco:v,preco_de:de})})});
+  const lojas=[store.get("vc_demo_emp",null),...store.get("vc_demo_lojas",[]).map(x=>x&&x.emp)].filter(e=>e&&e.ramo==="Mercado");
+  lojas.forEach((e,i)=>{const id="dm"+i,mp=e.merc||{};mercados.unshift({...e,id,nome:e.nome});
+    Object.entries(mp.precos||{}).forEach(([s,itens])=>Object.entries(itens||{}).forEach(([pid,v])=>precos.push({empresa_id:id,produto_id:pid,semana:s,preco:+v,atualizado_em:(mp.atualizado||{})[s]||s})));
+    (mp.promos||[]).forEach((p,k)=>promos.push({...p,id:id+"q"+k,empresa_id:id}))});
+  return {produtos,mercados,precos,promos}}
+async function carregarMercado(forcar){
+  if(MERC&&!forcar&&Date.now()-MERC_T<5*60e3)return MERC;
+  if(MODO_DEMO){MERC=mercDemo();MERC_T=Date.now();return MERC}
+  const db=dbc();if(!db)return MERC||{produtos:[],mercados:[],precos:[],promos:[],erro:true};
+  try{const [a,b,c,d]=await Promise.all([db.from("mercado_produtos").select("*").eq("ativo",true).order("ordem"),
+      db.from("empresas").select("*").eq("ramo","Mercado").eq("aprovada",true),
+      db.from("mercado_precos").select("empresa_id,produto_id,semana,preco,atualizado_em").gte("semana",semanaISO(-1)),
+      db.from("mercado_promos").select("*").order("criado_em")]);
+    if(a.error||b.error||c.error)throw (a.error||b.error||c.error);
+    MERC={produtos:a.data||[],mercados:b.data||[],precos:c.data||[],promos:d.error?[]:(d.data||[])};MERC_T=Date.now()}
+  catch(e){MERC={produtos:[],mercados:[],precos:[],promos:[],erro:true}}
+  return MERC}
+function mercCalc(M){const sem=semanaISO(),ant=semanaISO(-1),tab={},atual={};
+  M.precos.forEach(r=>{const k=r.empresa_id+"|"+r.produto_id,cur=tab[k];
+    if(r.semana===sem){tab[k]={v:+r.preco,velho:false};const t=atual[r.empresa_id];if(!t||String(r.atualizado_em)>t)atual[r.empresa_id]=String(r.atualizado_em||sem)}
+    else if(r.semana===ant&&!(cur&&!cur.velho))tab[k]={v:+r.preco,velho:true}});
+  const min={},max={};M.produtos.forEach(p=>{const vs=M.mercados.map(m=>tab[m.id+"|"+p.id]).filter(x=>x&&!x.velho).map(x=>x.v);if(vs.length){min[p.id]=Math.min(...vs);max[p.id]=Math.max(...vs)}});
+  const tot={};M.mercados.forEach(m=>{let s=0,n=0;M.produtos.forEach(p=>{const x=tab[m.id+"|"+p.id];if(x&&!x.velho){s+=x.v;n++}});tot[m.id]={s:Math.round(s*100)/100,n,completa:n>0&&n===M.produtos.length}});
+  const comp=M.mercados.filter(m=>tot[m.id].completa).sort((a,b)=>tot[a.id].s-tot[b.id].s);
+  const mercs=[...M.mercados].sort((a,b)=>(!!atual[b.id]-!!atual[a.id])||(tot[b.id].completa-tot[a.id].completa)||(tot[a.id].s/(tot[a.id].n||1))-(tot[b.id].s/(tot[b.id].n||1)));
+  return {tab,min,max,tot,comp,atual,mercs}}
+function mercModo(m){MERC_MODO=m;renderMercado()}
+async function renderMercado(forcar){const box=$("#mercBox");if(!box)return;
+  const cab=`<div class="merc-cab"><div class="mc-marca"><span class="mc-ic">${ic("merc",30)}</span><div><b>VITRINE</b><strong>MERCADO</strong></div></div>
+    <p>Compare os preços dos supermercados de Castro e economize nas compras.</p>
+    <div class="mc-chips"><span>${ic("calendar",15)}${faixaSemana()}</span><span>${ic("crown",15)}Menor preço</span></div></div>`;
+  if(!MERC||forcar)box.innerHTML=cab+`<div class="merc-vazio"><span class="e">🛒</span>Carregando os preços da semana…</div>`;
+  const M=await carregarMercado(forcar),C=mercCalc(M),P=M.produtos;
+  if(!P.length||!M.mercados.length){box.innerHTML=cab+`<div class="merc-vazio"><span class="e">🛒</span><b>${M.erro?"Não foi possível carregar os preços.":"Os mercados ainda estão cadastrando os preços."}</b><p>${M.erro?"Confira a internet e tente de novo.":"Volte em breve para comparar."}</p>${M.erro?`<button class="btn-ouro" onclick="renderMercado(true)">Tentar de novo</button>`:""}</div>`+mercRodape();pintarIcones(box);return}
+  const melhor=C.comp[0],pior=C.comp[C.comp.length-1];
+  const top=melhor?`<div class="merc-top">${ic("crown",30)}<div><small>Cesta mais barata da semana</small><b>${esc(melhor.nome)}</b><em>${P.length} produtos${C.comp.length>1&&pior.id!==melhor.id?` · economize ${brl(C.tot[pior.id].s-C.tot[melhor.id].s)} na cesta`:""}</em></div><strong>${brl(C.tot[melhor.id].s)}</strong></div>`:"";
+  const seg=`<div class="merc-seg" role="group" aria-label="Como ver os preços">${[["tabela","Tabela"],["produto","Por produto"],["mercados","Mercados"]].map(([k,n])=>`<button type="button" aria-pressed="${MERC_MODO===k}" onclick="mercModo('${k}')">${n}</button>`).join("")}</div>`;
+  let corpo="";
+  if(MERC_MODO==="tabela"){
+    corpo=`<div class="mt-wrap" role="region" aria-label="Tabela de preços da semana. Arraste para o lado para ver todos os produtos." tabindex="0"><table class="mt">
+      <thead><tr><th class="mt-canto" scope="col">SUPERMERCADOS</th>${P.map(p=>`<th scope="col">${prodVis(p)}<b>${esc(p.nome)}</b><small>${esc(p.detalhe||"")}</small></th>`).join("")}<th class="mt-tot" scope="col">Cesta<br><small style="color:inherit">${P.length} itens</small></th></tr></thead>
+      <tbody>${C.mercs.map(m=>`<tr><th scope="row"><button type="button" class="${mercImg(m.logo_url)?"comlogo":""}" onclick="abrirMercado('${esc(m.id)}')">${mercMarca(m)}<span class="nm">${esc(m.nome)}</span></button></th>${P.map(p=>{const x=C.tab[m.id+"|"+p.id];
+          if(!x)return `<td class="falta" aria-label="sem preço">—</td>`;const mn=!x.velho&&x.v===C.min[p.id]&&Object.keys(C.min).length;
+          return `<td class="${x.velho?"velho":""}${mn?" min":""}">${mn?ic("crown",14):""}${brl(x.v)}${x.velho?"<small>sem. passada</small>":""}</td>`}).join("")}
+        <td class="mt-tot${melhor&&melhor.id===m.id?" min":""}">${C.tot[m.id].completa?(melhor&&melhor.id===m.id?ic("crown",14):"")+brl(C.tot[m.id].s):`<small>faltam ${P.length-C.tot[m.id].n}</small>`}</td></tr>`).join("")}</tbody></table></div>
+      <p class="mt-dica">${ic("back",14)}Arraste para o lado para ver todos os produtos<span style="transform:scaleX(-1);display:inline-flex">${ic("back",14)}</span></p>`}
+  else if(MERC_MODO==="produto"){
+    corpo=P.map(p=>{const l=C.mercs.map(m=>({m,x:C.tab[m.id+"|"+p.id]})).filter(o=>o.x&&!o.x.velho).sort((a,b)=>a.x.v-b.x.v);
+      return `<div class="mp-card"><div class="mp-cab">${prodVis(p,"mp-foto")}<div><b>${esc(p.nome)}</b><small>${esc(p.detalhe||"")}</small></div></div>
+      ${l.length?l.map((o,i)=>`<div class="mp-lin${o.x.v===C.min[p.id]?" min":""}"><span class="pos">${o.x.v===C.min[p.id]?ic("crown",12):i+1}</span><span>${esc(o.m.nome)}</span><b>${brl(o.x.v)}</b></div>`).join("")
+        +(l.length>1&&C.max[p.id]>C.min[p.id]?`<p class="mp-eco">Comprando no mais barato você economiza ${brl(C.max[p.id]-C.min[p.id])} (${Math.round((1-C.min[p.id]/C.max[p.id])*100)}%)</p>`:""):`<p class="mp-eco" style="color:var(--txt-3)">Ainda sem preços nesta semana.</p>`}</div>`}).join("")}
+  else{
+    corpo=C.mercs.map(m=>{const np=M.promos.filter(q=>q.empresa_id===m.id).length,t=C.tot[m.id],at=C.atual[m.id];
+      return `<button class="mm-card" type="button" onclick="abrirMercado('${esc(m.id)}')">${mercMarca(m)}<span class="tx"><b>${esc(m.nome)}</b>
+        <small class="${at?"ok":"pend"}">${at?"✓ Preços atualizados em "+ddmm(at):"⏳ Ainda não atualizou os preços desta semana"}</small>
+        <span class="mm-tags">${t.completa?`<span class="cesta">Cesta ${brl(t.s)}</span>`:""}${np?`<span>🔥 ${np} promoç${np>1?"ões":"ão"}</span>`:""}</span></span>${ic("chev",18)}</button>`}).join("")}
+  box.innerHTML=cab+top+seg+corpo+mercRodape();pintarIcones(box)}
+function mercRodape(){return `<div class="merc-leg"><p>${ic("crown",16)}<span><b>Coroa dourada</b> = menor preço do produto nesta semana. A <b>cesta</b> soma os produtos de quem informou todos os preços.</span></p>
+  <p>${ic("calendar",16)}<span>Cada mercado atualiza os preços uma vez por semana. Preço em cinza é da semana passada e não entra na comparação.</span></p>
+  <p>${ic("shield",16)}<span>Os preços são informados pelos próprios mercados e podem mudar sem aviso. Confira na loja antes de comprar.</span></p></div>
+  <div class="merc-acoes"><button class="zap" type="button" onclick="compartilharMercado()">${ic("share",18)}Mandar para alguém</button><a class="part" href="empresa.html#participar" onclick="queroMercado()">${ic("store",18)}Tenho um mercado</a></div>`}
+function queroMercado(){try{localStorage.setItem("vc_ramo_desejado",JSON.stringify("Mercado"))}catch(e){}}
+function compartilharMercado(){const url=linkSite()+"#mercado",txt="🛒 Vitrine Mercado: compare os preços dos supermercados de Castro nesta semana! 👉 "+url;
+  if(navigator.share){navigator.share({title:"Vitrine Mercado",text:txt}).catch(()=>{});return}window.open("https://wa.me/?text="+encodeURIComponent(txt),"_blank","noopener")}
+function abrirMercado(id){const M=MERC;if(!M)return;const m=M.mercados.find(x=>String(x.id)===String(id));if(!m)return;const C=mercCalc(M),t=C.tot[m.id];
+  const zap=String(m.whatsapp||"").replace(/\D/g,""),num=zap?(zap.startsWith("55")?zap:"55"+zap):"";
+  const promos=M.promos.filter(q=>q.empresa_id===m.id).slice(0,5);
+  const precos=M.produtos.map(p=>({p,x:C.tab[m.id+"|"+p.id]})).filter(o=>o.x);
+  abrirSheet(`<div class="ms-cab">${mercMarca(m)}<div><h2>${esc(m.nome)}</h2><p>${esc(m.endereco||"Castro – PR")}</p>${C.atual[m.id]?`<p style="color:#0d6b31;font-weight:700">✓ Preços atualizados em ${ddmm(C.atual[m.id])}</p>`:`<p style="color:#a35b00;font-weight:700">⏳ Ainda não atualizou os preços desta semana</p>`}</div></div>
+    ${num?`<div class="merc-acoes" style="margin-bottom:6px"><a class="zap" href="https://wa.me/${esc(num)}?text=${encodeURIComponent("Olá! Vi as ofertas do "+m.nome+" no Vitrine Mercado.")}" target="_blank" rel="noopener">${ic("chat",18)}Chamar no WhatsApp</a></div>`:""}
+    <h3 class="ms-h">🔥 Promoções da semana</h3>
+    ${promos.length?`<div class="pm-grid">${promos.map(q=>{const u=mercImg(q.foto_url),off=q.preco_de&&+q.preco_de>+q.preco?Math.round((1-q.preco/q.preco_de)*100):0;
+      return `<div class="pm"><div class="ft">${u?`<img src="${esc(u)}" alt="" loading="lazy">`:esc(q.emoji||"🏷️")}${off?`<span class="off">-${off}%</span>`:""}</div><div class="tx"><b>${esc(q.nome)}</b>${q.detalhe?`<small>${esc(q.detalhe)}</small>`:""}${q.preco_de?`<s>${brl(q.preco_de)}</s>`:""}<strong>${brl(q.preco)}</strong>${q.valido_ate?`<small>até ${ddmm(q.valido_ate)}</small>`:""}</div></div>`}).join("")}</div>`:`<p style="color:var(--txt-3);font-size:.88rem">Este mercado ainda não colocou promoções.</p>`}
+    <h3 class="ms-h">${ic("merc",18)}Preços da tabela</h3>
+    ${precos.length?`<div class="ms-lista">${precos.map(o=>{const mn=!o.x.velho&&o.x.v===C.min[o.p.id];return `<div class="${mn?"min":""}">${prodVis(o.p,"ms-foto")}<span>${esc(o.p.nome)} <small style="color:var(--txt-3)">${esc(o.p.detalhe||"")}</small></span><b>${mn?"👑 ":""}${brl(o.x.v)}${o.x.velho?' <small style="font-weight:500;color:var(--txt-3)">(sem. passada)</small>':""}</b></div>`}).join("")}</div>
+      ${t.completa?`<p style="font-weight:700">🧺 Cesta completa: ${brl(t.s)}</p>`:""}`:`<p style="color:var(--txt-3);font-size:.88rem">Ainda sem preços.</p>`}
+    <p style="font-size:.76rem;color:var(--txt-3)">Preços informados pelo mercado. Confira na loja.</p>`)}
+
 // ===== OFERTAS DO BANCO DE DADOS (Supabase) =====
 async function carregarDoBanco(){
   if(!window.CONFIG||!CONFIG.SUPABASE_URL){ // modo demonstração: posts feitos na Área da Empresa deste aparelho
@@ -1453,7 +1641,7 @@ async function iniciarApp(){
   })();
   await Promise.race([tarefas,limite]);
   const falta=Math.max(0,2000-(performance.now()-SPLASH_T0));setTimeout(fecharSplash,falta);   // 2 s: tempo para a juba aparecer girando
-  const h0=location.hash.slice(1);if(["ofertas","empresas","cupons","perfil","pontos","categorias","mais","negocios"].includes(h0))ir(h0);
+  const h0=location.hash.slice(1);if(["ofertas","empresas","cupons","perfil","pontos","categorias","mais","negocios","mercado"].includes(h0))ir(h0);
 }
 iniciarApp();
 </script>

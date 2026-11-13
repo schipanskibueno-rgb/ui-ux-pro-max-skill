@@ -43,6 +43,9 @@ textarea.inp{min-height:90px;resize:vertical}
 .abas{display:flex;background:#efe8d4;border-radius:14px;padding:4px;margin-bottom:6px}
 .abas button{flex:1;border:0;background:none;min-height:46px;border-radius:10px;font-weight:700;font-size:.95rem;color:var(--txt);cursor:pointer}
 .abas button.on{background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.prod-foto{position:relative;width:56px;height:56px;flex-shrink:0;border-radius:10px;border:1.5px dashed #d9cfb3;background:#fff;display:grid;place-items:center;cursor:pointer;overflow:hidden;font-size:1.6rem}
+.prod-foto img{width:100%;height:100%;object-fit:contain}.prod-foto small{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);color:#fff;font-size:.58rem;text-align:center;line-height:1.5}
+.prod-foto input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:0}
 .status{display:inline-block;border-radius:20px;padding:4px 12px;font-size:.8rem;font-weight:700}
 .status.ok{background:#dff5e7;color:#0d6b31}.status.pend{background:#fff3cd;color:#7a5a00}.status.pausa{background:#eee;color:#555}
 .empresa-top{display:flex;gap:12px;align-items:center}
@@ -738,7 +741,73 @@ function baixarClientes(){const cel=v=>{let s=String(v??"");if(/^[=+\-@\t\r]/.te
   const linhas=[["Nome","WhatsApp","Data do cadastro","Aceita ofertas no WhatsApp","Vitrine VIP"]].concat(listaClientes().map(c=>[c.nome,fmtTel(c.whatsapp),new Date(c.criado_em).toLocaleDateString("pt-BR"),c.ofertas?"Sim":"Não",c.vip?(c.vip.st==="vencido"?"Vencido":"Até "+dataBR(c.vip.vence)):"Não"]));
   const csv="﻿"+linhas.map(l=>l.map(cel).join(";")).join("\r\n"),a=document.createElement("a");
   a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="vitrine-castro-clientes-"+hojeISO()+".csv";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
-function navAdm(a){return `<div class="abas-p nav-adm" role="tablist"><button role="tab" aria-selected="${a==="emp"}" onclick="painelAdmin(false)">🏪 Empresas</button><button role="tab" aria-selected="${a==="cli"}" onclick="telaClientes(${a==="cli"})">👥 Clientes</button><button role="tab" aria-selected="${a==="fin"}" onclick="telaFinanceiro(${a==="fin"})">💰 Financeiro</button></div>`}
+function navAdm(a){return `<div class="abas-p nav-adm" role="tablist"><button role="tab" aria-selected="${a==="emp"}" onclick="painelAdmin(false)">🏪 Empresas</button><button role="tab" aria-selected="${a==="cli"}" onclick="telaClientes(${a==="cli"})">👥 Clientes</button><button role="tab" aria-selected="${a==="fin"}" onclick="telaFinanceiro(${a==="fin"})">💰 Financeiro</button><button role="tab" aria-selected="${a==="merc"}" onclick="telaMercadoAdm()">🛒 Mercado</button></div>`}
+// ===== VITRINE MERCADO (ADM): produtos da tabela e quem atualizou os preços =====
+const MERC_PROD_DEMO=[["p1","Coca-Cola","2 litros","🥤","img/produtos/coca-cola.jpg"],["p2","Toddy","400 g","🍫","img/produtos/toddy.jpg"],["p3","Sabão em pó OMO","1,6 kg","🧺","img/produtos/omo.jpg"],
+  ["p4","Bombril","8 unidades","🧽","img/produtos/bombril.jpg"],["p5","Detergente Ypê","500 ml","🧴","img/produtos/ype.jpg"],["p6","Açúcar União","5 kg","🍬","img/produtos/acucar-uniao.jpg"],["p7","Feijão Tio Danga","1 kg","🫘",""]];
+function semanaMerc(off=0){const d=new Date(),x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7)+off*7);return x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0")}
+const ddmmM=iso=>{const p=String(iso||"").slice(0,10).split("-");return p.length===3?p[2]+"/"+p[1]:""};
+function prodDemo(){return store.get("vc_demo_merc_produtos",null)||MERC_PROD_DEMO.map(([id,nome,detalhe,emoji,foto_url],i)=>({id,nome,detalhe,emoji,foto_url,ordem:i+1,ativo:true}))}
+async function dadosMercAdm(){const sem=semanaMerc();
+  if(DEMO){const prods=prodDemo(),mercs=lojasDemo().filter(l=>l.emp.ramo==="Mercado").map(l=>{const m=l.emp.merc||{},it=(m.precos||{})[sem]||{};return {id:l.id,nome:l.emp.nome,whatsapp:l.emp.whatsapp,aprovada:l.emp.aprovada!==false,n:Object.keys(it).length,quando:(m.atualizado||{})[sem]||null,promos:(m.promos||[]).length}});return {prods,mercs}}
+  const [a,b,c,d]=await Promise.all([db.from("mercado_produtos").select("*").order("ordem"),db.from("empresas").select("id,nome,whatsapp,aprovada").eq("ramo","Mercado").order("nome"),
+    db.from("mercado_precos").select("empresa_id,atualizado_em").eq("semana",sem),db.from("mercado_promos").select("empresa_id")]);
+  if(a.error)throw new Error(/does not exist|relation|schema cache/i.test(a.error.message||"")?"Para usar o Vitrine Mercado, rode o supabase.sql novo no Supabase (SQL Editor).":traduzErro(a.error));
+  const mercs=(b.data||[]).map(e=>{const l=(c.data||[]).filter(r=>r.empresa_id===e.id);return {...e,n:l.length,quando:l.reduce((q,r)=>!q||r.atualizado_em>q?r.atualizado_em:q,null),promos:(d.data||[]).filter(r=>r.empresa_id===e.id).length}});
+  return {prods:a.data||[],mercs}}
+async function telaMercadoAdm(){ADM.detalhe=null;const box=alvoAdmin();box.innerHTML=navAdm("merc")+`<div class="vazio"><span class="e">⏳</span>Carregando o Vitrine Mercado…</div>`;
+  let D;try{D=await dadosMercAdm()}catch(err){box.innerHTML=navAdm("merc")+`<div class="aviso">${esc(err.message||String(err))}</div>`;return}
+  window._mercAdm=D;const ativos=D.prods.filter(p=>p.ativo!==false),ok=D.mercs.filter(m=>m.quando),s0=semanaMerc(),s1=new Date(s0+"T12:00:00");s1.setDate(s1.getDate()+6);
+  box.innerHTML=navAdm("merc")+`<div class="card" style="border:2px solid var(--ouro)"><h2>🛒 Vitrine Mercado</h2><p class="sub">Semana de <b>${ddmmM(s0)} a ${ddmmM(s1.toLocaleDateString("sv-SE"))}</b> · <b>${ok.length} de ${D.mercs.length}</b> mercado${D.mercs.length===1?"":"s"} já atualizaram os preços.</p>
+    <a class="btn claro" href="index.html#mercado" style="text-decoration:none;display:flex;align-items:center;justify-content:center">👀 Ver a tabela no app</a></div>
+   <h2 style="margin:16px 0 8px">Mercados (${D.mercs.length})</h2>
+   <p class="ajuda" style="margin:-4px 0 8px">Entram aqui as lojas do ramo <b>Mercado</b>. Cada mercado entra na Área da Empresa com o próprio login e senha e preenche a aba 🛒 Preços da semana.</p>
+   ${D.mercs.length?D.mercs.map(m=>{const z=soDig(m.whatsapp),url=z?`https://wa.me/${z.length<=11?"55"+z:z}?text=${encodeURIComponent("Olá! Aqui é do Vitrine Castro. Lembrete: atualize os preços da semana do "+m.nome+" no Vitrine Mercado (Área da Empresa › 🛒 Preços da semana). Obrigado!")}`:"";
+     return `<div class="card" style="padding:12px 14px;display:flex;gap:10px;align-items:center"><div style="flex:1;min-width:0"><b>${esc(m.nome)}</b>${m.aprovada?"":` <span class="status pend">Em análise</span>`}
+       <p class="ajuda" style="margin:2px 0 0">${m.quando?`<span style="color:#0d6b31;font-weight:700">✓ Atualizou em ${ddmmM(m.quando)}</span> · ${m.n} de ${ativos.length} preços`:`<span style="color:#a35b00;font-weight:700">⏳ Ainda não atualizou esta semana</span>`} · 🔥 ${m.promos} promo${m.promos===1?"":"s"}</p></div>
+       ${!m.quando&&url?`<a class="mini" style="display:inline-flex;align-items:center;text-decoration:none;background:#dff5e7;color:#0d6b31" href="${url}" target="_blank" rel="noopener">💬 Lembrar</a>`:""}</div>`}).join("")
+     :`<div class="vazio"><span class="e">🛒</span>Nenhum mercado ainda. Cadastre em 🏪 Empresas › ➕ Cadastrar empresa, com o ramo <b>Mercado</b>.</div>`}
+   <h2 style="margin:18px 0 8px">Produtos da tabela (${ativos.length})</h2>
+   <p class="ajuda" style="margin:-4px 0 8px">São as colunas da tabela de comparação. Todos os mercados preenchem os mesmos produtos. Use sempre a mesma medida (ex: 5 kg) para a comparação ser justa.</p>
+   ${D.prods.map(p=>{const fu=/^(data:image\/|https:\/\/)/.test(p.foto_url||"")||/^img\/produtos\/[a-z0-9-]+\.(png|jpg|webp)$/.test(p.foto_url||"")?p.foto_url:"";return `<div class="card" style="padding:10px 14px;display:flex;gap:10px;align-items:center;${p.ativo===false?"opacity:.55":""}">
+     <label class="prod-foto" title="Trocar foto">${fu?`<img src="${esc(fu)}" alt="">`:`<span aria-hidden="true">${esc(p.emoji||"🛒")}</span>`}<small>📷 foto</small><input type="file" accept="image/*" aria-label="Trocar foto de ${esc(p.nome)}" onchange="fotoProdMerc('${esc(p.id)}',this)"></label>
+     <div style="flex:1;min-width:0"><b>${esc(p.nome)}</b><p class="ajuda" style="margin:0">${esc(p.detalhe||"")} · posição ${Number(p.ordem)||0}${p.ativo===false?" · ⏸ fora da tabela":""}</p></div>
+     <button class="mini" onclick="editarProdMerc('${esc(p.id)}')" aria-label="Editar ${esc(p.nome)}">✏️</button><button class="mini" onclick="salvarProdMerc('${esc(p.id)}',{ativo:${p.ativo===false}})">${p.ativo===false?"Ativar":"Pausar"}</button><button class="mini vm" onclick="apagarProdMerc('${esc(p.id)}')" aria-label="Apagar ${esc(p.nome)}">🗑</button></div>`}).join("")}
+   <div class="card"><h3 style="margin-top:0">➕ Novo produto na tabela</h3><form onsubmit="event.preventDefault();novoProdMerc()">
+    <label for="npNome">Produto</label><input class="inp" id="npNome" maxlength="60" required placeholder="Ex: Óleo de soja">
+    <div style="display:flex;gap:8px"><div style="flex:2"><label for="npDet">Medida</label><input class="inp" id="npDet" maxlength="30" placeholder="Ex: 900 ml"></div><div style="flex:1"><label for="npEmo">Ícone</label><input class="inp" id="npEmo" maxlength="8" placeholder="🫙"></div></div>
+    <button class="btn ouro" style="margin-top:10px">➕ Colocar na tabela</button></form></div>`}
+// foto do produto: reduz (até 400 px, fundo branco) e envia para o Storage do ADM
+async function fotoProdMerc(id,input){const f=input.files[0];input.value="";if(!f)return;
+  if(!/^image\//.test(f.type||"image/")){toast("Escolha uma foto.");return}
+  toast("Enviando foto…");
+  try{const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error("Não foi possível abrir essa foto. Se for do iPhone (HEIC), tire um print e envie o print."));i.src=URL.createObjectURL(f)});
+    const k=Math.min(1,400/Math.max(img.width,img.height)),w=Math.round(img.width*k),h=Math.round(img.height*k),c=document.createElement("canvas");c.width=w;c.height=h;
+    const g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,w,h);g.drawImage(img,0,0,w,h);URL.revokeObjectURL(img.src);
+    let url;if(DEMO)url=c.toDataURL("image/jpeg",.8);
+    else{const blob=await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error("Não foi possível ler a foto")),"image/jpeg",.85));
+      const nome=`${user.id}/produto-${Date.now()}.jpg`,{error}=await db.storage.from("fotos").upload(nome,blob,{contentType:"image/jpeg",upsert:false});if(error)throw error;
+      url=db.storage.from("fotos").getPublicUrl(nome).data.publicUrl}
+    await salvarProdMerc(id,{foto_url:url})}catch(e){toast(traduzErro(e))}}
+async function salvarProdMerc(id,campos){
+  if(DEMO){const l=prodDemo(),p=l.find(x=>String(x.id)===String(id));if(p)Object.assign(p,campos);store.set("vc_demo_merc_produtos",l)}
+  else{const {error}=await db.from("mercado_produtos").update(campos).eq("id",id);if(error){toast(traduzErro(error));return}}
+  toast("✅ Atualizado");telaMercadoAdm()}
+function editarProdMerc(id){const p=((window._mercAdm||{}).prods||[]).find(x=>String(x.id)===String(id));if(!p)return;
+  const nome=prompt("Nome do produto:",p.nome);if(nome===null)return;const det=prompt("Medida (ex: 5 kg, 1 litro):",p.detalhe||"");if(det===null)return;
+  const emo=prompt("Ícone (um emoji):",p.emoji||"");if(emo===null)return;const ord=prompt("Posição na tabela (1 = primeira coluna):",String(p.ordem||0));if(ord===null)return;
+  if(nome.trim().length<2){toast("Nome muito curto.");return}
+  salvarProdMerc(id,{nome:nome.trim().slice(0,60),detalhe:det.trim().slice(0,30)||null,emoji:emo.trim().slice(0,8)||null,ordem:Math.max(0,Math.min(999,parseInt(ord,10)||0))})}
+async function novoProdMerc(){const nome=$("#npNome").value.trim(),det=$("#npDet").value.trim(),emo=$("#npEmo").value.trim();if(nome.length<2){toast("Escreva o nome do produto.");return}
+  const ordem=Math.min(999,Math.max(0,...(((window._mercAdm||{}).prods||[]).map(p=>Number(p.ordem)||0)))+1);const novo={nome,detalhe:det||null,emoji:emo||null,ordem};
+  if(DEMO){const l=prodDemo();l.push({...novo,id:"p"+Date.now(),ativo:true});store.set("vc_demo_merc_produtos",l)}
+  else{const {error}=await db.from("mercado_produtos").insert(novo);if(error){toast(traduzErro(error));return}}
+  toast("✅ Produto colocado na tabela");telaMercadoAdm()}
+async function apagarProdMerc(id){const p=((window._mercAdm||{}).prods||[]).find(x=>String(x.id)===String(id));
+  if(!confirm("Apagar "+(p?p.nome:"este produto")+" da tabela?\n\nOs preços dele (desta e das semanas passadas) também somem. Se for só por um tempo, use Pausar."))return;
+  if(DEMO){store.set("vc_demo_merc_produtos",prodDemo().filter(x=>String(x.id)!==String(id)))}
+  else{const {error}=await db.from("mercado_produtos").delete().eq("id",id);if(error){toast(traduzErro(error));return}}
+  toast("🗑 Produto apagado");telaMercadoAdm()}
 function statusMens(x,M,P){const pg=P.find(p=>p.tipo==="mensalidade"&&String(p.empresa_id)===String(x.id)&&p.referencia===M);
   if(pg)return {k:"paga",pg,cor:"vd",txt:`✓ Paga em ${dataBR(pg.pago_em)} · ${FORMAS[pg.forma]||esc(pg.forma)}`};
   const atual=mesAtual(),atras=M<atual||(M===atual&&Number(hojeISO().slice(8))>DIA_VENC);

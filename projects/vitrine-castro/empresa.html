@@ -57,7 +57,7 @@ textarea.inp{min-height:90px;resize:vertical}
 .mini{border:0;border-radius:10px;min-height:40px;padding:0 12px;font-weight:600;font-size:.85rem;cursor:pointer;background:#efe8d4;color:var(--txt)}
 .mini.az{background:var(--azul);color:#fff}.mini.vm{background:#fde4e4;color:#a30d12}.mini.ou{background:var(--ouro);color:var(--azul)}
 .previa{margin-top:8px;border-radius:14px;overflow:hidden;background:#efe8d4;aspect-ratio:16/10;display:grid;place-items:center;color:var(--cinza);font-size:.9rem;text-align:center}
-.previa img{width:100%;height:100%;object-fit:cover}
+.previa img{width:100%;height:100%;object-fit:cover}.logo-prev img{object-fit:contain}
 .foto-btn{display:flex;align-items:center;justify-content:center;gap:8px;border:2px dashed #c9b98a;border-radius:14px;min-height:56px;font-weight:700;color:var(--txt);cursor:pointer;background:#fffaf0;margin-top:8px}
 .arquivo{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
 .foto-btn{position:relative;overflow:hidden}
@@ -84,6 +84,13 @@ textarea.inp{min-height:90px;resize:vertical}
 .demo-aviso{background:#000;color:#F3E3B5;border-radius:14px;padding:10px 14px;font-size:.85rem;margin-bottom:14px}
 .demo-aviso b{color:#D4A537}
 .perfil-loja{display:flex;align-items:center;gap:14px}
+.merc-lin{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid #efe8d4}
+.merc-lin .emo{font-size:1.6rem;width:40px;height:40px;object-fit:contain;text-align:center;flex-shrink:0;background:#fff;border-radius:6px}
+.merc-lin label{flex:1;min-width:0;margin:0!important;font-weight:400}.merc-lin label b{display:block;font-size:.92rem}.merc-lin label small{display:block;font-size:.76rem;color:var(--txt-3)}
+.merc-rs{display:flex;align-items:center;gap:4px;width:118px;flex-shrink:0}.merc-rs span{font-weight:700;font-size:.85rem}.merc-rs .inp{min-height:46px;padding:8px 10px;text-align:right;font-weight:700}
+.merc-promo{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid #efe8d4}
+.merc-promo .ft{width:48px;height:48px;border-radius:10px;background:#fff8e6;display:grid;place-items:center;font-size:1.5rem;overflow:hidden;flex-shrink:0}.merc-promo .ft img{width:100%;height:100%;object-fit:cover}
+.merc-promo .tx{flex:1;min-width:0}.merc-promo .tx b{display:block;font-size:.92rem}.merc-promo .tx small{font-size:.8rem;color:var(--txt-2)}.merc-promo s{color:var(--txt-3)}
 .troca-loja{display:flex;align-items:center;gap:8px;background:#111;color:#fff;border-radius:14px;padding:8px 10px;margin-bottom:12px}
 .troca-loja .rot{font-size:.78rem;color:#D4A537;font-weight:700;white-space:nowrap}
 .troca-loja select{flex:1;min-width:0;min-height:44px;border-radius:10px;border:1.5px solid #D4A537;background:#1b1b1b;color:#fff;font:inherit;font-weight:700;padding:0 10px}
@@ -343,10 +350,11 @@ async function carregarOfertas(){
 
 // ===== FOTOS: reduz e recorta no formato do app (16:10) antes de enviar =====
 function carregarImagem(file){return new Promise((res,rej)=>{if(file.type&&!/^image\//.test(file.type))return rej(new Error("Escolha uma foto."));const img=new Image();img.onload=()=>res(img);img.onerror=()=>rej(new Error(/heic|heif/i.test(file.type+file.name)?"Essa foto está no formato HEIC do iPhone. Tire um print da foto e envie o print, ou no iPhone: Ajustes > Câmera > Formatos > Mais Compatível.":"Não foi possível abrir essa foto. Tente outra."));img.src=URL.createObjectURL(file)})}
-async function prepararFoto(file,{larg=1200,prop=16/10}={}){
-  const img=await carregarImagem(file);let sw=img.width,sh=img.height,sx=0,sy=0;
-  if(sw/sh>prop){sw=Math.round(sh*prop);sx=Math.round((img.width-sw)/2)}else{sh=Math.round(sw/prop);sy=Math.round((img.height-sh)/2)}
-  const w=Math.min(larg,sw),h=Math.round(w/prop),c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(img,sx,sy,sw,sh,0,0,w,h);URL.revokeObjectURL(img.src);
+async function prepararFoto(file,{larg=1200,prop=16/10}={}){   // prop 0 = mantém o formato (logos)
+  const img=await carregarImagem(file);let sw=img.width,sh=img.height,sx=0,sy=0,w,h;
+  if(prop){if(sw/sh>prop){sw=Math.round(sh*prop);sx=Math.round((img.width-sw)/2)}else{sh=Math.round(sw/prop);sy=Math.round((img.height-sh)/2)}w=Math.min(larg,sw);h=Math.round(w/prop)}
+  else{const k=Math.min(1,larg/Math.max(sw,sh));w=Math.round(sw*k);h=Math.round(sh*k)}
+  const c=document.createElement("canvas");c.width=w;c.height=h;const g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,w,h);g.drawImage(img,sx,sy,sw,sh,0,0,w,h);URL.revokeObjectURL(img.src);
   return new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error("Não foi possível ler a foto")),"image/jpeg",DEMO?.72:.82));
 }
 const blobParaDataURL=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
@@ -360,7 +368,7 @@ function mostrarPrevia(input,alvo){const f=input.files[0];if(!f)return;const u=U
 // ===== CADASTRO DA EMPRESA =====
 function formEmpresa(e={}){return `
   <label for="eNome">Nome da loja</label><input class="inp" id="eNome" required maxlength="80" value="${esc(e.nome)}" placeholder="Ex: VS Store">
-  <label for="eRamo">Ramo</label><select class="inp" id="eRamo">${RAMOS.map(r=>`<option ${r===e.ramo?"selected":""}>${r}</option>`).join("")}</select>
+  <label for="eRamo">Ramo</label><select class="inp" id="eRamo">${RAMOS.map(r=>`<option ${r===(e.ramo||store.get("vc_ramo_desejado",""))?"selected":""}>${r}</option>`).join("")}</select>
   <label for="eWhats">WhatsApp da loja</label><input class="inp" id="eWhats" inputmode="tel" maxlength="20" value="${esc(e.whatsapp)}" placeholder="(42) 9 9999-9999">
   <p class="ajuda">Os clientes vão falar com você por este número.</p>
   <fieldset style="border:0;margin-top:12px"><legend style="font-size:.9rem;font-weight:600;margin-bottom:5px">Horário de funcionamento</legend>
@@ -369,7 +377,7 @@ function formEmpresa(e={}){return `
    <p class="ajuda">Com isso o app mostra “🟢 Aberto agora” ou “Fechado – abre às…”.</p></fieldset>
   <label for="eInsta">Instagram da loja (opcional)</label><input class="inp" id="eInsta" maxlength="40" value="${esc(e.instagram)}" placeholder="Ex: pizzariadoze (sem o @)">
   <label for="eEnd">Endereço</label><input class="inp" id="eEnd" maxlength="150" value="${esc(e.endereco)}" placeholder="Rua, número – bairro">
-  <label>Logo da loja</label><div class="previa" id="eLogoPrev" style="aspect-ratio:1/1;width:120px">${seguro(e.logo_url)?`<img src="${esc(e.logo_url)}" alt="Logo">`:"Sem logo"}</div>
+  <label>Logo da loja</label><p class="ajuda" style="margin:0 0 4px">Aparece no app e, para mercados, na tabela de preços. Pode ser retangular, a logo aparece inteira.</p><div class="previa logo-prev" id="eLogoPrev" style="aspect-ratio:2/1;width:200px;background:#fff;border:1px solid #e6dcc0">${seguro(e.logo_url)?`<img src="${esc(e.logo_url)}" alt="Logo">`:"Sem logo"}</div>
   <label class="foto-btn">📷 Escolher logo<input type="file" accept="image/*" id="eLogo" onchange="mostrarPrevia(this,'#eLogoPrev')"></label>
   <div class="erro" id="eErro"></div>`}
 function telaCadastroEmpresa(){const plano=store.get("vc_plano_desejado","basico");
@@ -388,7 +396,7 @@ async function salvarEmpresa(ev){ev.preventDefault();const b=$("#eBtn");b.disabl
   try{
     const dados={nome:$("#eNome").value.trim(),ramo:$("#eRamo").value,whatsapp:$("#eWhats").value.trim(),endereco:$("#eEnd").value.trim(),
       abre:$("#eAbre").value||null,fecha:$("#eFecha").value||null,dias_func:diasLidos("eDias"),instagram:($("#eInsta").value||"").replace(/[^A-Za-z0-9._]/g,"").slice(0,40)||null};
-    const f=$("#eLogo").files[0];if(f)dados.logo_url=await enviarFoto(await prepararFoto(f,{larg:400,prop:1}));
+    const f=$("#eLogo").files[0];if(f)dados.logo_url=await enviarFoto(await prepararFoto(f,{larg:600,prop:0}));
     if(DEMO){empresa={...(empresa||{id:"demo",aprovada:true,plano:"premium"}),...dados};store.set("vc_demo_emp",empresa)}
     else{if(primeiro&&admin){dados.plano=planoEsc||"basico";dados.aprovada=true}
       const gravar=d=>(empresa?db.from("empresas").update(d).eq("id",empresa.id):db.from("empresas").insert(d)).select().single();
@@ -414,10 +422,10 @@ function telaPainel(){
     <div class="nums"><span><b>${ofertas.length}</b>posts</span><span><b>${ativas}</b>no ar</span>${DEMO?"":`<span><b>${pl.lim}</b>limite</span>`}</div></div></div>
    <button class="btn claro" onclick="editarEmpresa()">✏️ Editar perfil da loja</button></div>
   <button class="postar" onclick="novoPost()"><span class="mais" aria-hidden="true">+</span><span><b>Postar oferta</b><small>Escolha a foto, escreva e publique. Leva 30 segundos.</small></span></button>
-  <div class="abas-p" role="tablist">${[["resultados","📊 Resultados"],["posts","📸 Meus posts"],["confirmar","✅ Confirmar compra"],["brindes","🎁 Brindes"],["plano","💼 Meu plano"]].map(([k,n])=>`<button role="tab" aria-selected="${ABA===k}" onclick="ABA='${k}';telaPainel()">${n}</button>`).join("")}</div>
+  <div class="abas-p" role="tablist">${[["resultados","📊 Resultados"],...(empresa.ramo==="Mercado"?[["mercado","🛒 Preços da semana"]]:[]),["posts","📸 Meus posts"],["confirmar","✅ Confirmar compra"],["brindes","🎁 Brindes"],["plano","💼 Meu plano"]].map(([k,n])=>`<button role="tab" aria-selected="${ABA===k}" onclick="ABA='${k}';telaPainel()">${n}</button>`).join("")}</div>
   <div id="abaBox"></div>
   <div id="admBox"></div>`;
-  (({resultados:abaResultados,posts:abaPosts,confirmar:abaConfirmar,brindes:abaBrindes,plano:abaPlano})[ABA]||abaResultados)();
+  (({resultados:abaResultados,mercado:abaMercado,posts:abaPosts,confirmar:abaConfirmar,brindes:abaBrindes,plano:abaPlano})[ABA]||abaResultados)();
 }
 function abaPosts(){
   $("#abaBox").innerHTML=ofertas.length?`<div class="grade">${ofertas.map(o=>{const st=venceu(o)?"Vencida":!o.ativa?"Pausada":"";return `<button onclick="verPost('${esc(o.id)}')" aria-label="${esc(o.titulo)}${st?", "+st:""}">${seguro(o.foto_url)?`<img src="${esc(o.foto_url)}" alt="" loading="lazy">`:"🏷️"}${st?`<span class="st">${st}</span>`:""}<span class="t">${esc(o.titulo)}</span></button>`}).join("")}</div>`
@@ -434,6 +442,78 @@ function verPost(id){const o=ofertas.find(x=>x.id===id);if(!o)return;
    <div class="linha" style="margin-top:6px"><button class="btn" onclick="novoPost('${esc(o.id)}')">✏️ Editar</button><button class="btn claro" onclick="pausar('${esc(o.id)}',${!o.ativa})">${o.ativa?"⏸ Pausar":"▶️ Pôr no ar"}</button></div>
    <button class="btn ouro" onclick="compartilharPost('${esc(o.id)}')">📤 Compartilhar no WhatsApp / Instagram</button>
    <button class="btn verm" onclick="apagar('${esc(o.id)}')">🗑 Apagar post</button>`)}
+
+
+// ===== VITRINE MERCADO: preços da semana + até 5 promoções (só lojas do ramo Mercado) =====
+const MERC_PROD_DEMO=[["p1","Coca-Cola","2 litros","🥤","img/produtos/coca-cola.jpg"],["p2","Toddy","400 g","🍫","img/produtos/toddy.jpg"],["p3","Sabão em pó OMO","1,6 kg","🧺","img/produtos/omo.jpg"],
+  ["p4","Bombril","8 unidades","🧽","img/produtos/bombril.jpg"],["p5","Detergente Ypê","500 ml","🧴","img/produtos/ype.jpg"],["p6","Açúcar União","5 kg","🍬","img/produtos/acucar-uniao.jpg"],["p7","Feijão Tio Danga","1 kg","🫘",""]];
+function isoDia(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function segundaDe(d=new Date()){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x}
+function semanaISO(off=0){const x=segundaDe();x.setDate(x.getDate()+off*7);return isoDia(x)}
+function ddmm(iso){const p=String(iso||"").slice(0,10).split("-");return p.length===3?p[2]+"/"+p[1]:""}
+function faixaSemana(){const s=segundaDe(),f=new Date(s);f.setDate(f.getDate()+6);return ddmm(isoDia(s))+" a "+ddmm(isoDia(f))}
+const reaisBR=v=>Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+function lerPreco(t){t=String(t||"").replace(/[^\d,.]/g,"");if(!t)return null;if(t.includes(","))t=t.replace(/\./g,"").replace(",",".");const v=Math.round(parseFloat(t)*100)/100;return isFinite(v)?v:NaN}
+let MERC_EMP=null;
+async function dadosMercadoEmp(){const sem=semanaISO(),ant=semanaISO(-1);
+  if(DEMO){const m=empresa.merc||{},prods=(store.get("vc_demo_merc_produtos",null)||MERC_PROD_DEMO.map(([id,nome,detalhe,emoji,foto_url],i)=>({id,nome,detalhe,emoji,foto_url,ordem:i+1,ativo:true}))).filter(p=>p.ativo!==false);
+    return {prods,atual:(m.precos||{})[sem]||{},passada:(m.precos||{})[ant]||{},quando:(m.atualizado||{})[sem]||null,promos:m.promos||[]}}
+  const [a,b,c]=await Promise.all([db.from("mercado_produtos").select("*").eq("ativo",true).order("ordem"),
+    db.from("mercado_precos").select("produto_id,semana,preco,atualizado_em").eq("empresa_id",empresa.id).gte("semana",ant),
+    db.from("mercado_promos").select("*").eq("empresa_id",empresa.id).order("criado_em")]);
+  if(a.error)throw new Error(/mercado_produtos|schema cache|does not exist/i.test(a.error.message||"")?"Falta atualizar o banco: rode o supabase.sql novo no Supabase (SQL Editor).":traduzErro(a.error));
+  const atual={},passada={};let quando=null;(b.data||[]).forEach(r=>{if(r.semana===sem){atual[r.produto_id]=+r.preco;if(!quando||r.atualizado_em>quando)quando=r.atualizado_em}else if(r.semana===ant)passada[r.produto_id]=+r.preco});
+  return {prods:a.data||[],atual,passada,quando,promos:c.data||[]}}
+async function abaMercado(){const box=$("#abaBox");box.innerHTML=`<div class="vazio"><span class="e">⏳</span>Carregando seus preços…</div>`;
+  try{MERC_EMP=await dadosMercadoEmp()}catch(err){box.innerHTML=`<div class="aviso">${esc(err.message||String(err))}</div>`;return}
+  const D=MERC_EMP,temPassada=Object.keys(D.passada).length>0,temAtual=Object.keys(D.atual).length>0;
+  box.innerHTML=`${empresa.aprovada||DEMO?"":`<div class="aviso">⏳ Seus preços aparecem no Vitrine Mercado assim que a loja for aprovada.</div>`}
+   <div class="card"><h2>🛒 Preços da semana</h2>
+    <p class="sub">Semana de <b>${faixaSemana()}</b>. ${D.quando?`<span style="color:#0d6b31;font-weight:700">✓ Você atualizou em ${ddmm(String(D.quando).slice(0,10))}.</span>`:`<span style="color:#a35b00;font-weight:700">⏳ Falta atualizar esta semana.</span>`}</p>
+    <p class="ajuda">Coloque o preço de cada produto <b>uma vez por semana</b> (pode corrigir até domingo). Deixe em branco o que você não vende. O app mostra a <b>coroa 👑</b> para o mercado mais barato de cada produto.</p>
+    ${temPassada&&!temAtual?`<button class="btn claro" type="button" onclick="copiarSemanaPassada()" style="margin-bottom:10px">📋 Copiar os preços da semana passada</button>`:""}
+    <form onsubmit="event.preventDefault();salvarPrecosSemana()">
+     ${D.prods.map(p=>{const v=D.atual[p.id],pa=D.passada[p.id];const fu=/^(data:image\/|https:\/\/)/.test(p.foto_url||"")||/^img\/produtos\/[a-z0-9-]+\.(png|jpg|webp)$/.test(p.foto_url||"")?p.foto_url:"";return `<div class="merc-lin">${fu?`<img class="emo" src="${esc(fu)}" alt="" loading="lazy">`:`<span class="emo" aria-hidden="true">${esc(p.emoji||"🛒")}</span>`}<label for="mp_${esc(p.id)}"><b>${esc(p.nome)}</b><small>${esc(p.detalhe||"")}${pa!=null?` · semana passada ${reaisBR(pa)}`:""}</small></label>
+       <div class="merc-rs"><span>R$</span><input class="inp" id="mp_${esc(p.id)}" data-prod="${esc(p.id)}" inputmode="decimal" autocomplete="off" maxlength="9" placeholder="${pa!=null?esc(String(pa.toFixed(2)).replace(".",",")):"0,00"}" value="${v!=null?esc(v.toFixed(2).replace(".",",")):""}"></div></div>`}).join("")}
+     <div class="erro" id="mpErro"></div><button class="btn ouro" id="mpBtn">💾 Salvar preços da semana</button></form></div>
+   <div class="card"><h2>🔥 Promoções do mercado <small style="font-size:.8rem;color:var(--txt-3)">(${D.promos.length} de 5)</small></h2>
+    <p class="sub">Até <b>5 produtos em promoção</b> aparecem na página do seu mercado, fora da tabela.</p>
+    ${D.promos.map((q,i)=>`<div class="merc-promo"><span class="ft">${/^(data:image\/|https:\/\/)/.test(q.foto_url||"")?`<img src="${esc(q.foto_url)}" alt="">`:"🏷️"}</span><span class="tx"><b>${esc(q.nome)}</b><small>${q.detalhe?esc(q.detalhe)+" · ":""}${q.preco_de?`<s>${reaisBR(q.preco_de)}</s> `:""}<b style="color:#0d6b31">${reaisBR(q.preco)}</b>${q.valido_ate?` · até ${ddmm(q.valido_ate)}`:""}</small></span>
+      <button class="mini vm" type="button" onclick="apagarPromoMerc('${esc(q.id||String(i))}')" aria-label="Apagar ${esc(q.nome)}">🗑</button></div>`).join("")}
+    ${D.promos.length<5?`<form onsubmit="event.preventDefault();salvarPromoMerc()" style="margin-top:10px">
+     <label for="qNome">Produto</label><input class="inp" id="qNome" maxlength="60" required placeholder="Ex: Picanha bovina">
+     <label for="qDet">Medida (opcional)</label><input class="inp" id="qDet" maxlength="40" placeholder="Ex: kg, 1 litro, pacote 5 kg">
+     <div class="linha"><div><label for="qPor">Preço promoção</label><input class="inp" id="qPor" inputmode="decimal" required placeholder="Ex: 39,90"></div><div><label for="qDe">Preço normal (opcional)</label><input class="inp" id="qDe" inputmode="decimal" placeholder="Ex: 49,90"></div></div>
+     <label for="qAte">Válida até (opcional)</label><input class="inp" id="qAte" type="date" min="${isoDia(new Date())}">
+     <label class="foto-btn">📷 Foto do produto (opcional)<input type="file" accept="image/*" id="qFoto"></label>
+     <div class="erro" id="qErro"></div><button class="btn ouro" id="qBtn">➕ Adicionar promoção</button></form>`:`<p class="ajuda">Você já tem 5 promoções. Apague uma para colocar outra.</p>`}</div>`}
+function copiarSemanaPassada(){const D=MERC_EMP;if(!D)return;document.querySelectorAll("[data-prod]").forEach(i=>{const v=D.passada[i.dataset.prod];if(v!=null&&!i.value)i.value=v.toFixed(2).replace(".",",")});toast("Preços copiados. Confira e toque em Salvar.")}
+async function salvarPrecosSemana(){const b=$("#mpBtn"),err=$("#mpErro");err.style.display="none";const sem=semanaISO(),grava=[],apaga=[];
+  for(const i of document.querySelectorAll("[data-prod]")){const v=lerPreco(i.value),pid=i.dataset.prod;
+    if(v===null&&!i.value.trim()){if(MERC_EMP.atual[pid]!=null)apaga.push(pid);continue}
+    if(!(v>0&&v<10000)){err.textContent="Confira o preço de "+(i.closest(".merc-lin").querySelector("b").textContent)+".";err.style.display="block";i.focus();return}
+    grava.push({pid,v})}
+  if(!grava.length&&!apaga.length){err.textContent="Coloque pelo menos um preço.";err.style.display="block";return}
+  b.disabled=true;
+  try{if(DEMO){const m=empresa.merc||(empresa.merc={});m.precos=m.precos||{};m.atualizado=m.atualizado||{};const it={};grava.forEach(x=>it[x.pid]=x.v);m.precos[sem]=it;m.atualizado[sem]=new Date().toISOString();
+      const ks=Object.keys(m.precos).sort();while(ks.length>2)delete m.precos[ks.shift()];store.set("vc_demo_emp",empresa)}
+    else{if(grava.length){const {error}=await db.from("mercado_precos").upsert(grava.map(x=>({empresa_id:empresa.id,produto_id:x.pid,semana:sem,preco:x.v})),{onConflict:"empresa_id,produto_id,semana"});if(error)throw error}
+      if(apaga.length){const {error}=await db.from("mercado_precos").delete().eq("empresa_id",empresa.id).eq("semana",sem).in("produto_id",apaga);if(error)throw error}}
+    toast("✅ Preços da semana salvos!");abaMercado()}catch(e){err.textContent=traduzErro(e);err.style.display="block";b.disabled=false}}
+async function salvarPromoMerc(){const b=$("#qBtn"),err=$("#qErro");err.style.display="none";
+  const nome=$("#qNome").value.trim(),det=$("#qDet").value.trim(),por=lerPreco($("#qPor").value),de=lerPreco($("#qDe").value),ate=$("#qAte").value||null,f=$("#qFoto").files[0];
+  const falha=m=>{err.textContent=m;err.style.display="block"};
+  if(nome.length<2)return falha("Escreva o nome do produto.");if(!(por>0&&por<100000))return falha("Confira o preço da promoção.");
+  if(de!==null&&!(de>por))return falha("O preço normal precisa ser maior que o da promoção (ou deixe em branco).");
+  b.disabled=true;
+  try{const q={nome,detalhe:det||null,preco:por,preco_de:de,valido_ate:ate};if(f)q.foto_url=await enviarFoto(await prepararFoto(f,{larg:600,prop:1}));
+    if(DEMO){const m=empresa.merc||(empresa.merc={});m.promos=m.promos||[];if(m.promos.length>=5)throw new Error("Cada mercado pode ter até 5 promoções.");m.promos.push({...q,id:"q"+Date.now()});store.set("vc_demo_emp",empresa)}
+    else{const {error}=await db.from("mercado_promos").insert({...q,empresa_id:empresa.id});if(error)throw error}
+    toast("🔥 Promoção adicionada!");abaMercado()}catch(e){falha(traduzErro(e));b.disabled=false}}
+async function apagarPromoMerc(id){if(!confirm("Apagar esta promoção?"))return;
+  if(DEMO){const m=empresa.merc||{};m.promos=(m.promos||[]).filter((q,i)=>String(q.id||i)!==String(id));store.set("vc_demo_emp",empresa)}
+  else{const {error}=await db.from("mercado_promos").delete().eq("id",id).eq("empresa_id",empresa.id);if(error){toast(traduzErro(error));return}}
+  toast("Promoção apagada");abaMercado()}
 
 // ===== POSTAR / EDITAR (fluxo estilo Instagram: foto → legenda → desconto → publicar) =====
 let RASC=null;

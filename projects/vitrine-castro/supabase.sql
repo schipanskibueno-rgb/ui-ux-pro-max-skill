@@ -739,6 +739,124 @@ end $$;
 revoke execute on function public.transferir_empresa(uuid, text) from public, anon;
 grant execute on function public.transferir_empresa(uuid, text) to authenticated;
 
+-- =====================================================================
+--  VITRINE MERCADO: comparação semanal de preços dos supermercados
+--  - o ADM define os produtos da tabela (a "cesta")
+--  - cada mercado (loja do ramo Mercado) informa o preço da SEMANA ATUAL
+--  - cada mercado pode ter até 5 produtos em promoção na página dele
+-- =====================================================================
+create or replace function public.semana_atual() returns date
+language sql stable set search_path = public as $$
+  select date_trunc('week', now() at time zone 'America/Sao_Paulo')::date   -- segunda-feira
+$$;
+
+create table if not exists public.mercado_produtos (
+  id        uuid primary key default gen_random_uuid(),
+  nome      text not null check (char_length(nome) between 2 and 60),
+  detalhe   text check (detalhe is null or char_length(detalhe) <= 30),
+  emoji     text check (emoji is null or char_length(emoji) <= 8),
+  ordem     int  not null default 0 check (ordem between 0 and 999),
+  ativo     boolean not null default true,
+  criado_em timestamptz not null default now()
+);
+alter table public.mercado_produtos enable row level security;
+revoke all on public.mercado_produtos from public, anon, authenticated;
+grant select on public.mercado_produtos to anon, authenticated;
+grant insert, update, delete on public.mercado_produtos to authenticated;
+drop policy if exists "todos veem produtos" on public.mercado_produtos;
+create policy "todos veem produtos" on public.mercado_produtos for select using (ativo or public.is_admin());
+drop policy if exists "admin gerencia produtos" on public.mercado_produtos;
+create policy "admin gerencia produtos" on public.mercado_produtos for all to authenticated
+  using (public.is_admin()) with check (public.is_admin());
+-- foto do produto: enviada pelo ADM (https://...) ou uma das fotos que vêm com o site (img/produtos/...)
+alter table public.mercado_produtos add column if not exists foto_url text
+  check (foto_url is null or foto_url ~ '^https://' or foto_url ~ '^img/produtos/[a-z0-9-]+\.(png|jpg|webp)$');
+-- produtos iniciais da tabela. Só entram se a tabela estiver vazia; o ADM troca, pausa ou acrescenta depois.
+insert into public.mercado_produtos (nome, detalhe, emoji, foto_url, ordem)
+select * from (values ('Coca-Cola','2 litros','🥤','img/produtos/coca-cola.jpg',1),('Toddy','400 g','🍫','img/produtos/toddy.jpg',2),
+  ('Sabão em pó OMO','1,6 kg','🧺','img/produtos/omo.jpg',3),('Bombril','8 unidades','🧽','img/produtos/bombril.jpg',4),
+  ('Detergente Ypê','500 ml','🧴','img/produtos/ype.jpg',5),('Açúcar União','5 kg','🍬','img/produtos/acucar-uniao.jpg',6),
+  ('Feijão Tio Danga','1 kg','🫘',null,7)) v(nome, detalhe, emoji, foto_url, ordem)
+where not exists (select 1 from public.mercado_produtos);
+
+create table if not exists public.mercado_precos (
+  empresa_id    uuid not null references public.empresas on delete cascade,
+  produto_id    uuid not null references public.mercado_produtos on delete cascade,
+  semana        date not null default public.semana_atual(),
+  preco         numeric(10,2) not null check (preco > 0 and preco < 10000),
+  atualizado_em timestamptz not null default now(),
+  primary key (empresa_id, produto_id, semana)
+);
+create index if not exists mercado_precos_semana on public.mercado_precos (semana);
+alter table public.mercado_precos enable row level security;
+revoke all on public.mercado_precos from public, anon, authenticated;
+grant select on public.mercado_precos to anon, authenticated;
+grant insert, update, delete on public.mercado_precos to authenticated;
+drop policy if exists "todos veem precos" on public.mercado_precos;
+create policy "todos veem precos" on public.mercado_precos for select using (
+  public.is_admin() or exists (select 1 from public.empresas e where e.id = empresa_id and (e.aprovada or e.dono = auth.uid())));
+drop policy if exists "mercado grava precos" on public.mercado_precos;
+create policy "mercado grava precos" on public.mercado_precos for all to authenticated
+  using (public.is_admin() or exists (select 1 from public.empresas e where e.id = empresa_id and e.dono = auth.uid()))
+  with check (public.is_admin() or exists (select 1 from public.empresas e where e.id = empresa_id and e.dono = auth.uid()));
+
+create table if not exists public.mercado_promos (
+  id         uuid primary key default gen_random_uuid(),
+  empresa_id uuid not null references public.empresas on delete cascade,
+  nome       text not null check (char_length(nome) between 2 and 60),
+  detalhe    text check (detalhe is null or char_length(detalhe) <= 40),
+  preco      numeric(10,2) not null check (preco > 0 and preco < 100000),
+  preco_de   numeric(10,2) check (preco_de is null or (preco_de > 0 and preco_de < 100000)),
+  foto_url   text check (foto_url is null or foto_url ~ '^https://'),
+  valido_ate date,
+  criado_em  timestamptz not null default now(),
+  check (preco_de is null or preco_de > preco)
+);
+create index if not exists mercado_promos_empresa on public.mercado_promos (empresa_id);
+alter table public.mercado_promos enable row level security;
+revoke all on public.mercado_promos from public, anon, authenticated;
+grant select on public.mercado_promos to anon, authenticated;
+grant insert, update, delete on public.mercado_promos to authenticated;
+drop policy if exists "todos veem promos" on public.mercado_promos;
+create policy "todos veem promos" on public.mercado_promos for select using (
+  public.is_admin() or exists (select 1 from public.empresas e where e.id = empresa_id and (e.dono = auth.uid()
+    or (e.aprovada and (valido_ate is null or valido_ate >= (now() at time zone 'America/Sao_Paulo')::date)))));
+drop policy if exists "mercado grava promos" on public.mercado_promos;
+create policy "mercado grava promos" on public.mercado_promos for all to authenticated
+  using (public.is_admin() or exists (select 1 from public.empresas e where e.id = empresa_id and e.dono = auth.uid()))
+  with check (public.is_admin() or exists (select 1 from public.empresas e where e.id = empresa_id and e.dono = auth.uid()));
+
+-- regras: só loja do ramo Mercado; preço só da semana atual; até 5 promoções
+create or replace function public.protege_mercado() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if tg_op = 'DELETE' then   -- histórico de semanas passadas fica guardado
+    if not public.is_admin() and old.semana <> public.semana_atual() then raise exception 'Só dá para apagar os preços desta semana.'; end if;
+    return old;
+  end if;
+  if not exists (select 1 from public.empresas where id = new.empresa_id and ramo = 'Mercado') then
+    raise exception 'Só lojas do ramo Mercado entram no Vitrine Mercado.';
+  end if;
+  if tg_table_name = 'mercado_precos' then
+    if not public.is_admin() then
+      if tg_op = 'UPDATE' and old.semana <> public.semana_atual() then raise exception 'Só dá para mudar os preços desta semana.'; end if;
+      new.semana := public.semana_atual();
+    end if;
+    new.atualizado_em := now();
+  elsif tg_op = 'INSERT' then
+    perform pg_advisory_xact_lock(hashtext('promos' || new.empresa_id::text));
+    if (select count(*) from public.mercado_promos where empresa_id = new.empresa_id) >= 5 then
+      raise exception 'Cada mercado pode ter até 5 promoções.';
+    end if;
+  end if;
+  return new;
+end $$;
+drop trigger if exists t_protege_precos on public.mercado_precos;
+create trigger t_protege_precos before insert or update or delete on public.mercado_precos for each row execute function public.protege_mercado();
+drop trigger if exists t_protege_promos on public.mercado_promos;
+create trigger t_protege_promos before insert or update on public.mercado_promos for each row execute function public.protege_mercado();
+revoke execute on function public.protege_mercado() from public, anon, authenticated;
+
 -- DEPOIS de criar sua conta na Área da Empresa (empresa.html),
 -- rode só a linha abaixo (com o SEU e-mail) para virar administrador:
 --
