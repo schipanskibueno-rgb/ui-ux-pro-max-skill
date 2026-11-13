@@ -237,6 +237,17 @@ main{padding:12px 12px 0}
 .loja-ch{flex:0 0 72px;display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;font-size:.74rem;text-align:center;line-height:1.15;color:var(--txt)}
 .loja-ch .av{width:64px;height:64px;border-radius:50%;overflow:hidden;background:var(--preto-2);display:grid;place-items:center;font-size:1.6rem;border:2px solid var(--ouro);box-shadow:var(--sombra)}
 .loja-ch .av img{width:100%;height:100%;object-fit:cover}
+.loja-ch .av{position:relative;flex-shrink:0}.loja-ch .nm{display:block;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.loja-ch.com-logo .av{background:#fff}.loja-ch.com-logo .av img{object-fit:contain;padding:4px}
+.ta-rot{display:flex;align-items:center;gap:5px;margin:2px 0 6px;font-size:.74rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#9a7414}
+.ta-rot.cinza{color:var(--txt-3);margin-top:10px}
+.trilho-auto{overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:2px 12px 6px;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 18px,#000 calc(100% - 18px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 18px,#000 calc(100% - 18px),transparent 100%)}
+.trilho-auto::-webkit-scrollbar{display:none}
+.ta-in,.ta-dup{display:flex;gap:12px;width:max-content}.ta-dup{padding-left:12px}
+.trilho-auto.vip .loja-ch{flex:0 0 116px;font-size:.78rem;font-weight:700}
+.trilho-auto.vip .loja-ch .av{width:108px;height:72px;border-radius:16px;border:2.5px solid var(--ouro);box-shadow:0 4px 14px rgba(212,165,55,.35);font-size:2rem}
+.loja-ch .cr{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--ouro-2),var(--ouro));color:#000;display:grid;place-items:center}
+.trilho-auto.rev .loja-ch{flex:0 0 84px;min-width:0}.trilho-auto.vip .loja-ch{min-width:0}.trilho-auto.rev .loja-ch .av{width:58px;height:58px}
 .emp{display:flex;gap:12px;align-items:center;background:var(--card);border-radius:var(--raio);padding:10px 12px;margin-bottom:8px;box-shadow:var(--sombra);width:100%;border:0;text-align:left;min-height:76px}
 .emp .av{width:56px;height:56px;border-radius:12px;overflow:hidden;flex-shrink:0;background:var(--preto-2);display:grid;place-items:center;font-size:1.5rem}
 .emp .av img{width:100%;height:100%;object-fit:cover}
@@ -633,7 +644,7 @@ body.travado{overflow:hidden}
   <div class="carrossel" aria-label="Lojas patrocinadas"><div class="slides" id="slides"></div></div>
   <div class="ctrl" id="dots"></div>
   <div class="secao"><h2><span data-ic="store"></span>Lojas parceiras</h2><button class="link" onclick="ir('empresas')">Ver todas<span data-ic="chev"></span></button></div>
-  <div class="lojas-trilho" id="lojasHome"></div>
+  <div class="lojas-home" id="lojasHome"></div>
   <div class="atalhos" id="atalhos" aria-label="Atalhos"></div>
   <button class="chamada-merc" onclick="ir('mercado')" aria-label="Vitrine Mercado: compare os preços dos supermercados de Castro"><span class="cm-ic" data-ic="merc"></span><span class="cm-tx"><b>Vitrine Mercado</b><small>Compare os preços dos supermercados de Castro</small></span><span class="cm-tag">NOVO</span><span data-ic="chev"></span></button>
   <button class="pts-mini" id="ptsHome" onclick="ir('pontos')" aria-label="Meus pontos"></button>
@@ -999,7 +1010,14 @@ function renderHome(){
   $("#destaques").innerHTML=l.filter(o=>o.destaque).map(cardOf).join("")||`<div class="vazio" style="grid-column:1/-1">Em breve, novas ofertas por aqui.</div>`;
   // lojas parceiras (bolinhas)
   const emps={};l.forEach(o=>{(emps[o.emp]=emps[o.emp]||[]).push(o)});
-  $("#lojasHome").innerHTML=(Object.keys(emps).length?"":`<p style="color:var(--txt-2);font-size:.9rem;padding:0 4px">As primeiras lojas parceiras aparecem aqui em breve.</p>`)+Object.values(emps).slice(0,12).map(os=>{const o=os[0];return `<button class="loja-ch" onclick="verOferta('${o.id}')"><span class="av">${o.logo&&/^(https:|data:image\/|img\/)/.test(o.logo)?`<img src="${esc(o.logo)}" alt="">`:imgOf(o)}</span>${esc(o.emp)}</button>`}).join("");
+  // VIP = plano Premium (no site de verdade) ou loja do carrossel de patrocinados (demonstração)
+  const grupos=Object.values(emps).slice(0,40).map(os=>{const o=os[0];return {o,vip:o.plano?o.plano==="premium":BANNERS.some(b=>b.nome===o.emp)}});
+  const vips=grupos.filter(g=>g.vip),outros=grupos.filter(g=>!g.vip);
+  const bola=(g,dup)=>{const o=g.o,lg=o.logo&&/^(https:|data:image\/|img\/)/.test(o.logo);
+    return `<button class="loja-ch${g.vip?" vip":""}${lg?" com-logo":""}" onclick="verOferta('${o.id}')"${dup?' tabindex="-1" aria-hidden="true"':""}><span class="av">${lg?`<img src="${esc(o.logo)}" alt="" loading="lazy">`:imgOf(o)}${g.vip?`<i class="cr">${ic("crown",12)}</i>`:""}</span><span class="nm">${esc(o.emp)}</span></button>`};
+  const faixa=(l,cls,rot)=>l.length?`${rot}<div class="trilho-auto ${cls}" role="region" aria-label="${cls==="vip"?"Parceiros VIP":"Lojas parceiras"}"><div class="ta-in">${l.map(g=>bola(g)).join("")}<span class="ta-dup">${l.map(g=>bola(g,1)).join("")}</span></div></div>`:"";
+  $("#lojasHome").innerHTML=grupos.length?faixa(vips,"vip",`<p class="ta-rot">${ic("crown",14)}Parceiros VIP</p>`)+faixa(outros,"rev",vips.length?`<p class="ta-rot cinza">Lojas parceiras</p>`:""):`<p style="color:var(--txt-2);font-size:.9rem;padding:0 4px">As primeiras lojas parceiras aparecem aqui em breve.</p>`;
+  prepararTrilhos();
   // ofertas que acabam hoje/amanhã, com relógio
   const rel=l.filter(o=>o.validade&&dias(o)<=1&&restam(o)!==0);
   $("#relampagoBox").innerHTML=rel.length?`<div class="relampago"><div class="cab"><h2>${ic("zap",20)}Acabam logo</h2><div class="relogio" id="relogio" aria-label="Tempo até a meia-noite"></div></div><div class="trilho">${rel.map(cardOf).join("")}</div></div>`:"";
@@ -1132,6 +1150,25 @@ function buscar(t){
 function limparBusca(){$("#q").value="";buscar("");$("#q").focus()}
 
 function irSlide(i){slide=(i+BANNERS.length)%BANNERS.length;if(BANNERS[slide]&&BANNERS[slide].of)registrarEvento(BANNERS[slide].of,"aparicao");$("#slides").style.transform=`translateX(-${slide*100}%)`;document.querySelectorAll("#dots button").forEach((e,k)=>e.classList.toggle("on",k===slide));reiniciar()}
+// ===== Lojas parceiras rodando sozinhas (pausa ao tocar; parado para quem pede menos movimento) =====
+let _taT=0,_taOn=false;
+function prepararTrilhos(){const parado=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  document.querySelectorAll(".trilho-auto").forEach(el=>{const dup=el.querySelector(".ta-dup"),inn=el.querySelector(".ta-in");
+    const orig=[...inn.children].filter(n=>n!==dup);
+    if(parado||!dup||orig.length<2){if(dup)dup.remove();el.dataset.auto="0";return}
+    // poucas lojas: repete até passar da largura da tela, para a faixa poder girar sem buraco
+    const larg=()=>inn.scrollWidth-dup.offsetWidth;let n=0;
+    while(larg()<=el.clientWidth+24&&n<12){orig.forEach(o=>{const c=o.cloneNode(true);c.setAttribute("tabindex","-1");c.setAttribute("aria-hidden","true");inn.insertBefore(c,dup)});n++}
+    dup.innerHTML="";[...inn.children].filter(x=>x!==dup).forEach(o=>{const c=o.cloneNode(true);c.setAttribute("tabindex","-1");c.setAttribute("aria-hidden","true");dup.appendChild(c)});
+    el.dataset.auto="1";el._x=null;const pausa=()=>{el._pausa=Date.now()+3500;el._x=null};
+    ["pointerdown","touchstart","wheel","focusin"].forEach(ev=>el.addEventListener(ev,pausa,{passive:true}));
+    if(el.classList.contains("rev"))requestAnimationFrame(()=>{el.scrollLeft=el.scrollWidth/2})});
+  if(!_taOn){_taOn=true;requestAnimationFrame(rodarTrilhos)}}
+function rodarTrilhos(t){const dt=_taT?Math.min(64,t-_taT):16;_taT=t;
+  if(!document.hidden)document.querySelectorAll('.trilho-auto[data-auto="1"]').forEach(el=>{if(!el.offsetParent||(el._pausa&&Date.now()<el._pausa))return;
+    const meio=el.scrollWidth/2,v=(el.classList.contains("vip")?32:26)*dt/1000*(el.classList.contains("rev")?-1:1);
+    if(el._x==null)el._x=el.scrollLeft;el._x+=v;if(el._x>=meio)el._x-=meio;if(el._x<=0)el._x+=meio;el.scrollLeft=el._x});
+  requestAnimationFrame(rodarTrilhos)}
 let auto;function reiniciar(){clearInterval(auto);if(!matchMedia("(prefers-reduced-motion: reduce)").matches)auto=setInterval(()=>irSlide(slide+1),6000)}
 function clicBanner(i){const b=BANNERS[i];b.anuncie?location.href="empresa.html":verOferta(b.of)}
 (function(){let x0=null;const el=document.querySelector(".carrossel");el.addEventListener("touchstart",e=>x0=e.touches[0].clientX,{passive:true});el.addEventListener("touchend",e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>40)irSlide(slide+(dx<0?1:-1));x0=null})})();
@@ -1602,7 +1639,7 @@ async function carregarDoBanco(){
     if(error||!data||!data.length){render();return} // sem ofertas reais ainda: mostra "em breve"
     const novas=data.map(o=>({id:o.id,emp:o.empresas.nome,sub:o.empresas.ramo,cat:o.categoria,img:o.foto_url||"",emoji:(CATS.find(c=>c.id===o.categoria)||{}).ic||"🏷️",
       tag:esc(o.titulo),s:o.titulo.length>10,desc:o.descricao,regras:o.regras||"Apresente o cupom no caixa.",validade:o.validade||"",economia:Number(o.economia)||0,
-      destaque:o.destaque,whats:o.empresas.whatsapp||"",logo:o.empresas.logo_url||"",banner:o.banner,topo:esc(o.banner_topo||""),entrega:o.entrega||"sim",precoDe:Number(o.preco_de)||null,precoPor:Number(o.preco_por)||null,limite:Number(o.limite_cupons)||null,umPorCliente:o.um_por_cliente!==false,dias:o.dias||"",horaIni:o.hora_ini||"",horaFim:o.hora_fim||"",inicia:o.inicia_em||"",end:o.empresas.endereco||"",abre:o.empresas.abre||"",fecha:o.empresas.fecha||"",diasFunc:o.empresas.dias_func||"",insta:o.empresas.instagram||"",usados:0}));
+      destaque:o.destaque,whats:o.empresas.whatsapp||"",logo:o.empresas.logo_url||"",plano:o.empresas.plano||"",banner:o.banner,topo:esc(o.banner_topo||""),entrega:o.entrega||"sim",precoDe:Number(o.preco_de)||null,precoPor:Number(o.preco_por)||null,limite:Number(o.limite_cupons)||null,umPorCliente:o.um_por_cliente!==false,dias:o.dias||"",horaIni:o.hora_ini||"",horaFim:o.hora_fim||"",inicia:o.inicia_em||"",end:o.empresas.endereco||"",abre:o.empresas.abre||"",fecha:o.empresas.fecha||"",diasFunc:o.empresas.dias_func||"",insta:o.empresas.instagram||"",usados:0}));
     if(!novas.some(o=>o.destaque))novas.slice(0,4).forEach(o=>o.destaque=true);
     OFERTAS.splice(0,OFERTAS.length,...novas);
     const comLimite=novas.filter(o=>o.limite).map(o=>o.id);
