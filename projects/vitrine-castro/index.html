@@ -1482,7 +1482,7 @@ if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.
 
 // ===== VITRINE MERCADO: comparação semanal de preços dos supermercados =====
 const MERC_PROD_DEMO=[["p1","Coca-Cola","2 litros","🥤",9.99,"img/produtos/coca-cola.jpg"],["p2","Toddy","400 g","🍫",8.9,"img/produtos/toddy.jpg"],["p3","Sabão em pó OMO","1,6 kg","🧺",22.9,"img/produtos/omo.jpg"],
-  ["p4","Bombril","8 unidades","🧽",3.99,"img/produtos/bombril.jpg"],["p5","Detergente Ypê","500 ml","🧴",2.49,"img/produtos/ype.jpg"],["p6","Açúcar União","5 kg","🍬",18.9,"img/produtos/acucar-uniao.jpg"],["p7","Feijão Tio Danga","1 kg","🫘",7.49,""]];
+  ["p4","Bombril","8 unidades","🧽",3.99,"img/produtos/bombril.jpg"],["p5","Detergente Ypê","500 ml","🧴",2.49,"img/produtos/ype.jpg"],["p6","Açúcar União","5 kg","🍬",18.9,"img/produtos/acucar-uniao.jpg"],["p7","Feijão Tio Danga","1 kg","🫘",7.49,"img/produtos/feijao-tio-danga.jpg"]];
 let MERC=null,MERC_T=0,MERC_MODO="tabela";
 function isoDia(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function segundaDe(d=new Date()){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x}

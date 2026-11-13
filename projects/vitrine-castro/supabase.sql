@@ -776,8 +776,10 @@ insert into public.mercado_produtos (nome, detalhe, emoji, foto_url, ordem)
 select * from (values ('Coca-Cola','2 litros','🥤','img/produtos/coca-cola.jpg',1),('Toddy','400 g','🍫','img/produtos/toddy.jpg',2),
   ('Sabão em pó OMO','1,6 kg','🧺','img/produtos/omo.jpg',3),('Bombril','8 unidades','🧽','img/produtos/bombril.jpg',4),
   ('Detergente Ypê','500 ml','🧴','img/produtos/ype.jpg',5),('Açúcar União','5 kg','🍬','img/produtos/acucar-uniao.jpg',6),
-  ('Feijão Tio Danga','1 kg','🫘',null,7)) v(nome, detalhe, emoji, foto_url, ordem)
+  ('Feijão Tio Danga','1 kg','🫘','img/produtos/feijao-tio-danga.jpg',7)) v(nome, detalhe, emoji, foto_url, ordem)
 where not exists (select 1 from public.mercado_produtos);
+-- foto do feijão para quem já tinha rodado a versão anterior (só se ainda estiver sem foto)
+update public.mercado_produtos set foto_url = 'img/produtos/feijao-tio-danga.jpg' where nome = 'Feijão Tio Danga' and foto_url is null;
 
 create table if not exists public.mercado_precos (
   empresa_id    uuid not null references public.empresas on delete cascade,

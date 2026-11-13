@@ -446,7 +446,7 @@ function verPost(id){const o=ofertas.find(x=>x.id===id);if(!o)return;
 
 // ===== VITRINE MERCADO: preços da semana + até 5 promoções (só lojas do ramo Mercado) =====
 const MERC_PROD_DEMO=[["p1","Coca-Cola","2 litros","🥤","img/produtos/coca-cola.jpg"],["p2","Toddy","400 g","🍫","img/produtos/toddy.jpg"],["p3","Sabão em pó OMO","1,6 kg","🧺","img/produtos/omo.jpg"],
-  ["p4","Bombril","8 unidades","🧽","img/produtos/bombril.jpg"],["p5","Detergente Ypê","500 ml","🧴","img/produtos/ype.jpg"],["p6","Açúcar União","5 kg","🍬","img/produtos/acucar-uniao.jpg"],["p7","Feijão Tio Danga","1 kg","🫘",""]];
+  ["p4","Bombril","8 unidades","🧽","img/produtos/bombril.jpg"],["p5","Detergente Ypê","500 ml","🧴","img/produtos/ype.jpg"],["p6","Açúcar União","5 kg","🍬","img/produtos/acucar-uniao.jpg"],["p7","Feijão Tio Danga","1 kg","🫘","img/produtos/feijao-tio-danga.jpg"]];
 function isoDia(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function segundaDe(d=new Date()){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x}
 function semanaISO(off=0){const x=segundaDe();x.setDate(x.getDate()+off*7);return isoDia(x)}
