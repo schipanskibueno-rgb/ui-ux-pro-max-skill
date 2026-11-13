@@ -1,5 +1,5 @@
 // Vitrine Castro – service worker: funciona offline e permite instalar o app
-const CACHE = "vitrine-v35";
+const CACHE = "vitrine-v36";
 const ARQUIVOS = ["./", "./index.html", "./manifest.webmanifest", "./config.js", "./empresa.html", "./admin.html", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png", "./img/produtos/coca-cola.jpg", "./img/produtos/toddy.jpg", "./img/produtos/omo.jpg", "./img/produtos/bombril.jpg", "./img/produtos/ype.jpg", "./img/produtos/acucar-uniao.jpg", "./img/produtos/feijao-tio-danga.jpg",
   "./img/logo-simbolo.png", "./img/logo-palavra.png", "./img/leao-fundo.png", "./img/b_vs.jpg", "./img/vs_logo.jpg", "./img/cat1.jpg", "./img/cat2.jpg", "./img/cat3.jpg", "./img/cat4.jpg",
   "./img/of1.jpg", "./img/of2.jpg", "./img/of3.jpg", "./img/of4.jpg"];
