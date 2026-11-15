@@ -9,6 +9,9 @@
 <link rel="icon" type="image/png" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>/* erros da página (lidos pelo mockup de testes) e, só dentro do mockup, confirmações automáticas */
+window.__erros=[];addEventListener("error",function(e){try{window.__erros.push(String(e.message||e))}catch(_){}});
+try{if(window.parent!==window&&window.parent.__VITRINE_MOCKUP){window.confirm=function(){return true};window.prompt=function(m,d){return d!=null&&d!==""?d:"EXCLUIR"}}}catch(e){}</script>
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
 <style>
@@ -778,7 +781,14 @@ async function telaMercadoAdm(){ADM.detalhe=null;const box=alvoAdmin();box.inner
    <div class="card"><h3 style="margin-top:0">➕ Novo produto na tabela</h3><form onsubmit="event.preventDefault();novoProdMerc()">
     <label for="npNome">Produto</label><input class="inp" id="npNome" maxlength="60" required placeholder="Ex: Óleo de soja">
     <div style="display:flex;gap:8px"><div style="flex:2"><label for="npDet">Medida</label><input class="inp" id="npDet" maxlength="30" placeholder="Ex: 900 ml"></div><div style="flex:1"><label for="npEmo">Ícone</label><input class="inp" id="npEmo" maxlength="8" placeholder="🫙"></div></div>
-    <button class="btn ouro" style="margin-top:10px">➕ Colocar na tabela</button></form></div>`}
+    <button class="btn ouro" style="margin-top:10px">➕ Colocar na tabela</button></form></div>
+   ${DEMO?`<div class="card" style="border:2px dashed var(--ouro)"><h3 style="margin-top:0">📤 Levar para o site publicado</h3>
+     <p class="ajuda">Gera um código com o que você cadastrou aqui na prévia: os <b>produtos da tabela</b> (com fotos) e os <b>mercados</b> que você criou, com os preços da semana e as promoções. No site publicado, abra <b>Administração › 🛒 Mercado › 📥 Trazer da prévia</b> e cole o código.</p>
+     <button class="btn ouro" type="button" onclick="gerarExportMerc()">📤 Gerar código</button><div id="expBox"></div></div>`
+   :`<div class="card" style="border:2px dashed var(--ouro)"><h3 style="margin-top:0">📥 Trazer da prévia</h3>
+     <p class="ajuda">Cole aqui o código gerado na prévia do Claude (Administração › 🛒 Mercado › 📤 Levar para o site publicado). Produtos com o mesmo nome são atualizados, os novos entram no fim da tabela, e mercados que ainda não existem são criados. Depois tudo pode ser editado aqui normalmente.</p>
+     <label for="impTxt">Código da prévia</label><textarea class="inp" id="impTxt" rows="4" placeholder="VITRINE-MERCADO:..." spellcheck="false" autocomplete="off"></textarea>
+     <button class="btn ouro" type="button" style="margin-top:10px" onclick="conferirImportMerc()">🔎 Conferir antes de trazer</button><div id="impBox"></div></div>`}`}
 // foto do produto: reduz (até 400 px, fundo branco) e envia para o Storage do ADM
 async function fotoProdMerc(id,input){const f=input.files[0];input.value="";if(!f)return;
   if(!/^image\//.test(f.type||"image/")){toast("Escolha uma foto.");return}
@@ -791,6 +801,59 @@ async function fotoProdMerc(id,input){const f=input.files[0];input.value="";if(!
       const nome=`${user.id}/produto-${Date.now()}.jpg`,{error}=await db.storage.from("fotos").upload(nome,blob,{contentType:"image/jpeg",upsert:false});if(error)throw error;
       url=db.storage.from("fotos").getPublicUrl(nome).data.publicUrl}
     await salvarProdMerc(id,{foto_url:url})}catch(e){toast(traduzErro(e))}}
+// ===== PONTE PRÉVIA → SITE PUBLICADO (produtos da tabela + mercados com preços e promoções) =====
+function codTexto(o){return "VITRINE-MERCADO:"+btoa(unescape(encodeURIComponent(JSON.stringify(o))))}
+function lerCodigo(t){t=String(t||"").trim().replace(/\s+/g,"");const m=t.match(/VITRINE-MERCADO:([A-Za-z0-9+/=]+)/);if(!m)throw new Error("Esse não é um código da prévia. Ele começa com VITRINE-MERCADO:");
+  let o;try{o=JSON.parse(decodeURIComponent(escape(atob(m[1]))))}catch(e){throw new Error("O código está incompleto. Copie de novo, inteiro, na prévia.")}
+  if(!o||o.v!==1||!Array.isArray(o.produtos))throw new Error("Código em formato desconhecido. Gere de novo na prévia.");return o}
+function gerarExportMerc(){const sem=semanaMerc(),prods=prodDemo();
+  const nomeDe={};prods.forEach(p=>nomeDe[p.id]=p.nome);
+  const mercados=lojasDemo().filter(l=>l.emp.ramo==="Mercado").map(l=>{const e=l.emp,m=e.merc||{},it=(m.precos||{})[sem]||{},pr={};Object.entries(it).forEach(([pid,v])=>{if(nomeDe[pid])pr[nomeDe[pid]]=+v});
+    return {nome:e.nome,whatsapp:e.whatsapp||null,endereco:e.endereco||null,plano:e.plano||"basico",logo_url:e.logo_url||null,precos:pr,
+      promos:(m.promos||[]).slice(0,5).map(q=>({nome:q.nome,detalhe:q.detalhe||null,preco:+q.preco,preco_de:q.preco_de?+q.preco_de:null,valido_ate:q.valido_ate||null,foto_url:q.foto_url||null}))}});
+  const o={v:1,gerado:new Date().toISOString(),produtos:prods.map(p=>({nome:p.nome,detalhe:p.detalhe||null,emoji:p.emoji||null,foto_url:p.foto_url||null,ordem:Number(p.ordem)||0,ativo:p.ativo!==false})),mercados};
+  const cod=codTexto(o),kb=Math.round(cod.length/1024);
+  $("#expBox").innerHTML=`<p class="ajuda" style="margin-top:10px">✅ Código com <b>${o.produtos.length} produtos</b> e <b>${mercados.length} mercado${mercados.length===1?"":"s"}</b> (${kb} KB). Toque em Copiar e cole no site publicado.</p>
+    <textarea class="inp" id="expTxt" rows="4" readonly spellcheck="false">${esc(cod)}</textarea>
+    <button class="btn" type="button" style="margin-top:8px" onclick="copiarExport()">📋 Copiar código</button>`}
+function copiarExport(){const t=$("#expTxt");t.focus();t.select();
+  const ok=()=>toast("📋 Código copiado! Agora cole no site publicado."),falha=()=>{t.select();toast("Selecionei o código: use Copiar do seu celular.")};
+  try{navigator.clipboard.writeText(t.value).then(ok,()=>{try{document.execCommand("copy")?ok():falha()}catch(e){falha()}})}catch(e){try{document.execCommand("copy")?ok():falha()}catch(_){falha()}}}
+let IMP=null;
+async function conferirImportMerc(){const box=$("#impBox");
+  try{IMP=lerCodigo($("#impTxt").value)}catch(e){box.innerHTML=`<div class="erro" style="display:block">${esc(e.message)}</div>`;return}
+  const [a,b]=await Promise.all([db.from("mercado_produtos").select("*"),db.from("empresas").select("id,nome,ramo")]);
+  if(a.error){box.innerHTML=`<div class="erro" style="display:block">${esc(traduzErro(a.error))}</div>`;return}
+  const chave=t=>String(t||"").trim().toLowerCase(),ex=new Set((a.data||[]).map(p=>chave(p.nome))),emps=new Set((b.data||[]).map(e=>chave(e.nome)));
+  const novos=IMP.produtos.filter(p=>!ex.has(chave(p.nome))),iguais=IMP.produtos.length-novos.length,mNovos=IMP.mercados.filter(m=>!emps.has(chave(m.nome)));
+  box.innerHTML=`<div class="aviso" style="margin-top:10px"><b>Vai trazer:</b><br>
+    • ${novos.length} produto${novos.length===1?"":"s"} novo${novos.length===1?"":"s"}${novos.length?": "+novos.map(p=>esc(p.nome)).join(", "):""}<br>
+    • ${iguais} produto${iguais===1?"":"s"} que já existe${iguais===1?"":"m"} (atualiza medida, ícone e foto)<br>
+    • ${IMP.mercados.length} mercado${IMP.mercados.length===1?"":"s"}${IMP.mercados.length?": "+IMP.mercados.map(m=>esc(m.nome)+(emps.has(chave(m.nome))?" (já existe: só preços e promoções)":" (novo)")).join(", "):""}</div>
+    <button class="btn ouro" type="button" id="impBtn" onclick="importarMerc()">📥 Trazer agora</button>`}
+function dataUrlBlob(u){const [cab,b64]=u.split(","),tipo=(cab.match(/data:([^;]+)/)||[])[1]||"image/jpeg",bin=atob(b64),arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);return new Blob([arr],{type:tipo})}
+async function fotoImport(u,pref){if(!u)return null;if(/^https:\/\//.test(u)||/^img\/produtos\/[a-z0-9-]+\.(png|jpg|webp)$/.test(u))return u;
+  if(!/^data:image\//.test(u))return null;const b=dataUrlBlob(u),nome=`${user.id}/${pref}-${Date.now()}-${Math.random().toString(36).slice(2,6)}.jpg`;
+  const {error}=await db.storage.from("fotos").upload(nome,b,{contentType:b.type||"image/jpeg",upsert:false});if(error)throw error;return db.storage.from("fotos").getPublicUrl(nome).data.publicUrl}
+async function importarMerc(){if(!IMP)return;const b=$("#impBtn");b.disabled=true;b.textContent="⏳ Trazendo…";const log=[];
+  try{const chave=t=>String(t||"").trim().toLowerCase();
+    const {data:ps,error:e1}=await db.from("mercado_produtos").select("*");if(e1)throw e1;const porNome={};(ps||[]).forEach(p=>porNome[chave(p.nome)]=p);
+    let ordem=Math.max(0,...(ps||[]).map(p=>Number(p.ordem)||0));
+    for(const p of IMP.produtos){const foto=await fotoImport(p.foto_url,"produto"),ja=porNome[chave(p.nome)];
+      if(ja){const c={detalhe:p.detalhe,emoji:p.emoji};if(foto)c.foto_url=foto;const {error}=await db.from("mercado_produtos").update(c).eq("id",ja.id);if(error)throw error}
+      else{const {data,error}=await db.from("mercado_produtos").insert({nome:String(p.nome).slice(0,60),detalhe:p.detalhe,emoji:p.emoji,foto_url:foto,ordem:Math.min(999,++ordem),ativo:p.ativo!==false}).select().single();if(error)throw error;porNome[chave(p.nome)]=data;log.push("produto "+p.nome)}}
+    const {data:es,error:e2}=await db.from("empresas").select("id,nome,ramo");if(e2)throw e2;
+    for(const m of IMP.mercados){let emp=(es||[]).find(e=>chave(e.nome)===chave(m.nome));
+      if(!emp){const logo=await fotoImport(m.logo_url,"logo");const {data,error}=await db.from("empresas").insert({nome:String(m.nome).slice(0,80),ramo:"Mercado",whatsapp:m.whatsapp,endereco:m.endereco,logo_url:logo,plano:["basico","destaque","premium"].includes(m.plano)?m.plano:"basico",aprovada:true}).select().single();if(error)throw error;emp=data;log.push("mercado "+m.nome)}
+      else if(emp.ramo!=="Mercado"){log.push("⚠️ "+m.nome+" existe mas não é do ramo Mercado: preços não trazidos");continue}
+      const linhas=Object.entries(m.precos||{}).map(([n,v])=>({p:porNome[chave(n)],v:+v})).filter(x=>x.p&&x.v>0&&x.v<10000).map(x=>({empresa_id:emp.id,produto_id:x.p.id,semana:semanaMerc(),preco:x.v}));
+      if(linhas.length){const {error}=await db.from("mercado_precos").upsert(linhas,{onConflict:"empresa_id,produto_id,semana"});if(error)throw error;log.push(linhas.length+" preços de "+m.nome)}
+      const {data:jaP}=await db.from("mercado_promos").select("nome").eq("empresa_id",emp.id);const tem=new Set((jaP||[]).map(q=>chave(q.nome)));let vagas=5-(jaP||[]).length;
+      for(const q of m.promos||[]){if(vagas<=0||tem.has(chave(q.nome)))continue;const foto=await fotoImport(q.foto_url,"promo");
+        const {error}=await db.from("mercado_promos").insert({empresa_id:emp.id,nome:String(q.nome).slice(0,60),detalhe:q.detalhe,preco:q.preco,preco_de:q.preco_de&&q.preco_de>q.preco?q.preco_de:null,valido_ate:q.valido_ate,foto_url:foto});if(error)throw error;vagas--;log.push("promoção "+q.nome)}}
+    IMP=null;toast("✅ Trazido da prévia!");await telaMercadoAdm();
+    const box=$("#impBox");if(box)box.innerHTML=`<div class="aviso" style="margin-top:10px">✅ <b>Pronto!</b> ${log.length?esc(log.join(" · ")):"Tudo já estava igual."}</div>`}
+  catch(e){b.disabled=false;b.textContent="📥 Trazer agora";toast(traduzErro(e));const box=$("#impBox");if(box)box.insertAdjacentHTML("beforeend",`<div class="erro" style="display:block">${esc(traduzErro(e))}${log.length?"<br>Já trazido: "+esc(log.join(", ")):""}</div>`)}}
 async function salvarProdMerc(id,campos){
   if(DEMO){const l=prodDemo(),p=l.find(x=>String(x.id)===String(id));if(p)Object.assign(p,campos);store.set("vc_demo_merc_produtos",l)}
   else{const {error}=await db.from("mercado_produtos").update(campos).eq("id",id);if(error){toast(traduzErro(error));return}}

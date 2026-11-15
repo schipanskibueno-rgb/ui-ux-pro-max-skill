@@ -8,6 +8,9 @@
 <link rel="icon" type="image/png" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>/* erros da página (lidos pelo mockup de testes) e, só dentro do mockup, confirmações automáticas */
+window.__erros=[];addEventListener("error",function(e){try{window.__erros.push(String(e.message||e))}catch(_){}});
+try{if(window.parent!==window&&window.parent.__VITRINE_MOCKUP){window.confirm=function(){return true};window.prompt=function(m,d){return d!=null&&d!==""?d:"EXCLUIR"}}}catch(e){}</script>
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
 <style>
