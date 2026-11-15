@@ -99,7 +99,7 @@ create index if not exists ofertas_empresa on public.ofertas(empresa_id);
 -- Destaque/banner só admin + limite de ofertas ativas por plano
 create or replace function public.protege_oferta() returns trigger
 language plpgsql security definer set search_path = public as $$
-declare pl text; lim int; qtd int;
+declare pl text; rm text; lim int; qtd int;
 begin
   if not public.is_admin() then
     if tg_op = 'UPDATE' then new.empresa_id := old.empresa_id; end if;
@@ -113,10 +113,11 @@ begin
     end if;
   end if;
   if new.ativa then
-    select plano into pl from public.empresas where id = new.empresa_id;
-    lim := case pl when 'basico' then 1 when 'destaque' then 3 else 1000 end;
+    select plano, ramo into pl, rm from public.empresas where id = new.empresa_id;
+    lim := case when rm = 'Mercado' then 1 when pl = 'basico' then 1 when pl = 'destaque' then 3 else 1000 end;   -- mercado: 1 oferta na página principal
     select count(*) into qtd from public.ofertas where empresa_id = new.empresa_id and ativa and id <> new.id;
     if qtd >= lim then
+      if rm = 'Mercado' then raise exception 'O mercado tem 1 oferta na página principal. Pause a oferta atual para colocar outra.'; end if;
       raise exception 'Seu plano permite % oferta(s) ativa(s) ao mesmo tempo. Pause outra oferta ou mude de plano.', lim;
     end if;
   end if;

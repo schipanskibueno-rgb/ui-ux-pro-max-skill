@@ -87,6 +87,20 @@ textarea.inp{min-height:90px;resize:vertical}
 .demo-aviso{background:#000;color:#F3E3B5;border-radius:14px;padding:10px 14px;font-size:.85rem;margin-bottom:14px}
 .demo-aviso b{color:#D4A537}
 .perfil-loja{display:flex;align-items:center;gap:14px}
+.mp-topo{display:flex;flex-wrap:wrap;align-items:center;gap:12px}.mp-topo>.btn{flex-basis:100%}
+.mp-logo{width:96px;height:64px;border-radius:12px;background:#fff;border:1.5px solid #e6dcc0;display:grid;place-items:center;font-size:2rem;overflow:hidden;flex-shrink:0}
+.mp-logo img{width:100%;height:100%;object-fit:contain;padding:4px}
+.mp-id{flex:1;min-width:0}.mp-id small{display:block;font-size:.7rem;font-weight:800;letter-spacing:.08em;color:#9a7414}.mp-id h2{margin:2px 0 4px;font-size:1.2rem}
+.mp-passos{display:grid;gap:8px;margin:0 0 14px}
+.mp-passo{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font:inherit;color:inherit;background:#fff;border:1.5px solid #e6dcc0;border-radius:14px;padding:10px 12px;min-height:56px;cursor:pointer}
+.mp-passo .n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:#f3ecd8;flex-shrink:0}
+.mp-passo.ok{border-color:#9bd8b2;background:#f1fbf4}.mp-passo.ok .n{background:#13a049;color:#fff}
+.mp-passo .tx b{display:block;font-size:.92rem}.mp-passo .tx small{display:block;font-size:.78rem;color:var(--txt-3)}
+.mp-sub{margin:-4px 0 12px}
+.mo-card{display:flex;gap:12px;align-items:center;border:1.5px solid #efe8d4;border-radius:14px;padding:10px}
+.mo-card img,.mo-card .mo-sem{width:84px;height:84px;border-radius:10px;object-fit:cover;flex-shrink:0;background:#fff8e6;display:grid;place-items:center;font-size:2rem}
+.mo-card .tx{flex:1;min-width:0}.mo-card .tx b{display:block}.mo-card .tx small{display:block;color:var(--txt-2);font-size:.82rem;margin:2px 0 6px}
+.mp-hero-ic{width:84px;height:84px;margin:0 auto;border-radius:22px;display:grid;place-items:center;font-size:2.6rem;background:linear-gradient(135deg,#F2CC63,#D4A537)}
 .merc-lin{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid #efe8d4}
 .merc-lin .emo{font-size:1.6rem;width:40px;height:40px;object-fit:contain;text-align:center;flex-shrink:0;background:#fff;border-radius:6px}
 .merc-lin label{flex:1;min-width:0;margin:0!important;font-weight:400}.merc-lin label b{display:block;font-size:.92rem}.merc-lin label small{display:block;font-size:.76rem;color:var(--txt-3)}
@@ -321,9 +335,9 @@ function telaSouAdmin(){$("#main").innerHTML=`<div class="card" style="text-alig
 async function iniciar(){
   if(DEMO){empresa=store.get("vc_demo_emp",null);lojas=store.get("vc_demo_lojas",[]).map(x=>x.emp);$("#btnSair").classList.toggle("escondido",!empresa);$("#btnSair").textContent="Recomeçar";
     if(location.hash==="#nova"){history.replaceState(null,"",location.pathname);novaLoja();return}
-    if(!empresa){if(lojas.length){voltarLojas();return}location.hash==="#participar"?telaCadastroEmpresa():telaBoasVindas();return}await carregarOfertas();telaPainel();return}
+    if(!empresa){if(lojas.length){voltarLojas();return}location.hash==="#mercado"?telaBoasVindasMercado():location.hash==="#participar"?telaCadastroEmpresa():telaBoasVindas();return}await carregarOfertas();telaPainel();return}
   const {data:{session}}=await db.auth.getSession();
-  if(!session){location.hash==="#entrar"?telaLogin("entrar"):location.hash==="#participar"?telaLogin("criar"):telaBoasVindas();return}
+  if(!session){location.hash==="#entrar"?telaLogin("entrar"):location.hash==="#mercado"?telaBoasVindasMercado():location.hash==="#participar"?telaLogin("criar"):telaBoasVindas();return}
   user=session.user;$("#btnSair").classList.remove("escondido");
   const [{data:emps},{data:adm}]=await Promise.all([db.from("empresas").select("*").eq("dono",user.id).order("criado_em"),db.from("admins").select("user_id").eq("user_id",user.id).maybeSingle()]);
   lojas=emps||[];admin=!!adm;const atual=store.get("vc_loja_atual","");
@@ -339,7 +353,7 @@ function barraLojas(){if(!multiLoja())return"";
   const ops=DEMO?[`<option value="atual" selected>${esc(empresa.nome)}</option>`,...lojas.map((l,i)=>`<option value="${i}">${esc(l.nome)}</option>`)]
     :lojas.map(l=>`<option value="${esc(l.id)}" ${l.id===empresa.id?"selected":""}>${esc(l.nome)}${l.aprovada?"":" (em análise)"}</option>`);
   return `<div class="troca-loja"><span class="rot">Loja</span><select aria-label="Escolher a loja" onchange="trocarLoja(this.value)">${ops.join("")}</select><button onclick="novaLoja()">➕ Nova loja</button></div>`}
-async function trocarLoja(v){ABA="resultados";
+async function trocarLoja(v){ABA="resultados";ABA_M="mercado";MERC_EMP=null;
   if(DEMO){if(v==="atual")return;const arq=store.get("vc_demo_lojas",[]),i=+v,esc_=arq[i];if(!esc_)return;
     arq.splice(i,1,{emp:store.get("vc_demo_emp",null),ofertas:store.get("vc_demo_ofertas",[])});store.set("vc_demo_lojas",arq);
     store.set("vc_demo_emp",esc_.emp);store.set("vc_demo_ofertas",esc_.ofertas||[]);await iniciar();return}
@@ -389,7 +403,7 @@ function telaCadastroEmpresa(){const plano=store.get("vc_plano_desejado","basico
   const outra=multiLoja()&&lojas.length>0;
   $("#main").innerHTML=`${DEMO?avisoDemo():""}${outra?`<button class="btn claro" style="margin-bottom:12px" onclick="voltarLojas()">← Voltar para as minhas lojas</button>`:""}
   ${admin&&!DEMO?`<div class="aviso">👑 <b>Cadastro pelo ADM:</b> esta loja fica separada das outras, já entra <b>aprovada</b> e com o plano que você marcar abaixo.</div>`:outra?`<div class="aviso">🏪 <b>Nova loja:</b> ela fica separada das outras. Para voltar a uma loja, use o seletor "Loja" no painel.</div>`:""}
-  ${outra?"":progresso(2)}${planoEscolhidoHTML()}<div class="card"><h2>🏪 Dados ${outra||admin?"da loja":"da sua loja"}</h2><p class="sub">${DEMO?"":"Passo 2 de 3. "}Leva 1 minuto. É assim que os clientes vão ver sua loja.</p>
+  ${outra?"":progresso(2)}${planoEscolhidoHTML()}<div class="card"><h2>${store.get("vc_ramo_desejado","")==="Mercado"?"🛒 Dados do mercado":"🏪 Dados "+(outra||admin?"da loja":"da sua loja")}</h2><p class="sub">${DEMO?"":"Passo 2 de 3. "}Leva 1 minuto. É assim que os clientes vão ver sua loja.</p>
   <form onsubmit="salvarEmpresa(event)">${formEmpresa()}
    <label style="margin-top:16px">Qual plano você quer?</label>
    ${PLANOS_VENDA.map(p=>`<label class="opc-plano"><input type="radio" name="ePlano" value="${p.id}" ${p.id===plano?"checked":""} onchange="trocouPlano(this.value)"><span>${p.nome} – ${p.preco}/mês<small>🎁 3 meses grátis · ${p.resumo}</small></span></label>`).join("")}
@@ -417,7 +431,38 @@ function editarEmpresa(){abrirSheet(`<h2 style="margin-top:8px">Dados da loja</h
 function avisoDemo(){return `<div class="demo-aviso"><b>Modo demonstração.</b> O que você postar fica só neste celular e aparece no app deste aparelho. Para valer para todos, preencha o config.js com o Supabase.</div>`}
 function venceu(o){return o.validade&&new Date(o.validade+"T23:59:59")<new Date()}
 let ABA="resultados";
+// ===== ÁREA DO MERCADO: painel simples para lojas do ramo Mercado =====
+let ABA_M="mercado";
+function passosMerc(){const ok1=!!seguro(empresa.logo_url),ok2=!!(MERC_EMP&&MERC_EMP.quando),ok3=ofertas.some(o=>o.ativa&&!venceu(o));
+  return [[ok1,"Logo do mercado","Aparece na página principal e na tabela","editarEmpresa()"],[ok2,"Preços da semana","Preencha uma vez por semana","ABA_M='mercado';telaPainel()"],[ok3,"Oferta na página principal","1 oferta com foto","ABA_M='oferta';telaPainel()"]]
+    .map(([ok,t,d,f],i)=>`<button type="button" class="mp-passo${ok?" ok":""}" onclick="${f}"><span class="n">${ok?"✓":i+1}</span><span class="tx"><b>${t}</b><small>${ok?"Feito":d}</small></span></button>`).join("")}
+function telaPainelMercado(){
+  const whatsAdm=((window.CONFIG&&CONFIG.WHATSAPP)||"").replace(/\D/g,""),pl=PLANOS[empresa.plano]||PLANOS.basico,lg=seguro(empresa.logo_url);
+  const abas=[["mercado","🛒 Tabela de preços"],["oferta","🏷️ Minha oferta"],["promos","🔥 Promoções"],["mais","⋯ Mais"]];
+  if(!abas.some(a=>a[0]===ABA_M))ABA_M="mercado";
+  if(ABA_M==="mais"&&!["resultados","confirmar","brindes","plano"].includes(ABA))ABA="resultados";
+  $("#main").innerHTML=`${DEMO?avisoDemo():""}${barraLojas()}
+  ${empresa.aprovada?"":`<div class="aviso">⏳ <b>Seu mercado está em análise.</b> Já pode preencher os preços; eles aparecem no app assim que o mercado for aprovado.${whatsAdm?` <a href="https://wa.me/${whatsAdm}?text=${encodeURIComponent("Olá! Cadastrei o mercado "+empresa.nome+" na Área do Mercado do Vitrine Castro.")}" target="_blank" rel="noopener">Avisar pelo WhatsApp</a>`:""}</div>`}
+  <div class="card mp-topo"><div class="mp-logo">${lg?`<img src="${esc(empresa.logo_url)}" alt="Logo ${esc(empresa.nome)}">`:"🛒"}</div>
+   <div class="mp-id"><small>ÁREA DO MERCADO</small><h2>${esc(empresa.nome)}</h2><span class="status ${empresa.aprovada?"ok":"pend"}">${empresa.aprovada?"✓ Aprovado":"Em análise"}</span>${DEMO?"":` <span class="status pausa">Plano ${pl.nome}</span>`}</div>
+   <button class="btn claro" onclick="editarEmpresa()">✏️ Editar dados e logo</button></div>
+  <div class="mp-passos" id="mpPassos">${passosMerc()}</div>
+  <div class="abas-p" role="tablist">${abas.map(([k,n])=>`<button role="tab" aria-selected="${ABA_M===k}" onclick="ABA_M='${k}';telaPainel()">${n}</button>`).join("")}</div>
+  ${ABA_M==="mais"?`<div class="chips mp-sub">${[["resultados","📊 Resultados"],["confirmar","✅ Confirmar compra"],["brindes","🎁 Brindes"],["plano","💼 Meu plano"]].map(([k,n])=>`<button type="button" aria-pressed="${ABA===k}" onclick="ABA='${k}';telaPainel()">${n}</button>`).join("")}</div>`:""}
+  <div id="abaBox"></div><div id="admBox"></div>`;
+  if(ABA_M==="mercado"||ABA_M==="promos")abaMercado();
+  else if(ABA_M==="oferta")abaOfertaMerc();
+  else ({resultados:abaResultados,confirmar:abaConfirmar,brindes:abaBrindes,plano:abaPlano})[ABA]();
+  if(ABA_M!=="mercado"&&ABA_M!=="promos"&&!MERC_EMP)dadosMercadoEmp().then(d=>{MERC_EMP=d;const x=$("#mpPassos");if(x)x.innerHTML=passosMerc()}).catch(()=>{})}
+function abaOfertaMerc(){const o=ofertas.find(x=>x.ativa&&!venceu(x))||ofertas[0];
+  $("#abaBox").innerHTML=`<div class="card"><h2>🏷️ Sua oferta na página principal</h2>
+   <p class="sub">O mercado tem <b>1 oferta</b> no app. Ela aparece nas ofertas da página principal, e a <b>logo do mercado</b> aparece nas lojas parceiras. Para trocar a oferta, é só editar esta.</p>
+   ${o?`<div class="mo-card">${seguro(o.foto_url)?`<img src="${esc(o.foto_url)}" alt="">`:`<span class="mo-sem">🏷️</span>`}<div class="tx"><b>${esc(o.titulo)}</b><small>${esc(o.descricao||"")}</small>
+      <span class="status ${o.ativa&&!venceu(o)?"ok":"pausa"}">${venceu(o)?"Vencida":o.ativa?"✓ No ar":"Pausada"}</span></div></div>
+     <div class="linha" style="margin-top:10px"><button class="btn" onclick="novoPost('${esc(o.id)}')">✏️ Editar oferta</button><button class="btn claro" onclick="pausar('${esc(o.id)}',${!o.ativa})">${o.ativa?"⏸ Pausar":"▶️ Pôr no ar"}</button></div>`
+    :`<button class="postar" onclick="novoPost()"><span class="mais" aria-hidden="true">+</span><span><b>Criar minha oferta</b><small>Uma foto e o desconto. Leva 30 segundos.</small></span></button>`}</div>`}
 function telaPainel(){
+  if(empresa&&empresa.ramo==="Mercado")return telaPainelMercado();
   const pl=PLANOS[empresa.plano]||PLANOS.basico,ativas=ofertas.filter(o=>o.ativa&&!venceu(o)).length;
   const whatsAdm=((window.CONFIG&&CONFIG.WHATSAPP)||"").replace(/\D/g,"");
   $("#main").innerHTML=`${DEMO?avisoDemo():""}${barraLojas()}
@@ -473,7 +518,7 @@ async function abaMercado(){const box=$("#abaBox");box.innerHTML=`<div class="va
   try{MERC_EMP=await dadosMercadoEmp()}catch(err){box.innerHTML=`<div class="aviso">${esc(err.message||String(err))}</div>`;return}
   const D=MERC_EMP,temPassada=Object.keys(D.passada).length>0,temAtual=Object.keys(D.atual).length>0;
   box.innerHTML=`${empresa.aprovada||DEMO?"":`<div class="aviso">⏳ Seus preços aparecem no Vitrine Mercado assim que a loja for aprovada.</div>`}
-   <div class="card"><h2>🛒 Preços da semana</h2>
+   <div class="card" id="cardPrecos"><h2>🛒 Preços da semana</h2>
     <p class="sub">Semana de <b>${faixaSemana()}</b>. ${D.quando?`<span style="color:#0d6b31;font-weight:700">✓ Você atualizou em ${ddmm(String(D.quando).slice(0,10))}.</span>`:`<span style="color:#a35b00;font-weight:700">⏳ Falta atualizar esta semana.</span>`}</p>
     <p class="ajuda">Coloque o preço de cada produto <b>uma vez por semana</b> (pode corrigir até domingo). Deixe em branco o que você não vende. O app mostra a <b>coroa 👑</b> para o mercado mais barato de cada produto.</p>
     ${temPassada&&!temAtual?`<button class="btn claro" type="button" onclick="copiarSemanaPassada()" style="margin-bottom:10px">📋 Copiar os preços da semana passada</button>`:""}
@@ -481,7 +526,7 @@ async function abaMercado(){const box=$("#abaBox");box.innerHTML=`<div class="va
      ${D.prods.map(p=>{const v=D.atual[p.id],pa=D.passada[p.id];const fu=/^(data:image\/|https:\/\/)/.test(p.foto_url||"")||/^img\/produtos\/[a-z0-9-]+\.(png|jpg|webp)$/.test(p.foto_url||"")?p.foto_url:"";return `<div class="merc-lin">${fu?`<img class="emo" src="${esc(fu)}" alt="" loading="lazy">`:`<span class="emo" aria-hidden="true">${esc(p.emoji||"🛒")}</span>`}<label for="mp_${esc(p.id)}"><b>${esc(p.nome)}</b><small>${esc(p.detalhe||"")}${pa!=null?` · semana passada ${reaisBR(pa)}`:""}</small></label>
        <div class="merc-rs"><span>R$</span><input class="inp" id="mp_${esc(p.id)}" data-prod="${esc(p.id)}" inputmode="decimal" autocomplete="off" maxlength="9" placeholder="${pa!=null?esc(String(pa.toFixed(2)).replace(".",",")):"0,00"}" value="${v!=null?esc(v.toFixed(2).replace(".",",")):""}"></div></div>`}).join("")}
      <div class="erro" id="mpErro"></div><button class="btn ouro" id="mpBtn">💾 Salvar preços da semana</button></form></div>
-   <div class="card"><h2>🔥 Promoções do mercado <small style="font-size:.8rem;color:var(--txt-3)">(${D.promos.length} de 5)</small></h2>
+   <div class="card" id="cardPromos"><h2>🔥 Promoções do mercado <small style="font-size:.8rem;color:var(--txt-3)">(${D.promos.length} de 5)</small></h2>
     <p class="sub">Até <b>5 produtos em promoção</b> aparecem na página do seu mercado, fora da tabela.</p>
     ${D.promos.map((q,i)=>`<div class="merc-promo"><span class="ft">${/^(data:image\/|https:\/\/)/.test(q.foto_url||"")?`<img src="${esc(q.foto_url)}" alt="">`:"🏷️"}</span><span class="tx"><b>${esc(q.nome)}</b><small>${q.detalhe?esc(q.detalhe)+" · ":""}${q.preco_de?`<s>${reaisBR(q.preco_de)}</s> `:""}<b style="color:#0d6b31">${reaisBR(q.preco)}</b>${q.valido_ate?` · até ${ddmm(q.valido_ate)}`:""}</small></span>
       <button class="mini vm" type="button" onclick="apagarPromoMerc('${esc(q.id||String(i))}')" aria-label="Apagar ${esc(q.nome)}">🗑</button></div>`).join("")}
@@ -491,7 +536,9 @@ async function abaMercado(){const box=$("#abaBox");box.innerHTML=`<div class="va
      <div class="linha"><div><label for="qPor">Preço promoção</label><input class="inp" id="qPor" inputmode="decimal" required placeholder="Ex: 39,90"></div><div><label for="qDe">Preço normal (opcional)</label><input class="inp" id="qDe" inputmode="decimal" placeholder="Ex: 49,90"></div></div>
      <label for="qAte">Válida até (opcional)</label><input class="inp" id="qAte" type="date" min="${isoDia(new Date())}">
      <label class="foto-btn">📷 Foto do produto (opcional)<input type="file" accept="image/*" id="qFoto"></label>
-     <div class="erro" id="qErro"></div><button class="btn ouro" id="qBtn">➕ Adicionar promoção</button></form>`:`<p class="ajuda">Você já tem 5 promoções. Apague uma para colocar outra.</p>`}</div>`}
+     <div class="erro" id="qErro"></div><button class="btn ouro" id="qBtn">➕ Adicionar promoção</button></form>`:`<p class="ajuda">Você já tem 5 promoções. Apague uma para colocar outra.</p>`}</div>`;
+  if(ABA_M==="promos"){const c=$("#cardPrecos");if(c)c.remove()}else{const c=$("#cardPromos");if(c)c.remove()}
+  const pp=$("#mpPassos");if(pp)pp.innerHTML=passosMerc()}
 function copiarSemanaPassada(){const D=MERC_EMP;if(!D)return;document.querySelectorAll("[data-prod]").forEach(i=>{const v=D.passada[i.dataset.prod];if(v!=null&&!i.value)i.value=v.toFixed(2).replace(".",",")});toast("Preços copiados. Confira e toque em Salvar.")}
 async function salvarPrecosSemana(){const b=$("#mpBtn"),err=$("#mpErro");err.style.display="none";const sem=semanaISO(),grava=[],apaga=[];
   for(const i of document.querySelectorAll("[data-prod]")){const v=lerPreco(i.value),pid=i.dataset.prod;
@@ -523,6 +570,7 @@ async function apagarPromoMerc(id){if(!confirm("Apagar esta promoção?"))return
 // ===== POSTAR / EDITAR (fluxo estilo Instagram: foto → legenda → desconto → publicar) =====
 let RASC=null;
 function novoPost(id){
+  if(!id&&empresa&&empresa.ramo==="Mercado"){const at=ofertas.find(x=>x.ativa&&!venceu(x));if(at){toast("O mercado tem 1 oferta na página principal. Abrindo a sua para editar.");id=at.id}}
   const o=ofertas.find(x=>x.id===id);
   const rascunho=!o&&store.get("vc_rascunho",null);
   RASC=o?{id:o.id,entrega:o.entrega||"sim",titulo:o.titulo,descricao:o.descricao,validade:o.validade||null,categoria:o.categoria,regras:o.regras||"",economia:o.economia||"",fotoUrl:o.foto_url||"",foto:null,prazo:o.validade?"data":"sem",banner:!!o.banner,topo:o.banner_topo||"",precoDe:o.preco_de||null,precoPor:o.preco_por||null,porManual:!!o.preco_por,limite:o.limite_cupons||"",umPorCliente:o.um_por_cliente!==false,dias:o.dias||"",horaIni:String(o.hora_ini||"").slice(0,5),horaFim:String(o.hora_fim||"").slice(0,5),inicia:o.inicia_em||""}
@@ -696,6 +744,20 @@ function trocouPlano(id){store.set("vc_plano_desejado",id);const e=$("#planoEsc"
 function progresso(n){const p=DEMO?["Sua loja","Pronto"]:["Conta","Sua loja","Pronto"],at=DEMO?n-1:n;
   return `<div class="prog" aria-label="Passo ${at} de ${p.length}">${p.map((t,i)=>`<div class="${i<at?"on":""}">${t}</div>`).join("")}</div>`}
 function irCadastro(plano){if(plano)store.set("vc_plano_desejado",plano);window.scrollTo(0,0);DEMO?telaCadastroEmpresa():telaLogin("criar")}
+function telaBoasVindasMercado(){store.set("vc_ramo_desejado","Mercado");
+  $("#btnSair").classList.add("escondido");
+  $("#main").innerHTML=`${DEMO?avisoDemo():""}
+  <div class="lp-hero"><div class="mp-hero-ic" aria-hidden="true">🛒</div>
+   <h2>Área do Mercado<br><span>Vitrine Mercado</span></h2>
+   <p>Coloque seu mercado na tabela de preços que os moradores de Castro consultam toda semana. Sua logo aparece na página principal do app.</p>
+   <button class="btn ouro" onclick="irCadastro()">Cadastrar meu mercado</button>
+   <button class="btn claro" onclick="${DEMO?"irCadastro()":"telaLogin('entrar')"}">Já tenho conta – Entrar</button></div>
+  <h3 class="lp-t">Como funciona</h3>
+  <div class="lp-passos">
+   <div><i>🏪</i><span><b>1. Cadastre o mercado</b><small>Nome, WhatsApp, endereço e logo. Leva 1 minuto.</small></span></div>
+   <div><i>🛒</i><span><b>2. Preencha a tabela de preços</b><small>Uma vez por semana. O app mostra a coroa 👑 para o mais barato de cada produto.</small></span></div>
+   <div><i>🏷️</i><span><b>3. Coloque 1 oferta e até 5 promoções</b><small>A oferta aparece na página principal; as promoções, na página do seu mercado.</small></span></div>
+  </div>`}
 function telaBoasVindas(){
   $("#btnSair").classList.add("escondido");
   const wa=((window.CONFIG&&CONFIG.WHATSAPP)||"").replace(/\D/g,"");
@@ -752,7 +814,7 @@ function telaSucessoCadastro(){const wa=((window.CONFIG&&CONFIG.WHATSAPP)||"").r
   $("#btnSair").classList.remove("escondido");
   $("#main").innerHTML=`${progresso(3)}<div class="card sucesso"><div class="ok" aria-hidden="true">✅</div><h2>Cadastro feito!</h2>
    <p class="sub">${empresa.aprovada?"Sua loja já está no ar.":"Sua loja está <b>em análise</b>. Vamos conferir os dados e liberar rapidinho."} Plano escolhido: <b>${pl.nome} (${pl.preco}/mês)</b>.</p>
-   <button class="btn ouro" onclick="ABA='posts';carregarOfertas().then(()=>{telaPainel();novoPost()})">📸 Postar minha primeira oferta</button>
+   ${empresa.ramo==="Mercado"?`<button class="btn ouro" onclick="ABA_M='mercado';carregarOfertas().then(telaPainel)">🛒 Preencher a tabela de preços</button>`:`<button class="btn ouro" onclick="ABA='posts';carregarOfertas().then(()=>{telaPainel();novoPost()})">📸 Postar minha primeira oferta</button>`}
    ${wa?`<a class="btn" style="background:linear-gradient(#2fd36b,#13a049)" href="https://wa.me/${wa}?text=${encodeURIComponent(`Olá! Cadastrei a loja ${empresa.nome} no Vitrine Castro e quero ativar o plano ${pl.nome} (${pl.preco}/mês).`)}" target="_blank" rel="noopener">💬 Ativar meu plano pelo WhatsApp</a>`:""}
    <button class="btn claro" onclick="ABA='resultados';carregarOfertas().then(telaPainel)">Ir para o meu painel</button></div>`}
 

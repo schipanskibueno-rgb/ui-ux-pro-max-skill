@@ -511,6 +511,8 @@ body.travado{overflow:hidden}
 .chamada-merc{display:flex;align-items:center;gap:12px;width:100%;font:inherit;text-align:left;cursor:pointer;min-height:64px;margin:4px 0 14px;padding:10px 14px;border-radius:var(--raio-g);border:1.5px solid var(--ouro);background:radial-gradient(130% 160% at 0% 0%,#2b2210 0%,#000 60%);color:#fff}
 .chamada-merc .cm-ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,var(--ouro-2),var(--ouro));color:#000;flex-shrink:0}
 .chamada-merc .cm-tx{flex:1;min-width:0}.chamada-merc .cm-tx b{display:block;font-size:1rem;color:var(--ouro-2)}.chamada-merc .cm-tx small{display:block;font-size:.82rem;color:#ddd}
+.chamada-merc .cm-logos{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.chamada-merc .cm-lg{width:54px;height:30px;border-radius:6px;background:#fff;display:grid;place-items:center;overflow:hidden;padding:2px}.chamada-merc .cm-lg img{max-width:100%;max-height:100%;object-fit:contain}
 .chamada-merc .cm-tag{font-size:.66rem;font-weight:800;background:var(--verde);color:#fff;border-radius:999px;padding:3px 7px}
 .chamada-merc>.ic:last-child{color:var(--ouro)}
 .merc-cab{background:radial-gradient(130% 150% at 0% 0%,#2b2210 0%,#000 58%);color:#fff;border-radius:var(--raio-g);padding:14px;margin:12px 0;border:1px solid rgba(212,165,55,.5)}
@@ -641,7 +643,7 @@ body.travado{overflow:hidden}
   <div class="secao"><h2><span data-ic="store"></span>Lojas parceiras</h2><button class="link" onclick="ir('empresas')">Ver todas<span data-ic="chev"></span></button></div>
   <div class="lojas-home" id="lojasHome"></div>
   <div class="atalhos" id="atalhos" aria-label="Atalhos"></div>
-  <button class="chamada-merc" onclick="ir('mercado')" aria-label="Vitrine Mercado: compare os preços dos supermercados de Castro"><span class="cm-ic" data-ic="merc"></span><span class="cm-tx"><b>Vitrine Mercado</b><small>Compare os preços dos supermercados de Castro</small></span><span class="cm-tag">NOVO</span><span data-ic="chev"></span></button>
+  <button class="chamada-merc" onclick="ir('mercado')" aria-label="Vitrine Mercado: compare os preços dos supermercados de Castro"><span class="cm-ic" data-ic="merc"></span><span class="cm-tx"><b>Vitrine Mercado</b><small>Compare os preços dos supermercados de Castro</small><span class="cm-logos" id="cmLogos" hidden></span></span><span class="cm-tag">NOVO</span><span data-ic="chev"></span></button>
   <button class="pts-mini" id="ptsHome" onclick="ir('pontos')" aria-label="Meus pontos"></button>
   <div id="relampagoBox"></div>
   <div class="secao"><h2><span data-ic="fire"></span>Ofertas em destaque</h2><button class="link" onclick="filtrarCat(null)">Ver todas<span data-ic="chev"></span></button></div>
@@ -977,7 +979,7 @@ function render(){
    `<button class="slide" onclick="clicBanner(${i})" aria-label="Anuncie sua loja aqui"><span class="grande" aria-hidden="true">${ic("crown",88)}</span><div class="tx"><span class="pat">ESPAÇO PATROCINADO</span><div><div class="nm" style="font-size:1.2rem">Sua loja aqui!</div><div class="sb">Apareça para toda Castro no topo do app</div></div><span class="cta">Quero anunciar ›</span></div></button>`:
    `<button class="slide" onclick="clicBanner(${i})" aria-label="${esc(b.nome)}: ${esc(b.oferta)}. Patrocinado"><img class="foto" src="${b.foto}" alt=""><span class="ov"></span><div class="tx"><span class="pat">PATROCINADO</span><div class="lg"><span class="av">${b.logo?`<img src="${b.logo}" alt="">`:b.emoji}</span><div><div class="nm">${esc(b.nome)}</div><div class="sb">${esc(b.sub)}</div></div></div><div class="oft"><small>${b.topo}</small>${b.oferta}</div><span class="cta">Ver oferta ›</span></div></button>`).join("");
   $("#dots").innerHTML=BANNERS.map((_,i)=>`<button class="${i===slide?"on":""}" onclick="irSlide(${i})" aria-label="Destaque ${i+1}"><i></i></button>`).join("");
-  renderTopo();renderTabs();renderHome();renderTodas(window._ultimaBusca);renderEmp();renderCupons();renderPontos();renderPlanos();renderCategorias();renderMais();renderPerfil();
+  renderTopo();renderTabs();renderHome();mostrarLogosMercado();renderTodas(window._ultimaBusca);renderEmp();renderCupons();renderPontos();renderPlanos();renderCategorias();renderMais();renderPerfil();
   pintarIcones();observarCards();
 }
 function primeiroNome(){const p=store.get("gira_perfil",null);return p&&p.nome?String(p.nome).trim().split(/\s+/)[0]:""}
@@ -1596,7 +1598,11 @@ async function renderMercado(forcar){const box=$("#mercBox");if(!box)return;
 function mercRodape(){return `<div class="merc-leg"><p>${ic("crown",16)}<span><b>Coroa dourada</b> = menor preço do produto nesta semana. A <b>cesta</b> soma os produtos de quem informou todos os preços.</span></p>
   <p>${ic("calendar",16)}<span>Cada mercado atualiza os preços uma vez por semana. Preço em cinza é da semana passada e não entra na comparação.</span></p>
   <p>${ic("shield",16)}<span>Os preços são informados pelos próprios mercados e podem mudar sem aviso. Confira na loja antes de comprar.</span></p></div>
-  <div class="merc-acoes"><button class="zap" type="button" onclick="compartilharMercado()">${ic("share",18)}Mandar para alguém</button><a class="part" href="empresa.html#participar" onclick="queroMercado()">${ic("store",18)}Tenho um mercado</a></div>`}
+  <div class="merc-acoes"><button class="zap" type="button" onclick="compartilharMercado()">${ic("share",18)}Mandar para alguém</button><a class="part" href="empresa.html#mercado" onclick="queroMercado()">${ic("store",18)}Tenho um mercado</a></div>`}
+// logos dos mercados participantes no cartão do Vitrine Mercado (página principal)
+function mostrarLogosMercado(){const box=document.getElementById("cmLogos");if(!box)return;
+  carregarMercado().then(M=>{const l=((M&&M.mercados)||[]).filter(m=>mercImg(m.logo_url)).slice(0,6);
+    box.innerHTML=l.map(m=>`<span class="cm-lg"><img src="${esc(m.logo_url)}" alt="${esc(m.nome)}" loading="lazy"></span>`).join("");box.hidden=!l.length}).catch(()=>{})}
 function queroMercado(){try{localStorage.setItem("vc_ramo_desejado",JSON.stringify("Mercado"))}catch(e){}}
 function compartilharMercado(){const url=linkSite()+"#mercado",txt="🛒 Vitrine Mercado: compare os preços dos supermercados de Castro nesta semana! 👉 "+url;
   if(navigator.share){navigator.share({title:"Vitrine Mercado",text:txt}).catch(()=>{});return}window.open("https://wa.me/?text="+encodeURIComponent(txt),"_blank","noopener")}
