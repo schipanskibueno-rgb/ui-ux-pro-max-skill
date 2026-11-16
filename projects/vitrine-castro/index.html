@@ -1530,7 +1530,7 @@ function mercLogo(m){const u=mercImg(m.logo_url);return `<span class="mt-logo">$
 function mercProdutosDemo(){return store.get("vc_demo_merc_produtos",null)||MERC_PROD_DEMO.map(([id,nome,detalhe,emoji,,foto_url],i)=>({id,nome,detalhe,emoji,foto_url,ordem:i+1,ativo:true}))}
 // Demonstração: mercados FICTÍCIOS (nunca nomes de mercados reais) + lojas do ramo Mercado criadas neste aparelho
 function mercDemo(){
-  const produtos=mercProdutosDemo().filter(p=>p.ativo!==false),sem=semanaISO(),ant=semanaISO(-1),mercados=[],precos=[],promos=[];
+  const produtos=mercProdutosDemo().filter(p=>p.ativo!==false).sort((a,b)=>(Number(a.ordem)||0)-(Number(b.ordem)||0)),sem=semanaISO(),ant=semanaISO(-1),mercados=[],precos=[],promos=[];
   const base=id=>((MERC_PROD_DEMO.find(x=>x[0]===id)||[])[4])||10;
   const PROMO=[["Banana prata","kg","🍌",4.99,6.99],["Carne moída","kg","🥩",29.9,36.9],["Pão francês","kg","🥖",13.9,16.9],["Tomate","kg","🍅",5.49,7.99],["Iogurte morango","1 litro","🥛",6.99,9.49],["Queijo muçarela","kg","🧀",39.9,47.9],["Frango inteiro","kg","🍗",11.9,14.9]];
   [["Mercado Bom Preço",1.00],["Supermercado Central",1.05],["Mercado da Vila",0.97],["Super Econômico",1.02],["Mercado Família",0.99]].forEach(([nome,f],i)=>{

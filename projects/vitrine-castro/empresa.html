@@ -87,6 +87,8 @@ textarea.inp{min-height:90px;resize:vertical}
 .demo-aviso{background:#000;color:#F3E3B5;border-radius:14px;padding:10px 14px;font-size:.85rem;margin-bottom:14px}
 .demo-aviso b{color:#D4A537}
 .perfil-loja{display:flex;align-items:center;gap:14px}
+.adm-faixa{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;background:#111;color:#fff;border:1.5px solid #D4A537;border-radius:14px;padding:10px 12px;margin-bottom:12px;font-size:.9rem}
+.adm-faixa b{color:#F2CC63}.adm-faixa a{color:#000;background:#D4A537;border-radius:10px;padding:8px 12px;font-weight:800;text-decoration:none;min-height:40px;display:inline-flex;align-items:center}
 .mp-topo{display:flex;flex-wrap:wrap;align-items:center;gap:12px}.mp-topo>.btn{flex-basis:100%}
 .mp-logo{width:96px;height:64px;border-radius:12px;background:#fff;border:1.5px solid #e6dcc0;display:grid;place-items:center;font-size:2rem;overflow:hidden;flex-shrink:0}
 .mp-logo img{width:100%;height:100%;object-fit:contain;padding:4px}
@@ -296,7 +298,7 @@ function traduzErro(e){const m=(e&&e.message)||String(e);
 /* ===== MODO: banco real (Supabase) ou DEMONSTRAÇÃO (fica só neste celular) ===== */
 const DEMO=!(window.CONFIG&&CONFIG.SUPABASE_URL&&CONFIG.SUPABASE_ANON_KEY);
 const db=DEMO?null:supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_ANON_KEY);
-let user=null,empresa=null,ofertas=[],admin=false,lojas=[];
+let user=null,empresa=null,ofertas=[],admin=false,lojas=[],ADM_ED=false;
 
 // ===== LOGIN =====
 function telaLogin(modo="entrar"){
@@ -333,7 +335,8 @@ function telaSouAdmin(){$("#main").innerHTML=`<div class="card" style="text-alig
   <button class="btn claro" onclick="novaLoja()">🏪 Cadastrar uma loja</button></div>`}
 // ===== INÍCIO =====
 async function iniciar(){
-  if(DEMO){empresa=store.get("vc_demo_emp",null);lojas=store.get("vc_demo_lojas",[]).map(x=>x.emp);$("#btnSair").classList.toggle("escondido",!empresa);$("#btnSair").textContent="Recomeçar";
+  if(DEMO){empresa=store.get("vc_demo_emp",null);lojas=store.get("vc_demo_lojas",[]).map(x=>x.emp);ADM_ED=!!(admAlvo()&&empresa);
+    if(ADM_ED){await carregarOfertas();telaPainel();aplicarAbaAdm();return}$("#btnSair").classList.toggle("escondido",!empresa);$("#btnSair").textContent="Recomeçar";
     if(location.hash==="#nova"){history.replaceState(null,"",location.pathname);novaLoja();return}
     if(!empresa){if(lojas.length){voltarLojas();return}location.hash==="#mercado"?telaBoasVindasMercado():location.hash==="#participar"?telaCadastroEmpresa():telaBoasVindas();return}await carregarOfertas();telaPainel();return}
   const {data:{session}}=await db.auth.getSession();
@@ -342,14 +345,25 @@ async function iniciar(){
   const [{data:emps},{data:adm}]=await Promise.all([db.from("empresas").select("*").eq("dono",user.id).order("criado_em"),db.from("admins").select("user_id").eq("user_id",user.id).maybeSingle()]);
   lojas=emps||[];admin=!!adm;const atual=store.get("vc_loja_atual","");
   empresa=lojas.find(l=>l.id===atual)||lojas[0]||null;
+  const alvo=admAlvo();ADM_ED=false;
+  if(admin&&alvo){let x=lojas.find(l=>l.id===alvo);if(!x){const r=await db.from("empresas").select("*").eq("id",alvo).maybeSingle();x=r.data}
+    if(x){empresa=x;ADM_ED=true;await carregarOfertas();telaPainel();aplicarAbaAdm();return}}
   if(admin&&location.hash==="#nova"){history.replaceState(null,"",location.pathname);novaLoja();return}
   if(!empresa){admin?telaSouAdmin():telaCadastroEmpresa();return}
   store.set("vc_loja_atual",empresa.id);
   await carregarOfertas();telaPainel();
 }
 // ===== VÁRIAS LOJAS (ADM) =====
+function admAlvo(){try{return sessionStorage.getItem("vc_adm_abrir")||""}catch(e){return ""}}
+function sairModoAdm(){try{sessionStorage.removeItem("vc_adm_abrir");sessionStorage.removeItem("vc_adm_aba")}catch(e){}}
+// abre direto na parte pedida pelo ADM (preços, oferta ou logo)
+function aplicarAbaAdm(){let a="";try{a=sessionStorage.getItem("vc_adm_aba")||"";sessionStorage.removeItem("vc_adm_aba")}catch(e){}
+  if(!a)return;if(a==="logo"){editarEmpresa();return}
+  if(empresa.ramo==="Mercado"&&(a==="mercado"||a==="oferta")){ABA_M=a;telaPainel()}}
 function multiLoja(){return DEMO||admin}
-function barraLojas(){if(!multiLoja())return"";
+function barraLojas(){
+  if(ADM_ED)return `<div class="adm-faixa"><span>👑 Editando como <b>ADM</b>: ${esc(empresa.nome)}</span><a href="admin.html" onclick="sairModoAdm()">← Voltar para a Administração</a></div>`;
+  if(!multiLoja())return"";
   const ops=DEMO?[`<option value="atual" selected>${esc(empresa.nome)}</option>`,...lojas.map((l,i)=>`<option value="${i}">${esc(l.nome)}</option>`)]
     :lojas.map(l=>`<option value="${esc(l.id)}" ${l.id===empresa.id?"selected":""}>${esc(l.nome)}${l.aprovada?"":" (em análise)"}</option>`);
   return `<div class="troca-loja"><span class="rot">Loja</span><select aria-label="Escolher a loja" onchange="trocarLoja(this.value)">${ops.join("")}</select><button onclick="novaLoja()">➕ Nova loja</button></div>`}
@@ -506,7 +520,7 @@ const reaisBR=v=>Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:
 function lerPreco(t){t=String(t||"").replace(/[^\d,.]/g,"");if(!t)return null;if(t.includes(","))t=t.replace(/\./g,"").replace(",",".");const v=Math.round(parseFloat(t)*100)/100;return isFinite(v)?v:NaN}
 let MERC_EMP=null;
 async function dadosMercadoEmp(){const sem=semanaISO(),ant=semanaISO(-1);
-  if(DEMO){const m=empresa.merc||{},prods=(store.get("vc_demo_merc_produtos",null)||MERC_PROD_DEMO.map(([id,nome,detalhe,emoji,foto_url],i)=>({id,nome,detalhe,emoji,foto_url,ordem:i+1,ativo:true}))).filter(p=>p.ativo!==false);
+  if(DEMO){const m=empresa.merc||{},prods=(store.get("vc_demo_merc_produtos",null)||MERC_PROD_DEMO.map(([id,nome,detalhe,emoji,foto_url],i)=>({id,nome,detalhe,emoji,foto_url,ordem:i+1,ativo:true}))).filter(p=>p.ativo!==false).sort((a,b)=>(Number(a.ordem)||0)-(Number(b.ordem)||0));
     return {prods,atual:(m.precos||{})[sem]||{},passada:(m.precos||{})[ant]||{},quando:(m.atualizado||{})[sem]||null,promos:m.promos||[]}}
   const [a,b,c]=await Promise.all([db.from("mercado_produtos").select("*").eq("ativo",true).order("ordem"),
     db.from("mercado_precos").select("produto_id,semana,preco,atualizado_em").eq("empresa_id",empresa.id).gte("semana",ant),

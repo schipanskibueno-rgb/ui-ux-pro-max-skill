@@ -46,6 +46,10 @@ textarea.inp{min-height:90px;resize:vertical}
 .abas{display:flex;background:#efe8d4;border-radius:14px;padding:4px;margin-bottom:6px}
 .abas button{flex:1;border:0;background:none;min-height:46px;border-radius:10px;font-weight:700;font-size:.95rem;color:var(--txt);cursor:pointer}
 .abas button.on{background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.merc-adm{padding:12px 14px}.ma-topo{display:flex;gap:10px;align-items:center}
+.ma-logo{width:72px;height:44px;border-radius:8px;border:1px solid #e6dcc0;background:#fff;display:grid;place-items:center;overflow:hidden;flex-shrink:0;font-size:1.4rem}.ma-logo img{max-width:100%;max-height:100%;object-fit:contain}
+.ma-acoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:6px;margin-top:10px}
+.pm-acoes{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}.pm-acoes .mini{min-height:36px;padding:0 10px}
 .prod-foto{position:relative;width:56px;height:56px;flex-shrink:0;border-radius:10px;border:1.5px dashed #d9cfb3;background:#fff;display:grid;place-items:center;cursor:pointer;overflow:hidden;font-size:1.6rem}
 .prod-foto img{width:100%;height:100%;object-fit:contain}.prod-foto small{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);color:#fff;font-size:.58rem;text-align:center;line-height:1.5}
 .prod-foto input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:0}
@@ -582,9 +586,9 @@ async function admDetalhe(id){
      <button class="mini vm" onclick="excluirEmpresa('${esc(x.id)}')">🗑 Excluir empresa</button>
      ${zap?`<a class="mini" style="display:inline-flex;align-items:center;text-decoration:none;background:#dff5e7;color:#0d6b31" href="${zapUrl("Olá! Aqui é do Vitrine Castro, sobre a loja "+x.nome.replace(/ \((exemplo|sua loja de teste)\)$/,"")+".")}" target="_blank" rel="noopener">💬 Chamar no WhatsApp</a>`:""}
     </div>
+    ${/^ex\d/.test(String(x.id))?"":`<div style="margin-top:14px;border-top:1px solid #eee;padding-top:12px"><p style="margin:0 0 8px;font-size:.9rem">👑 Como ADM você mexe em tudo desta loja: dados, logo, ofertas${x.ramo==="Mercado"?", tabela de preços e promoções":""}.</p>
+     <div style="display:flex;gap:6px;flex-wrap:wrap"><button class="mini ou" onclick="gerenciarLoja('${esc(x.id)}')">🏪 Gerenciar esta loja</button><button class="mini" onclick="gerenciarLoja('${esc(x.id)}','logo')">🖼️ Trocar logo</button>${x.ramo==="Mercado"?`<button class="mini" onclick="gerenciarLoja('${esc(x.id)}','mercado')">🛒 Preços</button>`:""}</div></div>`}
     ${!DEMO&&user&&x.dono===user.id?`<div style="margin-top:14px;border-top:1px solid #eee;padding-top:12px">
-     <p style="margin:0 0 8px;font-size:.9rem">👑 <b>Loja cadastrada por você.</b> Você posta as ofertas e confirma as compras dela pela Área da Empresa.</p>
-     <button class="mini ou" onclick="gerenciarLoja('${esc(x.id)}')">🏪 Gerenciar esta loja (ofertas, cupons, brindes)</button>
      <label for="admTrEmail" style="margin:12px 0 4px;display:block;font-weight:600;font-size:.9rem">Passar a loja para o dono</label>
      <p style="margin:0 0 6px;font-size:.82rem;color:#666">O dono cria uma conta na Área da Empresa (só e-mail e senha, sem cadastrar loja). Coloque o e-mail dele aqui: a loja, as ofertas e o histórico passam para ele.</p>
      <div style="display:flex;gap:6px"><input class="inp" id="admTrEmail" type="email" placeholder="email@dono.com" autocomplete="off" style="min-height:44px"><button class="mini az" onclick="transferirLoja('${esc(x.id)}')">Passar</button></div>
@@ -754,8 +758,8 @@ function semanaMerc(off=0){const d=new Date(),x=new Date(d.getFullYear(),d.getMo
 const ddmmM=iso=>{const p=String(iso||"").slice(0,10).split("-");return p.length===3?p[2]+"/"+p[1]:""};
 function prodDemo(){return store.get("vc_demo_merc_produtos",null)||MERC_PROD_DEMO.map(([id,nome,detalhe,emoji,foto_url],i)=>({id,nome,detalhe,emoji,foto_url,ordem:i+1,ativo:true}))}
 async function dadosMercAdm(){const sem=semanaMerc();
-  if(DEMO){const prods=prodDemo(),mercs=lojasDemo().filter(l=>l.emp.ramo==="Mercado").map(l=>{const m=l.emp.merc||{},it=(m.precos||{})[sem]||{};return {id:l.id,nome:l.emp.nome,whatsapp:l.emp.whatsapp,aprovada:l.emp.aprovada!==false,n:Object.keys(it).length,quando:(m.atualizado||{})[sem]||null,promos:(m.promos||[]).length}});return {prods,mercs}}
-  const [a,b,c,d]=await Promise.all([db.from("mercado_produtos").select("*").order("ordem"),db.from("empresas").select("id,nome,whatsapp,aprovada").eq("ramo","Mercado").order("nome"),
+  if(DEMO){const prods=prodDemo(),mercs=lojasDemo().filter(l=>l.emp.ramo==="Mercado").map(l=>{const m=l.emp.merc||{},it=(m.precos||{})[sem]||{};return {id:l.id,nome:l.emp.nome,whatsapp:l.emp.whatsapp,logo_url:l.emp.logo_url||"",aprovada:l.emp.aprovada!==false,n:Object.keys(it).length,quando:(m.atualizado||{})[sem]||null,promos:(m.promos||[]).length}});return {prods:prods.sort((a,b)=>(Number(a.ordem)||0)-(Number(b.ordem)||0)),mercs}}
+  const [a,b,c,d]=await Promise.all([db.from("mercado_produtos").select("*").order("ordem"),db.from("empresas").select("id,nome,whatsapp,aprovada,logo_url").eq("ramo","Mercado").order("nome"),
     db.from("mercado_precos").select("empresa_id,atualizado_em").eq("semana",sem),db.from("mercado_promos").select("empresa_id")]);
   if(a.error)throw new Error(/does not exist|relation|schema cache/i.test(a.error.message||"")?"Para usar o Vitrine Mercado, rode o supabase.sql novo no Supabase (SQL Editor).":traduzErro(a.error));
   const mercs=(b.data||[]).map(e=>{const l=(c.data||[]).filter(r=>r.empresa_id===e.id);return {...e,n:l.length,quando:l.reduce((q,r)=>!q||r.atualizado_em>q?r.atualizado_em:q,null),promos:(d.data||[]).filter(r=>r.empresa_id===e.id).length}});
@@ -768,16 +772,17 @@ async function telaMercadoAdm(){ADM.detalhe=null;const box=alvoAdmin();box.inner
    <h2 style="margin:16px 0 8px">Mercados (${D.mercs.length})</h2>
    <p class="ajuda" style="margin:-4px 0 8px">Entram aqui as lojas do ramo <b>Mercado</b>. Cada mercado entra na Área da Empresa com o próprio login e senha e preenche a aba 🛒 Preços da semana.</p>
    ${D.mercs.length?D.mercs.map(m=>{const z=soDig(m.whatsapp),url=z?`https://wa.me/${z.length<=11?"55"+z:z}?text=${encodeURIComponent("Olá! Aqui é do Vitrine Castro. Lembrete: atualize os preços da semana do "+m.nome+" no Vitrine Mercado (Área da Empresa › 🛒 Preços da semana). Obrigado!")}`:"";
-     return `<div class="card" style="padding:12px 14px;display:flex;gap:10px;align-items:center"><div style="flex:1;min-width:0"><b>${esc(m.nome)}</b>${m.aprovada?"":` <span class="status pend">Em análise</span>`}
-       <p class="ajuda" style="margin:2px 0 0">${m.quando?`<span style="color:#0d6b31;font-weight:700">✓ Atualizou em ${ddmmM(m.quando)}</span> · ${m.n} de ${ativos.length} preços`:`<span style="color:#a35b00;font-weight:700">⏳ Ainda não atualizou esta semana</span>`} · 🔥 ${m.promos} promo${m.promos===1?"":"s"}</p></div>
-       ${!m.quando&&url?`<a class="mini" style="display:inline-flex;align-items:center;text-decoration:none;background:#dff5e7;color:#0d6b31" href="${url}" target="_blank" rel="noopener">💬 Lembrar</a>`:""}</div>`}).join("")
+     const lg=/^(data:image\/|https:\/\/)/.test(m.logo_url||"")?m.logo_url:"";
+     return `<div class="card merc-adm"><div class="ma-topo"><span class="ma-logo">${lg?`<img src="${esc(lg)}" alt="">`:"🛒"}</span><div style="flex:1;min-width:0"><b>${esc(m.nome)}</b>${m.aprovada?"":` <span class="status pend">Em análise</span>`}
+       <p class="ajuda" style="margin:2px 0 0">${m.quando?`<span style="color:#0d6b31;font-weight:700">✓ Atualizou em ${ddmmM(m.quando)}</span> · ${m.n} de ${ativos.length} preços`:`<span style="color:#a35b00;font-weight:700">⏳ Ainda não atualizou esta semana</span>`} · 🔥 ${m.promos} promo${m.promos===1?"":"s"}</p></div></div>
+       <div class="ma-acoes"><button class="mini ou" onclick="gerenciarLoja('${esc(m.id)}','mercado')">🛒 Preços</button><button class="mini" onclick="gerenciarLoja('${esc(m.id)}','oferta')">🏷️ Oferta</button><button class="mini" onclick="gerenciarLoja('${esc(m.id)}','logo')">🖼️ Logo</button>${url?`<a class="mini" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none;background:#dff5e7;color:#0d6b31" href="${url}" target="_blank" rel="noopener">💬 Lembrar</a>`:""}</div></div>`}).join("")
      :`<div class="vazio"><span class="e">🛒</span>Nenhum mercado ainda. Cadastre em 🏪 Empresas › ➕ Cadastrar empresa, com o ramo <b>Mercado</b>.</div>`}
    <h2 style="margin:18px 0 8px">Produtos da tabela (${ativos.length})</h2>
-   <p class="ajuda" style="margin:-4px 0 8px">São as colunas da tabela de comparação. Todos os mercados preenchem os mesmos produtos. Use sempre a mesma medida (ex: 5 kg) para a comparação ser justa.</p>
+   <p class="ajuda" style="margin:-4px 0 8px">São as colunas da tabela, nesta ordem (use ↑ ↓ para mudar). Para trocar um produto por outro, toque em <b>✏️ Trocar</b>. Use sempre a mesma medida (ex: 5 kg) para a comparação ser justa.</p>
    ${D.prods.map(p=>{const fu=/^(data:image\/|https:\/\/)/.test(p.foto_url||"")||/^img\/produtos\/[a-z0-9-]+\.(png|jpg|webp)$/.test(p.foto_url||"")?p.foto_url:"";return `<div class="card" style="padding:10px 14px;display:flex;gap:10px;align-items:center;${p.ativo===false?"opacity:.55":""}">
      <label class="prod-foto" title="Trocar foto">${fu?`<img src="${esc(fu)}" alt="">`:`<span aria-hidden="true">${esc(p.emoji||"🛒")}</span>`}<small>📷 foto</small><input type="file" accept="image/*" aria-label="Trocar foto de ${esc(p.nome)}" onchange="fotoProdMerc('${esc(p.id)}',this)"></label>
-     <div style="flex:1;min-width:0"><b>${esc(p.nome)}</b><p class="ajuda" style="margin:0">${esc(p.detalhe||"")} · posição ${Number(p.ordem)||0}${p.ativo===false?" · ⏸ fora da tabela":""}</p></div>
-     <button class="mini" onclick="editarProdMerc('${esc(p.id)}')" aria-label="Editar ${esc(p.nome)}">✏️</button><button class="mini" onclick="salvarProdMerc('${esc(p.id)}',{ativo:${p.ativo===false}})">${p.ativo===false?"Ativar":"Pausar"}</button><button class="mini vm" onclick="apagarProdMerc('${esc(p.id)}')" aria-label="Apagar ${esc(p.nome)}">🗑</button></div>`}).join("")}
+     <div style="flex:1;min-width:0"><b>${esc(p.nome)}</b><p class="ajuda" style="margin:0">${esc(p.detalhe||"")}${p.ativo===false?" · ⏸ fora da tabela":""}</p>
+      <div class="pm-acoes"><button class="mini" onclick="moverProdMerc('${esc(p.id)}',-1)" aria-label="Subir ${esc(p.nome)}">↑</button><button class="mini" onclick="moverProdMerc('${esc(p.id)}',1)" aria-label="Descer ${esc(p.nome)}">↓</button><button class="mini ou" onclick="editarProdMerc('${esc(p.id)}')">✏️ Trocar</button><button class="mini" onclick="salvarProdMerc('${esc(p.id)}',{ativo:${p.ativo===false}})">${p.ativo===false?"Ativar":"Pausar"}</button><button class="mini vm" onclick="apagarProdMerc('${esc(p.id)}')" aria-label="Apagar ${esc(p.nome)}">🗑</button></div></div></div>`}).join("")}
    <div class="card"><h3 style="margin-top:0">➕ Novo produto na tabela</h3><form onsubmit="event.preventDefault();novoProdMerc()">
     <label for="npNome">Produto</label><input class="inp" id="npNome" maxlength="60" required placeholder="Ex: Óleo de soja">
     <div style="display:flex;gap:8px"><div style="flex:2"><label for="npDet">Medida</label><input class="inp" id="npDet" maxlength="30" placeholder="Ex: 900 ml"></div><div style="flex:1"><label for="npEmo">Ícone</label><input class="inp" id="npEmo" maxlength="8" placeholder="🫙"></div></div>
@@ -793,14 +798,15 @@ async function telaMercadoAdm(){ADM.detalhe=null;const box=alvoAdmin();box.inner
 async function fotoProdMerc(id,input){const f=input.files[0];input.value="";if(!f)return;
   if(!/^image\//.test(f.type||"image/")){toast("Escolha uma foto.");return}
   toast("Enviando foto…");
-  try{const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error("Não foi possível abrir essa foto. Se for do iPhone (HEIC), tire um print e envie o print."));i.src=URL.createObjectURL(f)});
+  try{await salvarProdMerc(id,{foto_url:await subirFotoProd(f)})}catch(e){toast(traduzErro(e))}}
+async function subirFotoProd(f){{const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error("Não foi possível abrir essa foto. Se for do iPhone (HEIC), tire um print e envie o print."));i.src=URL.createObjectURL(f)});
     const k=Math.min(1,400/Math.max(img.width,img.height)),w=Math.round(img.width*k),h=Math.round(img.height*k),c=document.createElement("canvas");c.width=w;c.height=h;
     const g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,w,h);g.drawImage(img,0,0,w,h);URL.revokeObjectURL(img.src);
     let url;if(DEMO)url=c.toDataURL("image/jpeg",.8);
     else{const blob=await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error("Não foi possível ler a foto")),"image/jpeg",.85));
       const nome=`${user.id}/produto-${Date.now()}.jpg`,{error}=await db.storage.from("fotos").upload(nome,blob,{contentType:"image/jpeg",upsert:false});if(error)throw error;
       url=db.storage.from("fotos").getPublicUrl(nome).data.publicUrl}
-    await salvarProdMerc(id,{foto_url:url})}catch(e){toast(traduzErro(e))}}
+    return url}}
 // ===== PONTE PRÉVIA → SITE PUBLICADO (produtos da tabela + mercados com preços e promoções) =====
 function codTexto(o){return "VITRINE-MERCADO:"+btoa(unescape(encodeURIComponent(JSON.stringify(o))))}
 function lerCodigo(t){t=String(t||"").trim().replace(/\s+/g,"");const m=t.match(/VITRINE-MERCADO:([A-Za-z0-9+/=]+)/);if(!m)throw new Error("Esse não é um código da prévia. Ele começa com VITRINE-MERCADO:");
@@ -858,18 +864,41 @@ async function salvarProdMerc(id,campos){
   if(DEMO){const l=prodDemo(),p=l.find(x=>String(x.id)===String(id));if(p)Object.assign(p,campos);store.set("vc_demo_merc_produtos",l)}
   else{const {error}=await db.from("mercado_produtos").update(campos).eq("id",id);if(error){toast(traduzErro(error));return}}
   toast("✅ Atualizado");telaMercadoAdm()}
+function confirmarTela(titulo,texto,{palavra="",botao="Confirmar",perigo=true}={}){return new Promise(res=>{window._confRes=res;
+  abrirSheet(`<h2 style="margin-top:8px">${titulo}</h2><p>${texto}</p>${palavra?`<label for="cfPal">Para confirmar, digite <b>${palavra}</b></label><input class="inp" id="cfPal" autocomplete="off" autocapitalize="characters">`:""}
+   <div class="linha" style="margin-top:12px"><button class="btn claro" type="button" onclick="fecharConf(false)">Cancelar</button><button class="btn ${perigo?"verm":"ouro"}" type="button" onclick="fecharConf(true,'${palavra}')">${botao}</button></div>`)})}
+function fecharConf(ok,pal){if(ok&&pal&&($("#cfPal").value||"").trim().toUpperCase()!==pal){toast("Digite "+pal+" para confirmar.");return}
+  fechar();const r=window._confRes;window._confRes=null;if(r)r(ok)}
+async function moverProdMerc(id,d){const l=[...(((window._mercAdm||{}).prods)||[])].sort((a,b)=>(Number(a.ordem)||0)-(Number(b.ordem)||0));
+  const i=l.findIndex(p=>String(p.id)===String(id)),j=i+d;if(i<0||j<0||j>=l.length)return;[l[i],l[j]]=[l[j],l[i]];
+  const mud=l.map((p,k)=>({p,o:k+1})).filter(x=>Number(x.p.ordem)!==x.o);
+  if(DEMO){const all=prodDemo();mud.forEach(x=>{const q=all.find(y=>String(y.id)===String(x.p.id));if(q)q.ordem=x.o});store.set("vc_demo_merc_produtos",all)}
+  else for(const x of mud){const {error}=await db.from("mercado_produtos").update({ordem:x.o}).eq("id",x.p.id);if(error){toast(traduzErro(error));return}}
+  telaMercadoAdm()}
 function editarProdMerc(id){const p=((window._mercAdm||{}).prods||[]).find(x=>String(x.id)===String(id));if(!p)return;
-  const nome=prompt("Nome do produto:",p.nome);if(nome===null)return;const det=prompt("Medida (ex: 5 kg, 1 litro):",p.detalhe||"");if(det===null)return;
-  const emo=prompt("Ícone (um emoji):",p.emoji||"");if(emo===null)return;const ord=prompt("Posição na tabela (1 = primeira coluna):",String(p.ordem||0));if(ord===null)return;
-  if(nome.trim().length<2){toast("Nome muito curto.");return}
-  salvarProdMerc(id,{nome:nome.trim().slice(0,60),detalhe:det.trim().slice(0,30)||null,emoji:emo.trim().slice(0,8)||null,ordem:Math.max(0,Math.min(999,parseInt(ord,10)||0))})}
+  abrirSheet(`<h2 style="margin-top:8px">✏️ Trocar produto da tabela</h2><p class="ajuda">Mude o nome, a medida, o ícone ou a foto. Se for <b>outro produto</b>, marque a opção abaixo para apagar os preços antigos desta semana e os mercados preencherem de novo.</p>
+   <form onsubmit="event.preventDefault();salvarTrocaProd('${esc(p.id)}')">
+    <label for="epNome">Produto</label><input class="inp" id="epNome" maxlength="60" required value="${esc(p.nome)}" oninput="$('#epZerar').checked=this.value.trim().toLowerCase()!=='${esc(String(p.nome).toLowerCase()).replace(/'/g,"&#39;")}'">
+    <div class="linha"><div><label for="epDet">Medida</label><input class="inp" id="epDet" maxlength="30" value="${esc(p.detalhe||"")}" placeholder="Ex: 5 kg"></div><div><label for="epEmo">Ícone</label><input class="inp" id="epEmo" maxlength="8" value="${esc(p.emoji||"")}" placeholder="🛒"></div></div>
+    <label for="epFoto" style="margin-top:10px;display:block">Foto (opcional)</label><input class="inp" id="epFoto" type="file" accept="image/*">
+    <label style="display:flex;gap:8px;align-items:flex-start;margin-top:12px;font-weight:400"><input type="checkbox" id="epZerar" style="width:22px;height:22px;flex-shrink:0"><span>É outro produto: apagar os preços desta semana dele (os mercados preenchem de novo)</span></label>
+    <button class="btn ouro" id="epBtn" style="margin-top:12px">💾 Salvar troca</button></form>`)}
+async function salvarTrocaProd(id){const b=$("#epBtn"),nome=$("#epNome").value.trim();if(nome.length<2){toast("Escreva o nome do produto.");return}
+  b.disabled=true;b.textContent="⏳ Salvando…";
+  try{const c={nome:nome.slice(0,60),detalhe:$("#epDet").value.trim().slice(0,30)||null,emoji:$("#epEmo").value.trim().slice(0,8)||null};
+    const f=$("#epFoto").files[0];if(f)c.foto_url=await subirFotoProd(f);
+    if(!f&&$("#epZerar").checked)c.foto_url=null;
+    if($("#epZerar").checked){const sem=semanaMerc();
+      if(DEMO)lojasDemo().forEach(l=>gravarDemo(l.id,e=>{const it=((e.merc||{}).precos||{})[sem];if(it)delete it[id]}));
+      else{const {error}=await db.from("mercado_precos").delete().eq("produto_id",id).eq("semana",sem);if(error)throw error}}
+    fechar();await salvarProdMerc(id,c)}catch(e){b.disabled=false;b.textContent="💾 Salvar troca";toast(traduzErro(e))}}
 async function novoProdMerc(){const nome=$("#npNome").value.trim(),det=$("#npDet").value.trim(),emo=$("#npEmo").value.trim();if(nome.length<2){toast("Escreva o nome do produto.");return}
   const ordem=Math.min(999,Math.max(0,...(((window._mercAdm||{}).prods||[]).map(p=>Number(p.ordem)||0)))+1);const novo={nome,detalhe:det||null,emoji:emo||null,ordem};
   if(DEMO){const l=prodDemo();l.push({...novo,id:"p"+Date.now(),ativo:true});store.set("vc_demo_merc_produtos",l)}
   else{const {error}=await db.from("mercado_produtos").insert(novo);if(error){toast(traduzErro(error));return}}
   toast("✅ Produto colocado na tabela");telaMercadoAdm()}
 async function apagarProdMerc(id){const p=((window._mercAdm||{}).prods||[]).find(x=>String(x.id)===String(id));
-  if(!confirm("Apagar "+(p?p.nome:"este produto")+" da tabela?\n\nOs preços dele (desta e das semanas passadas) também somem. Se for só por um tempo, use Pausar."))return;
+  if(!await confirmarTela("Apagar "+esc(p?p.nome:"este produto")+"?","Ele sai da tabela e os preços dele (desta e das semanas passadas) também somem. Se for só por um tempo, use <b>Pausar</b>.",{botao:"🗑 Apagar"}))return;
   if(DEMO){store.set("vc_demo_merc_produtos",prodDemo().filter(x=>String(x.id)!==String(id)))}
   else{const {error}=await db.from("mercado_produtos").delete().eq("id",id);if(error){toast(traduzErro(error));return}}
   toast("🗑 Produto apagado");telaMercadoAdm()}
@@ -1035,15 +1064,19 @@ function admAtualizar(){window._adm=null;ADM.detalhe?admDetalhe(ADM.detalhe):pai
 const exemplo=id=>/^ex\d/.test(String(id))&&(toast("Esta é uma loja de exemplo, só para demonstração"),true);
 async function excluirEmpresa(id){if(exemplo(id))return;
   const x=((window._adm&&window._adm.emps)||[]).find(e=>String(e.id)===String(id)),nome=x?x.nome.replace(/ \((exemplo|sua loja de teste)\)$/,""):"esta empresa";
-  if(!confirm("Excluir "+nome+"?\n\nApaga a loja, as ofertas, os cupons, os brindes e os números dela. Os pagamentos continuam no Financeiro.\n\nNão dá para desfazer."))return;
-  if(prompt("Para confirmar, digite EXCLUIR")?.trim().toUpperCase()!=="EXCLUIR"){toast("Exclusão cancelada.");return}
+  if(!await confirmarTela("Excluir "+esc(nome)+"?","Apaga a loja, as ofertas, os cupons, os brindes e os números dela. Os pagamentos continuam no Financeiro. <b>Não dá para desfazer.</b>",{palavra:"EXCLUIR",botao:"🗑 Excluir"}))return;
   if(DEMO){if(id==="demo"){localStorage.removeItem("vc_demo_emp");localStorage.removeItem("vc_demo_ofertas");const arq=store.get("vc_demo_lojas",[]),u=arq.pop();if(u){store.set("vc_demo_lojas",arq);store.set("vc_demo_emp",u.emp);store.set("vc_demo_ofertas",u.ofertas||[])}}
     else{const arq=store.get("vc_demo_lojas",[]);arq.splice(+String(id).replace("demo-a",""),1);store.set("vc_demo_lojas",arq)}}
   else{const {error}=await db.from("empresas").delete().eq("id",id);if(error){toast(traduzErro(error));return}}
   toast("🗑 "+nome+" foi excluída.");ADM.detalhe=null;window._adm=null;painelAdmin()}
-function gerenciarLoja(id){store.set("vc_loja_atual",id);location.href="empresa.html"}
+function gerenciarLoja(id,aba){if(/^ex\d/.test(String(id))){toast("Esta é uma loja de exemplo, só para demonstração");return}
+  try{sessionStorage.setItem("vc_adm_abrir",String(id));sessionStorage.setItem("vc_adm_aba",aba||"")}catch(e){}
+  if(DEMO&&/^demo-a\d+$/.test(String(id))){const arq=store.get("vc_demo_lojas",[]),i=+String(id).slice(6),x=arq[i];
+    if(x){const cur=store.get("vc_demo_emp",null);if(cur)arq.splice(i,1,{emp:cur,ofertas:store.get("vc_demo_ofertas",[])});else arq.splice(i,1);store.set("vc_demo_lojas",arq);store.set("vc_demo_emp",x.emp);store.set("vc_demo_ofertas",x.ofertas||[])}}
+  else if(!DEMO)store.set("vc_loja_atual",id);
+  location.href="empresa.html"}
 async function transferirLoja(id){const em=($("#admTrEmail").value||"").trim();if(!/^\S+@\S+\.\S+$/.test(em)){toast("Digite o e-mail da conta do dono.");return}
-  if(!confirm("Passar esta loja para "+em+"? Depois disso só o dono (e você, pela Administração) mexe nela."))return;
+  if(!await confirmarTela("Passar a loja para "+esc(em)+"?","Depois disso o dono mexe nela pela Área da Empresa. Você continua com acesso pela Administração.",{botao:"Passar a loja",perigo:false}))return;
   const {data,error}=await db.rpc("transferir_empresa",{p_empresa:id,p_email:em});
   if(error){toast(traduzErro(error));return}if(!data||!data.ok){toast((data&&data.motivo)||"Não foi possível passar a loja.");return}
   toast("✅ Loja passada para "+em);admAtualizar()}
