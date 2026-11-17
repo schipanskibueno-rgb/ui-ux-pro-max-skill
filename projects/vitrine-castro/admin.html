@@ -174,6 +174,8 @@ textarea.inp{min-height:90px;resize:vertical}
 .oft-num b{display:block;font-size:.95rem}
 .oft-num .mini-n{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:.8rem;color:var(--cinza);margin-top:2px}
 .oft-num .mini-n span b{display:inline;color:var(--txt);font-size:.85rem}
+.adm-item{position:relative}.adm-entrar{position:absolute;right:10px;top:10px;z-index:1;border:0;border-radius:10px;background:var(--ouro);color:#000;font:inherit;font-weight:800;font-size:.82rem;min-height:36px;padding:0 12px;cursor:pointer}
+.adm-item .adm-linha{padding-right:96px}
 .adm-linha{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:#fff;border:0;border-radius:16px;padding:12px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,.06);cursor:pointer;font:inherit;color:var(--txt);min-height:72px;transition:transform .12s ease}
 .adm-linha:active{transform:scale(.99)}.adm-linha:focus-visible{outline:3px solid var(--ouro);outline-offset:2px}
 .adm-linha .logo{width:52px;height:52px;border-radius:12px;overflow:hidden;background:#1F2B57;display:grid;place-items:center;flex-shrink:0;font-size:1.5rem}
@@ -488,13 +490,13 @@ async function painelAdmin(recarregar=true){
    <label for="admOrdem" style="margin:4px 0 6px">Ordenar por</label>
    <select class="inp" id="admOrdem" onchange="ADM.ordem=this.value;painelAdmin(false)">${[["ajuda","Quem precisa de ajuda primeiro"],["vendas","Quem mais vendeu"],["vistas","Mais visualizações"],["nome","Nome (A a Z)"]].map(([k,n])=>`<option value="${k}" ${ADM.ordem===k?"selected":""}>${n}</option>`).join("")}</select>
    <div style="margin-top:12px">
-   ${lista.length?lista.map(({x,n,ant,os,d:dg,pos})=>`<button type="button" class="adm-linha" onclick="admDetalhe('${esc(x.id)}')" aria-label="Ver análise de ${esc(x.nome)}">
+   ${lista.length?lista.map(({x,n,ant,os,d:dg,pos})=>`<div class="adm-item">${/^ex\d/.test(String(x.id))?"":`<button type="button" class="adm-entrar" onclick="gerenciarLoja('${esc(x.id)}')" aria-label="Entrar em ${esc(x.nome)} para fazer alterações">Entrar ›</button>`}<button type="button" class="adm-linha" onclick="admDetalhe('${esc(x.id)}')" aria-label="Ver análise de ${esc(x.nome)}">
      <span class="logo">${seguro(x.logo_url)?`<img src="${esc(x.logo_url)}" alt="">`:"🏪"}</span>
      <span class="meio"><b>${esc(x.nome)}</b>
       <span class="selo-d ${dg.cor}">${dg.ic} ${esc(dg.t)}</span>
       <span class="mini-n">${esc(x.ramo||"")} · ${esc((PLANOS[x.plano]||{nome:x.plano||"—"}).nome)}${pos?` · ${pos}º em vendas`:""}</span>
       <span class="mini-n"><span>👀 <b>${fmtN(n.visualizacao)}</b>${tendencia(n.visualizacao,ant&&ant.visualizacao)}</span><span>🎟️ <b>${fmtN(n.cupom)}</b></span><span>✅ <b>${fmtN(n.compra)}</b></span><span>💰 <b>${fmtR(n.valor)}</b></span></span></span>
-     <span class="chev" aria-hidden="true">›</span></button>`).join("")
+     <span class="chev" aria-hidden="true">›</span></button></div>`).join("")
     :`<div class="vazio"><span class="e">🏪</span>Nenhuma empresa ${ADM.filtro==="analise"?"em análise":ADM.filtro==="ajuda"?"precisando de ajuda agora 🎉":"encontrada"}.</div>`}</div>`;
   const i=$("#admBusca");if(i&&ADM.busca&&document.activeElement!==i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}
 }

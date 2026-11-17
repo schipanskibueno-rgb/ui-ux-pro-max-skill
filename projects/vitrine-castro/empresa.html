@@ -111,6 +111,7 @@ textarea.inp{min-height:90px;resize:vertical}
 .merc-promo .ft{width:48px;height:48px;border-radius:10px;background:#fff8e6;display:grid;place-items:center;font-size:1.5rem;overflow:hidden;flex-shrink:0}.merc-promo .ft img{width:100%;height:100%;object-fit:cover}
 .merc-promo .tx{flex:1;min-width:0}.merc-promo .tx b{display:block;font-size:.92rem}.merc-promo .tx small{font-size:.8rem;color:var(--txt-2)}.merc-promo s{color:var(--txt-3)}
 .troca-loja{display:flex;align-items:center;gap:8px;background:#111;color:#fff;border-radius:14px;padding:8px 10px;margin-bottom:12px}
+.troca-loja .rot small{font-size:.7rem;color:#bbb;font-weight:600;letter-spacing:0}
 .troca-loja .rot{font-size:.78rem;color:#D4A537;font-weight:700;white-space:nowrap}
 .troca-loja select{flex:1;min-width:0;min-height:44px;border-radius:10px;border:1.5px solid #D4A537;background:#1b1b1b;color:#fff;font:inherit;font-weight:700;padding:0 10px}
 .troca-loja button{min-height:44px;border:0;border-radius:10px;background:#D4A537;color:#000;font:inherit;font-weight:800;padding:0 12px;white-space:nowrap;cursor:pointer}
@@ -298,7 +299,7 @@ function traduzErro(e){const m=(e&&e.message)||String(e);
 /* ===== MODO: banco real (Supabase) ou DEMONSTRAÇÃO (fica só neste celular) ===== */
 const DEMO=!(window.CONFIG&&CONFIG.SUPABASE_URL&&CONFIG.SUPABASE_ANON_KEY);
 const db=DEMO?null:supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_ANON_KEY);
-let user=null,empresa=null,ofertas=[],admin=false,lojas=[],ADM_ED=false;
+let user=null,empresa=null,ofertas=[],admin=false,lojas=[],ADM_ED=false,TODAS=[];
 
 // ===== LOGIN =====
 function telaLogin(modo="entrar"){
@@ -343,11 +344,12 @@ async function iniciar(){
   if(!session){location.hash==="#entrar"?telaLogin("entrar"):location.hash==="#mercado"?telaBoasVindasMercado():location.hash==="#participar"?telaLogin("criar"):telaBoasVindas();return}
   user=session.user;$("#btnSair").classList.remove("escondido");
   const [{data:emps},{data:adm}]=await Promise.all([db.from("empresas").select("*").eq("dono",user.id).order("criado_em"),db.from("admins").select("user_id").eq("user_id",user.id).maybeSingle()]);
-  lojas=emps||[];admin=!!adm;const atual=store.get("vc_loja_atual","");
+  lojas=emps||[];admin=!!adm;const atual=store.get("vc_loja_atual","");TODAS=[];
+  if(admin){const r=await db.from("empresas").select("*").order("nome");if(!r.error)TODAS=r.data||[]}
   empresa=lojas.find(l=>l.id===atual)||lojas[0]||null;
   const alvo=admAlvo();ADM_ED=false;
-  if(admin&&alvo){let x=lojas.find(l=>l.id===alvo);if(!x){const r=await db.from("empresas").select("*").eq("id",alvo).maybeSingle();x=r.data}
-    if(x){empresa=x;ADM_ED=true;await carregarOfertas();telaPainel();aplicarAbaAdm();return}}
+  if(admin&&alvo){let x=TODAS.find(l=>l.id===alvo)||lojas.find(l=>l.id===alvo);if(!x){const r=await db.from("empresas").select("*").eq("id",alvo).maybeSingle();x=r.data}
+    if(x){empresa=x;ADM_ED=!lojas.some(l=>l.id===x.id);await carregarOfertas();telaPainel();aplicarAbaAdm();return}}
   if(admin&&location.hash==="#nova"){history.replaceState(null,"",location.pathname);novaLoja();return}
   if(!empresa){admin?telaSouAdmin():telaCadastroEmpresa();return}
   store.set("vc_loja_atual",empresa.id);
@@ -362,16 +364,24 @@ function aplicarAbaAdm(){let a="";try{a=sessionStorage.getItem("vc_adm_aba")||""
   if(empresa.ramo==="Mercado"&&(a==="mercado"||a==="oferta")){ABA_M=a;telaPainel()}}
 function multiLoja(){return DEMO||admin}
 function barraLojas(){
-  if(ADM_ED)return `<div class="adm-faixa"><span>👑 Editando como <b>ADM</b>: ${esc(empresa.nome)}</span><a href="admin.html" onclick="sairModoAdm()">← Voltar para a Administração</a></div>`;
-  if(!multiLoja())return"";
-  const ops=DEMO?[`<option value="atual" selected>${esc(empresa.nome)}</option>`,...lojas.map((l,i)=>`<option value="${i}">${esc(l.nome)}</option>`)]
-    :lojas.map(l=>`<option value="${esc(l.id)}" ${l.id===empresa.id?"selected":""}>${esc(l.nome)}${l.aprovada?"":" (em análise)"}</option>`);
-  return `<div class="troca-loja"><span class="rot">Loja</span><select aria-label="Escolher a loja" onchange="trocarLoja(this.value)">${ops.join("")}</select><button onclick="novaLoja()">➕ Nova loja</button></div>`}
+  const faixa=ADM_ED?`<div class="adm-faixa"><span>👑 Editando como <b>ADM</b>: ${esc(empresa.nome)}${empresa.ramo?` · ${esc(empresa.ramo)}`:""}</span><a href="admin.html" onclick="sairModoAdm()">← Voltar para a Administração</a></div>`:"";
+  if(!multiLoja())return faixa;
+  // itens: demonstração (loja aberta + guardadas) ou, no site, todas as empresas para o ADM
+  const itens=DEMO?[{v:"atual",e:empresa,sel:true},...lojas.map((l,i)=>({v:String(i),e:l}))]
+    :(admin&&TODAS.length?TODAS:lojas).map(l=>({v:l.id,e:l,sel:l.id===empresa.id,minha:lojas.some(x=>x.id===l.id)}));
+  if(!DEMO&&!itens.some(i=>i.sel))itens.unshift({v:empresa.id,e:empresa,sel:true});
+  const grupos={};itens.forEach(i=>{const r=i.e.ramo||"Outro";(grupos[r]=grupos[r]||[]).push(i)});
+  const ops=Object.keys(grupos).sort((a,b)=>a.localeCompare(b,"pt-BR")).map(r=>`<optgroup label="${esc(r)}">${grupos[r].sort((a,b)=>String(a.e.nome).localeCompare(String(b.e.nome),"pt-BR")).map(i=>`<option value="${esc(i.v)}" ${i.sel?"selected":""}>${esc(i.e.nome)}${i.e.aprovada===false?" (em análise)":""}</option>`).join("")}</optgroup>`).join("");
+  const n=itens.length;
+  return `<div class="troca-loja"><span class="rot">${admin&&!DEMO?`Empresas<br><small>${n}</small>`:"Loja"}</span><select aria-label="Escolher a empresa" onchange="trocarLoja(this.value)">${ops}</select><button onclick="novaLoja()">➕ Nova</button></div>${faixa}`}
 async function trocarLoja(v){ABA="resultados";ABA_M="mercado";MERC_EMP=null;
   if(DEMO){if(v==="atual")return;const arq=store.get("vc_demo_lojas",[]),i=+v,esc_=arq[i];if(!esc_)return;
     arq.splice(i,1,{emp:store.get("vc_demo_emp",null),ofertas:store.get("vc_demo_ofertas",[])});store.set("vc_demo_lojas",arq);
     store.set("vc_demo_emp",esc_.emp);store.set("vc_demo_ofertas",esc_.ofertas||[]);await iniciar();return}
-  const l=lojas.find(x=>x.id===v);if(!l)return;empresa=l;store.set("vc_loja_atual",l.id);await carregarOfertas();telaPainel();window.scrollTo(0,0)}
+  const l=(admin&&TODAS.length?TODAS:lojas).find(x=>x.id===v);if(!l)return;empresa=l;
+  if(lojas.some(x=>x.id===v)){ADM_ED=false;sairModoAdm();store.set("vc_loja_atual",l.id)}
+  else{ADM_ED=true;try{sessionStorage.setItem("vc_adm_abrir",l.id)}catch(e){}}
+  await carregarOfertas();telaPainel();window.scrollTo(0,0)}
 function novaLoja(){
   if(DEMO){const e=store.get("vc_demo_emp",null);if(e){const arq=store.get("vc_demo_lojas",[]);arq.push({emp:e,ofertas:store.get("vc_demo_ofertas",[])});store.set("vc_demo_lojas",arq);lojas=arq.map(x=>x.emp)}
     localStorage.removeItem("vc_demo_emp");localStorage.removeItem("vc_demo_ofertas")}
