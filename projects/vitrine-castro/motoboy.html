@@ -45,12 +45,18 @@ label{display:block;font-size:.9rem;font-weight:600;margin:12px 0 5px}
 .plano .gr{margin-left:auto;background:#000;color:var(--ouro2);font-weight:800;font-size:.8rem;border-radius:10px;padding:6px 10px;text-align:center}
 .passos{display:grid;gap:8px;margin-bottom:14px}.passos div{display:flex;gap:10px;align-items:center;background:#fff;border-radius:14px;padding:10px 12px}
 .passos i{font-style:normal;font-size:1.5rem}.passos b{display:block;font-size:.92rem}.passos small{color:var(--cinza);font-size:.8rem}
-.status{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-.st-btn{border:3px solid transparent;border-radius:18px;min-height:110px;font-weight:800;font-size:1.05rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:#f3f3f5;color:var(--cinza)}
-.st-btn .bola{width:22px;height:22px;border-radius:50%;background:#c9c9cf}
-.st-btn.livre.on{background:var(--verde);color:#fff;border-color:#0b5c2a;box-shadow:0 6px 18px rgba(19,160,73,.35)}.st-btn.livre.on .bola{background:#b6f5cd}
-.st-btn.ocup.on{background:var(--verm);color:#fff;border-color:#8a0b0f;box-shadow:0 6px 18px rgba(217,20,26,.3)}.st-btn.ocup.on .bola{background:#ffd0d1}
-.st-btn small{font-weight:600;font-size:.78rem;opacity:.9}
+.chave{position:relative;height:84px;border-radius:999px;margin-top:14px;background:var(--verm);box-shadow:inset 0 3px 10px rgba(0,0,0,.25);touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab;outline-offset:4px;transition:background .25s}
+.chave.livre{background:var(--verde)}
+.chave .txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;padding:0 26px 0 96px;color:#fff;font-weight:800;font-size:1.02rem;letter-spacing:.02em;pointer-events:none;text-align:right;line-height:1.15}
+.chave.livre .txt{justify-content:flex-start;padding:0 96px 0 26px;text-align:left}
+.chave .txt small{display:block;font-weight:600;font-size:.76rem;opacity:.9;letter-spacing:0}
+.chave .seta{animation:sopra 1.4s ease-in-out infinite;display:inline-block}
+@keyframes sopra{0%,100%{transform:translateX(0);opacity:.6}50%{transform:translateX(5px);opacity:1}}
+.chave.livre .seta{animation-name:soprab}@keyframes soprab{0%,100%{transform:translateX(0);opacity:.6}50%{transform:translateX(-5px);opacity:1}}
+.chave .bolao{position:absolute;top:6px;left:6px;width:72px;height:72px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:2rem;box-shadow:0 4px 12px rgba(0,0,0,.3);transition:transform .22s cubic-bezier(.2,.8,.2,1)}
+.chave.arrastando .bolao{transition:none}.chave.arrastando{cursor:grabbing}
+.chave-leg{display:flex;justify-content:space-between;font-size:.78rem;font-weight:700;color:var(--cinza);margin:6px 10px 0}
+@media (prefers-reduced-motion:reduce){.chave .seta{animation:none}.chave .bolao,.chave{transition:none}}
 .agora{text-align:center;font-size:.85rem;color:var(--cinza);margin-top:10px}
 .linha-d{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--linha);font-size:.92rem}.linha-d:first-of-type{border-top:0}.linha-d span{color:var(--cinza)}
 .tag{display:inline-block;border-radius:20px;padding:3px 10px;font-size:.78rem;font-weight:700}.tag.ok{background:#dff5e7;color:var(--verde2)}.tag.pend{background:#fff3cd;color:#7a5a00}
@@ -162,10 +168,10 @@ function telaPainel(){const m=moto,ga=gratisAte(m),gratis=ga>new Date();
   $("#main").innerHTML=`${DEMO?`<div class="aviso"><b>Modo demonstração.</b> O cadastro fica só neste celular e aparece na lista do app deste aparelho.</div>`:""}
   ${m.aprovado?"":`<div class="aviso">⏳ <b>Cadastro em análise.</b> Seu nome aparece na lista assim que o Vitrine aprovar.${WA_ADM?` <a href="https://wa.me/${WA_ADM}?text=${encodeURIComponent("Olá! Fiz meu cadastro de motoboy no Vitrine Castro: "+m.nome+".")}" target="_blank" rel="noopener">Avisar pelo WhatsApp</a>`:""}</div>`}
   <div class="card"><h2>Olá, ${esc(m.nome.split(" ")[0])}! 👋</h2><p class="sub">Como você está agora?</p>
-   <div class="status" role="group" aria-label="Meu status">
-    <button type="button" class="st-btn livre ${m.livre?"on":""}" aria-pressed="${!!m.livre}" onclick="mudarStatus(true)"><span class="bola"></span>LIVRE<small>Posso pegar entrega</small></button>
-    <button type="button" class="st-btn ocup ${m.livre?"":"on"}" aria-pressed="${!m.livre}" onclick="mudarStatus(false)"><span class="bola"></span>OCUPADO<small>Estou em entrega</small></button>
-   </div>
+   <div class="chave${m.livre?" livre":""}" id="chave" role="switch" tabindex="0" aria-checked="${!!m.livre}" aria-label="Status: ${m.livre?"livre":"ocupado"}. Toque ou puxe para mudar.">
+    <span class="txt">${m.livre?'<span><span class="seta">‹‹</span> LIVRE<small>puxe para OCUPADO</small></span>':'<span>OCUPADO <span class="seta">››</span><small>puxe para LIVRE</small></span>'}</span>
+    <span class="bolao" aria-hidden="true">🛵</span></div>
+   <div class="chave-leg" aria-hidden="true"><span>🔴 Ocupado</span><span>Livre 🟢</span></div>
    <p class="agora" id="mAgora">${m.livre?"🟢 Você aparece como LIVRE":"🔴 Você aparece como OCUPADO"} desde ${haQuanto(m.status_em)}.</p></div>
   <div class="card"><h2>📋 Meus dados</h2>
    <div class="linha-d"><span>Nome</span><b>${esc(m.nome)}</b></div>
@@ -179,7 +185,19 @@ function telaPainel(){const m=moto,ga=gratisAte(m),gratis=ga>new Date();
    ${m.pago_ate?`<div class="linha-d"><span>Pago até</span><b>${dataBR(m.pago_ate+"T12:00:00")}</b></div>`:""}
    <p class="ajuda" style="margin-top:8px">${gratis?"Você está nos <b>3 meses grátis</b>.":pago?"Plano em dia. Obrigado!":"O período grátis acabou. Pague pelo Pix e mande o comprovante pelo WhatsApp do Vitrine."}</p>
    ${WA_ADM?`<a class="btn" style="background:#25D366;color:#073b1c" href="https://wa.me/${WA_ADM}?text=${encodeURIComponent("Olá! Sou o motoboy "+m.nome+" do Vitrine Castro e quero falar sobre o plano de "+PRECO+"/mês.")}" target="_blank" rel="noopener">💬 Falar com o Vitrine</a>`:""}</div>
-  <button class="btn claro" onclick="sairDaLista()" style="color:#a30d12">Sair da lista de motoboys</button>`}
+  <button class="btn claro" onclick="sairDaLista()" style="color:#a30d12">Sair da lista de motoboys</button>`;ligarChave()}
+/* Chave de puxar: o motoboy arrasta a moto para a direita (LIVRE) ou para a esquerda (OCUPADO). Um toque também troca. */
+function ligarChave(){const k=$("#chave");if(!k)return;const b=k.querySelector(".bolao");
+  const fim=()=>k.clientWidth-b.offsetWidth-12,pos=x=>{b.style.transform="translateX("+x+"px)"};
+  pos(moto.livre?fim():0);
+  let x0=null,base=0,dx=0,mexeu=false;
+  const vai=livre=>{pos(livre?fim():0);k.classList.toggle("livre",livre);if(navigator.vibrate)try{navigator.vibrate(25)}catch(e){};setTimeout(()=>mudarStatus(livre),200)};
+  k.addEventListener("pointerdown",e=>{x0=e.clientX;base=moto.livre?fim():0;dx=0;mexeu=false;k.classList.add("arrastando");try{k.setPointerCapture(e.pointerId)}catch(_){}});
+  k.addEventListener("pointermove",e=>{if(x0===null)return;dx=e.clientX-x0;if(Math.abs(dx)>6)mexeu=true;const x=Math.max(0,Math.min(fim(),base+dx));pos(x);k.classList.toggle("livre",x>fim()/2)});
+  const solta=()=>{if(x0===null)return;x0=null;k.classList.remove("arrastando");const x=Math.max(0,Math.min(fim(),base+dx));
+    const livre=mexeu?x>fim()/2:!moto.livre;if(livre===!!moto.livre){pos(livre?fim():0);k.classList.toggle("livre",livre);return}vai(livre)};
+  k.addEventListener("pointerup",solta);k.addEventListener("pointercancel",()=>{if(x0===null)return;x0=null;k.classList.remove("arrastando");pos(moto.livre?fim():0);k.classList.toggle("livre",!!moto.livre)});
+  k.addEventListener("keydown",e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();vai(!moto.livre)}else if(e.key==="ArrowRight"&&!moto.livre)vai(true);else if(e.key==="ArrowLeft"&&moto.livre)vai(false)})}
 async function mudarStatus(livre){if(moto.livre===livre)return;const ant=moto.livre;moto.livre=livre;moto.status_em=new Date().toISOString();telaPainel();
   try{if(DEMO)store.set("vc_demo_motoboy",moto);
     else{const {data,error}=await db.from("motoboys").update({livre}).eq("id",moto.id).select().single();if(error)throw error;moto=data}
