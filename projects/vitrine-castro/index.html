@@ -599,23 +599,23 @@ img[data-logo].lg-ok{object-fit:cover!important;padding:0!important;background:n
 .mb-filtro{display:flex;gap:6px;background:#e6e6ea;border-radius:12px;padding:4px;margin-bottom:12px}
 .mb-filtro button{flex:1;min-height:44px;border:0;border-radius:9px;background:none;font:inherit;font-weight:700;font-size:.88rem;color:var(--txt-2);cursor:pointer}
 .mb-filtro button[aria-pressed=true]{background:#000;color:var(--ouro-2)}
-.mb-lista{display:grid;gap:8px}
-.mb-lin{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:var(--raio-g);box-shadow:var(--sombra);padding:10px 12px;border-left:5px solid #13a049}
-.mb-lin.ocup{border-left-color:#d9141a}
-.mb-av{width:42px;height:42px;border-radius:50%;background:#f3f3f5;display:grid;place-items:center;font-size:1.3rem;flex-shrink:0}
-.mb-tx{flex:1;min-width:0}.mb-tx b{display:block;font-size:.98rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mb-tx b .ex{font-weight:500;color:var(--txt-3);font-size:.75rem}
-.mb-tel{display:inline-flex;align-items:center;gap:4px;font-weight:700;font-size:.95rem;color:var(--txt);text-decoration:none;font-variant-numeric:tabular-nums;margin:1px 0}
-.mb-tx small{display:block;font-size:.76rem;color:var(--txt-3)}
-.mb-tel{gap:6px!important}.mb-lig{width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;background:#e8f7ee;color:#0d6b31;border:1.5px solid #9bd8b2;flex-shrink:0}
-.mb-st{display:inline-flex;align-items:center;gap:6px;min-width:104px;min-height:44px;justify-content:center;border-radius:12px;font:inherit;font-weight:800;font-size:.86rem;letter-spacing:.03em;text-decoration:none;border:0;cursor:pointer;flex-shrink:0}
-.mb-st .pt{width:10px;height:10px;border-radius:50%;background:#fff}
-.mb-st.livre{background:#13a049;color:#fff;box-shadow:0 3px 10px rgba(19,160,73,.35)}.mb-st.ocup{background:#d9141a;color:#fff}
+.mb-lista{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+.mb-lin{position:relative;display:flex;align-items:center;gap:10px;min-height:66px;padding:6px;border-radius:999px;background:#0b7d37;color:#fff;box-shadow:0 4px 12px rgba(11,125,55,.28)}
+.mb-lin.ocup{background:#c8102e;box-shadow:0 4px 12px rgba(200,16,46,.25)}
+.mb-st{order:2;position:relative;width:54px;height:54px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:1.6rem;flex-shrink:0;border:0;padding:0;cursor:pointer;text-decoration:none;box-shadow:0 3px 8px rgba(0,0,0,.28)}
+.mb-lin.ocup .mb-st{order:0}
+.mb-st .zp{position:absolute;right:-3px;bottom:-3px;width:24px;height:24px;border-radius:50%;background:#25D366;color:#fff;display:grid;place-items:center;border:2px solid #fff}.mb-st .zp svg{width:13px;height:13px}
+.mb-tx{order:1;flex:1;min-width:0;padding:0 8px 0 14px;line-height:1.2}.mb-lin.ocup .mb-tx{padding:0 14px 0 4px;text-align:right}
+.mb-tx b{display:block;font-size:.98rem;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mb-tx b .ex{display:inline;font-weight:600;opacity:.8;font-size:.72rem;letter-spacing:0}
+.mb-tel{display:inline-flex;align-items:center;gap:6px;color:#fff;font-weight:700;font-size:.95rem;text-decoration:none;font-variant-numeric:tabular-nums;min-height:28px}
+.mb-lig{width:24px;height:24px;border-radius:50%;display:inline-grid;place-items:center;background:rgba(255,255,255,.22);border:1.5px solid rgba(255,255,255,.6)}
+.mb-tx small{display:block;font-size:.72rem;font-weight:700;letter-spacing:.03em;opacity:.92;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mb-vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:359px){.mb-st{width:48px;height:48px;font-size:1.4rem}.mb-tx{padding-left:10px}.mb-lin.ocup .mb-tx{padding-right:10px}.mb-tel{font-size:.88rem}}
 .mb-dica{text-align:center;font-size:.8rem;color:var(--txt-3);margin:10px 0 14px}
 .mb-cta{display:flex;align-items:center;gap:12px;background:#000;color:#fff;border:1.5px solid var(--ouro);border-radius:var(--raio-g);padding:12px 14px;text-decoration:none;margin-bottom:16px}
 .mb-cta .mb-ic2{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,var(--ouro-2),var(--ouro));color:#000;flex-shrink:0}
 .mb-cta span:nth-child(2){flex:1}.mb-cta b{display:block;color:var(--ouro-2)}.mb-cta small{display:block;color:#ddd;font-size:.8rem}
-@media (max-width:379px){.mb-lin{gap:8px;padding:10px 9px}.mb-av{width:34px;height:34px;font-size:1.05rem}.mb-st{min-width:0;padding:0 10px;gap:5px;font-size:.8rem}.mb-tel{font-size:.9rem;gap:4px!important}.mb-lig{width:26px;height:26px}}
-@media (max-width:339px){.mb-av{display:none}}
 </style>
 </head>
 <body>
@@ -1686,13 +1686,13 @@ async function renderMotoboys(){const box=$("#motoBox");if(!box)return;
   const livres=l.filter(m=>m.livre).length,vis=MOTO_FILTRO==="livres"?l.filter(m=>m.livre):l;
   box.innerHTML=cab+`<div class="mb-filtro" role="group" aria-label="Filtrar"><button type="button" aria-pressed="${MOTO_FILTRO==="todos"}" onclick="MOTO_FILTRO='todos';renderMotoboys()">Todos (${l.length})</button><button type="button" aria-pressed="${MOTO_FILTRO==="livres"}" onclick="MOTO_FILTRO='livres';renderMotoboys()">🟢 Só livres (${livres})</button></div>
    ${vis.length?`<div class="mb-lista">${vis.map(m=>{const d=String(m.telefone||"").replace(/\D/g,""),wa="55"+d,msg="Olá! Vi você na lista de motoboys do Vitrine Castro. Está livre para uma entrega?";
-     return `<div class="mb-lin${m.livre?"":" ocup"}"><span class="mb-av" aria-hidden="true">🛵</span>
-      <div class="mb-tx"><b>${esc(m.nome)}${m.exemplo?' <small class="ex">(exemplo)</small>':""}${m.eu?' <small class="ex">(você)</small>':""}</b><a class="mb-tel" href="tel:+${esc(wa)}" aria-label="Ligar para ${esc(m.nome)}: ${esc(telMoto(d))}">${esc(telMoto(d))}<span class="mb-lig">${ic("phone",15)}</span></a>
-       <small>${m.bairro?esc(m.bairro)+" · ":""}${m.livre?"livre":"ocupado"} ${esc(haMin(m.status_em))}</small></div>
-      ${m.livre?`<a class="mb-st livre" href="https://wa.me/${esc(wa)}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener" aria-label="${esc(m.nome)} está livre: mandar mensagem no WhatsApp">${ICONE_ZAP}LIVRE</a>`
-       :`<button type="button" class="mb-st ocup" onclick="toast('${esc(m.nome).replace(/'/g,"")} está em entrega agora. Escolha um motoboy livre ou ligue mais tarde.')" aria-label="${esc(m.nome)} está ocupado"><span class="pt"></span>OCUPADO</button>`}</div>`}).join("")}</div>`
+     return `<div class="mb-lin${m.livre?"":" ocup"}">
+      <div class="mb-tx"><b>${esc(m.nome)}${m.exemplo?' <small class="ex">(exemplo)</small>':""}${m.eu?' <small class="ex">(você)</small>':""}</b><a class="mb-tel" href="tel:+${esc(wa)}" aria-label="Ligar para ${esc(m.nome)}: ${esc(telMoto(d))}">${m.livre?"":`<span class="mb-lig">${ic("phone",13)}</span>`}${esc(telMoto(d))}${m.livre?`<span class="mb-lig">${ic("phone",13)}</span>`:""}</a>
+       <small>${m.livre?"🟢 LIVRE":"🔴 OCUPADO"} ${esc(haMin(m.status_em))}${m.bairro?" · "+esc(m.bairro):""}</small></div>
+      ${m.livre?`<a class="mb-st livre" href="https://wa.me/${esc(wa)}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener" aria-label="${esc(m.nome)} está livre: mandar mensagem no WhatsApp"><span aria-hidden="true">🛵</span><span class="zp">${ICONE_ZAP}</span><span class="mb-vh">LIVRE</span></a>`
+       :`<button type="button" class="mb-st ocup" onclick="toast('${esc(m.nome).replace(/'/g,"")} está em entrega agora. Escolha um motoboy livre ou ligue mais tarde.')" aria-label="${esc(m.nome)} está ocupado"><span aria-hidden="true">🛵</span><span class="mb-vh">OCUPADO</span></button>`}</div>`}).join("")}</div>`
      :`<div class="merc-vazio"><span class="e">🛵</span><b>${l.length?"Nenhum motoboy livre agora.":"Ainda não há motoboys na lista."}</b><p>${l.length?"Veja todos ou tente daqui a pouco.":"Em breve os motoboys de Castro aparecem aqui."}</p></div>`}
-   <p class="mb-dica">📞 Toque no número para <b>ligar</b> · toque em <b style="color:#13a049">LIVRE</b> para mandar <b>WhatsApp</b> · a lista se atualiza sozinha.</p>`+motoRodape();
+   <p class="mb-dica">🟢 Verde = livre · 🔴 Vermelho = ocupado<br>📞 Toque no número para <b>ligar</b> · toque na 🛵 verde para mandar <b>WhatsApp</b></p>`+motoRodape();
   pintarIcones(box);clearInterval(window._motoT);window._motoT=setInterval(()=>{if(VIEW==="motoboys"&&!document.hidden)renderMotoboys()},45000)}
 function motoRodape(){return `<a class="mb-cta" href="motoboy.html"><span class="mb-ic2">${ic("moto",24)}</span><span><b>É motoboy? Coloque seu nome aqui</b><small>R$ 19,90/mês · os 3 primeiros meses grátis</small></span>${ic("chev",18)}</a>`}
 function queroMercado(){try{localStorage.setItem("vc_ramo_desejado",JSON.stringify("Mercado"))}catch(e){}}
