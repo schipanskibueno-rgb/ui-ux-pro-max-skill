@@ -753,40 +753,99 @@ function baixarClientes(){const cel=v=>{let s=String(v??"");if(/^[=+\-@\t\r]/.te
   const csv="﻿"+linhas.map(l=>l.map(cel).join(";")).join("\r\n"),a=document.createElement("a");
   a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="vitrine-castro-clientes-"+hojeISO()+".csv";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
 function navAdm(a){return `<div class="abas-p nav-adm" role="tablist"><button role="tab" aria-selected="${a==="emp"}" onclick="painelAdmin(false)">🏪 Empresas</button><button role="tab" aria-selected="${a==="cli"}" onclick="telaClientes(${a==="cli"})">👥 Clientes</button><button role="tab" aria-selected="${a==="fin"}" onclick="telaFinanceiro(${a==="fin"})">💰 Financeiro</button><button role="tab" aria-selected="${a==="merc"}" onclick="telaMercadoAdm()">🛒 Mercado</button><button role="tab" aria-selected="${a==="moto"}" onclick="telaMotoboysAdm()">🛵 Motoboys</button></div>`}
-// ===== MOTOBOYS (ADM): aprovar, suspender, marcar pagamento, excluir =====
+// ===== MOTOBOYS (ADM): cadastrar, aprovar, mensalidade (Pix, dia 10, trava), status, excluir =====
 const MOTO_PRECO="R$ 19,90";
 const telM=t=>{const d=String(t||"").replace(/\D/g,"");return d.length===11?`(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`:d.length===10?`(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`:d};
-const gratisAteM=m=>{const d=new Date(m.criado_em||Date.now());d.setMonth(d.getMonth()+3);return d};
-async function dadosMotos(){if(DEMO){const m=store.get("vc_demo_motoboy",null);return m?[m]:[]}
+// ===== MENSALIDADE DO MOTOBOY (mesma regra do banco): 3 meses grátis; vence todo dia 10; 3 dias de tolerância; no 4º dia trava =====
+const MOTO_VALOR=19.90;
+const diaSP=d=>{const [y,m,x]=new Date(d).toLocaleDateString("sv-SE",{timeZone:"America/Sao_Paulo"}).split("-").map(Number);return new Date(y,m-1,x,12)};
+const isoDia=d=>d.toLocaleDateString("sv-SE");
+function somaMeses(d,n){const r=new Date(d.getFullYear(),d.getMonth()+n,1,12);r.setDate(Math.min(d.getDate(),new Date(r.getFullYear(),r.getMonth()+1,0).getDate()));return r}
+function motoSituacao(m){const hoje=diaSP(Date.now()),gratis=somaMeses(diaSP(m.criado_em||Date.now()),3);
+  let cob=new Date(gratis);cob.setDate(cob.getDate()-1);
+  if(m.pago_ate){const [y,mm,x]=String(m.pago_ate).slice(0,10).split("-").map(Number),p=new Date(y,mm-1,x,12);if(p>cob)cob=p}
+  let venc=new Date(cob.getFullYear(),cob.getMonth(),10,12);if(venc<=cob)venc=new Date(cob.getFullYear(),cob.getMonth()+1,10,12);
+  const trava=new Date(venc);trava.setDate(trava.getDate()+4);
+  const dias=Math.round((venc-hoje)/864e5);
+  return {hoje,gratis,emGratis:hoje<gratis,venc,trava,dias,atrasado:dias<0,travado:hoje>=trava,diasTrava:Math.round((trava-hoje)/864e5)}}
+const dBR=d=>d.toLocaleDateString("pt-BR");
+const DEMO_MOTOS="vc_demo_motos_adm";
+async function dadosMotos(){if(DEMO){const m=store.get("vc_demo_motoboy",null);return (m?[m]:[]).concat(store.get(DEMO_MOTOS,[]))}
   const {data,error}=await db.from("motoboys").select("*").order("criado_em",{ascending:false});
   if(error)throw new Error(/does not exist|relation|schema cache/i.test(error.message||"")?"Para usar os Motoboys, rode o supabase.sql novo no Supabase (SQL Editor).":traduzErro(error));return data||[]}
+function motoTag(m){const s=motoSituacao(m);
+  if(s.travado)return {t:`🔒 Travado desde ${dBR(s.trava)} · venceu ${dBR(s.venc)}`,c:"vm",s};
+  if(s.atrasado)return {t:`⚠️ Atrasado · venceu ${dBR(s.venc)} · trava em ${dBR(s.trava)}`,c:"pend",s};
+  if(s.emGratis)return {t:`🎁 Grátis até ${dBR(new Date(s.gratis.getTime()-864e5))} · 1º venc. ${dBR(s.venc)}`,c:"ok",s};
+  if(s.dias<=5)return {t:`📅 ${s.dias===0?"Vence hoje":"Vence em "+s.dias+" dia"+(s.dias===1?"":"s")} (${dBR(s.venc)})`,c:"pend",s};
+  return {t:`✓ Em dia · próximo venc. ${dBR(s.venc)}`,c:"ok",s}}
 async function telaMotoboysAdm(){ADM.detalhe=null;const box=alvoAdmin();box.innerHTML=navAdm("moto")+`<div class="vazio"><span class="e">⏳</span>Carregando motoboys…</div>`;
   let l;try{l=await dadosMotos()}catch(e){box.innerHTML=navAdm("moto")+`<div class="aviso">${esc(e.message)}</div>`;return}window._motos=l;
-  const hoje=new Date(),pend=l.filter(m=>!m.aprovado),livres=l.filter(m=>m.aprovado&&m.livre).length;
-  const venc=m=>{const g=gratisAteM(m);if(g>hoje)return {t:"Grátis até "+g.toLocaleDateString("pt-BR"),c:"ok"};if(m.pago_ate&&new Date(m.pago_ate+"T23:59:59")>=hoje)return {t:"Pago até "+new Date(m.pago_ate+"T12:00:00").toLocaleDateString("pt-BR"),c:"ok"};return {t:"⚠️ Mensalidade vencida",c:"pend"}};
-  box.innerHTML=navAdm("moto")+`<div class="card" style="border:2px solid var(--ouro)"><h2>🛵 Motoboys</h2><p class="sub"><b>${l.length}</b> cadastrado${l.length===1?"":"s"} · <b>${livres}</b> livre${livres===1?"":"s"} agora · <b>${pend.length}</b> esperando aprovação. Plano: <b>${MOTO_PRECO}/mês</b>, 3 primeiros meses grátis.</p>
+  const tags=l.map(motoTag),pend=l.filter(m=>!m.aprovado),livres=l.filter((m,i)=>m.aprovado&&m.livre&&!tags[i].s.travado).length;
+  const trav=tags.filter(t=>t.s.travado).length,atr=tags.filter(t=>t.s.atrasado&&!t.s.travado).length;
+  const ordem=l.map((m,i)=>[m,tags[i]]).sort((a,b)=>(b[1].s.travado-a[1].s.travado)||(b[1].s.atrasado-a[1].s.atrasado)||String(a[0].nome).localeCompare(String(b[0].nome),"pt-BR"));
+  box.innerHTML=navAdm("moto")+`<div class="card" style="border:2px solid var(--ouro)"><h2>🛵 Motoboys</h2><p class="sub"><b>${l.length}</b> cadastrado${l.length===1?"":"s"} · <b>${livres}</b> livre${livres===1?"":"s"} agora${pend.length?` · <b>${pend.length}</b> esperando aprovação`:""}${atr?` · <b style="color:#a35b00">${atr}</b> atrasado${atr===1?"":"s"}`:""}${trav?` · <b style="color:#a30d12">${trav}</b> travado${trav===1?"":"s"}`:""}.</p>
+    <p class="ajuda" style="margin:6px 0 0">Plano <b>${MOTO_PRECO}/mês</b>: 3 meses grátis, depois vence <b>todo dia 10</b>. Sem pagamento, no <b>dia 14</b> trava sozinho (sai da lista e não fica LIVRE). Quando receber o Pix, toque em <b>✅ Recebi o Pix</b>.</p>
+    <button class="btn ouro" style="margin-top:10px" onclick="motoForm()">➕ Cadastrar motoboy</button>
     <div class="linha" style="margin-top:8px"><a class="btn claro" href="index.html#motoboys" style="text-decoration:none;display:flex;align-items:center;justify-content:center">👀 Ver a lista no app</a><a class="btn claro" href="motoboy.html" style="text-decoration:none;display:flex;align-items:center;justify-content:center">🛵 Área do Motoboy</a></div></div>
-   ${l.length?l.map(m=>{const v=venc(m),z=String(m.telefone||"").replace(/\D/g,"");return `<div class="card" style="padding:12px 14px">
-     <div style="display:flex;gap:10px;align-items:center"><span style="font-size:1.6rem" aria-hidden="true">🛵</span><div style="flex:1;min-width:0"><b>${esc(m.nome)}</b> <span class="status ${m.aprovado?"ok":"pend"}">${m.aprovado?"✓ Na lista":"Em análise"}</span>
-      <p class="ajuda" style="margin:2px 0 0">${esc(telM(m.telefone))}${m.bairro?" · "+esc(m.bairro):""} · ${m.livre?"🟢 livre":"🔴 ocupado"} · <span class="status ${v.c}" style="font-size:.74rem;padding:2px 8px">${v.t}</span></p></div></div>
+   ${l.length?ordem.map(([m,v])=>{const z=String(m.telefone||"").replace(/\D/g,""),id=esc(m.id),s=v.s;
+     const cobrar=`Olá, ${m.nome}! Aqui é do Vitrine Castro. A mensalidade de ${MOTO_PRECO} da lista de motoboys venceu em ${dBR(s.venc)}. Você pode pagar pelo Pix na sua Área do Motoboy${s.travado?"":", até "+dBR(new Date(s.trava.getTime()-864e5))+", para não travar"}. Obrigado!`;
+     return `<div class="card" style="padding:12px 14px${s.travado?";border:2px solid #c8102e":s.atrasado?";border:2px solid #f0a050":""}">
+     <div style="display:flex;gap:10px;align-items:center"><span style="font-size:1.6rem" aria-hidden="true">🛵</span><div style="flex:1;min-width:0"><b>${esc(m.nome)}</b> <span class="status ${m.aprovado?"ok":"pend"}">${m.aprovado?"✓ Na lista":"Em análise"}</span>${m.pelo_adm?` <span class="status" style="background:#eee;color:#444">cadastrado pelo ADM</span>`:""}
+      <p class="ajuda" style="margin:2px 0 0">${esc(telM(m.telefone))}${m.bairro?" · "+esc(m.bairro):""} · ${s.travado?"🔒 fora da lista":m.livre?"🟢 livre":"🔴 ocupado"}${m.email_convite?` · convite: ${esc(m.email_convite)}`:m.pelo_adm&&!m.dono?" · sem login":""}</p>
+      <p style="margin:4px 0 0"><span class="status ${v.c==="vm"?"pend":v.c}" style="font-size:.76rem;padding:2px 8px${v.c==="vm"?";background:#c8102e;color:#fff":""}">${v.t}</span></p></div></div>
      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
-      ${m.aprovado?`<button class="mini" onclick="motoAdm('${esc(m.id)}',{aprovado:false})">⏸ Tirar da lista</button>`:`<button class="mini ou" onclick="motoAdm('${esc(m.id)}',{aprovado:true})">✓ Aprovar</button>`}
-      <button class="mini" onclick="motoPago('${esc(m.id)}')">💳 Registrar pagamento</button>
-      ${z?`<a class="mini" style="display:inline-flex;align-items:center;text-decoration:none;background:#dff5e7;color:#0d6b31" href="https://wa.me/55${esc(z)}" target="_blank" rel="noopener">💬 WhatsApp</a>`:""}
-      <button class="mini vm" onclick="motoApagar('${esc(m.id)}')" aria-label="Excluir ${esc(m.nome)}">🗑</button></div></div>`}).join("")
-   :`<div class="vazio"><span class="e">🛵</span>Nenhum motoboy ainda. Mande o link da <b>Área do Motoboy</b> (motoboy.html) para os motoboys de Castro.</div>`}`}
-async function motoAdm(id,campos){
-  if(DEMO){const m=store.get("vc_demo_motoboy",null);if(m&&String(m.id)===String(id)){Object.assign(m,campos);store.set("vc_demo_motoboy",m)}}
+      <button class="mini ou" onclick="motoRecebi('${id}')">✅ Recebi o Pix (venc. ${dBR(s.venc).slice(0,5)})</button>
+      ${s.travado?"":`<button class="mini" onclick="motoAdm('${id}',{livre:${!m.livre}})">${m.livre?"🔴 Pôr ocupado":"🟢 Pôr livre"}</button>`}
+      <button class="mini" onclick="motoForm('${id}')">✏️ Editar</button>
+      <button class="mini" onclick="motoPago('${id}')">📅 Ajustar pagamento</button>
+      ${m.aprovado?`<button class="mini" onclick="motoAdm('${id}',{aprovado:false})">⏸ Tirar da lista</button>`:`<button class="mini ou" onclick="motoAdm('${id}',{aprovado:true})">✓ Aprovar</button>`}
+      ${z?`<a class="mini" style="display:inline-flex;align-items:center;text-decoration:none;background:#dff5e7;color:#0d6b31" href="https://wa.me/55${esc(z)}${s.atrasado?"?text="+encodeURIComponent(cobrar):""}" target="_blank" rel="noopener">💬 ${s.atrasado?"Cobrar":"WhatsApp"}</a>`:""}
+      <button class="mini vm" onclick="motoApagar('${id}')" aria-label="Excluir ${esc(m.nome)}">🗑</button></div></div>`}).join("")
+   :`<div class="vazio"><span class="e">🛵</span>Nenhum motoboy ainda. Toque em <b>➕ Cadastrar motoboy</b> ou mande o link da <b>Área do Motoboy</b> (motoboy.html) para os motoboys de Castro.</div>`}`}
+function motoForm(id){const m=id?(window._motos||[]).find(x=>String(x.id)===String(id)):null;if(id&&!m)return;
+  abrirSheet(`<h2 style="margin-top:8px">${m?"✏️ Editar "+esc(m.nome):"➕ Cadastrar motoboy"}</h2><p class="sub">${m?"Mude o que precisar.":"Ele já entra aprovado na lista, com 3 meses grátis a partir de hoje."}</p>
+   <form onsubmit="motoSalvar(event,${m?`'${esc(m.id)}'`:"null"})">
+    <label for="mfNome">Nome (como as lojas vão ver)</label><input class="inp" id="mfNome" maxlength="60" required value="${esc(m?m.nome:"")}" placeholder="Ex: João Entregas">
+    <label for="mfTel">WhatsApp</label><input class="inp" id="mfTel" inputmode="tel" maxlength="20" required value="${esc(m?telM(m.telefone):"")}" placeholder="(42) 9 9999-9999">
+    <label for="mfBairro">Bairro ou região (opcional)</label><input class="inp" id="mfBairro" maxlength="60" value="${esc(m&&m.bairro||"")}" placeholder="Ex: Centro">
+    ${!m||(m.pelo_adm&&!m.dono)?`<label for="mfEmail">E-mail do motoboy (opcional)</label><input class="inp" id="mfEmail" type="email" maxlength="120" value="${esc(m&&m.email_convite||"")}" placeholder="joao@gmail.com">
+    <p class="ajuda">Se ele criar a conta na <b>Área do Motoboy</b> com este e-mail, o cadastro passa a ser dele: ele mesmo muda livre/ocupado e paga o Pix. Sem e-mail, você muda o status por aqui.</p>`:""}
+    ${m?"":`<label class="check" style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" id="mfLivre" checked style="width:22px;height:22px"> Já começa como LIVRE</label>`}
+    <button class="btn ouro" id="mfBtn">${m?"💾 Salvar":"✅ Cadastrar"}</button><div class="aviso" id="mfErro" style="display:none;margin-top:10px"></div></form>`)}
+async function motoSalvar(ev,id){ev.preventDefault();const b=$("#mfBtn"),err=$("#mfErro");err.style.display="none";
+  let tel=$("#mfTel").value.replace(/\D/g,"");if(tel.length>11&&tel.startsWith("55"))tel=tel.slice(2);
+  if(tel.length<10||tel.length>11){err.textContent="Confira o WhatsApp: DDD + número.";err.style.display="block";return}
+  const em=$("#mfEmail")?$("#mfEmail").value.trim().toLowerCase():undefined;
+  const dados={nome:$("#mfNome").value.trim(),telefone:tel,bairro:$("#mfBairro").value.trim()||null};if(em!==undefined)dados.email_convite=em||null;
+  b.disabled=true;
+  try{if(DEMO){const l=store.get(DEMO_MOTOS,[]);
+      if(id){const eu=store.get("vc_demo_motoboy",null);if(eu&&String(eu.id)===String(id)){Object.assign(eu,dados);store.set("vc_demo_motoboy",eu)}else{const x=l.find(y=>String(y.id)===String(id));if(x)Object.assign(x,dados);store.set(DEMO_MOTOS,l)}}
+      else{const agora=new Date().toISOString();l.push(Object.assign({id:"adm-"+Date.now(),livre:$("#mfLivre").checked,aprovado:true,pelo_adm:true,dono:null,pago_ate:null,status_em:agora,criado_em:agora},dados));store.set(DEMO_MOTOS,l)}}
+    else if(id){const {error}=await db.from("motoboys").update(dados).eq("id",id);if(error)throw error}
+    else{const {error}=await db.from("motoboys").insert(Object.assign({pelo_adm:true,dono:null,aprovado:true,livre:$("#mfLivre").checked},dados));if(error)throw error}
+    fechar();toast(id?"✅ Salvo":"✅ Motoboy cadastrado e já na lista");telaMotoboysAdm()}
+  catch(e){err.textContent=/telefone_check/i.test(e.message||"")?"Confira o WhatsApp: DDD + número.":/pelo_adm|email_convite|schema cache/i.test(e.message||"")?"Rode o supabase.sql novo no Supabase para cadastrar motoboys pelo ADM.":traduzErro(e);err.style.display="block";b.disabled=false}}
+async function motoAdm(id,campos,msg){
+  if(DEMO){const eu=store.get("vc_demo_motoboy",null);if(eu&&String(eu.id)===String(id)){Object.assign(eu,campos);store.set("vc_demo_motoboy",eu)}
+    else{const l=store.get(DEMO_MOTOS,[]),x=l.find(y=>String(y.id)===String(id));if(x){if("livre" in campos&&campos.livre!==x.livre)x.status_em=new Date().toISOString();Object.assign(x,campos)}store.set(DEMO_MOTOS,l)}}
   else{const {error}=await db.from("motoboys").update(campos).eq("id",id);if(error){toast(traduzErro(error));return}}
-  toast("✅ Atualizado");telaMotoboysAdm()}
+  toast(msg||"✅ Atualizado");telaMotoboysAdm()}
+async function motoRecebi(id){const m=(window._motos||[]).find(x=>String(x.id)===String(id));if(!m)return;const s=motoSituacao(m);
+  const prox=new Date(s.venc.getFullYear(),s.venc.getMonth()+1,10,12),depois=motoSituacao({...m,pago_ate:isoDia(s.venc)});
+  let devendo=0;for(let v=new Date(prox);v<depois.hoje;v.setMonth(v.getMonth()+1))devendo++;
+  const extra=!s.travado?"":depois.travado?` <br><br>⚠️ <b>Ainda fica travado:</b> ele deve mais ${devendo} mensalidade${devendo===1?"":"s"}. Toque em "Recebi o Pix" de novo para cada uma, ou use "📅 Ajustar pagamento".`:" Ele volta para a lista na hora.";
+  if(!await confirmarTela(`Recebeu ${MOTO_PRECO} de ${esc(m.nome)}?`,`Fica pago o vencimento de <b>${dBR(s.venc)}</b>. O próximo passa a ser <b>${dBR(prox)}</b>.${extra}`,{botao:"✅ Sim, recebi",perigo:false}))return;
+  motoAdm(id,{pago_ate:isoDia(s.venc)},`✅ Pago! Próximo vencimento: ${dBR(prox)}`)}
 function motoPago(id){const m=(window._motos||[]).find(x=>String(x.id)===String(id));if(!m)return;
-  const base=m.pago_ate&&new Date(m.pago_ate+"T12:00:00")>gratisAteM(m)?new Date(m.pago_ate+"T12:00:00"):new Date(Math.max(Date.now(),gratisAteM(m).getTime()));base.setMonth(base.getMonth()+1);
-  abrirSheet(`<h2 style="margin-top:8px">💳 Pagamento de ${esc(m.nome)}</h2><p class="sub">Recebeu os ${MOTO_PRECO}? Marque até quando ele está pago.</p>
-   <label for="mpAte">Pago até</label><input class="inp" id="mpAte" type="date" value="${base.toLocaleDateString("sv-SE")}">
+  abrirSheet(`<h2 style="margin-top:8px">📅 Ajustar pagamento de ${esc(m.nome)}</h2><p class="sub">Escolha o <b>último vencimento que ele já pagou</b> (sempre um dia 10). Deixe em branco para apagar os pagamentos.</p>
+   <label for="mpAte">Último vencimento pago</label><input class="inp" id="mpAte" type="date" value="${esc(m.pago_ate||"")}">
+   <p class="ajuda">Ex.: pagou 3 meses de uma vez a partir de 10/03 → escolha 10/05.</p>
    <button class="btn ouro" onclick="motoAdm('${esc(m.id)}',{pago_ate:$('#mpAte').value||null});fechar()">💾 Salvar</button>`)}
 async function motoApagar(id){const m=(window._motos||[]).find(x=>String(x.id)===String(id));
   if(!await confirmarTela("Excluir "+esc(m?m.nome:"motoboy")+"?","O nome e o telefone saem da lista. O motoboy pode se cadastrar de novo depois.",{botao:"🗑 Excluir"}))return;
-  if(DEMO)localStorage.removeItem("vc_demo_motoboy");else{const {error}=await db.from("motoboys").delete().eq("id",id);if(error){toast(traduzErro(error));return}}
+  if(DEMO){const eu=store.get("vc_demo_motoboy",null);if(eu&&String(eu.id)===String(id))localStorage.removeItem("vc_demo_motoboy");else store.set(DEMO_MOTOS,store.get(DEMO_MOTOS,[]).filter(y=>String(y.id)!==String(id)))}
+  else{const {error}=await db.from("motoboys").delete().eq("id",id);if(error){toast(traduzErro(error));return}}
   toast("🗑 Motoboy excluído");telaMotoboysAdm()}
 // ===== VITRINE MERCADO (ADM): produtos da tabela e quem atualizou os preços =====
 const MERC_PROD_DEMO=[["p1","Coca-Cola","2 litros","🥤","img/produtos/coca-cola.jpg"],["p2","Toddy","400 g","🍫","img/produtos/toddy.jpg"],["p3","Sabão em pó OMO","1,6 kg","🧺","img/produtos/omo.jpg"],

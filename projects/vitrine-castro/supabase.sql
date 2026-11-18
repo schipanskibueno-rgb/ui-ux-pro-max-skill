@@ -895,16 +895,62 @@ drop policy if exists "motoboy edita" on public.motoboys;
 create policy "motoboy edita" on public.motoboys for update to authenticated using (dono = auth.uid() or public.is_admin());
 drop policy if exists "motoboy apaga" on public.motoboys;
 create policy "motoboy apaga" on public.motoboys for delete to authenticated using (dono = auth.uid() or public.is_admin());
--- só o ADM aprova e marca o pagamento; a hora do status muda sozinha
+-- Cadastro feito pelo ADM: sem dono até o motoboy entrar com o e-mail indicado
+alter table public.motoboys add column if not exists pelo_adm boolean not null default false;
+alter table public.motoboys add column if not exists email_convite text check (email_convite is null or char_length(email_convite) <= 120);
+alter table public.motoboys alter column dono drop not null;
+
+-- Cobrança: 3 meses grátis; depois vence todo dia 10; 3 dias de tolerância; no 4º dia trava.
+-- pago_ate = último vencimento (dia 10) que já foi pago.
+create or replace function public.moto_vencimento(p_criado timestamptz, p_pago date) returns date
+language plpgsql stable set search_path = public as $$
+declare coberto date; v date;
+begin
+  coberto := greatest(((p_criado at time zone 'America/Sao_Paulo')::date + interval '3 months')::date - 1,
+                      coalesce(p_pago, date '1900-01-01'));
+  v := make_date(extract(year from coberto)::int, extract(month from coberto)::int, 10);
+  if v <= coberto then v := (v + interval '1 month')::date; end if;
+  return v;
+end $$;
+create or replace function public.moto_travado(p_criado timestamptz, p_pago date) returns boolean
+language sql stable set search_path = public as $$
+  select (now() at time zone 'America/Sao_Paulo')::date > public.moto_vencimento(p_criado, p_pago) + 3
+$$;
+grant execute on function public.moto_vencimento(timestamptz, date) to anon, authenticated;
+grant execute on function public.moto_travado(timestamptz, date) to anon, authenticated;
+
+-- A lista pública não mostra quem está travado por falta de pagamento
+drop policy if exists "motoboys ver" on public.motoboys;
+create policy "motoboys ver" on public.motoboys for select
+  using ((aprovado and not public.moto_travado(criado_em, pago_ate)) or dono = auth.uid() or public.is_admin());
+drop policy if exists "motoboy cria" on public.motoboys;
+create policy "motoboy cria" on public.motoboys for insert to authenticated with check (dono = auth.uid() or public.is_admin());
+
+-- só o ADM aprova, marca o pagamento e mexe na data de cadastro; a hora do status muda sozinha;
+-- motoboy travado não consegue ficar LIVRE
 create or replace function public.protege_motoboy() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
   if not public.is_admin() then
     if tg_op = 'INSERT' then
-      new.dono := auth.uid(); new.aprovado := false; new.pago_ate := null;
+      new.dono := auth.uid(); new.aprovado := false; new.pago_ate := null; new.criado_em := now();
+      new.pelo_adm := false; new.email_convite := null;
     else
-      new.dono := old.dono; new.aprovado := old.aprovado; new.pago_ate := old.pago_ate;
+      new.dono := old.dono; new.aprovado := old.aprovado; new.pago_ate := old.pago_ate; new.criado_em := old.criado_em;
+      new.pelo_adm := old.pelo_adm; new.email_convite := old.email_convite;
+      -- única exceção: reivindicar_motoboy() passa o cadastro do ADM para a conta do próprio motoboy
+      if current_setting('vitrine.reivindicar', true) = '1' and old.dono is null then
+        new.dono := auth.uid(); new.email_convite := null;
+      end if;
+      if new.livre and not old.livre and public.moto_travado(old.criado_em, old.pago_ate) then
+        raise exception 'motoboy_travado' using hint = 'Mensalidade em atraso: pague o Pix para voltar à lista.';
+      end if;
     end if;
+  elsif tg_op = 'INSERT' and new.pelo_adm then
+    new.dono := null; new.aprovado := true;
+    new.email_convite := nullif(lower(trim(new.email_convite)), '');
+  elsif tg_op = 'UPDATE' then
+    new.email_convite := nullif(lower(trim(new.email_convite)), '');
   end if;
   if tg_op = 'INSERT' or new.livre is distinct from old.livre then new.status_em := now(); end if;
   return new;
@@ -912,6 +958,26 @@ end $$;
 drop trigger if exists t_protege_motoboy on public.motoboys;
 create trigger t_protege_motoboy before insert or update on public.motoboys for each row execute function public.protege_motoboy();
 revoke execute on function public.protege_motoboy() from public, anon, authenticated;
+
+-- O motoboy cadastrado pelo ADM cria a conta com o e-mail indicado e o cadastro passa a ser dele
+create or replace function public.reivindicar_motoboy() returns uuid
+language plpgsql security definer set search_path = public as $$
+declare v_email text; v_id uuid;
+begin
+  if auth.uid() is null then return null; end if;
+  select id into v_id from public.motoboys where dono = auth.uid();
+  if v_id is not null then return v_id; end if;
+  select lower(email) into v_email from auth.users where id = auth.uid();
+  if v_email is null then return null; end if;
+  perform set_config('vitrine.reivindicar', '1', true);
+  update public.motoboys set dono = auth.uid(), email_convite = null
+   where id = (select id from public.motoboys where dono is null and email_convite = v_email order by criado_em limit 1)
+   returning id into v_id;
+  perform set_config('vitrine.reivindicar', '0', true);
+  return v_id;
+end $$;
+revoke execute on function public.reivindicar_motoboy() from public, anon;
+grant execute on function public.reivindicar_motoboy() to authenticated;
 
 -- DEPOIS de criar sua conta na Área da Empresa (empresa.html),
 -- rode só a linha abaixo (com o SEU e-mail) para virar administrador:

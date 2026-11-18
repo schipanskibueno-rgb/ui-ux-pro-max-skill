@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script>window.__erros=[];addEventListener("error",function(e){try{window.__erros.push(String(e.message||e))}catch(_){}});</script>
 <script src="config.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha384-3zSEDfvllQohrq0PHL1fOXJuC/jSOO34H46t6UQfobFOmxE5BpjjaIJY5F2/bMnU" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
 <style>
 :root{--preto:#000;--ouro:#D4A537;--ouro2:#F2CC63;--txt:#16161a;--cinza:#5f6068;--verde:#13a049;--verde2:#0d6b31;--verm:#d9141a;--fundo:#efeff2;--card:#fff;--linha:#e7e7ea}
@@ -59,6 +60,16 @@ label{display:block;font-size:.9rem;font-weight:600;margin:12px 0 5px}
 .chave.arrastando .bolao{transition:none}.chave.arrastando{cursor:grabbing}
 .chave-leg{display:flex;justify-content:space-between;font-size:.78rem;font-weight:700;color:var(--cinza);margin:6px 10px 0}
 @media (prefers-reduced-motion:reduce){.chave .seta{animation:none}.chave .bolao,.chave{transition:none}}
+.pix{background:#fff;border:2px solid var(--ouro);border-radius:18px;padding:16px;margin-top:12px;text-align:center}
+.pix h3{font-size:1.1rem;margin:0}.pix .vl{font-size:1.6rem;font-weight:800;margin:4px 0}.pix .vl small{font-size:.85rem;color:var(--cinza);font-weight:600}
+.pix-qr{display:grid;place-items:center;background:#fff;border:1px solid var(--linha);border-radius:14px;padding:12px;margin:12px auto 0;width:max-content;max-width:100%}
+.pix-qr img,.pix-qr canvas{max-width:100%;height:auto}
+.pix .zap{background:#25D366;color:#073b1c}
+.aviso-ex{background:#fff3cd;color:#5c4400;border-radius:12px;padding:10px 12px;font-size:.85rem;margin-top:10px;text-align:left}
+.cobra{border-radius:16px;padding:14px;margin-bottom:12px;font-size:.92rem;line-height:1.4}
+.cobra b{display:block;font-size:1.05rem;margin-bottom:2px}
+.cobra.trav{background:#c8102e;color:#fff}.cobra.atr{background:#fff0e0;color:#7a3b00;border:2px solid #f0a050}.cobra.vence{background:#fff8dc;color:#5c4400;border:1.5px solid #e9c46a}
+.chave-off{height:84px;border-radius:999px;margin-top:14px;background:#d9d9de;color:#55555c;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:800;text-align:center;padding:0 18px}
 .agora{text-align:center;font-size:.85rem;color:var(--cinza);margin-top:10px}
 .linha-d{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--linha);font-size:.92rem}.linha-d:first-of-type{border-top:0}.linha-d span{color:var(--cinza)}
 .tag{display:inline-block;border-radius:20px;padding:3px 10px;font-size:.78rem;font-weight:700}.tag.ok{background:#dff5e7;color:var(--verde2)}.tag.pend{background:#fff3cd;color:#7a5a00}
@@ -94,6 +105,7 @@ function traduzErro(e){const m=(e&&e.message)||String(e);
   if(/already registered/i.test(m))return"Este e-mail já tem conta. Use a aba Entrar.";
   if(/Email not confirmed/i.test(m))return"Confirme seu e-mail: abra a mensagem que enviamos e clique no link.";
   if(/rate limit|too many/i.test(m))return"Muitos cadastros em pouco tempo. Aguarde um pouco e tente de novo.";
+  if(/motoboy_travado/i.test(m))return"🔒 Mensalidade em atraso. Pague o Pix para voltar a aparecer como LIVRE.";
   if(/motoboys_um_por_conta/i.test(m))return"Esta conta já tem um cadastro de motoboy.";
   if(/telefone_check/i.test(m))return"Confira o WhatsApp: DDD + número, só números.";
   if(/schema cache|Could not find the table|does not exist/i.test(m))return"O banco de dados está desatualizado. Peça ao administrador para rodar o supabase.sql novo.";
@@ -102,7 +114,28 @@ function traduzErro(e){const m=(e&&e.message)||String(e);
 const soDig=s=>String(s||"").replace(/\D/g,"");
 function telBonito(t){const d=soDig(t).replace(/^55(?=\d{10,11}$)/,"");return d.length===11?`(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`:d.length===10?`(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`:t}
 function dataBR(d){return new Date(d).toLocaleDateString("pt-BR")}
-function gratisAte(m){const d=new Date(m.criado_em||Date.now());d.setMonth(d.getMonth()+3);return d}
+// ===== MENSALIDADE DO MOTOBOY (mesma regra do banco): 3 meses grátis; vence todo dia 10; 3 dias de tolerância; no 4º dia trava =====
+const MOTO_VALOR=19.90;
+const diaSP=d=>{const [y,m,x]=new Date(d).toLocaleDateString("sv-SE",{timeZone:"America/Sao_Paulo"}).split("-").map(Number);return new Date(y,m-1,x,12)};
+const isoDia=d=>d.toLocaleDateString("sv-SE");
+function somaMeses(d,n){const r=new Date(d.getFullYear(),d.getMonth()+n,1,12);r.setDate(Math.min(d.getDate(),new Date(r.getFullYear(),r.getMonth()+1,0).getDate()));return r}
+function motoSituacao(m){const hoje=diaSP(Date.now()),gratis=somaMeses(diaSP(m.criado_em||Date.now()),3);
+  let cob=new Date(gratis);cob.setDate(cob.getDate()-1);
+  if(m.pago_ate){const [y,mm,x]=String(m.pago_ate).slice(0,10).split("-").map(Number),p=new Date(y,mm-1,x,12);if(p>cob)cob=p}
+  let venc=new Date(cob.getFullYear(),cob.getMonth(),10,12);if(venc<=cob)venc=new Date(cob.getFullYear(),cob.getMonth()+1,10,12);
+  const trava=new Date(venc);trava.setDate(trava.getDate()+4);
+  const dias=Math.round((venc-hoje)/864e5);
+  return {hoje,gratis,emGratis:hoje<gratis,venc,trava,dias,atrasado:dias<0,travado:hoje>=trava,diasTrava:Math.round((trava-hoje)/864e5)}}
+// Pix "copia e cola" (padrão do Banco Central, com CRC16)
+function crc16(t){let c=0xFFFF;for(const b of new TextEncoder().encode(t)){c^=b<<8;for(let i=0;i<8;i++)c=(c&0x8000)?((c<<1)^0x1021)&0xFFFF:(c<<1)&0xFFFF}return c.toString(16).toUpperCase().padStart(4,"0")}
+const tlv=(id,v)=>id+String(v.length).padStart(2,"0")+v;
+const semAcento=t=>String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9 ]/g,"").toUpperCase().trim();
+function pixCopiaCola(chave,valor,nome,cidade,txid){
+  const p=tlv("00","01")+tlv("26",tlv("00","br.gov.bcb.pix")+tlv("01",chave))+tlv("52","0000")+tlv("53","986")+tlv("54",valor.toFixed(2))+tlv("58","BR")
+   +tlv("59",semAcento(nome).slice(0,25)||"VITRINE CASTRO")+tlv("60",semAcento(cidade).slice(0,15)||"CASTRO")+tlv("62",tlv("05",txid))+"6304";
+  return p+crc16(p)}
+const chavePix=()=>String((window.CONFIG&&CONFIG.PIX)||"").trim().slice(0,77);
+const dm=d=>d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"});
 function haQuanto(iso){const s=Math.max(0,(Date.now()-new Date(iso).getTime())/1000);return s<60?"agora mesmo":s<3600?"há "+Math.round(s/60)+" min":s<86400?"há "+Math.round(s/3600)+" h":"em "+dataBR(iso)}
 
 // ===== INÍCIO =====
@@ -113,7 +146,9 @@ async function iniciar(){
   user=session.user;$("#btnSair").classList.remove("escondido");
   const {data,error}=await db.from("motoboys").select("*").eq("dono",user.id).maybeSingle();
   if(error){$("#main").innerHTML=`<div class="aviso">${esc(traduzErro(error))}</div>`;return}
-  moto=data;moto?telaPainel():telaCadastro()}
+  moto=data;
+  if(!moto){try{const r=await db.rpc("reivindicar_motoboy");if(r.data){const x=await db.from("motoboys").select("*").eq("dono",user.id).maybeSingle();moto=x.data;if(moto)toast("✅ Encontramos o cadastro que o Vitrine fez para você!")}}catch(e){}}
+  moto?telaPainel():telaCadastro()}
 
 function planoHTML(){return `<div class="plano"><div><small>Seu nome na lista de motoboys</small><b>${PRECO}<span style="font-size:.9rem">/mês</span></b><small>Lojas e moradores de Castro chamam você pelo WhatsApp</small></div><span class="gr">3 MESES<br>GRÁTIS</span></div>`}
 function telaBoasVindas(){
@@ -165,29 +200,53 @@ async function salvar(ev,novo){ev.preventDefault();const b=$("#mBtn"),err=$("#mE
     $("#btnSair").classList.remove("escondido");toast(novo?"✅ Cadastro feito!":"✅ Dados salvos!");telaPainel()}
   catch(e){err.textContent=traduzErro(e);err.style.display="block";b.disabled=false}}
 
-function telaPainel(){const m=moto,ga=gratisAte(m),gratis=ga>new Date();
-  const pago=m.pago_ate&&new Date(m.pago_ate+"T23:59:59")>=new Date();
+function telaPainel(){const m=moto,st=motoSituacao(m),vd=dataBR(st.venc);
+  const pixAberto=st.travado||st.atrasado||(!st.emGratis&&st.dias<=10)||(st.emGratis&&st.dias<=10);
+  const aviso=st.travado?`<div class="cobra trav" role="alert"><b>🔒 Seu acesso está travado</b>A mensalidade que venceu em ${vd} não foi paga. Seu nome saiu da lista e você não consegue ficar LIVRE. Pague o Pix abaixo e mande o comprovante: assim que o Vitrine confirmar, tudo volta.</div>`
+   :st.atrasado?`<div class="cobra atr" role="alert"><b>⚠️ Mensalidade atrasada</b>Venceu em ${vd}. Pague até ${dataBR(new Date(st.trava.getTime()-864e5))} para não travar (falta${st.diasTrava===1?"":"m"} ${st.diasTrava} dia${st.diasTrava===1?"":"s"}).</div>`
+   :!st.emGratis&&st.dias<=5?`<div class="cobra vence"><b>📅 ${st.dias===0?"Vence hoje":"Vence em "+st.dias+" dia"+(st.dias===1?"":"s")} (${vd})</b>Pague pelo Pix abaixo para continuar na lista.</div>`:"";
   $("#main").innerHTML=`${DEMO?`<div class="aviso"><b>Modo demonstração.</b> O cadastro fica só neste celular e aparece na lista do app deste aparelho.</div>`:""}
+  ${aviso}
   ${m.aprovado?"":`<div class="aviso">⏳ <b>Cadastro em análise.</b> Seu nome aparece na lista assim que o Vitrine aprovar.${WA_ADM?` <a href="https://wa.me/${WA_ADM}?text=${encodeURIComponent("Olá! Fiz meu cadastro de motoboy no Vitrine Castro: "+m.nome+".")}" target="_blank" rel="noopener">Avisar pelo WhatsApp</a>`:""}</div>`}
+  ${st.travado?`<div class="card">${pixHTML(m,st)}</div>`:""}
   <div class="card"><h2>Olá, ${esc(m.nome.split(" ")[0])}! 👋</h2><p class="sub">Como você está agora?</p>
-   <div class="chave${m.livre?" livre":""}" id="chave" role="switch" tabindex="0" aria-checked="${!!m.livre}" aria-label="Status: ${m.livre?"livre":"ocupado"}. Toque ou puxe para mudar.">
+   ${st.travado?`<div class="chave-off" role="status">🔒 Travado até o Vitrine confirmar o pagamento</div>`:`<div class="chave${m.livre?" livre":""}" id="chave" role="switch" tabindex="0" aria-checked="${!!m.livre}" aria-label="Status: ${m.livre?"livre":"ocupado"}. Toque ou puxe para mudar.">
     <span class="txt"><span><b class="k-nome">${esc(m.nome)}</b><span class="k-num">${esc(telBonito(m.telefone))}</span><small>${m.livre?'<span class="seta">‹‹</span> LIVRE · puxe':'OCUPADO · puxe <span class="seta">››</span>'}</small></span></span>
     <span class="bolao" aria-hidden="true">🛵</span></div>
-   <div class="chave-leg" aria-hidden="true"><span>🔴 Ocupado</span><span>Livre 🟢</span></div>
-   <p class="agora" id="mAgora">${m.livre?"🟢 Você aparece como LIVRE":"🔴 Você aparece como OCUPADO"} desde ${haQuanto(m.status_em)}.</p></div>
+   <div class="chave-leg" aria-hidden="true"><span>🔴 Ocupado</span><span>Livre 🟢</span></div>`}
+   <p class="agora" id="mAgora">${st.travado?"Seu nome não aparece na lista enquanto estiver travado.":(m.livre?"🟢 Você aparece como LIVRE":"🔴 Você aparece como OCUPADO")+" desde "+haQuanto(m.status_em)+"."}</p></div>
   <div class="card"><h2>📋 Meus dados</h2>
    <div class="linha-d"><span>Nome</span><b>${esc(m.nome)}</b></div>
    <div class="linha-d"><span>WhatsApp</span><b>${esc(telBonito(m.telefone))}</b></div>
    ${m.bairro?`<div class="linha-d"><span>Atende</span><b>${esc(m.bairro)}</b></div>`:""}
-   <div class="linha-d"><span>Na lista</span><b>${m.aprovado?'<span class="tag ok">✓ Aparecendo</span>':'<span class="tag pend">Em análise</span>'}</b></div>
+   <div class="linha-d"><span>Na lista</span><b>${st.travado?'<span class="tag pend">🔒 Travado</span>':m.aprovado?'<span class="tag ok">✓ Aparecendo</span>':'<span class="tag pend">Em análise</span>'}</b></div>
    <button class="btn claro" onclick="editar()">✏️ Editar meus dados</button></div>
   <div class="card"><h2>💳 Meu plano</h2>
    <div class="linha-d"><span>Valor</span><b>${PRECO}/mês</b></div>
-   <div class="linha-d"><span>Grátis até</span><b>${dataBR(ga)}</b></div>
-   ${m.pago_ate?`<div class="linha-d"><span>Pago até</span><b>${dataBR(m.pago_ate+"T12:00:00")}</b></div>`:""}
-   <p class="ajuda" style="margin-top:8px">${gratis?"Você está nos <b>3 meses grátis</b>.":pago?"Plano em dia. Obrigado!":"O período grátis acabou. Pague pelo Pix e mande o comprovante pelo WhatsApp do Vitrine."}</p>
-   ${WA_ADM?`<a class="btn" style="background:#25D366;color:#073b1c" href="https://wa.me/${WA_ADM}?text=${encodeURIComponent("Olá! Sou o motoboy "+m.nome+" do Vitrine Castro e quero falar sobre o plano de "+PRECO+"/mês.")}" target="_blank" rel="noopener">💬 Falar com o Vitrine</a>`:""}</div>
-  <button class="btn claro" onclick="sairDaLista()" style="color:#a30d12">Sair da lista de motoboys</button>`;ligarChave()}
+   ${st.emGratis?`<div class="linha-d"><span>Grátis até</span><b>${dataBR(new Date(st.gratis.getTime()-864e5))}</b></div>`:""}
+   <div class="linha-d"><span>${st.emGratis?"1º pagamento":"Próximo vencimento"}</span><b>${vd}</b></div>
+   ${m.pago_ate?`<div class="linha-d"><span>Último pago</span><b>venc. ${dataBR(m.pago_ate+"T12:00:00")}</b></div>`:""}
+   <p class="ajuda" style="margin-top:8px">Depois dos 3 meses grátis, vence <b>todo dia 10</b>. Se não pagar, no dia 14 o acesso trava e seu nome sai da lista até o pagamento ser confirmado.</p>
+   ${st.travado?"":pixAberto?pixHTML(m,st):`<button class="btn" id="btnPix" onclick="abrirPix()">💠 Pagar adiantado com Pix</button><div id="pixLugar"></div>`}
+   ${WA_ADM?`<a class="btn claro" href="https://wa.me/${WA_ADM}?text=${encodeURIComponent("Olá! Sou o motoboy "+m.nome+" do Vitrine Castro e quero falar sobre o plano de "+PRECO+"/mês.")}" target="_blank" rel="noopener">💬 Falar com o Vitrine</a>`:""}</div>
+  <button class="btn claro" onclick="sairDaLista()" style="color:#a30d12">Sair da lista de motoboys</button>`;ligarChave();desenharQR()}
+function pixHTML(m,st){const chave=chavePix(),exemplo=!chave,vd=dataBR(st.venc);
+  const txid=("MOTO"+String(m.id||"").replace(/[^A-Za-z0-9]/g,"").slice(0,10)+isoDia(st.venc).replace(/-/g,"").slice(0,6)).slice(0,25);
+  window._pix=pixCopiaCola(chave||"exemplo@vitrinecastro.com.br",MOTO_VALOR,(window.CONFIG&&CONFIG.PIX_NOME)||"VITRINE CASTRO",(window.CONFIG&&CONFIG.PIX_CIDADE)||"CASTRO",txid);
+  const msg=`Olá! Sou o motoboy ${m.nome} (${telBonito(m.telefone)}) do Vitrine Castro. Paguei o Pix de ${PRECO} da mensalidade que vence em ${vd}. Segue o comprovante.`;
+  return `<div class="pix" id="pixBox"><h3>💠 Pague com Pix</h3><div class="vl">${PRECO} <small>· vencimento ${vd}</small></div>
+   ${exemplo?`<div class="aviso-ex">⚠️ <b>QR Code de EXEMPLO, não pague.</b> O Vitrine ainda não colocou a chave Pix no config.js.</div>`:""}
+   <div class="pix-qr" id="pixQr" role="img" aria-label="QR Code do Pix de ${PRECO}"></div>
+   <button class="btn" onclick="copiarPix()">📋 Copiar código Pix (copia e cola)</button>
+   <p class="ajuda" style="margin-top:10px">No app do banco: <b>Pix → Ler QR Code</b> ou <b>Pix Copia e Cola</b>. Depois mande o comprovante:</p>
+   ${WA_ADM?`<a class="btn zap" href="https://wa.me/${WA_ADM}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">📎 Já paguei: enviar comprovante</a>`:""}
+   <p class="ajuda" style="margin-top:8px">Assim que o Vitrine confirmar, aparece aqui o próximo vencimento.</p></div>`}
+function abrirPix(){const l=$("#pixLugar");if(!l)return;$("#btnPix").remove();l.innerHTML=pixHTML(moto,motoSituacao(moto));desenharQR();l.scrollIntoView({behavior:"smooth",block:"start"})}
+function desenharQR(){const el=$("#pixQr");if(!el||!window._pix)return;el.innerHTML="";
+  if(window.QRCode){try{new QRCode(el,{text:window._pix,width:220,height:220,correctLevel:QRCode.CorrectLevel.M});return}catch(e){}}
+  el.innerHTML='<p class="ajuda" style="margin:0;max-width:220px">Sem QR Code agora. Use o botão "Copiar código Pix".</p>'}
+async function copiarPix(){try{await navigator.clipboard.writeText(window._pix);toast("✅ Código Pix copiado! Cole no app do banco.")}
+  catch(e){const t=document.createElement("textarea");t.value=window._pix;document.body.appendChild(t);t.select();try{document.execCommand("copy");toast("✅ Código Pix copiado!")}catch(_){toast("Não deu para copiar. Use o QR Code.")}t.remove()}}
 /* Chave de puxar: o motoboy arrasta a moto para a direita (LIVRE) ou para a esquerda (OCUPADO). Um toque também troca. */
 function ligarChave(){const k=$("#chave");if(!k)return;const b=k.querySelector(".bolao");
   const fim=()=>k.clientWidth-b.offsetWidth-12,pos=x=>{b.style.transform="translateX("+x+"px)"};
