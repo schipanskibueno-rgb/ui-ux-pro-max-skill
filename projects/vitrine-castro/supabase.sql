@@ -161,6 +161,11 @@ alter table public.ofertas add column if not exists hora_fim time;
 alter table public.ofertas add column if not exists inicia_em date;                                                                     -- oferta agendada
 alter table public.empresas add column if not exists abre time;
 alter table public.empresas add column if not exists fecha time;
+-- sábado e domingo podem ter horário próprio (vazio = mesmo horário da semana)
+alter table public.empresas add column if not exists sab_abre time;
+alter table public.empresas add column if not exists sab_fecha time;
+alter table public.empresas add column if not exists dom_abre time;
+alter table public.empresas add column if not exists dom_fecha time;
 alter table public.empresas add column if not exists dias_func text check (dias_func is null or dias_func ~ '^[0-6](,[0-6]){0,6}$');
 alter table public.empresas add column if not exists instagram text check (instagram is null or instagram ~ '^[A-Za-z0-9._]{1,40}$');
 

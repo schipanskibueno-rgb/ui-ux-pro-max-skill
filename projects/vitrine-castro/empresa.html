@@ -89,6 +89,12 @@ textarea.inp{min-height:90px;resize:vertical}
 .perfil-loja{display:flex;align-items:center;gap:14px}
 .adm-faixa{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;background:#111;color:#fff;border:1.5px solid #D4A537;border-radius:14px;padding:10px 12px;margin-bottom:12px;font-size:.9rem}
 .adm-faixa b{color:#F2CC63}.adm-faixa a{color:#000;background:#D4A537;border-radius:10px;padding:8px 12px;font-weight:800;text-decoration:none;min-height:40px;display:inline-flex;align-items:center}
+.hr-sem{border:1.5px solid #efe8d4;border-radius:14px;padding:10px 12px;margin-bottom:8px}.hr-t{display:block;margin-bottom:6px}
+.hr-fds{border:1.5px solid #efe8d4;border-radius:14px;padding:10px 12px;margin-bottom:8px}.hr-fds.off .hr-h{display:none}
+.hr-chave{display:flex!important;align-items:center;gap:10px;margin:0!important;cursor:pointer}.hr-chave input{width:24px;height:24px;flex-shrink:0;accent-color:#13a049}
+.hr-chave span{display:flex;align-items:center;gap:8px;flex:1}.hr-chave small{font-size:.75rem;font-weight:800;border-radius:20px;padding:2px 8px}
+.hr-chave small.on{background:#dff5e7;color:#0d6b31}.hr-chave small.no{background:#fde4e4;color:#a30d12;display:none}.hr-fds.off small.on{display:none}.hr-fds.off small.no{display:inline}
+.hr-h{margin-top:6px}
 .mp-topo{display:flex;flex-wrap:wrap;align-items:center;gap:12px}.mp-topo>.btn{flex-basis:100%}
 .mp-logo{width:96px;height:64px;border-radius:12px;background:#fff;border:1.5px solid #e6dcc0;display:grid;place-items:center;font-size:2rem;overflow:hidden;flex-shrink:0}
 .mp-logo img{width:100%;height:100%;object-fit:contain;padding:4px}
@@ -415,9 +421,8 @@ function formEmpresa(e={}){return `
   <label for="eWhats">WhatsApp da loja</label><input class="inp" id="eWhats" inputmode="tel" maxlength="20" value="${esc(e.whatsapp)}" placeholder="(42) 9 9999-9999">
   <p class="ajuda">Os clientes vão falar com você por este número.</p>
   <fieldset style="border:0;margin-top:12px"><legend style="font-size:.9rem;font-weight:600;margin-bottom:5px">Horário de funcionamento</legend>
-   <div class="linha"><div><label for="eAbre" style="margin-top:0">Abre às</label><input class="inp" id="eAbre" type="time" value="${esc(String(e.abre||"").slice(0,5))}"></div><div><label for="eFecha" style="margin-top:0">Fecha às</label><input class="inp" id="eFecha" type="time" value="${esc(String(e.fecha||"").slice(0,5))}"></div></div>
-   <p class="ajuda" style="margin:8px 0 4px">Dias que abre:</p>${diasCheck("eDias",e.dias_func||"1,2,3,4,5,6")}
-   <p class="ajuda">Com isso o app mostra “🟢 Aberto agora” ou “Fechado – abre às…”.</p></fieldset>
+   ${horarioForm(e)}
+   <p class="ajuda">Com isso o app mostra “🟢 Aberto agora” ou “Fechado – abre às…”, com o horário certo de cada dia.</p></fieldset>
   <label for="eInsta">Instagram da loja (opcional)</label><input class="inp" id="eInsta" maxlength="40" value="${esc(e.instagram)}" placeholder="Ex: pizzariadoze (sem o @)">
   <label for="eEnd">Endereço</label><input class="inp" id="eEnd" maxlength="150" value="${esc(e.endereco)}" placeholder="Rua, número – bairro">
   <label>Logo da loja</label><p class="ajuda" style="margin:0 0 4px">Aparece no app e, para mercados, na tabela de preços. Pode ser retangular, a logo aparece inteira.</p><div class="previa logo-prev" id="eLogoPrev" style="aspect-ratio:2/1;width:200px;background:#fff;border:1px solid #e6dcc0">${seguro(e.logo_url)?`<img src="${esc(e.logo_url)}" alt="Logo">`:"Sem logo"}</div>
@@ -438,13 +443,14 @@ async function salvarEmpresa(ev){ev.preventDefault();const b=$("#eBtn");b.disabl
   const primeiro=!empresa,planoEsc=(document.querySelector('input[name="ePlano"]:checked')||{}).value;if(planoEsc)store.set("vc_plano_desejado",planoEsc);
   try{
     const dados={nome:$("#eNome").value.trim(),ramo:$("#eRamo").value,whatsapp:$("#eWhats").value.trim(),endereco:$("#eEnd").value.trim(),
-      abre:$("#eAbre").value||null,fecha:$("#eFecha").value||null,dias_func:diasLidos("eDias"),instagram:($("#eInsta").value||"").replace(/[^A-Za-z0-9._]/g,"").slice(0,40)||null};
+      ...horarioLido(),instagram:($("#eInsta").value||"").replace(/[^A-Za-z0-9._]/g,"").slice(0,40)||null};
     const f=$("#eLogo").files[0];if(f)dados.logo_url=await enviarFoto(await prepararFoto(f,{larg:600,prop:0}));
     if(DEMO){empresa={...(empresa||{id:"demo",aprovada:true,plano:"premium"}),...dados};store.set("vc_demo_emp",empresa)}
     else{if(primeiro&&admin){dados.plano=planoEsc||"basico";dados.aprovada=true}
       const gravar=d=>(empresa?db.from("empresas").update(d).eq("id",empresa.id):db.from("empresas").insert(d)).select().single();
       let r=await gravar(dados);
-      if(r.error&&/abre|fecha|dias_func|instagram|schema cache/i.test(r.error.message||"")){const {abre,fecha,dias_func,instagram,...base}=dados;r=await gravar(base);if(!r.error)toast("Loja salva. Para guardar horário e Instagram, rode a atualização do banco (supabase.sql).")}
+      if(r.error&&/sab_|dom_/i.test(r.error.message||"")){const {sab_abre,sab_fecha,dom_abre,dom_fecha,...sem}=dados;r=await gravar(sem);if(!r.error)toast("Loja salva. Para guardar o horário de sábado e domingo, rode o supabase.sql novo.")}
+      if(r.error&&/abre|fecha|dias_func|instagram|schema cache/i.test(r.error.message||"")){const {abre,fecha,dias_func,instagram,sab_abre,sab_fecha,dom_abre,dom_fecha,...base}=dados;r=await gravar(base);if(!r.error)toast("Loja salva. Para guardar horário e Instagram, rode a atualização do banco (supabase.sql).")}
       if(r.error)throw r.error;empresa=r.data;store.set("vc_loja_atual",empresa.id)}
     fechar();if(primeiro){telaSucessoCadastro();return}toast("✅ Dados salvos!");await iniciar();
   }catch(e){$("#eErro").textContent=traduzErro(e);$("#eErro").style.display="block"}finally{b.disabled=false}
@@ -677,6 +683,17 @@ function dentroDeVisualizador(){let emMoldura=false;try{emMoldura=window.self!==
 const DIAS_SEM=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
 function diasCheck(nome,sel){const s=new Set(String(sel||"").split(",").filter(Boolean).map(Number));
   return `<div class="dias-sem">${[1,2,3,4,5,6,0].map(d=>`<label><input type="checkbox" name="${nome}" value="${d}" ${s.has(d)?"checked":""}><span>${DIAS_SEM[d]}</span></label>`).join("")}</div>`}
+// horário: segunda a sexta igual; sábado e domingo com horário próprio
+function horarioForm(e){const d=new Set(String(e.dias_func||"1,2,3,4,5,6").split(",").filter(Boolean).map(Number)),t=v=>esc(String(v||"").slice(0,5));
+  const fimDe=(id,nome,on,a,f)=>`<div class="hr-fds${on?"":" off"}" id="${id}Box"><label class="hr-chave"><input type="checkbox" id="${id}" ${on?"checked":""} onchange="this.closest('.hr-fds').classList.toggle('off',!this.checked)"><span><b>${nome}</b><small class="on">Abre</small><small class="no">Fechado</small></span></label>
+    <div class="linha hr-h"><div><label for="${id}Abre">Abre às</label><input class="inp" id="${id}Abre" type="time" value="${t(a)}"></div><div><label for="${id}Fecha">Fecha às</label><input class="inp" id="${id}Fecha" type="time" value="${t(f)}"></div></div></div>`;
+  return `<div class="hr-sem"><b class="hr-t">Segunda a sexta</b>
+    <div class="linha"><div><label for="eAbre" style="margin-top:0">Abre às</label><input class="inp" id="eAbre" type="time" value="${t(e.abre)}"></div><div><label for="eFecha" style="margin-top:0">Fecha às</label><input class="inp" id="eFecha" type="time" value="${t(e.fecha)}"></div></div>
+    <p class="ajuda" style="margin:8px 0 4px">Dias da semana que abre:</p><div class="dias-sem">${[1,2,3,4,5].map(x=>`<label><input type="checkbox" name="eDias" value="${x}" ${d.has(x)?"checked":""}><span>${DIAS_SEM[x]}</span></label>`).join("")}</div></div>
+   ${fimDe("eSab","Sábado",d.has(6),e.sab_abre||e.abre,e.sab_fecha||e.fecha)}${fimDe("eDom","Domingo",d.has(0),e.dom_abre||e.abre,e.dom_fecha||e.fecha)}`}
+function horarioLido(){const dias=diasLidos("eDias"),l=dias?dias.split(","):[],sab=$("#eSab").checked,dom=$("#eDom").checked;if(sab)l.push("6");if(dom)l.push("0");
+  return {abre:$("#eAbre").value||null,fecha:$("#eFecha").value||null,dias_func:l.join(",")||null,
+    sab_abre:sab?($("#eSabAbre").value||null):null,sab_fecha:sab?($("#eSabFecha").value||null):null,dom_abre:dom?($("#eDomAbre").value||null):null,dom_fecha:dom?($("#eDomFecha").value||null):null}}
 function diasLidos(nome){return [...document.querySelectorAll(`input[name="${nome}"]:checked`)].map(i=>i.value).join(",")||null}
 const num=v=>{let t=String(v??"").trim().replace(/[R$\s]/g,"");               // aceita 59,90 · 1.299,90 · 59.90
   t=t.includes(",")?t.replace(/\./g,"").replace(",","."):(/^\d+\.\d{1,2}$/.test(t)?t:t.replace(/\./g,""));

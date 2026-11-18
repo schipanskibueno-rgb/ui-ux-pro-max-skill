@@ -589,6 +589,9 @@ body.travado{overflow:hidden}
 .ms-lista div{display:flex;align-items:center;gap:8px;padding:9px 10px;border-top:1px solid var(--linha);font-size:.88rem}.ms-lista div:first-child{border-top:0}
 .ms-lista span{flex:1;min-width:0}.ms-lista b{font-variant-numeric:tabular-nums}.ms-lista .min{background:#fff6dc}.ms-lista .min b{color:#7a5a00}
 .ms-h{font-size:1rem;margin:14px 0 6px;display:flex;align-items:center;gap:6px}
+.st-h{font-size:.78rem;color:var(--txt-2);margin:4px 0 0}
+img[data-logo]{object-fit:contain!important;background:#fff;padding:10%}
+img[data-logo].lg-ok{object-fit:cover!important;padding:0!important;background:none}
 </style>
 </head>
 <body>
@@ -862,13 +865,22 @@ function diasTexto(t){const d=listaDias(t);if(!d.length||d.length===7)return "";
   return seq&&ord.length>2?DIAS_SEM[ord[0]]+" a "+DIAS_SEM[ord[ord.length-1]]:ord.map(x=>DIAS_SEM[x]).join(", ")}
 function regraTexto(o){return [diasTexto(o.dias),o.horaIni&&o.horaFim?hh(o.horaIni)+" às "+hh(o.horaFim):""].filter(Boolean).join(", ")}
 function restam(o){return o.limite?Math.max(0,o.limite-(o.usados||0)):null}
+// horário do dia: sábado e domingo podem ter horário próprio
+function horaDe(o,d){if(d===6&&o.sabAbre&&o.sabFecha)return [o.sabAbre,o.sabFecha];if(d===0&&o.domAbre&&o.domFecha)return [o.domAbre,o.domFecha];return [o.abre,o.fecha]}
+const minDe=t=>{const [h,m]=String(t).split(":").map(Number);return h*60+(m||0)};
 function situacaoLoja(o){if(!o.abre||!o.fecha)return null;const n=new Date(),d=n.getDay(),m=n.getHours()*60+n.getMinutes(),dias=listaDias(o.diasFunc);
-  const [ah,am]=String(o.abre).split(":").map(Number),[fh,fm]=String(o.fecha).split(":").map(Number),a=ah*60+am,f=fh*60+fm;
-  const abreHoje=!dias.length||dias.includes(d),dentro=f>a?(m>=a&&m<f):(m>=a||m<f);
-  if(abreHoje&&dentro)return {aberto:true,txt:"🟢 Aberto agora · fecha às "+hh(o.fecha)};
-  if(abreHoje&&m<a)return {aberto:false,txt:"🔴 Fechado · abre hoje às "+hh(o.abre)};
-  let k=1;if(dias.length)while(k<7&&!dias.includes((d+k)%7))k++;
-  return {aberto:false,txt:"🔴 Fechado agora · abre "+(k===1?"amanhã":DIAS_SEM[(d+k)%7].toLowerCase())+" às "+hh(o.abre)}}
+  const abre=x=>!dias.length||dias.includes(x),ontem=(d+6)%7;
+  if(abre(ontem)){const [a0,f0]=horaDe(o,ontem);if(minDe(f0)<minDe(a0)&&m<minDe(f0))return {aberto:true,txt:"🟢 Aberto agora · fecha às "+hh(f0)}}   // passou da meia-noite
+  if(abre(d)){const [a,f]=horaDe(o,d),A=minDe(a),F=minDe(f),dentro=F>A?(m>=A&&m<F):m>=A;
+    if(dentro)return {aberto:true,txt:"🟢 Aberto agora · fecha às "+hh(f)};
+    if(m<A)return {aberto:false,txt:"🔴 Fechado · abre hoje às "+hh(a)}}
+  let k=1;while(k<7&&!abre((d+k)%7))k++;const prox=(d+k)%7;
+  return {aberto:false,txt:"🔴 Fechado agora · abre "+(k===1?"amanhã":DIAS_SEM[prox].toLowerCase())+" às "+hh(horaDe(o,prox)[0])}}
+// resumo: "Seg a Sex 08:00–18:00 · Sáb 08:00–12:00 · Dom fechado"
+function horariosTexto(o){if(!o.abre||!o.fecha)return "";const dias=listaDias(o.diasFunc),abre=x=>!dias.length||dias.includes(x),f=(a,b)=>hh(a)+"–"+hh(b);
+  const uteis=[1,2,3,4,5].filter(abre),p=[];
+  if(uteis.length)p.push((uteis.length===5?"Seg a Sex":uteis.map(x=>DIAS_SEM[x]).join(", "))+" "+f(o.abre,o.fecha));
+  [6,0].forEach(x=>{const [a,b]=horaDe(o,x);p.push(DIAS_SEM[x]+" "+(abre(x)?f(a,b):"fechado"))});return p.join(" · ")}
 function prazoTxt(o){if(!o.validade)return"";const d=dias(o);return d<0?"Encerrada":d===0?"Termina hoje!":d===1?"Termina amanhã":d<=5?`Termina em ${d} dias`:"Até "+new Date(o.validade+"T00:00:00").toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})}
 function favs(){return store.get("gira_favs",[])}
 function imgOf(o){return o.img?`<img src="${o.img}" alt="" loading="lazy">`:`<span aria-hidden="true">${o.emoji||"🏷️"}</span>`}
@@ -974,10 +986,30 @@ function cardOf(o){const f=favs().includes(o.id),tit=o.desc||tagTexto(o);
 /* ===================================================================
    RENDERIZAÇÃO DAS TELAS
    =================================================================== */
+// ===== LOGOS ENQUADRADAS: tira a sobra de fundo e centraliza a logo dentro do círculo ou retângulo =====
+const LOGO_PRONTO={};
+function enquadrarLogos(root){(root||document).querySelectorAll("img[data-logo]:not([data-ok])").forEach(img=>{
+  const caixa=img.parentElement,cw=caixa&&caixa.clientWidth,ch=caixa&&caixa.clientHeight;if(!cw||!ch)return;   // ainda escondida: tenta na próxima vez
+  img.dataset.ok="1";const src=img.getAttribute("src"),forma=img.dataset.logo,prop=forma==="c"?1:Math.round(cw/ch*10)/10,chave=forma+prop+"|"+src;
+  const pronto=u=>{img.src=u;img.classList.add("lg-ok")};if(LOGO_PRONTO[chave]){pronto(LOGO_PRONTO[chave]);return}
+  const i=new Image();if(/^https:/.test(src))i.crossOrigin="anonymous";
+  i.onload=()=>{try{LOGO_PRONTO[chave]=montarLogo(i,forma,prop);pronto(LOGO_PRONTO[chave])}catch(e){}};i.src=src})}
+function montarLogo(i,forma,prop){const w0=i.naturalWidth,h0=i.naturalHeight;if(!w0||!h0)throw new Error("sem imagem");
+  const k=Math.min(1,300/Math.max(w0,h0)),w=Math.max(1,Math.round(w0*k)),h=Math.max(1,Math.round(h0*k));
+  const c=document.createElement("canvas");c.width=w;c.height=h;const g=c.getContext("2d",{willReadFrequently:true});g.drawImage(i,0,0,w,h);const d=g.getImageData(0,0,w,h).data;
+  const px=(x,y)=>{const j=(y*w+x)*4;return [d[j],d[j+1],d[j+2],d[j+3]]},cs=[px(0,0),px(w-1,0),px(0,h-1),px(w-1,h-1)];
+  const transp=cs.filter(p=>p[3]<20).length>=2,bg=transp?[255,255,255]:[0,1,2].map(n=>Math.round(cs.reduce((s,p)=>s+p[n],0)/4));
+  let x0=w,y0=h,x1=-1,y1=-1;
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const j=(y*w+x)*4;if(d[j+3]<20||Math.abs(d[j]-bg[0])+Math.abs(d[j+1]-bg[1])+Math.abs(d[j+2]-bg[2])<54)continue;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
+  if(x1<0){x0=0;y0=0;x1=w-1;y1=h-1}
+  const sx=x0/k,sy=y0/k,sw=(x1-x0+1)/k,sh=(y1-y0+1)/k,H=forma==="c"?240:200,W=Math.round(H*prop),area=forma==="c"?.7:.82;
+  const o=document.createElement("canvas");o.width=W;o.height=H;const go=o.getContext("2d");go.fillStyle=`rgb(${bg[0]},${bg[1]},${bg[2]})`;go.fillRect(0,0,W,H);
+  const s=Math.min(W*area/sw,H*area/sh),dw=sw*s,dh=sh*s;go.imageSmoothingQuality="high";go.drawImage(i,sx,sy,sw,sh,(W-dw)/2,(H-dh)/2,dw,dh);
+  return o.toDataURL("image/png")}
 function render(){
   $("#slides").innerHTML=BANNERS.map((b,i)=>b.anuncie?
    `<button class="slide" onclick="clicBanner(${i})" aria-label="Anuncie sua loja aqui"><span class="grande" aria-hidden="true">${ic("crown",88)}</span><div class="tx"><span class="pat">ESPAÇO PATROCINADO</span><div><div class="nm" style="font-size:1.2rem">Sua loja aqui!</div><div class="sb">Apareça para toda Castro no topo do app</div></div><span class="cta">Quero anunciar ›</span></div></button>`:
-   `<button class="slide" onclick="clicBanner(${i})" aria-label="${esc(b.nome)}: ${esc(b.oferta)}. Patrocinado"><img class="foto" src="${b.foto}" alt=""><span class="ov"></span><div class="tx"><span class="pat">PATROCINADO</span><div class="lg"><span class="av">${b.logo?`<img src="${b.logo}" alt="">`:b.emoji}</span><div><div class="nm">${esc(b.nome)}</div><div class="sb">${esc(b.sub)}</div></div></div><div class="oft"><small>${b.topo}</small>${b.oferta}</div><span class="cta">Ver oferta ›</span></div></button>`).join("");
+   `<button class="slide" onclick="clicBanner(${i})" aria-label="${esc(b.nome)}: ${esc(b.oferta)}. Patrocinado"><img class="foto" src="${b.foto}" alt=""><span class="ov"></span><div class="tx"><span class="pat">PATROCINADO</span><div class="lg"><span class="av">${b.logo?`<img src="${b.logo}" alt="" data-logo="c">`:b.emoji}</span><div><div class="nm">${esc(b.nome)}</div><div class="sb">${esc(b.sub)}</div></div></div><div class="oft"><small>${b.topo}</small>${b.oferta}</div><span class="cta">Ver oferta ›</span></div></button>`).join("");enquadrarLogos($("#slides"));
   $("#dots").innerHTML=BANNERS.map((_,i)=>`<button class="${i===slide?"on":""}" onclick="irSlide(${i})" aria-label="Destaque ${i+1}"><i></i></button>`).join("");
   renderTopo();renderTabs();renderHome();mostrarLogosMercado();renderTodas(window._ultimaBusca);renderEmp();renderCupons();renderPontos();renderPlanos();renderCategorias();renderMais();renderPerfil();
   pintarIcones();observarCards();
@@ -1011,10 +1043,10 @@ function renderHome(){
   const grupos=Object.values(emps).slice(0,40).map(os=>{const o=os[0];return {o,vip:o.plano?o.plano==="premium":BANNERS.some(b=>b.nome===o.emp)}});
   const vips=grupos.filter(g=>g.vip),outros=grupos.filter(g=>!g.vip);
   const bola=(g,dup)=>{const o=g.o,lg=o.logo&&/^(https:|data:image\/|img\/)/.test(o.logo);
-    return `<button class="loja-ch${g.vip?" vip":""}${lg?" com-logo":""}" onclick="verOferta('${o.id}')"${dup?' tabindex="-1" aria-hidden="true"':""}><span class="av">${lg?`<img src="${esc(o.logo)}" alt="" loading="lazy">`:imgOf(o)}${g.vip?`<i class="cr">${ic("crown",12)}</i>`:""}</span><span class="nm">${esc(o.emp)}</span></button>`};
+    return `<button class="loja-ch${g.vip?" vip":""}${lg?" com-logo":""}" onclick="verOferta('${o.id}')"${dup?' tabindex="-1" aria-hidden="true"':""}><span class="av">${lg?`<img src="${esc(o.logo)}" alt="" data-logo="${g.vip?"r":"c"}">`:imgOf(o)}${g.vip?`<i class="cr">${ic("crown",12)}</i>`:""}</span><span class="nm">${esc(o.emp)}</span></button>`};
   const faixa=(l,cls,rot)=>l.length?`${rot}<div class="trilho-auto ${cls}" role="region" aria-label="${cls==="vip"?"Parceiros VIP":"Lojas parceiras"}"><div class="ta-in">${l.map(g=>bola(g)).join("")}<span class="ta-dup">${l.map(g=>bola(g,1)).join("")}</span></div></div>`:"";
   $("#lojasHome").innerHTML=grupos.length?faixa(vips,"vip",`<p class="ta-rot">${ic("crown",14)}Parceiros VIP</p>`)+faixa(outros,"rev",vips.length?`<p class="ta-rot cinza">Lojas parceiras</p>`:""):`<p style="color:var(--txt-2);font-size:.9rem;padding:0 4px">As primeiras lojas parceiras aparecem aqui em breve.</p>`;
-  prepararTrilhos();
+  prepararTrilhos();enquadrarLogos($("#lojasHome"));
   // ofertas que acabam hoje/amanhã, com relógio
   const rel=l.filter(o=>o.validade&&dias(o)<=1&&restam(o)!==0);
   $("#relampagoBox").innerHTML=rel.length?`<div class="relampago"><div class="cab"><h2>${ic("zap",20)}Acabam logo</h2><div class="relogio" id="relogio" aria-label="Tempo até a meia-noite"></div></div><div class="trilho">${rel.map(cardOf).join("")}</div></div>`:"";
@@ -1107,7 +1139,7 @@ function alternarOfertas(){const p=store.get("gira_perfil",null);if(!p)return;p.
 function abrirConta(){const p=store.get("gira_perfil",null),vipOn=vip();
   abrirSheet(`<div style="display:flex;align-items:center;gap:14px;margin:8px 0 6px"><span class="avatar g" style="width:60px;height:60px;font-size:1.5rem">${inicial()}</span><div><b style="font-size:1.2rem;display:block">${p?esc(p.nome):"Visitante"}</b><span style="color:var(--txt-2)">${p?esc(p.tel||""):"Faça seu cadastro e ganhe pontos"}</span></div></div>
    <div class="grupo" style="box-shadow:none;border:1px solid var(--linha);margin-top:10px">${p?itemHTML("user","Meu perfil","fechar();ir('perfil')"):itemHTML("user","Fazer meu cadastro","fechar();mostrarBoasVindas()")}${itemHTML("crown",vipOn?"Meu Vitrine VIP":"Assinar o Vitrine VIP","abrir('vip')",{tag:vipOn?"ATIVO":"R$ 9,90",tagc:vipOn?"verde":"ouro"})}${itemHTML("ticket","Meus cupons","fechar();ir('cupons');segCupons('c')")}${itemHTML("store","Sou lojista","",{href:"empresa.html"})}</div>`)}
-function abrirSheet(h){$("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ${ic("close",16)}</button>`+h;$("#modal").classList.add("on");$("#sheet").scrollTop=0;pintarIcones($("#sheet"))}
+function abrirSheet(h){$("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ${ic("close",16)}</button>`+h;$("#modal").classList.add("on");$("#sheet").scrollTop=0;pintarIcones($("#sheet"));enquadrarLogos($("#sheet"))}
 function planoDesejado(id){store.set("vc_plano_desejado",id)}
 function mascara(i){let v=i.value.replace(/\D/g,"").slice(0,11);i.value=v.length>6?`(${v.slice(0,2)}) ${v.slice(2,3)} ${v.slice(3,7)}-${v.slice(7)}`:v.length>2?`(${v.slice(0,2)}) ${v.slice(2)}`:v}
 
@@ -1180,7 +1212,7 @@ function verOferta(id){
   const cat=CATS.find(k=>k.id===o.cat)||{nome:"Oferta"},f=favs().includes(o.id),d=o.validade?dias(o):99;
   $("#sheet").innerHTML=`<button class="fechar" onclick="fechar()">Fechar ${ic("close",16)}</button>
    <div class="po-img">${o.img?`<img src="${o.img}" alt="">`:`<span aria-hidden="true">${o.emoji||"🏷️"}</span>`}${seloOf(o)}</div>
-   <div class="po-loja"><span class="av">${o.logo&&/^(https:|data:image\/|img\/)/.test(o.logo)?`<img src="${esc(o.logo)}" alt="">`:`<span style="color:var(--ouro)">${ic("store",20)}</span>`}</span><div><b>${esc(o.emp)}</b><small>${esc(o.sub)}</small></div></div>
+   <div class="po-loja"><span class="av">${o.logo&&/^(https:|data:image\/|img\/)/.test(o.logo)?`<img src="${esc(o.logo)}" alt="" data-logo="c">`:`<span style="color:var(--ouro)">${ic("store",20)}</span>`}</span><div><b>${esc(o.emp)}</b><small>${esc(o.sub)}</small></div></div>
    <h2 class="po-tit">${esc(o.desc||tagTexto(o))}</h2>
    ${o.precoDe&&o.precoPor?`<div class="po-de"><s>${brl(o.precoDe)}</s></div><div class="po-preco"><span class="preco">${centavos(o.precoPor)}</span><span class="pct">${pctOf(o)}% OFF</span></div><div class="po-eco">Você economiza ${brl(o.precoDe-o.precoPor)}</div>`:`<div class="po-tag">${o.tag.replace(/<br>/g," · ")}</div>`}
    <div class="po-chips"><span class="chip">${ic(icCat(o.cat),15)}${esc(cat.nome)}</span>${o.validade?`<span class="chip ${d<=3?"urg":""}">${ic("clock",15)}${prazoTxt(o)}</span>`:""}<span class="chip ent">${o.entrega==="retirada"?ic("store",15)+"Só na loja":ic("truck",15)+"Faz entrega"}</span>${rg?`<span class="chip">${ic("calendar",15)}Vale ${esc(rg)}</span>`:""}${r!==null?`<span class="chip ${r<=20?"urg":""}">${ic("ticket",15)}${r===0?"Esgotado":"Restam "+r+" de "+o.limite}</span>`:""}${o.umPorCliente?`<span class="chip">${ic("user",15)}1 por pessoa</span>`:""}</div>
@@ -1191,7 +1223,7 @@ function verOferta(id){
    <div class="acoes"><button class="${f?"on":""}" onclick="favoritar('${o.id}');verOferta('${o.id}')" aria-pressed="${f}">${ic("heart",22)}${f?"Salvo":"Salvar"}</button><button onclick="falarLoja('${o.id}')">${ic("chat",22)}WhatsApp</button><button onclick="compartilhar('${o.id}')">${ic("share",22)}Compartilhar</button></div>
    <div class="box"><h4>Como usar ${c?"seu cupom":"esta oferta"}</h4><ol class="passos"><li class="${c?"feito":""}">${c?"Cupom guardado":"Toque em Pegar cupom grátis"}</li><li>${o.entrega==="retirada"?"Mostre o código no caixa":"Mostre no caixa ou peça com entrega"}</li><li>Ganhe pontos na compra</li></ol></div>
    <div class="box"><h4>Regras</h4><p>${esc(o.regras)}</p></div>
-   ${o.end||sit||zap||insta?`<div class="lojabox"><b>${esc(o.emp)}</b>${sit?`<div class="st ${sit.aberto?"ab":"fe"}">${esc(sit.txt)}</div>`:""}${o.end?`<div style="font-size:.88rem;color:var(--txt-2);display:flex;gap:4px;margin-top:2px">${ic("pin",16)}${esc(o.end)}</div>`:""}
+   ${o.end||sit||zap||insta?`<div class="lojabox"><b>${esc(o.emp)}</b>${sit?`<div class="st ${sit.aberto?"ab":"fe"}">${esc(sit.txt)}</div><div class="st-h">🕒 ${esc(horariosTexto(o))}</div>`:""}${o.end?`<div style="font-size:.88rem;color:var(--txt-2);display:flex;gap:4px;margin-top:2px">${ic("pin",16)}${esc(o.end)}</div>`:""}
     <div class="lojabtns">${zap?`<a href="tel:+${zap.length<=11?"55"+zap:zap}">${ic("phone",20)}Ligar</a>`:""}${mapa?`<a href="${mapa}" target="_blank" rel="noopener">${ic("map",20)}Como chegar</a>`:""}${insta?`<a href="https://instagram.com/${insta}" target="_blank" rel="noopener">${ic("insta",20)}Instagram</a>`:""}</div></div>`:""}`;
   $("#modal").classList.add("on");$("#sheet").scrollTop=0;
   if(c){const el=$("#qr");if(window.QRCode)new QRCode(el,{text:"VC|"+c.cod+"|"+o.emp,width:150,height:150,correctLevel:QRCode.CorrectLevel.M});else el.remove()}
@@ -1525,7 +1557,7 @@ function ddmm(iso){const p=String(iso||"").slice(0,10).split("-");return p.lengt
 function faixaSemana(){const s=segundaDe(),f=new Date(s);f.setDate(f.getDate()+6);return "Semana de "+ddmm(isoDia(s))+" a "+ddmm(isoDia(f))}
 function mercImg(u){return /^(data:image\/|https:\/\/)/.test(u||"")||/^img\/produtos\/[a-z0-9-]+\.(png|jpg|webp)$/.test(u||"")?u:""}
 function prodVis(p,cls="mt-foto"){const u=mercImg(p.foto_url);return u?`<img class="${cls}" src="${esc(u)}" alt="" loading="lazy">`:`<span class="mt-emo" aria-hidden="true">${esc(p.emoji||"🛒")}</span>`}
-function mercMarca(m){const u=mercImg(m.logo_url);return u?`<span class="mlogo"><img src="${esc(u)}" alt="Logo ${esc(m.nome)}" loading="lazy"></span>`:mercLogo(m)}
+function mercMarca(m){const u=mercImg(m.logo_url);return u?`<span class="mlogo"><img src="${esc(u)}" alt="Logo ${esc(m.nome)}" data-logo="r"></span>`:mercLogo(m)}
 function mercLogo(m){const u=mercImg(m.logo_url);return `<span class="mt-logo">${u?`<img src="${esc(u)}" alt="" loading="lazy">`:esc((m.nome||"?").replace(/[^A-Za-zÀ-ú0-9 ]/g,"").split(" ").filter(Boolean).slice(0,2).map(w=>w[0]).join("").toUpperCase()||"M")}</span>`}
 function mercProdutosDemo(){return store.get("vc_demo_merc_produtos",null)||MERC_PROD_DEMO.map(([id,nome,detalhe,emoji,,foto_url],i)=>({id,nome,detalhe,emoji,foto_url,ordem:i+1,ativo:true}))}
 // Demonstração: mercados FICTÍCIOS (nunca nomes de mercados reais) + lojas do ramo Mercado criadas neste aparelho
@@ -1594,7 +1626,7 @@ async function renderMercado(forcar){const box=$("#mercBox");if(!box)return;
       return `<button class="mm-card" type="button" onclick="abrirMercado('${esc(m.id)}')">${mercMarca(m)}<span class="tx"><b>${esc(m.nome)}</b>
         <small class="${at?"ok":"pend"}">${at?"✓ Preços atualizados em "+ddmm(at):"⏳ Ainda não atualizou os preços desta semana"}</small>
         <span class="mm-tags">${t.completa?`<span class="cesta">Cesta ${brl(t.s)}</span>`:""}${np?`<span>🔥 ${np} promoç${np>1?"ões":"ão"}</span>`:""}</span></span>${ic("chev",18)}</button>`}).join("")}
-  box.innerHTML=cab+top+seg+corpo+mercRodape();pintarIcones(box)}
+  box.innerHTML=cab+top+seg+corpo+mercRodape();pintarIcones(box);enquadrarLogos(box)}
 function mercRodape(){return `<div class="merc-leg"><p>${ic("crown",16)}<span><b>Coroa dourada</b> = menor preço do produto nesta semana. A <b>cesta</b> soma os produtos de quem informou todos os preços.</span></p>
   <p>${ic("calendar",16)}<span>Cada mercado atualiza os preços uma vez por semana. Preço em cinza é da semana passada e não entra na comparação.</span></p>
   <p>${ic("shield",16)}<span>Os preços são informados pelos próprios mercados e podem mudar sem aviso. Confira na loja antes de comprar.</span></p></div>
@@ -1602,7 +1634,7 @@ function mercRodape(){return `<div class="merc-leg"><p>${ic("crown",16)}<span><b
 // logos dos mercados participantes no cartão do Vitrine Mercado (página principal)
 function mostrarLogosMercado(){const box=document.getElementById("cmLogos");if(!box)return;
   carregarMercado().then(M=>{const l=((M&&M.mercados)||[]).filter(m=>mercImg(m.logo_url)).slice(0,6);
-    box.innerHTML=l.map(m=>`<span class="cm-lg"><img src="${esc(m.logo_url)}" alt="${esc(m.nome)}" loading="lazy"></span>`).join("");box.hidden=!l.length}).catch(()=>{})}
+    box.innerHTML=l.map(m=>`<span class="cm-lg"><img src="${esc(m.logo_url)}" alt="${esc(m.nome)}" data-logo="r"></span>`).join("");box.hidden=!l.length;enquadrarLogos(box)}).catch(()=>{})}
 function queroMercado(){try{localStorage.setItem("vc_ramo_desejado",JSON.stringify("Mercado"))}catch(e){}}
 function compartilharMercado(){const url=linkSite()+"#mercado",txt="🛒 Vitrine Mercado: compare os preços dos supermercados de Castro nesta semana! 👉 "+url;
   if(navigator.share){navigator.share({title:"Vitrine Mercado",text:txt}).catch(()=>{});return}window.open("https://wa.me/?text="+encodeURIComponent(txt),"_blank","noopener")}
@@ -1628,7 +1660,7 @@ async function carregarDoBanco(){
      let mudou=false;
      for(const [e,todas] of lj){const os=(todas||[]).filter(o=>o.ativa&&/^(data:image\/|https:\/\/|$)/.test(o.foto_url||""));
       if(e&&os.length){mudou=true;OFERTAS.unshift(...os.map(o=>({id:"d"+String(o.id).replace(/\W/g,""),emp:e.nome,logo:e.logo_url||"",plano:e.plano||"",sub:e.ramo,cat:o.categoria,img:o.foto_url||"",emoji:(CATS.find(c=>c.id===o.categoria)||{}).ic||"🏷️",
-        tag:esc(o.titulo),s:o.titulo.length>10,desc:o.descricao,regras:o.regras||"Apresente o cupom no caixa.",validade:o.validade||"",economia:(Number(o.preco_de)&&Number(o.preco_por))?Number(o.preco_de)-Number(o.preco_por):(Number(o.economia)||0),destaque:true,whats:e.whatsapp||"",entrega:o.entrega||"sim",precoDe:Number(o.preco_de)||null,precoPor:Number(o.preco_por)||null,limite:Number(o.limite_cupons)||null,umPorCliente:o.um_por_cliente!==false,dias:o.dias||"",horaIni:o.hora_ini||"",horaFim:o.hora_fim||"",inicia:o.inicia_em||"",end:e.endereco||"",abre:e.abre||"",fecha:e.fecha||"",diasFunc:e.dias_func||"",insta:e.instagram||"",usados:store.get("gira_cupons",[]).filter(c=>c.id==="d"+String(o.id).replace(/\W/g,"")).length})));
+        tag:esc(o.titulo),s:o.titulo.length>10,desc:o.descricao,regras:o.regras||"Apresente o cupom no caixa.",validade:o.validade||"",economia:(Number(o.preco_de)&&Number(o.preco_por))?Number(o.preco_de)-Number(o.preco_por):(Number(o.economia)||0),destaque:true,whats:e.whatsapp||"",entrega:o.entrega||"sim",precoDe:Number(o.preco_de)||null,precoPor:Number(o.preco_por)||null,limite:Number(o.limite_cupons)||null,umPorCliente:o.um_por_cliente!==false,dias:o.dias||"",horaIni:o.hora_ini||"",horaFim:o.hora_fim||"",inicia:o.inicia_em||"",end:e.endereco||"",abre:e.abre||"",fecha:e.fecha||"",sabAbre:e.sab_abre||"",sabFecha:e.sab_fecha||"",domAbre:e.dom_abre||"",domFecha:e.dom_fecha||"",diasFunc:e.dias_func||"",insta:e.instagram||"",usados:store.get("gira_cupons",[]).filter(c=>c.id==="d"+String(o.id).replace(/\W/g,"")).length})));
         const bs=os.filter(o=>o.banner&&o.foto_url).map(o=>({of:"d"+String(o.id).replace(/\W/g,""),foto:o.foto_url,logo:/^(data:image\/|https:\/\/)/.test(e.logo_url||"")?e.logo_url:"",emoji:(CATS.find(c=>c.id===o.categoria)||{}).ic||"🏷️",nome:e.nome,sub:e.ramo,topo:esc(o.banner_topo||"OFERTA"),oferta:esc(o.titulo)}));
         if(bs.length){BANNERS.unshift(...bs);slide=0}}}
      if(mudou)render()}catch(err){}
@@ -1640,7 +1672,7 @@ async function carregarDoBanco(){
     if(error||!data||!data.length){render();return} // sem ofertas reais ainda: mostra "em breve"
     const novas=data.map(o=>({id:o.id,emp:o.empresas.nome,sub:o.empresas.ramo,cat:o.categoria,img:o.foto_url||"",emoji:(CATS.find(c=>c.id===o.categoria)||{}).ic||"🏷️",
       tag:esc(o.titulo),s:o.titulo.length>10,desc:o.descricao,regras:o.regras||"Apresente o cupom no caixa.",validade:o.validade||"",economia:Number(o.economia)||0,
-      destaque:o.destaque,whats:o.empresas.whatsapp||"",logo:o.empresas.logo_url||"",plano:o.empresas.plano||"",banner:o.banner,topo:esc(o.banner_topo||""),entrega:o.entrega||"sim",precoDe:Number(o.preco_de)||null,precoPor:Number(o.preco_por)||null,limite:Number(o.limite_cupons)||null,umPorCliente:o.um_por_cliente!==false,dias:o.dias||"",horaIni:o.hora_ini||"",horaFim:o.hora_fim||"",inicia:o.inicia_em||"",end:o.empresas.endereco||"",abre:o.empresas.abre||"",fecha:o.empresas.fecha||"",diasFunc:o.empresas.dias_func||"",insta:o.empresas.instagram||"",usados:0}));
+      destaque:o.destaque,whats:o.empresas.whatsapp||"",logo:o.empresas.logo_url||"",plano:o.empresas.plano||"",banner:o.banner,topo:esc(o.banner_topo||""),entrega:o.entrega||"sim",precoDe:Number(o.preco_de)||null,precoPor:Number(o.preco_por)||null,limite:Number(o.limite_cupons)||null,umPorCliente:o.um_por_cliente!==false,dias:o.dias||"",horaIni:o.hora_ini||"",horaFim:o.hora_fim||"",inicia:o.inicia_em||"",end:o.empresas.endereco||"",abre:o.empresas.abre||"",fecha:o.empresas.fecha||"",sabAbre:o.empresas.sab_abre||"",sabFecha:o.empresas.sab_fecha||"",domAbre:o.empresas.dom_abre||"",domFecha:o.empresas.dom_fecha||"",diasFunc:o.empresas.dias_func||"",insta:o.empresas.instagram||"",usados:0}));
     if(!novas.some(o=>o.destaque))novas.slice(0,4).forEach(o=>o.destaque=true);
     OFERTAS.splice(0,OFERTAS.length,...novas);
     const comLimite=novas.filter(o=>o.limite).map(o=>o.id);
