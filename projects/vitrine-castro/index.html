@@ -599,44 +599,23 @@ img[data-logo].lg-ok{object-fit:cover!important;padding:0!important;background:n
 .mb-filtro{display:flex;gap:6px;background:#e6e6ea;border-radius:12px;padding:4px;margin-bottom:12px}
 .mb-filtro button{flex:1;min-height:44px;border:0;border-radius:9px;background:none;font:inherit;font-weight:700;font-size:.88rem;color:var(--txt-2);cursor:pointer}
 .mb-filtro button[aria-pressed=true]{background:#000;color:var(--ouro-2)}
-.mb-lista{display:grid;gap:8px;min-width:0}
-.mb-top b{display:block;font-size:1rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mb-top b .ex{display:inline;font-weight:500;color:var(--txt-3);font-size:.75rem}
-.mb-top small{display:block;font-size:.78rem;color:var(--txt-3)}
-.mb-baixo{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px;margin-top:8px}
-.mb-lin{display:block;min-width:0;padding:10px 11px!important;gap:10px;background:var(--card);border-radius:var(--raio-g);box-shadow:var(--sombra);padding:10px 12px;border-left:5px solid #13a049}
+.mb-lista{display:grid;gap:8px}
+.mb-lin{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:var(--raio-g);box-shadow:var(--sombra);padding:10px 12px;border-left:5px solid #13a049}
 .mb-lin.ocup{border-left-color:#d9141a}
-.mb-av{width:36px;height:36px;border-radius:50%;background:#f3f3f5;display:grid;place-items:center;font-size:1.3rem;flex-shrink:0}
+.mb-av{width:42px;height:42px;border-radius:50%;background:#f3f3f5;display:grid;place-items:center;font-size:1.3rem;flex-shrink:0}
 .mb-tx{flex:1;min-width:0}.mb-tx b{display:block;font-size:.98rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mb-tx b .ex{font-weight:500;color:var(--txt-3);font-size:.75rem}
 .mb-tel{display:inline-flex;align-items:center;gap:4px;font-weight:700;font-size:.95rem;color:var(--txt);text-decoration:none;font-variant-numeric:tabular-nums;margin:1px 0}
 .mb-tx small{display:block;font-size:.76rem;color:var(--txt-3)}
-.mb-telrow{display:flex;align-items:center;gap:6px;margin:2px 0}
-.mb-num{font-weight:700;font-size:.92rem;font-variant-numeric:tabular-nums;white-space:nowrap}
-.mb-lig{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#e8f7ee;color:#0d6b31;border:1.5px solid #9bd8b2;flex-shrink:0;text-decoration:none}
-.mb-acoes{display:flex;align-items:center;gap:6px;flex-shrink:0}
-.mb-zap{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#25D366;color:#fff;flex-shrink:0;text-decoration:none;box-shadow:0 3px 10px rgba(37,211,102,.35)}
-.mb-st{display:inline-flex;align-items:center;gap:5px;min-width:78px;padding:0 9px;min-height:44px;justify-content:center;border-radius:12px;font:inherit;font-weight:800;font-size:.86rem;letter-spacing:.03em;text-decoration:none;border:0;cursor:pointer;flex-shrink:0}
+.mb-tel{gap:6px!important}.mb-lig{width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;background:#e8f7ee;color:#0d6b31;border:1.5px solid #9bd8b2;flex-shrink:0}
+.mb-st{display:inline-flex;align-items:center;gap:6px;min-width:104px;min-height:44px;justify-content:center;border-radius:12px;font:inherit;font-weight:800;font-size:.86rem;letter-spacing:.03em;text-decoration:none;border:0;cursor:pointer;flex-shrink:0}
 .mb-st .pt{width:10px;height:10px;border-radius:50%;background:#fff}
 .mb-st.livre{background:#13a049;color:#fff;box-shadow:0 3px 10px rgba(19,160,73,.35)}.mb-st.ocup{background:#d9141a;color:#fff}
 .mb-dica{text-align:center;font-size:.8rem;color:var(--txt-3);margin:10px 0 14px}
 .mb-cta{display:flex;align-items:center;gap:12px;background:#000;color:#fff;border:1.5px solid var(--ouro);border-radius:var(--raio-g);padding:12px 14px;text-decoration:none;margin-bottom:16px}
 .mb-cta .mb-ic2{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,var(--ouro-2),var(--ouro));color:#000;flex-shrink:0}
 .mb-cta span:nth-child(2){flex:1}.mb-cta b{display:block;color:var(--ouro-2)}.mb-cta small{display:block;color:#ddd;font-size:.8rem}
-.mb-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:8px}
-.mb-card{position:relative;background:var(--card);border-radius:16px;box-shadow:var(--sombra);padding:10px;display:flex;flex-direction:column;min-width:0;border-top:4px solid #13a049}
-.mb-card.ocup{border-top-color:#d9141a}
-.mb-c-topo{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px}
-.mb-c-av{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#f6f6f8;color:var(--txt);box-shadow:0 0 0 3px #13a049;flex-shrink:0}
-.mb-card.ocup .mb-c-av{box-shadow:0 0 0 3px #d9141a;color:var(--txt-3)}
-.mb-c-st{border:0;border-radius:20px;padding:4px 8px;font:inherit;font-size:.68rem;font-weight:800;letter-spacing:.04em;color:#fff;background:#13a049;cursor:default}
-.mb-c-st.ocup{background:#d9141a;cursor:pointer}
-.mb-c-nome{font-size:.9rem;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-height:2.4em}
-.mb-c-ex{font-size:.66rem;color:var(--txt-3);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
-.mb-c-info{font-size:.72rem;color:var(--txt-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mb-c-num{font-weight:800;font-size:.86rem;font-variant-numeric:tabular-nums;margin:4px 0 8px;white-space:nowrap}
-.mb-c-bts{display:flex;gap:6px;margin-top:auto}
-.mb-c-lig{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;min-height:40px;border-radius:12px;background:#e8f7ee;color:#0d6b31;border:1.5px solid #9bd8b2;font-weight:800;font-size:.8rem;text-decoration:none}
-.mb-c-zap{width:44px;min-height:40px;border-radius:12px;display:grid;place-items:center;background:#25D366;color:#fff;text-decoration:none;flex-shrink:0}
-.mb-card.ocup .mb-c-lig,.mb-card.ocup .mb-c-zap{opacity:.75}
+@media (max-width:379px){.mb-lin{gap:8px;padding:10px 9px}.mb-av{width:34px;height:34px;font-size:1.05rem}.mb-st{min-width:0;padding:0 10px;gap:5px;font-size:.8rem}.mb-tel{font-size:.9rem;gap:4px!important}.mb-lig{width:26px;height:26px}}
+@media (max-width:339px){.mb-av{display:none}}
 </style>
 </head>
 <body>
@@ -1692,7 +1671,7 @@ const MOTO_EXEMPLO=[{id:"mx1",nome:"Motoboy Exemplo 1",telefone:"42900000001",ba
   {id:"mx3",nome:"Motoboy Exemplo 3",telefone:"42900000003",bairro:"Todos os bairros",livre:true,exemplo:true},{id:"mx4",nome:"Motoboy Exemplo 4",telefone:"42900000004",bairro:"",livre:false,exemplo:true}];
 let MOTO_FILTRO="todos";
 // símbolo do WhatsApp (balão com telefone)
-const ICONE_ZAP='<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2A9.8 9.8 0 0 0 3.6 17l-1.4 4.8 4.9-1.3A9.8 9.8 0 1 0 12 2.2z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M8.7 7.4c.2-.4.4-.4.7-.4h.5c.2 0 .4 0 .6.5l.8 1.9c.1.2 0 .4-.1.6l-.6.7c-.1.2-.1.3 0 .5a6.3 6.3 0 0 0 2.6 2.6c.2.1.4.1.5 0l.7-.8c.2-.2.4-.2.6-.1l1.8.9c.2.1.4.2.4.4 0 .5-.1 1.2-.6 1.6-.5.5-1.3.8-2.2.6-2.4-.5-5.3-3.3-5.8-5.8-.2-.9.1-1.8.6-2.3z" fill="currentColor"/></svg>';
+const ICONE_ZAP='<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2A9.8 9.8 0 0 0 3.6 17l-1.4 4.8 4.9-1.3A9.8 9.8 0 1 0 12 2.2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8.7 7.4c.2-.4.4-.4.7-.4h.5c.2 0 .4 0 .6.5l.8 1.9c.1.2 0 .4-.1.6l-.6.7c-.1.2-.1.3 0 .5a6.3 6.3 0 0 0 2.6 2.6c.2.1.4.1.5 0l.7-.8c.2-.2.4-.2.6-.1l1.8.9c.2.1.4.2.4.4 0 .5-.1 1.2-.6 1.6-.5.5-1.3.8-2.2.6-2.4-.5-5.3-3.3-5.8-5.8-.2-.9.1-1.8.6-2.3z" fill="currentColor"/></svg>';
 const telMoto=t=>{const d=String(t||"").replace(/\D/g,"");return d.length===11?`(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`:d.length===10?`(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`:d};
 const haMin=iso=>{if(!iso)return"";const s=Math.max(0,(Date.now()-new Date(iso).getTime())/1000);return s<90?"agora":s<3600?"há "+Math.round(s/60)+" min":s<86400?"há "+Math.round(s/3600)+" h":"há "+Math.round(s/86400)+" dia"+(s<172800?"":"s")};
 async function carregarMotos(){
@@ -1706,15 +1685,14 @@ async function renderMotoboys(){const box=$("#motoBox");if(!box)return;
   l.sort((a,b)=>(b.livre-a.livre)||String(a.nome).localeCompare(String(b.nome),"pt-BR"));
   const livres=l.filter(m=>m.livre).length,vis=MOTO_FILTRO==="livres"?l.filter(m=>m.livre):l;
   box.innerHTML=cab+`<div class="mb-filtro" role="group" aria-label="Filtrar"><button type="button" aria-pressed="${MOTO_FILTRO==="todos"}" onclick="MOTO_FILTRO='todos';renderMotoboys()">Todos (${l.length})</button><button type="button" aria-pressed="${MOTO_FILTRO==="livres"}" onclick="MOTO_FILTRO='livres';renderMotoboys()">🟢 Só livres (${livres})</button></div>
-   ${vis.length?`<div class="mb-grade">${vis.map(m=>{const d=String(m.telefone||"").replace(/\D/g,""),wa="55"+d,msg="Olá! Vi você na lista de motoboys do Vitrine Castro. Está livre para uma entrega?";
-     return `<div class="mb-card${m.livre?"":" ocup"}">
-      <div class="mb-c-topo"><span class="mb-c-av" aria-hidden="true">${ic("moto",26)}</span>${m.livre?`<span class="mb-c-st livre">LIVRE</span>`:`<button type="button" class="mb-c-st ocup" onclick="toast('${esc(m.nome).replace(/'/g,"")} está em entrega agora. Escolha um motoboy livre ou ligue mais tarde.')">OCUPADO</button>`}</div>
-      <b class="mb-c-nome">${esc(m.nome)}</b>${m.exemplo?'<small class="mb-c-ex">exemplo</small>':""}${m.eu?'<small class="mb-c-ex">você</small>':""}
-      <small class="mb-c-info">${m.bairro?esc(m.bairro)+" · ":""}${esc(haMin(m.status_em))}</small>
-      <span class="mb-c-num">${esc(telMoto(d))}</span>
-      <div class="mb-c-bts"><a class="mb-c-lig" href="tel:+${esc(wa)}" aria-label="Ligar para ${esc(m.nome)}">${ic("phone",18)}<span>Ligar</span></a><a class="mb-c-zap" href="https://wa.me/${esc(wa)}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener" aria-label="Mandar WhatsApp para ${esc(m.nome)}">${ICONE_ZAP}</a></div></div>`}).join("")}</div>`
+   ${vis.length?`<div class="mb-lista">${vis.map(m=>{const d=String(m.telefone||"").replace(/\D/g,""),wa="55"+d,msg="Olá! Vi você na lista de motoboys do Vitrine Castro. Está livre para uma entrega?";
+     return `<div class="mb-lin${m.livre?"":" ocup"}"><span class="mb-av" aria-hidden="true">🛵</span>
+      <div class="mb-tx"><b>${esc(m.nome)}${m.exemplo?' <small class="ex">(exemplo)</small>':""}${m.eu?' <small class="ex">(você)</small>':""}</b><a class="mb-tel" href="tel:+${esc(wa)}" aria-label="Ligar para ${esc(m.nome)}: ${esc(telMoto(d))}">${esc(telMoto(d))}<span class="mb-lig">${ic("phone",15)}</span></a>
+       <small>${m.bairro?esc(m.bairro)+" · ":""}${m.livre?"livre":"ocupado"} ${esc(haMin(m.status_em))}</small></div>
+      ${m.livre?`<a class="mb-st livre" href="https://wa.me/${esc(wa)}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener" aria-label="${esc(m.nome)} está livre: mandar mensagem no WhatsApp">${ICONE_ZAP}LIVRE</a>`
+       :`<button type="button" class="mb-st ocup" onclick="toast('${esc(m.nome).replace(/'/g,"")} está em entrega agora. Escolha um motoboy livre ou ligue mais tarde.')" aria-label="${esc(m.nome)} está ocupado"><span class="pt"></span>OCUPADO</button>`}</div>`}).join("")}</div>`
      :`<div class="merc-vazio"><span class="e">🛵</span><b>${l.length?"Nenhum motoboy livre agora.":"Ainda não há motoboys na lista."}</b><p>${l.length?"Veja todos ou tente daqui a pouco.":"Em breve os motoboys de Castro aparecem aqui."}</p></div>`}
-   <p class="mb-dica">📞 <b>Ligar</b> liga direto · <b style="color:#13a049">WhatsApp</b> manda mensagem · atualiza sozinho</p>`+motoRodape();
+   <p class="mb-dica">📞 Toque no número para <b>ligar</b> · toque em <b style="color:#13a049">LIVRE</b> para mandar <b>WhatsApp</b> · a lista se atualiza sozinha.</p>`+motoRodape();
   pintarIcones(box);clearInterval(window._motoT);window._motoT=setInterval(()=>{if(VIEW==="motoboys"&&!document.hidden)renderMotoboys()},45000)}
 function motoRodape(){return `<a class="mb-cta" href="motoboy.html"><span class="mb-ic2">${ic("moto",24)}</span><span><b>É motoboy? Coloque seu nome aqui</b><small>R$ 19,90/mês · os 3 primeiros meses grátis</small></span>${ic("chev",18)}</a>`}
 function queroMercado(){try{localStorage.setItem("vc_ramo_desejado",JSON.stringify("Mercado"))}catch(e){}}
