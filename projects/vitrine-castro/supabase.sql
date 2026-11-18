@@ -865,6 +865,54 @@ drop trigger if exists t_protege_promos on public.mercado_promos;
 create trigger t_protege_promos before insert or update on public.mercado_promos for each row execute function public.protege_mercado();
 revoke execute on function public.protege_mercado() from public, anon, authenticated;
 
+-- =====================================================================
+--  MOTOBOYS: lista pública (nome, telefone, livre/ocupado) para lojas e
+--  moradores contratarem. Cada motoboy tem login próprio (motoboy.html),
+--  aparece depois que o ADM aprovar. R$ 19,90/mês, 3 primeiros meses grátis.
+-- =====================================================================
+create table if not exists public.motoboys (
+  id        uuid primary key default gen_random_uuid(),
+  dono      uuid not null default auth.uid() references auth.users on delete cascade,
+  nome      text not null check (char_length(nome) between 2 and 60),
+  telefone  text not null check (telefone ~ '^[0-9]{10,13}$'),
+  bairro    text check (bairro is null or char_length(bairro) <= 60),
+  livre     boolean not null default true,
+  aprovado  boolean not null default false,
+  pago_ate  date,
+  status_em timestamptz not null default now(),
+  criado_em timestamptz not null default now()
+);
+create unique index if not exists motoboys_um_por_conta on public.motoboys (dono);
+alter table public.motoboys enable row level security;
+revoke all on public.motoboys from public, anon, authenticated;
+grant select on public.motoboys to anon, authenticated;
+grant insert, update, delete on public.motoboys to authenticated;
+drop policy if exists "motoboys ver" on public.motoboys;
+create policy "motoboys ver" on public.motoboys for select using (aprovado or dono = auth.uid() or public.is_admin());
+drop policy if exists "motoboy cria" on public.motoboys;
+create policy "motoboy cria" on public.motoboys for insert to authenticated with check (dono = auth.uid());
+drop policy if exists "motoboy edita" on public.motoboys;
+create policy "motoboy edita" on public.motoboys for update to authenticated using (dono = auth.uid() or public.is_admin());
+drop policy if exists "motoboy apaga" on public.motoboys;
+create policy "motoboy apaga" on public.motoboys for delete to authenticated using (dono = auth.uid() or public.is_admin());
+-- só o ADM aprova e marca o pagamento; a hora do status muda sozinha
+create or replace function public.protege_motoboy() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if not public.is_admin() then
+    if tg_op = 'INSERT' then
+      new.dono := auth.uid(); new.aprovado := false; new.pago_ate := null;
+    else
+      new.dono := old.dono; new.aprovado := old.aprovado; new.pago_ate := old.pago_ate;
+    end if;
+  end if;
+  if tg_op = 'INSERT' or new.livre is distinct from old.livre then new.status_em := now(); end if;
+  return new;
+end $$;
+drop trigger if exists t_protege_motoboy on public.motoboys;
+create trigger t_protege_motoboy before insert or update on public.motoboys for each row execute function public.protege_motoboy();
+revoke execute on function public.protege_motoboy() from public, anon, authenticated;
+
 -- DEPOIS de criar sua conta na Área da Empresa (empresa.html),
 -- rode só a linha abaixo (com o SEU e-mail) para virar administrador:
 --

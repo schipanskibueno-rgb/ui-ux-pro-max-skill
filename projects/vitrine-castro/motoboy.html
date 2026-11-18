@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>Área do Motoboy – Vitrine Castro</title>
+<link rel="icon" type="image/png" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>window.__erros=[];addEventListener("error",function(e){try{window.__erros.push(String(e.message||e))}catch(_){}});</script>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js" integrity="sha384-BWcjm9OdFth9TbhCxZPdm+gAOUMAzQy9nmTs12ioXdCcbVnJaPMn+fMUoQCLt60R" crossorigin="anonymous"></script>
+<style>
+:root{--preto:#000;--ouro:#D4A537;--ouro2:#F2CC63;--txt:#16161a;--cinza:#5f6068;--verde:#13a049;--verde2:#0d6b31;--verm:#d9141a;--fundo:#efeff2;--card:#fff;--linha:#e7e7ea}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,sans-serif;background:var(--fundo);color:var(--txt);line-height:1.4}
+button,input{font-family:inherit}
+:focus-visible{outline:3px solid var(--ouro);outline-offset:2px}
+.app{max-width:560px;margin:0 auto;min-height:100vh;padding-bottom:40px}
+header{background:var(--preto);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 16px 16px;border-radius:0 0 24px 24px;display:flex;align-items:center;gap:10px}
+header .v{font-size:1.35rem;font-weight:800}header .c{font-size:1.35rem;font-weight:800;color:var(--ouro)}
+header small{display:block;color:#E8D9A8;font-size:.76rem;letter-spacing:1px}
+header .sair{margin-left:auto;background:rgba(255,255,255,.1);color:#fff;border:0;border-radius:12px;min-height:44px;padding:0 14px;font-weight:600;cursor:pointer}
+.escondido{display:none!important}
+main{padding:16px}
+.card{background:var(--card);border-radius:18px;padding:16px;box-shadow:0 3px 12px rgba(0,0,0,.07);margin-bottom:14px}
+h2{font-size:1.2rem;margin-bottom:4px}.sub{color:var(--cinza);font-size:.92rem}
+label{display:block;font-size:.9rem;font-weight:600;margin:12px 0 5px}
+.inp{width:100%;border:2px solid #ddd6c3;border-radius:12px;padding:10px 14px;min-height:50px;font-size:1rem;background:#fff;color:var(--txt);outline:0}
+.inp:focus{border-color:var(--ouro)}
+.ajuda{font-size:.8rem;color:var(--cinza);margin-top:4px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:14px;background:var(--preto);color:#fff;border:0;border-radius:14px;min-height:52px;font-weight:700;font-size:1rem;cursor:pointer;text-decoration:none}
+.btn.ouro{background:linear-gradient(var(--ouro2),var(--ouro));color:#000}.btn.claro{background:#efe8d4;color:var(--txt)}
+.btn:disabled{opacity:.6}
+.abas{display:flex;background:#efe8d4;border-radius:14px;padding:4px;margin:12px 0 4px}
+.abas button{flex:1;border:0;background:none;min-height:46px;border-radius:10px;font-weight:700;font-size:.95rem;color:var(--txt);cursor:pointer}
+.abas button.on{background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.erro{background:#fde4e4;border:1.5px solid #f2b3b5;color:#7a0b0f;border-radius:12px;padding:10px 12px;font-size:.9rem;margin-top:10px;display:none}
+.aviso{background:#fff6dc;border:1.5px solid #e6cf8d;border-radius:14px;padding:12px;font-size:.92rem;margin-bottom:14px}
+.hero{background:radial-gradient(130% 150% at 0% 0%,#2b2210 0%,#000 60%);color:#fff;border-radius:20px;padding:20px 16px;text-align:center;border:1px solid rgba(212,165,55,.5);margin-bottom:14px}
+.hero .ic{font-size:3rem;display:block}.hero h2{font-size:1.4rem;margin:6px 0}.hero h2 span{color:var(--ouro2)}.hero p{color:#ddd;font-size:.95rem}
+.plano{display:flex;align-items:center;gap:12px;background:linear-gradient(100deg,var(--ouro2),var(--ouro));color:#000;border-radius:16px;padding:14px;margin-bottom:14px}
+.plano b{font-size:1.5rem;display:block;line-height:1.1}.plano small{display:block;font-size:.8rem;font-weight:600}
+.plano .gr{margin-left:auto;background:#000;color:var(--ouro2);font-weight:800;font-size:.8rem;border-radius:10px;padding:6px 10px;text-align:center}
+.passos{display:grid;gap:8px;margin-bottom:14px}.passos div{display:flex;gap:10px;align-items:center;background:#fff;border-radius:14px;padding:10px 12px}
+.passos i{font-style:normal;font-size:1.5rem}.passos b{display:block;font-size:.92rem}.passos small{color:var(--cinza);font-size:.8rem}
+.status{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.st-btn{border:3px solid transparent;border-radius:18px;min-height:110px;font-weight:800;font-size:1.05rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:#f3f3f5;color:var(--cinza)}
+.st-btn .bola{width:22px;height:22px;border-radius:50%;background:#c9c9cf}
+.st-btn.livre.on{background:var(--verde);color:#fff;border-color:#0b5c2a;box-shadow:0 6px 18px rgba(19,160,73,.35)}.st-btn.livre.on .bola{background:#b6f5cd}
+.st-btn.ocup.on{background:var(--verm);color:#fff;border-color:#8a0b0f;box-shadow:0 6px 18px rgba(217,20,26,.3)}.st-btn.ocup.on .bola{background:#ffd0d1}
+.st-btn small{font-weight:600;font-size:.78rem;opacity:.9}
+.agora{text-align:center;font-size:.85rem;color:var(--cinza);margin-top:10px}
+.linha-d{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--linha);font-size:.92rem}.linha-d:first-of-type{border-top:0}.linha-d span{color:var(--cinza)}
+.tag{display:inline-block;border-radius:20px;padding:3px 10px;font-size:.78rem;font-weight:700}.tag.ok{background:#dff5e7;color:var(--verde2)}.tag.pend{background:#fff3cd;color:#7a5a00}
+.check{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-weight:400;font-size:.88rem}.check input{width:22px;height:22px;flex-shrink:0;accent-color:var(--verde)}
+.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translateX(-50%);background:#000;color:#fff;padding:12px 18px;border-radius:30px;font-size:.95rem;opacity:0;transition:.3s;z-index:60;pointer-events:none;max-width:90vw;text-align:center}
+.toast.on{opacity:1}
+.voltar{text-align:center}.voltar a{color:#1F2B57;font-weight:600}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <img src="img/logo-simbolo.png" alt="" width="47" height="50" style="display:block;height:50px;width:auto">
+  <div><span class="v">Vitrine</span> <span class="c">Castro</span><small>ÁREA DO MOTOBOY</small></div>
+  <button class="sair escondido" id="btnSair" onclick="sair()">Sair</button>
+</header>
+<main id="main"><p class="sub" style="text-align:center;padding:30px 0">Carregando…</p></main>
+<p class="voltar"><a href="./#motoboys">← Ver a lista de motoboys no app</a></p>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const store={get(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),3200)}
+const DEMO=!(window.CONFIG&&CONFIG.SUPABASE_URL&&CONFIG.SUPABASE_ANON_KEY);
+const db=DEMO?null:supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_ANON_KEY);
+const PRECO="R$ 19,90",WA_ADM=((window.CONFIG&&CONFIG.WHATSAPP)||"").replace(/\D/g,"");
+let user=null,moto=null;
+function traduzErro(e){const m=(e&&e.message)||String(e);
+  if(/Invalid login/i.test(m))return"E-mail ou senha incorretos.";
+  if(/already registered/i.test(m))return"Este e-mail já tem conta. Use a aba Entrar.";
+  if(/Email not confirmed/i.test(m))return"Confirme seu e-mail: abra a mensagem que enviamos e clique no link.";
+  if(/rate limit|too many/i.test(m))return"Muitos cadastros em pouco tempo. Aguarde um pouco e tente de novo.";
+  if(/motoboys_um_por_conta/i.test(m))return"Esta conta já tem um cadastro de motoboy.";
+  if(/telefone_check/i.test(m))return"Confira o WhatsApp: DDD + número, só números.";
+  if(/schema cache|Could not find the table|does not exist/i.test(m))return"O banco de dados está desatualizado. Peça ao administrador para rodar o supabase.sql novo.";
+  if(/Failed to fetch|NetworkError/i.test(m))return"Sem internet. Tente de novo.";
+  return m}
+const soDig=s=>String(s||"").replace(/\D/g,"");
+function telBonito(t){const d=soDig(t).replace(/^55(?=\d{10,11}$)/,"");return d.length===11?`(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`:d.length===10?`(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`:t}
+function dataBR(d){return new Date(d).toLocaleDateString("pt-BR")}
+function gratisAte(m){const d=new Date(m.criado_em||Date.now());d.setMonth(d.getMonth()+3);return d}
+function haQuanto(iso){const s=Math.max(0,(Date.now()-new Date(iso).getTime())/1000);return s<60?"agora mesmo":s<3600?"há "+Math.round(s/60)+" min":s<86400?"há "+Math.round(s/3600)+" h":"em "+dataBR(iso)}
+
+// ===== INÍCIO =====
+async function iniciar(){
+  if(DEMO){moto=store.get("vc_demo_motoboy",null);$("#btnSair").classList.toggle("escondido",!moto);moto?telaPainel():telaBoasVindas();return}
+  const {data:{session}}=await db.auth.getSession();
+  if(!session){telaBoasVindas();return}
+  user=session.user;$("#btnSair").classList.remove("escondido");
+  const {data,error}=await db.from("motoboys").select("*").eq("dono",user.id).maybeSingle();
+  if(error){$("#main").innerHTML=`<div class="aviso">${esc(traduzErro(error))}</div>`;return}
+  moto=data;moto?telaPainel():telaCadastro()}
+
+function planoHTML(){return `<div class="plano"><div><small>Seu nome na lista de motoboys</small><b>${PRECO}<span style="font-size:.9rem">/mês</span></b><small>Lojas e moradores de Castro chamam você pelo WhatsApp</small></div><span class="gr">3 MESES<br>GRÁTIS</span></div>`}
+function telaBoasVindas(){
+  $("#main").innerHTML=`${DEMO?`<div class="aviso"><b>Modo demonstração.</b> O cadastro fica só neste celular.</div>`:""}
+  <div class="hero"><span class="ic" aria-hidden="true">🛵</span><h2>Área do <span>Motoboy</span></h2><p>Coloque seu nome na lista do Vitrine Castro. As lojas e os moradores veem se você está <b style="color:#7ff0a8">livre</b> e chamam você direto no WhatsApp.</p></div>
+  ${planoHTML()}
+  <div class="passos">
+   <div><i>📝</i><span><b>1. Crie sua conta</b><small>E-mail e senha.</small></span></div>
+   <div><i>🛵</i><span><b>2. Coloque nome e WhatsApp</b><small>Seu nome aparece depois que o Vitrine aprovar.</small></span></div>
+   <div><i>🟢</i><span><b>3. Toque em LIVRE ou OCUPADO</b><small>Quando estiver livre, as lojas chamam você.</small></span></div>
+  </div>
+  <button class="btn ouro" onclick="${DEMO?"telaCadastro()":"telaLogin('criar')"}">Quero me cadastrar</button>
+  <button class="btn claro" onclick="${DEMO?"telaCadastro()":"telaLogin('entrar')"}">Já tenho conta – Entrar</button>`}
+function telaLogin(modo){
+  $("#main").innerHTML=`<div class="card"><h2>${modo==="criar"?"Crie sua conta":"Entrar"}</h2><p class="sub">${modo==="criar"?"E-mail e senha para entrar na Área do Motoboy.":"Use o e-mail e a senha que você cadastrou."}</p>
+   <div class="abas"><button class="${modo==="entrar"?"on":""}" onclick="telaLogin('entrar')">Entrar</button><button class="${modo==="criar"?"on":""}" onclick="telaLogin('criar')">Criar conta</button></div>
+   <form onsubmit="entrar(event,'${modo}')">
+    <label for="lEmail">E-mail</label><input class="inp" id="lEmail" type="email" autocomplete="email" required>
+    <label for="lSenha">Senha</label><input class="inp" id="lSenha" type="password" autocomplete="${modo==="criar"?"new-password":"current-password"}" minlength="6" required>
+    ${modo==="criar"?'<p class="ajuda">Mínimo de 6 caracteres.</p>':""}
+    <button class="btn" id="btnEntrar">${modo==="criar"?"Criar minha conta":"Entrar"}</button><div class="erro" id="lErro"></div></form>
+   ${modo==="entrar"?`<button class="btn claro" onclick="esqueci()">Esqueci minha senha</button>`:""}</div>
+   <button class="btn claro" onclick="telaBoasVindas()">← Voltar</button>`}
+async function entrar(ev,modo){ev.preventDefault();const email=$("#lEmail").value.trim(),senha=$("#lSenha").value,b=$("#btnEntrar");b.disabled=true;$("#lErro").style.display="none";
+  try{if(modo==="criar"){const {data,error}=await db.auth.signUp({email,password:senha,options:{emailRedirectTo:location.href.split("#")[0]}});if(error)throw error;
+      if(!data.session){$("#main").innerHTML=`<div class="card"><h2>📧 Confirme seu e-mail</h2><p class="sub">Enviamos um link para <b>${esc(email)}</b>. Abra o e-mail, clique no link e volte aqui para entrar.</p><button class="btn" onclick="telaLogin('entrar')">Já confirmei, entrar</button></div>`;return}}
+    else{const {error}=await db.auth.signInWithPassword({email,password:senha});if(error)throw error}
+    await iniciar()}catch(e){$("#lErro").textContent=traduzErro(e);$("#lErro").style.display="block"}finally{b.disabled=false}}
+async function esqueci(){const email=($("#lEmail").value||"").trim();if(!email){$("#lErro").textContent="Digite seu e-mail acima primeiro.";$("#lErro").style.display="block";return}
+  const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.href.split("#")[0]});toast(error?traduzErro(error):"Enviamos um link para criar uma nova senha.")}
+
+function formHTML(m){m=m||{};return `<label for="mNome">Seu nome (como as lojas vão ver)</label><input class="inp" id="mNome" maxlength="60" required value="${esc(m.nome||"")}" placeholder="Ex: João Entregas">
+  <label for="mTel">WhatsApp</label><input class="inp" id="mTel" inputmode="tel" maxlength="20" required value="${esc(m.telefone?telBonito(m.telefone):"")}" placeholder="(42) 9 9999-9999">
+  <label for="mBairro">Bairro ou região onde atende (opcional)</label><input class="inp" id="mBairro" maxlength="60" value="${esc(m.bairro||"")}" placeholder="Ex: Centro e Vila Rio Branco">`}
+function telaCadastro(){
+  $("#main").innerHTML=`${planoHTML()}<div class="card"><h2>🛵 Seus dados</h2><p class="sub">Leva 1 minuto.</p><form onsubmit="salvar(event,true)">${formHTML()}
+   <label class="check"><input type="checkbox" id="mAceito" required><span>Aceito que meu <b>nome</b> e meu <b>WhatsApp</b> apareçam na lista de motoboys do Vitrine Castro. Posso sair quando quiser.</span></label>
+   <button class="btn ouro" id="mBtn">Concluir cadastro</button><div class="erro" id="mErro"></div></form></div>`}
+async function salvar(ev,novo){ev.preventDefault();const b=$("#mBtn"),err=$("#mErro");err.style.display="none";
+  let tel=soDig($("#mTel").value);if(tel.startsWith("55")&&tel.length>11)tel=tel.slice(2);
+  const nome=$("#mNome").value.trim(),bairro=$("#mBairro").value.trim()||null;
+  if(nome.length<2){err.textContent="Escreva seu nome.";err.style.display="block";return}
+  if(tel.length<10||tel.length>11){err.textContent="Confira o WhatsApp: DDD + número.";err.style.display="block";return}
+  b.disabled=true;
+  try{const dados={nome,telefone:tel,bairro};
+    if(DEMO){moto={...(moto||{id:"demo-moto",livre:true,aprovado:true,criado_em:new Date().toISOString(),status_em:new Date().toISOString()}),...dados};store.set("vc_demo_motoboy",moto)}
+    else if(novo){const {data,error}=await db.from("motoboys").insert(dados).select().single();if(error)throw error;moto=data}
+    else{const {data,error}=await db.from("motoboys").update(dados).eq("id",moto.id).select().single();if(error)throw error;moto=data}
+    $("#btnSair").classList.remove("escondido");toast(novo?"✅ Cadastro feito!":"✅ Dados salvos!");telaPainel()}
+  catch(e){err.textContent=traduzErro(e);err.style.display="block";b.disabled=false}}
+
+function telaPainel(){const m=moto,ga=gratisAte(m),gratis=ga>new Date();
+  const pago=m.pago_ate&&new Date(m.pago_ate+"T23:59:59")>=new Date();
+  $("#main").innerHTML=`${DEMO?`<div class="aviso"><b>Modo demonstração.</b> O cadastro fica só neste celular e aparece na lista do app deste aparelho.</div>`:""}
+  ${m.aprovado?"":`<div class="aviso">⏳ <b>Cadastro em análise.</b> Seu nome aparece na lista assim que o Vitrine aprovar.${WA_ADM?` <a href="https://wa.me/${WA_ADM}?text=${encodeURIComponent("Olá! Fiz meu cadastro de motoboy no Vitrine Castro: "+m.nome+".")}" target="_blank" rel="noopener">Avisar pelo WhatsApp</a>`:""}</div>`}
+  <div class="card"><h2>Olá, ${esc(m.nome.split(" ")[0])}! 👋</h2><p class="sub">Como você está agora?</p>
+   <div class="status" role="group" aria-label="Meu status">
+    <button type="button" class="st-btn livre ${m.livre?"on":""}" aria-pressed="${!!m.livre}" onclick="mudarStatus(true)"><span class="bola"></span>LIVRE<small>Posso pegar entrega</small></button>
+    <button type="button" class="st-btn ocup ${m.livre?"":"on"}" aria-pressed="${!m.livre}" onclick="mudarStatus(false)"><span class="bola"></span>OCUPADO<small>Estou em entrega</small></button>
+   </div>
+   <p class="agora" id="mAgora">${m.livre?"🟢 Você aparece como LIVRE":"🔴 Você aparece como OCUPADO"} desde ${haQuanto(m.status_em)}.</p></div>
+  <div class="card"><h2>📋 Meus dados</h2>
+   <div class="linha-d"><span>Nome</span><b>${esc(m.nome)}</b></div>
+   <div class="linha-d"><span>WhatsApp</span><b>${esc(telBonito(m.telefone))}</b></div>
+   ${m.bairro?`<div class="linha-d"><span>Atende</span><b>${esc(m.bairro)}</b></div>`:""}
+   <div class="linha-d"><span>Na lista</span><b>${m.aprovado?'<span class="tag ok">✓ Aparecendo</span>':'<span class="tag pend">Em análise</span>'}</b></div>
+   <button class="btn claro" onclick="editar()">✏️ Editar meus dados</button></div>
+  <div class="card"><h2>💳 Meu plano</h2>
+   <div class="linha-d"><span>Valor</span><b>${PRECO}/mês</b></div>
+   <div class="linha-d"><span>Grátis até</span><b>${dataBR(ga)}</b></div>
+   ${m.pago_ate?`<div class="linha-d"><span>Pago até</span><b>${dataBR(m.pago_ate+"T12:00:00")}</b></div>`:""}
+   <p class="ajuda" style="margin-top:8px">${gratis?"Você está nos <b>3 meses grátis</b>.":pago?"Plano em dia. Obrigado!":"O período grátis acabou. Pague pelo Pix e mande o comprovante pelo WhatsApp do Vitrine."}</p>
+   ${WA_ADM?`<a class="btn" style="background:#25D366;color:#073b1c" href="https://wa.me/${WA_ADM}?text=${encodeURIComponent("Olá! Sou o motoboy "+m.nome+" do Vitrine Castro e quero falar sobre o plano de "+PRECO+"/mês.")}" target="_blank" rel="noopener">💬 Falar com o Vitrine</a>`:""}</div>
+  <button class="btn claro" onclick="sairDaLista()" style="color:#a30d12">Sair da lista de motoboys</button>`}
+async function mudarStatus(livre){if(moto.livre===livre)return;const ant=moto.livre;moto.livre=livre;moto.status_em=new Date().toISOString();telaPainel();
+  try{if(DEMO)store.set("vc_demo_motoboy",moto);
+    else{const {data,error}=await db.from("motoboys").update({livre}).eq("id",moto.id).select().single();if(error)throw error;moto=data}
+    toast(livre?"🟢 Você está LIVRE":"🔴 Você está OCUPADO");telaPainel()}
+  catch(e){moto.livre=ant;telaPainel();toast(traduzErro(e))}}
+function editar(){$("#main").innerHTML=`<div class="card"><h2>✏️ Meus dados</h2><form onsubmit="salvar(event,false)">${formHTML(moto)}<button class="btn ouro" id="mBtn">Salvar</button><div class="erro" id="mErro"></div></form></div><button class="btn claro" onclick="telaPainel()">← Voltar</button>`}
+let _saida=0;
+async function sairDaLista(){if(Date.now()-_saida>4000){_saida=Date.now();toast("Toque de novo para confirmar: seu cadastro será apagado.");return}
+  try{if(DEMO)localStorage.removeItem("vc_demo_motoboy");else{const {error}=await db.from("motoboys").delete().eq("id",moto.id);if(error)throw error}
+    moto=null;toast("Seu nome saiu da lista.");DEMO?telaBoasVindas():telaCadastro()}catch(e){toast(traduzErro(e))}}
+async function sair(){if(DEMO){telaBoasVindas();return}await db.auth.signOut();user=null;moto=null;$("#btnSair").classList.add("escondido");telaBoasVindas()}
+iniciar();
+</script>
+</body>
+</html>

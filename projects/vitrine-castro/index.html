@@ -592,6 +592,27 @@ body.travado{overflow:hidden}
 .st-h{font-size:.78rem;color:var(--txt-2);margin:4px 0 0}
 img[data-logo]{object-fit:contain!important;background:#fff;padding:10%}
 img[data-logo].lg-ok{object-fit:cover!important;padding:0!important;background:none}
+.mb-cab{display:flex;align-items:center;gap:12px;background:radial-gradient(130% 150% at 0% 0%,#2b2210 0%,#000 58%);color:#fff;border-radius:var(--raio-g);padding:14px;margin:12px 0;border:1px solid rgba(212,165,55,.5)}
+.mb-cab .mb-ic{width:50px;height:50px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--ouro-2),var(--ouro));color:#000;flex-shrink:0}
+.mb-cab div{flex:1;min-width:0}.mb-cab b{display:block;font-size:1.1rem}.mb-cab small{display:block;color:#ddd;font-size:.84rem}
+.mb-at{width:44px;height:44px;border-radius:12px;border:1px solid rgba(212,165,55,.5);background:rgba(255,255,255,.06);color:var(--ouro-2);display:grid;place-items:center;cursor:pointer;flex-shrink:0}
+.mb-filtro{display:flex;gap:6px;background:#e6e6ea;border-radius:12px;padding:4px;margin-bottom:12px}
+.mb-filtro button{flex:1;min-height:44px;border:0;border-radius:9px;background:none;font:inherit;font-weight:700;font-size:.88rem;color:var(--txt-2);cursor:pointer}
+.mb-filtro button[aria-pressed=true]{background:#000;color:var(--ouro-2)}
+.mb-lista{display:grid;gap:8px}
+.mb-lin{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:var(--raio-g);box-shadow:var(--sombra);padding:10px 12px;border-left:5px solid #13a049}
+.mb-lin.ocup{border-left-color:#d9141a}
+.mb-av{width:42px;height:42px;border-radius:50%;background:#f3f3f5;display:grid;place-items:center;font-size:1.3rem;flex-shrink:0}
+.mb-tx{flex:1;min-width:0}.mb-tx b{display:block;font-size:.98rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mb-tx b .ex{font-weight:500;color:var(--txt-3);font-size:.75rem}
+.mb-tel{display:inline-flex;align-items:center;gap:4px;font-weight:700;font-size:.95rem;color:var(--txt);text-decoration:none;font-variant-numeric:tabular-nums;margin:1px 0}
+.mb-tx small{display:block;font-size:.76rem;color:var(--txt-3)}
+.mb-st{display:inline-flex;align-items:center;gap:6px;min-width:104px;min-height:44px;justify-content:center;border-radius:12px;font:inherit;font-weight:800;font-size:.86rem;letter-spacing:.03em;text-decoration:none;border:0;cursor:pointer;flex-shrink:0}
+.mb-st .pt{width:10px;height:10px;border-radius:50%;background:#fff}
+.mb-st.livre{background:#13a049;color:#fff;box-shadow:0 3px 10px rgba(19,160,73,.35)}.mb-st.ocup{background:#d9141a;color:#fff}
+.mb-dica{text-align:center;font-size:.8rem;color:var(--txt-3);margin:10px 0 14px}
+.mb-cta{display:flex;align-items:center;gap:12px;background:#000;color:#fff;border:1.5px solid var(--ouro);border-radius:var(--raio-g);padding:12px 14px;text-decoration:none;margin-bottom:16px}
+.mb-cta .mb-ic2{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,var(--ouro-2),var(--ouro));color:#000;flex-shrink:0}
+.mb-cta span:nth-child(2){flex:1}.mb-cta b{display:block;color:var(--ouro-2)}.mb-cta small{display:block;color:#ddd;font-size:.8rem}
 </style>
 </head>
 <body>
@@ -726,6 +747,10 @@ img[data-logo].lg-ok{object-fit:cover!important;padding:0!important;background:n
 </section>
 
 <!-- MAIS -->
+<section class="view" id="v-motoboys" aria-label="Motoboys">
+ <div id="motoBox"></div>
+</section>
+
 <section class="view" id="v-mercado" aria-label="Vitrine Mercado">
  <div id="mercBox"></div>
 </section>
@@ -1027,6 +1052,7 @@ function renderHome(){
   const ncup=store.get("gira_cupons",[]).length,at=[
     ["ofertas","tag","Ofertas","filtrarCat(null)","",""],
     ["merc","merc","Mercado","ir('mercado')","PREÇOS","ouro"],
+    ["moto","truck","Motoboys","ir('motoboys')","",""],
     ["cupons","ticket","Cupons","ir('cupons')",ncup?String(ncup):"","verde"],
     ["lojas","store","Lojas","ir('empresas')","",""],
     ["vip","crown","Vitrine VIP","abrir('vip')",vipOn?"ATIVO":"R$ 9,90","ouro"],
@@ -1107,7 +1133,7 @@ function renderMais(){
   $("#maisPts").innerHTML=`${ic("star",20)}<span><b>${fmt(pt.saldo)} pontos</b> · nível ${nv.nome}</span>${ic("chev",18)}`;
   const nb=avisosNovos();
   $("#maisLista").innerHTML=
-   `<div class="grupo">${itemHTML("home","Início","ir('inicio')")}${itemHTML("tag","Todas as ofertas","filtrarCat(null)")}${itemHTML("store","Lojas parceiras","ir('empresas')")}${itemHTML("merc","Vitrine Mercado","ir('mercado')",{sub:"Compare os preços dos supermercados"})}${itemHTML("help","Como usar o app","abrir('ajuda')")}</div>
+   `<div class="grupo">${itemHTML("home","Início","ir('inicio')")}${itemHTML("tag","Todas as ofertas","filtrarCat(null)")}${itemHTML("store","Lojas parceiras","ir('empresas')")}${itemHTML("merc","Vitrine Mercado","ir('mercado')",{sub:"Compare os preços dos supermercados"})}${itemHTML("truck","Motoboys","ir('motoboys')",{sub:"Veja quem está livre para entrega"})}${itemHTML("help","Como usar o app","abrir('ajuda')")}</div>
     <div class="grupo-tit">Minha atividade</div>
     <div class="grupo">${itemHTML("ticket","Meus cupons","ir('cupons');segCupons('c')",{cont:ncup})}${itemHTML("heart","Favoritos","ir('cupons');segCupons('f')",{cont:0,sub:nfav?nfav+" salvo"+(nfav>1?"s":""):""})}${itemHTML("gift","Pontos e brindes","ir('pontos')",{sub:fmt(pt.saldo)+" pontos"})}${itemHTML("bell","Notificações","abrir('notifs')",{cont:nb})}</div>
     <div class="grupo-tit">Minha conta</div>
@@ -1146,8 +1172,8 @@ function mascara(i){let v=i.value.replace(/\D/g,"").slice(0,11);i.value=v.length
 /* ===================================================================
    NAVEGAÇÃO ENTRE TELAS
    =================================================================== */
-const TITULOS={mercado:"Vitrine Mercado",categorias:"Categorias",ofertas:"Ofertas",empresas:"Lojas parceiras",negocios:"Escolha seu plano",cupons:"Meus cupons",pontos:"Pontos e brindes"};
-const NAV_DE={inicio:"inicio",mercado:"inicio",ofertas:"inicio",categorias:"categorias",cupons:"cupons",pontos:"pontos",mais:"mais",perfil:"mais",empresas:"mais",negocios:"mais"};
+const TITULOS={motoboys:"Motoboys",mercado:"Vitrine Mercado",categorias:"Categorias",ofertas:"Ofertas",empresas:"Lojas parceiras",negocios:"Escolha seu plano",cupons:"Meus cupons",pontos:"Pontos e brindes"};
+const NAV_DE={inicio:"inicio",mercado:"inicio",motoboys:"inicio",ofertas:"inicio",categorias:"categorias",cupons:"cupons",pontos:"pontos",mais:"mais",perfil:"mais",empresas:"mais",negocios:"mais"};
 let VIEW="inicio";
 function ir(v,{voltando=false}={}){
   if(!document.getElementById("v-"+v))v="inicio";
@@ -1158,7 +1184,7 @@ function ir(v,{voltando=false}={}){
   $("#topo").dataset.modo=v==="inicio"?"home":(v==="mais"||v==="perfil")?"nada":"sub";
   $("#subTit").textContent=TITULOS[v]||"Vitrine";
   if(v==="ofertas"&&!$("#q").value)renderTodas();
-  if(v==="mais")renderMais();if(v==="perfil")renderPerfil();if(v==="mercado")renderMercado();
+  if(v==="mais")renderMais();if(v==="perfil")renderPerfil();if(v==="mercado")renderMercado();if(v==="motoboys")renderMotoboys();else clearInterval(window._motoT);
   pintarIcones();observarCards();
   window.scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
   try{history.replaceState(null,"",v==="inicio"?location.pathname:"#"+v)}catch(e){}
@@ -1635,6 +1661,34 @@ function mercRodape(){return `<div class="merc-leg"><p>${ic("crown",16)}<span><b
 function mostrarLogosMercado(){const box=document.getElementById("cmLogos");if(!box)return;
   carregarMercado().then(M=>{const l=((M&&M.mercados)||[]).filter(m=>mercImg(m.logo_url)).slice(0,6);
     box.innerHTML=l.map(m=>`<span class="cm-lg"><img src="${esc(m.logo_url)}" alt="${esc(m.nome)}" data-logo="r"></span>`).join("");box.hidden=!l.length;enquadrarLogos(box)}).catch(()=>{})}
+// ===== MOTOBOYS: lista com nome, telefone e LIVRE (verde) / OCUPADO (vermelho) =====
+// demonstração: nomes e números fictícios (nunca de pessoas reais)
+const MOTO_EXEMPLO=[{id:"mx1",nome:"Motoboy Exemplo 1",telefone:"42900000001",bairro:"Centro",livre:true,exemplo:true},{id:"mx2",nome:"Motoboy Exemplo 2",telefone:"42900000002",bairro:"Vila Rio Branco",livre:false,exemplo:true},
+  {id:"mx3",nome:"Motoboy Exemplo 3",telefone:"42900000003",bairro:"Todos os bairros",livre:true,exemplo:true},{id:"mx4",nome:"Motoboy Exemplo 4",telefone:"42900000004",bairro:"",livre:false,exemplo:true}];
+let MOTO_FILTRO="todos";
+const telMoto=t=>{const d=String(t||"").replace(/\D/g,"");return d.length===11?`(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`:d.length===10?`(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`:d};
+const haMin=iso=>{if(!iso)return"";const s=Math.max(0,(Date.now()-new Date(iso).getTime())/1000);return s<90?"agora":s<3600?"há "+Math.round(s/60)+" min":s<86400?"há "+Math.round(s/3600)+" h":"há "+Math.round(s/86400)+" dia"+(s<172800?"":"s")};
+async function carregarMotos(){
+  if(MODO_DEMO){const eu=store.get("vc_demo_motoboy",null);return [...(eu?[{...eu,eu:true}]:[]),...MOTO_EXEMPLO.map((m,i)=>({...m,status_em:new Date(Date.now()-(i*13+4)*60000).toISOString()}))]}
+  const db=dbc();if(!db)throw new Error("sem conexão");
+  const {data,error}=await db.from("motoboys").select("id,nome,telefone,bairro,livre,status_em").eq("aprovado",true);if(error)throw error;return data||[]}
+async function renderMotoboys(){const box=$("#motoBox");if(!box)return;
+  const cab=`<div class="mb-cab"><span class="mb-ic">${ic("truck",30)}</span><div><b>Motoboys de Castro</b><small>Veja quem está livre e chame no WhatsApp</small></div><button class="mb-at" onclick="renderMotoboys()" aria-label="Atualizar a lista">${ic("history",18)}</button></div>`;
+  if(!box.innerHTML)box.innerHTML=cab+`<div class="merc-vazio">Carregando…</div>`;
+  let l;try{l=await carregarMotos()}catch(e){box.innerHTML=cab+`<div class="merc-vazio"><span class="e">🛵</span><b>Não foi possível carregar a lista.</b><p>Confira a internet e tente de novo.</p></div>`+motoRodape();pintarIcones(box);return}
+  l.sort((a,b)=>(b.livre-a.livre)||String(a.nome).localeCompare(String(b.nome),"pt-BR"));
+  const livres=l.filter(m=>m.livre).length,vis=MOTO_FILTRO==="livres"?l.filter(m=>m.livre):l;
+  box.innerHTML=cab+`<div class="mb-filtro" role="group" aria-label="Filtrar"><button type="button" aria-pressed="${MOTO_FILTRO==="todos"}" onclick="MOTO_FILTRO='todos';renderMotoboys()">Todos (${l.length})</button><button type="button" aria-pressed="${MOTO_FILTRO==="livres"}" onclick="MOTO_FILTRO='livres';renderMotoboys()">🟢 Só livres (${livres})</button></div>
+   ${vis.length?`<div class="mb-lista">${vis.map(m=>{const d=String(m.telefone||"").replace(/\D/g,""),wa="55"+d,msg="Olá! Vi você na lista de motoboys do Vitrine Castro. Está livre para uma entrega?";
+     return `<div class="mb-lin${m.livre?"":" ocup"}"><span class="mb-av" aria-hidden="true">🛵</span>
+      <div class="mb-tx"><b>${esc(m.nome)}${m.exemplo?' <small class="ex">(exemplo)</small>':""}${m.eu?' <small class="ex">(você)</small>':""}</b><a class="mb-tel" href="tel:+${esc(wa)}">${ic("phone",14)}${esc(telMoto(d))}</a>
+       <small>${m.bairro?esc(m.bairro)+" · ":""}${m.livre?"livre":"ocupado"} ${esc(haMin(m.status_em))}</small></div>
+      ${m.livre?`<a class="mb-st livre" href="https://wa.me/${esc(wa)}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener" aria-label="${esc(m.nome)} está livre: chamar no WhatsApp"><span class="pt"></span>LIVRE</a>`
+       :`<button type="button" class="mb-st ocup" onclick="toast('${esc(m.nome).replace(/'/g,"")} está em entrega agora. Escolha um motoboy livre ou ligue mais tarde.')" aria-label="${esc(m.nome)} está ocupado"><span class="pt"></span>OCUPADO</button>`}</div>`}).join("")}</div>`
+     :`<div class="merc-vazio"><span class="e">🛵</span><b>${l.length?"Nenhum motoboy livre agora.":"Ainda não há motoboys na lista."}</b><p>${l.length?"Veja todos ou tente daqui a pouco.":"Em breve os motoboys de Castro aparecem aqui."}</p></div>`}
+   <p class="mb-dica">🟢 Toque em <b>LIVRE</b> para chamar no WhatsApp. A lista se atualiza sozinha.</p>`+motoRodape();
+  pintarIcones(box);clearInterval(window._motoT);window._motoT=setInterval(()=>{if(VIEW==="motoboys"&&!document.hidden)renderMotoboys()},45000)}
+function motoRodape(){return `<a class="mb-cta" href="motoboy.html"><span class="mb-ic2">${ic("truck",22)}</span><span><b>É motoboy? Coloque seu nome aqui</b><small>R$ 19,90/mês · os 3 primeiros meses grátis</small></span>${ic("chev",18)}</a>`}
 function queroMercado(){try{localStorage.setItem("vc_ramo_desejado",JSON.stringify("Mercado"))}catch(e){}}
 function compartilharMercado(){const url=linkSite()+"#mercado",txt="🛒 Vitrine Mercado: compare os preços dos supermercados de Castro nesta semana! 👉 "+url;
   if(navigator.share){navigator.share({title:"Vitrine Mercado",text:txt}).catch(()=>{});return}window.open("https://wa.me/?text="+encodeURIComponent(txt),"_blank","noopener")}
@@ -1711,7 +1765,7 @@ async function iniciarApp(){
   })();
   await Promise.race([tarefas,limite]);
   const falta=Math.max(0,2000-(performance.now()-SPLASH_T0));setTimeout(fecharSplash,falta);   // 2 s: tempo para a juba aparecer girando
-  const h0=location.hash.slice(1);if(["ofertas","empresas","cupons","perfil","pontos","categorias","mais","negocios","mercado"].includes(h0))ir(h0);
+  const h0=location.hash.slice(1);if(["ofertas","empresas","cupons","perfil","pontos","categorias","mais","negocios","mercado","motoboys"].includes(h0))ir(h0);
 }
 iniciarApp();
 </script>

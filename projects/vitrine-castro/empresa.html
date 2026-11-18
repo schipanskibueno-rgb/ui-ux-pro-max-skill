@@ -95,6 +95,8 @@ textarea.inp{min-height:90px;resize:vertical}
 .hr-chave span{display:flex;align-items:center;gap:8px;flex:1}.hr-chave small{font-size:.75rem;font-weight:800;border-radius:20px;padding:2px 8px}
 .hr-chave small.on{background:#dff5e7;color:#0d6b31}.hr-chave small.no{background:#fde4e4;color:#a30d12;display:none}.hr-fds.off small.on{display:none}.hr-fds.off small.no{display:inline}
 .hr-h{margin-top:6px}
+.moto-link{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid #e6dcc0;border-radius:14px;padding:10px 12px;margin-bottom:14px;text-decoration:none;color:inherit;font-size:1.4rem;min-height:56px}
+.moto-link span:nth-child(1){flex:1}.moto-link b{display:block;font-size:.92rem}.moto-link small{display:block;font-size:.78rem;color:var(--cinza)}.moto-link>span:last-child{font-size:1.3rem;color:#9a7414}
 .mp-topo{display:flex;flex-wrap:wrap;align-items:center;gap:12px}.mp-topo>.btn{flex-basis:100%}
 .mp-logo{width:96px;height:64px;border-radius:12px;background:#fff;border:1.5px solid #e6dcc0;display:grid;place-items:center;font-size:2rem;overflow:hidden;flex-shrink:0}
 .mp-logo img{width:100%;height:100%;object-fit:contain;padding:4px}
@@ -477,6 +479,7 @@ function telaPainelMercado(){
    <div class="mp-id"><small>ÁREA DO MERCADO</small><h2>${esc(empresa.nome)}</h2><span class="status ${empresa.aprovada?"ok":"pend"}">${empresa.aprovada?"✓ Aprovado":"Em análise"}</span>${DEMO?"":` <span class="status pausa">Plano ${pl.nome}</span>`}</div>
    <button class="btn claro" onclick="editarEmpresa()">✏️ Editar dados e logo</button></div>
   <div class="mp-passos" id="mpPassos">${passosMerc()}</div>
+  <a class="moto-link" href="./#motoboys">🛵 <span><b>Precisa de motoboy?</b><small>Veja quem está livre e chame no WhatsApp</small></span><span aria-hidden="true">›</span></a>
   <div class="abas-p" role="tablist">${abas.map(([k,n])=>`<button role="tab" aria-selected="${ABA_M===k}" onclick="ABA_M='${k}';telaPainel()">${n}</button>`).join("")}</div>
   ${ABA_M==="mais"?`<div class="chips mp-sub">${[["resultados","📊 Resultados"],["confirmar","✅ Confirmar compra"],["brindes","🎁 Brindes"],["plano","💼 Meu plano"]].map(([k,n])=>`<button type="button" aria-pressed="${ABA===k}" onclick="ABA='${k}';telaPainel()">${n}</button>`).join("")}</div>`:""}
   <div id="abaBox"></div><div id="admBox"></div>`;
@@ -502,6 +505,7 @@ function telaPainel(){
     <div class="nums"><span><b>${ofertas.length}</b>posts</span><span><b>${ativas}</b>no ar</span>${DEMO?"":`<span><b>${pl.lim}</b>limite</span>`}</div></div></div>
    <button class="btn claro" onclick="editarEmpresa()">✏️ Editar perfil da loja</button></div>
   <button class="postar" onclick="novoPost()"><span class="mais" aria-hidden="true">+</span><span><b>Postar oferta</b><small>Escolha a foto, escreva e publique. Leva 30 segundos.</small></span></button>
+  <a class="moto-link" href="./#motoboys">🛵 <span><b>Precisa de motoboy?</b><small>Veja quem está livre e chame no WhatsApp</small></span><span aria-hidden="true">›</span></a>
   <div class="abas-p" role="tablist">${[["resultados","📊 Resultados"],...(empresa.ramo==="Mercado"?[["mercado","🛒 Preços da semana"]]:[]),["posts","📸 Meus posts"],["confirmar","✅ Confirmar compra"],["brindes","🎁 Brindes"],["plano","💼 Meu plano"]].map(([k,n])=>`<button role="tab" aria-selected="${ABA===k}" onclick="ABA='${k}';telaPainel()">${n}</button>`).join("")}</div>
   <div id="abaBox"></div>
   <div id="admBox"></div>`;

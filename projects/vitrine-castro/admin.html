@@ -752,7 +752,42 @@ function baixarClientes(){const cel=v=>{let s=String(v??"");if(/^[=+\-@\t\r]/.te
   const linhas=[["Nome","WhatsApp","Data do cadastro","Aceita ofertas no WhatsApp","Vitrine VIP"]].concat(listaClientes().map(c=>[c.nome,fmtTel(c.whatsapp),new Date(c.criado_em).toLocaleDateString("pt-BR"),c.ofertas?"Sim":"Não",c.vip?(c.vip.st==="vencido"?"Vencido":"Até "+dataBR(c.vip.vence)):"Não"]));
   const csv="﻿"+linhas.map(l=>l.map(cel).join(";")).join("\r\n"),a=document.createElement("a");
   a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="vitrine-castro-clientes-"+hojeISO()+".csv";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
-function navAdm(a){return `<div class="abas-p nav-adm" role="tablist"><button role="tab" aria-selected="${a==="emp"}" onclick="painelAdmin(false)">🏪 Empresas</button><button role="tab" aria-selected="${a==="cli"}" onclick="telaClientes(${a==="cli"})">👥 Clientes</button><button role="tab" aria-selected="${a==="fin"}" onclick="telaFinanceiro(${a==="fin"})">💰 Financeiro</button><button role="tab" aria-selected="${a==="merc"}" onclick="telaMercadoAdm()">🛒 Mercado</button></div>`}
+function navAdm(a){return `<div class="abas-p nav-adm" role="tablist"><button role="tab" aria-selected="${a==="emp"}" onclick="painelAdmin(false)">🏪 Empresas</button><button role="tab" aria-selected="${a==="cli"}" onclick="telaClientes(${a==="cli"})">👥 Clientes</button><button role="tab" aria-selected="${a==="fin"}" onclick="telaFinanceiro(${a==="fin"})">💰 Financeiro</button><button role="tab" aria-selected="${a==="merc"}" onclick="telaMercadoAdm()">🛒 Mercado</button><button role="tab" aria-selected="${a==="moto"}" onclick="telaMotoboysAdm()">🛵 Motoboys</button></div>`}
+// ===== MOTOBOYS (ADM): aprovar, suspender, marcar pagamento, excluir =====
+const MOTO_PRECO="R$ 19,90";
+const telM=t=>{const d=String(t||"").replace(/\D/g,"");return d.length===11?`(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`:d.length===10?`(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`:d};
+const gratisAteM=m=>{const d=new Date(m.criado_em||Date.now());d.setMonth(d.getMonth()+3);return d};
+async function dadosMotos(){if(DEMO){const m=store.get("vc_demo_motoboy",null);return m?[m]:[]}
+  const {data,error}=await db.from("motoboys").select("*").order("criado_em",{ascending:false});
+  if(error)throw new Error(/does not exist|relation|schema cache/i.test(error.message||"")?"Para usar os Motoboys, rode o supabase.sql novo no Supabase (SQL Editor).":traduzErro(error));return data||[]}
+async function telaMotoboysAdm(){ADM.detalhe=null;const box=alvoAdmin();box.innerHTML=navAdm("moto")+`<div class="vazio"><span class="e">⏳</span>Carregando motoboys…</div>`;
+  let l;try{l=await dadosMotos()}catch(e){box.innerHTML=navAdm("moto")+`<div class="aviso">${esc(e.message)}</div>`;return}window._motos=l;
+  const hoje=new Date(),pend=l.filter(m=>!m.aprovado),livres=l.filter(m=>m.aprovado&&m.livre).length;
+  const venc=m=>{const g=gratisAteM(m);if(g>hoje)return {t:"Grátis até "+g.toLocaleDateString("pt-BR"),c:"ok"};if(m.pago_ate&&new Date(m.pago_ate+"T23:59:59")>=hoje)return {t:"Pago até "+new Date(m.pago_ate+"T12:00:00").toLocaleDateString("pt-BR"),c:"ok"};return {t:"⚠️ Mensalidade vencida",c:"pend"}};
+  box.innerHTML=navAdm("moto")+`<div class="card" style="border:2px solid var(--ouro)"><h2>🛵 Motoboys</h2><p class="sub"><b>${l.length}</b> cadastrado${l.length===1?"":"s"} · <b>${livres}</b> livre${livres===1?"":"s"} agora · <b>${pend.length}</b> esperando aprovação. Plano: <b>${MOTO_PRECO}/mês</b>, 3 primeiros meses grátis.</p>
+    <div class="linha" style="margin-top:8px"><a class="btn claro" href="index.html#motoboys" style="text-decoration:none;display:flex;align-items:center;justify-content:center">👀 Ver a lista no app</a><a class="btn claro" href="motoboy.html" style="text-decoration:none;display:flex;align-items:center;justify-content:center">🛵 Área do Motoboy</a></div></div>
+   ${l.length?l.map(m=>{const v=venc(m),z=String(m.telefone||"").replace(/\D/g,"");return `<div class="card" style="padding:12px 14px">
+     <div style="display:flex;gap:10px;align-items:center"><span style="font-size:1.6rem" aria-hidden="true">🛵</span><div style="flex:1;min-width:0"><b>${esc(m.nome)}</b> <span class="status ${m.aprovado?"ok":"pend"}">${m.aprovado?"✓ Na lista":"Em análise"}</span>
+      <p class="ajuda" style="margin:2px 0 0">${esc(telM(m.telefone))}${m.bairro?" · "+esc(m.bairro):""} · ${m.livre?"🟢 livre":"🔴 ocupado"} · <span class="status ${v.c}" style="font-size:.74rem;padding:2px 8px">${v.t}</span></p></div></div>
+     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
+      ${m.aprovado?`<button class="mini" onclick="motoAdm('${esc(m.id)}',{aprovado:false})">⏸ Tirar da lista</button>`:`<button class="mini ou" onclick="motoAdm('${esc(m.id)}',{aprovado:true})">✓ Aprovar</button>`}
+      <button class="mini" onclick="motoPago('${esc(m.id)}')">💳 Registrar pagamento</button>
+      ${z?`<a class="mini" style="display:inline-flex;align-items:center;text-decoration:none;background:#dff5e7;color:#0d6b31" href="https://wa.me/55${esc(z)}" target="_blank" rel="noopener">💬 WhatsApp</a>`:""}
+      <button class="mini vm" onclick="motoApagar('${esc(m.id)}')" aria-label="Excluir ${esc(m.nome)}">🗑</button></div></div>`}).join("")
+   :`<div class="vazio"><span class="e">🛵</span>Nenhum motoboy ainda. Mande o link da <b>Área do Motoboy</b> (motoboy.html) para os motoboys de Castro.</div>`}`}
+async function motoAdm(id,campos){
+  if(DEMO){const m=store.get("vc_demo_motoboy",null);if(m&&String(m.id)===String(id)){Object.assign(m,campos);store.set("vc_demo_motoboy",m)}}
+  else{const {error}=await db.from("motoboys").update(campos).eq("id",id);if(error){toast(traduzErro(error));return}}
+  toast("✅ Atualizado");telaMotoboysAdm()}
+function motoPago(id){const m=(window._motos||[]).find(x=>String(x.id)===String(id));if(!m)return;
+  const base=m.pago_ate&&new Date(m.pago_ate+"T12:00:00")>gratisAteM(m)?new Date(m.pago_ate+"T12:00:00"):new Date(Math.max(Date.now(),gratisAteM(m).getTime()));base.setMonth(base.getMonth()+1);
+  abrirSheet(`<h2 style="margin-top:8px">💳 Pagamento de ${esc(m.nome)}</h2><p class="sub">Recebeu os ${MOTO_PRECO}? Marque até quando ele está pago.</p>
+   <label for="mpAte">Pago até</label><input class="inp" id="mpAte" type="date" value="${base.toLocaleDateString("sv-SE")}">
+   <button class="btn ouro" onclick="motoAdm('${esc(m.id)}',{pago_ate:$('#mpAte').value||null});fechar()">💾 Salvar</button>`)}
+async function motoApagar(id){const m=(window._motos||[]).find(x=>String(x.id)===String(id));
+  if(!await confirmarTela("Excluir "+esc(m?m.nome:"motoboy")+"?","O nome e o telefone saem da lista. O motoboy pode se cadastrar de novo depois.",{botao:"🗑 Excluir"}))return;
+  if(DEMO)localStorage.removeItem("vc_demo_motoboy");else{const {error}=await db.from("motoboys").delete().eq("id",id);if(error){toast(traduzErro(error));return}}
+  toast("🗑 Motoboy excluído");telaMotoboysAdm()}
 // ===== VITRINE MERCADO (ADM): produtos da tabela e quem atualizou os preços =====
 const MERC_PROD_DEMO=[["p1","Coca-Cola","2 litros","🥤","img/produtos/coca-cola.jpg"],["p2","Toddy","400 g","🍫","img/produtos/toddy.jpg"],["p3","Sabão em pó OMO","1,6 kg","🧺","img/produtos/omo.jpg"],
   ["p4","Bombril","8 unidades","🧽","img/produtos/bombril.jpg"],["p5","Detergente Ypê","500 ml","🧴","img/produtos/ype.jpg"],["p6","Açúcar União","5 kg","🍬","img/produtos/acucar-uniao.jpg"],["p7","Feijão Tio Danga","1 kg","🫘","img/produtos/feijao-tio-danga.jpg"]];
